@@ -4,6 +4,9 @@
 > **Plataforma:** Motor Analítico de Series Temporales y Visualizador Geoespacial 3D  
 > **Monorrepo:** Backend .NET 10 (Clean Architecture & DuckDB) + Frontend React 19 + Three.js + Docker
 
+👉 **🌐 Demo en Vivo (Vercel Edge):** [https://nasa-earth-trend-detective.vercel.app/](https://nasa-earth-trend-detective.vercel.app/)  
+👉 **📡 API en Vivo (Render Cloud):** [https://nasa-trend-detective-api.onrender.com/health](https://nasa-trend-detective-api.onrender.com/health)
+
 ---
 
 ## 👥 Estructura del Equipo y Roles Oficiales

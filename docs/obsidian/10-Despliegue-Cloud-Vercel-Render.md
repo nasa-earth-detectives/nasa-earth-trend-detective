@@ -4,6 +4,16 @@ Volver al [[00-Map-Of-Content]] | Ver contenedores en [[08-Contenedores-Docker]]
 
 ---
 
+## 🌐 URLs Oficiales de Producción (Verificadas)
+
+| Componente | Plataforma Cloud | URL Pública Oficial | Estado |
+| :--- | :--- | :--- | :---: |
+| **Frontend Web 3D** | **Vercel Edge** | [https://nasa-earth-trend-detective.vercel.app/](https://nasa-earth-trend-detective.vercel.app/) | ✅ 200 OK |
+| **Backend REST API** | **Render Web Service** | [https://nasa-trend-detective-api.onrender.com](https://nasa-trend-detective-api.onrender.com) | ✅ 200 OK |
+| **Health Check** | **Render Cloud** | [https://nasa-trend-detective-api.onrender.com/health](https://nasa-trend-detective-api.onrender.com/health) | ✅ 200 OK (Healthy) |
+
+---
+
 ## 🎯 1. Arquitectura de Despliegue Serverless & Contenedor
 
 La arquitectura de producción está distribuida para obtener máxima velocidad global en CDN y procesamiento analítico de alta densidad:
