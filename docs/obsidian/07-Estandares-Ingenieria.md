@@ -16,10 +16,14 @@ Volver al [[00-Map-Of-Content]]
 - Todo servicio externo, puerto o configuración debe consumirse mediante variables de entorno (`.env`) y tiparse en archivos de configuración centralizados.
 - Usar Enums fuertemente tipados (C# Backed Enums / TypeScript Enums) para estados y roles.
 
-### 3. Blindaje Anti-Bots y Seguridad Perimetral
-- Endpoints de API protegidos con Rate Limiting por IP.
-- Validación perimetral de cabeceras `User-Agent`.
-- Trampas Honeypot invisibles en formularios públicos.
+### 3. Blindaje Anti-Bots y Seguridad Perimetral (Regla 8)
+- **Rate Limiting Nativo por IP (`Microsoft.AspNetCore.RateLimiting`):**
+  - **Límite Global:** 300 peticiones por minuto por IP (holgura para navegación y carga de celdas 3D).
+  - **Límite Estricto en Análisis Pesados (`HeavyAnalysis`):** 60 peticiones por minuto por IP para endpoints de cálculo de Mann-Kendall y Sen's Slope.
+  - **Respuesta 429 Estandarizada:** Rechazo en microsegundos con código HTTP `429 Too Many Requests` y payload JSON estructurado.
+- **Validación Perimetral de Cabeceras:** Exigencia de cabecera `User-Agent` obligatoria (> 3 caracteres). Bloqueo de scanners maliciosos conocidos (`sqlmap`, `nikto`, `masscan`, `wpscan`, `zgrab`, `nmap`) con `403 Forbidden`.
+- **Trampas Honeypot Invisibles:** Campo invisible `X-Honeypot-Token` que aborta con `400 Bad Request` antes de procesar transacciones.
+- **Defensa Anti-Slowloris:** Timeout de 15 segundos por petición para evitar que conexiones lentas congelen sockets del servidor.
 
 ### 4. Cobertura de Pruebas Unitarias
 - Toda lógica matemática (Mann-Kendall, Sen's Slope, Z-Scores) debe contar con tests unitarios automatizados contra datos de control oficiales de la NASA.

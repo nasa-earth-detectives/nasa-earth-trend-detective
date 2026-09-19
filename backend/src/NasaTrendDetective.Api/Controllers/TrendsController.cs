@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using NasaTrendDetective.Application.DTOs;
 using NasaTrendDetective.Application.Interfaces;
 using NasaTrendDetective.Domain.Enums;
@@ -17,6 +18,7 @@ public class TrendsController : ControllerBase
     }
 
     [HttpGet]
+    [EnableRateLimiting("HeavyAnalysis")]
     public async Task<IActionResult> GetTrends([FromQuery] TrendQueryDto query)
     {
         var results = await _trendService.AnalyzeTrendsAsync(query);
