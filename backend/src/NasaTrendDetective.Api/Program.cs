@@ -1,6 +1,17 @@
+using NasaTrendDetective.Api.Middlewares;
+using NasaTrendDetective.Application.Implements;
+using NasaTrendDetective.Application.Interfaces;
+using NasaTrendDetective.Infrastructure.Implements;
+using NasaTrendDetective.Infrastructure.Interfaces;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Configurar CORS para permitir requests desde el frontend Vite (local y contenedor)
+// 1. Inyección de Dependencias (Servicios y Repositorios)
+builder.Services.AddControllers();
+builder.Services.AddScoped<ITrendAnalysisService, TrendAnalysisService>();
+builder.Services.AddScoped<IDuckDbRepository, DuckDbRepository>();
+
+// 2. Configuración de CORS
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
@@ -13,23 +24,10 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+// 3. Pipeline HTTP y Middlewares
 app.UseCors("AllowFrontend");
+app.UseMiddleware<BotDetectionMiddleware>();
 
-// Endpoints de salud para Docker, Kubernetes y monitoreo
-app.MapGet("/health", () => Results.Ok(new
-{
-    status = "Healthy",
-    service = "NASA Earth System Trend Detective API",
-    version = "1.0.0",
-    timestamp = DateTime.UtcNow
-}));
-
-app.MapGet("/api/health", () => Results.Ok(new
-{
-    status = "Healthy",
-    service = "NASA Earth System Trend Detective API",
-    version = "1.0.0",
-    timestamp = DateTime.UtcNow
-}));
+app.MapControllers();
 
 app.Run();
