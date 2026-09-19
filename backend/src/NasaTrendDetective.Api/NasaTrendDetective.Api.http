@@ -1,0 +1,6 @@
+@NasaTrendDetective.Api_HostAddress = http://localhost:5163
+
+GET {{NasaTrendDetective.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

@@ -8,7 +8,10 @@
     "packages/*"
   ],
   "scripts": {
-    "dev": "npm run dev --workspace=frontend",
+    "dev": "npm run dev:local",
+    "dev:local": "node scripts/run-local.js",
+    "dev:frontend": "npm run dev --workspace=frontend",
+    "dev:backend": "dotnet run --project backend/src/NasaTrendDetective.Api",
     "build": "npm run build --workspaces --if-present",
     "lint": "npm run lint --workspaces --if-present",
     "test": "npm run test --workspaces --if-present",

@@ -31,8 +31,9 @@ El sistema ambiental interconectado de la Tierra se encuentra en constante trans
 
 ---
 
-## 🐳 2. Inicio Rápido con Docker Compose
+## 🚀 2. Opciones de Ejecución
 
+### Opción A: Con Docker Compose
 Levanta todo el ecosistema (Backend API + Frontend Web) en un solo comando:
 
 ```bash
@@ -41,12 +42,24 @@ docker compose up --build
 
 - **Frontend:** [http://localhost:3000](http://localhost:3000)
 - **Backend API:** [http://localhost:5000](http://localhost:5000)
-- **Documentación Swagger:** [http://localhost:5000/swagger](http://localhost:5000/swagger)
+- **Health Check:** [http://localhost:5000/health](http://localhost:5000/health)
 
 Para detener los servicios:
 ```bash
 docker compose down
 ```
+
+### Opción B: Modo Nativo Zero-WSL (Desarrollo Local Directo)
+Si prefieres velocidad nativa con hot-reloading instantáneo o estás configurando WSL 2 en Windows:
+
+```bash
+# Iniciar Backend (.NET 10) y Frontend (React 19) en paralelo:
+npm run dev:local
+```
+
+O de forma independiente:
+- **Backend:** `npm run dev:backend` (en puerto 5000)
+- **Frontend:** `npm run dev:frontend` (en puerto 3000)
 
 ---
 

@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/NasaTrendDetective.Api/NasaTrendDetective.Api.csproj" />
+    <Project Path="src/NasaTrendDetective.Application/NasaTrendDetective.Application.csproj" />
+    <Project Path="src/NasaTrendDetective.Domain/NasaTrendDetective.Domain.csproj" />
+    <Project Path="src/NasaTrendDetective.Infrastructure/NasaTrendDetective.Infrastructure.csproj" />
+  </Folder>
+</Solution>
