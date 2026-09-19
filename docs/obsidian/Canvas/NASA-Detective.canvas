@@ -1,0 +1,111 @@
+{
+  "nodes": [
+    {
+      "id": "node-moc",
+      "type": "file",
+      "file": "00-Map-Of-Content.md",
+      "x": 0,
+      "y": 0,
+      "width": 320,
+      "height": 260
+    },
+    {
+      "id": "node-arch",
+      "type": "file",
+      "file": "01-Arquitectura-Monorrepo.md",
+      "x": -380,
+      "y": -120,
+      "width": 300,
+      "height": 240
+    },
+    {
+      "id": "node-roles",
+      "type": "file",
+      "file": "03-Roles-y-Equipo.md",
+      "x": 380,
+      "y": -120,
+      "width": 320,
+      "height": 280
+    },
+    {
+      "id": "node-sprints",
+      "type": "file",
+      "file": "04-Sprints-y-Roadmap.md",
+      "x": 380,
+      "y": 200,
+      "width": 320,
+      "height": 260
+    },
+    {
+      "id": "node-science",
+      "type": "file",
+      "file": "05-Rigor-Cientifico-MannKendall.md",
+      "x": 0,
+      "y": -340,
+      "width": 340,
+      "height": 280
+    },
+    {
+      "id": "node-docker",
+      "type": "file",
+      "file": "08-Contenedores-Docker.md",
+      "x": -380,
+      "y": 180,
+      "width": 300,
+      "height": 240
+    },
+    {
+      "id": "node-cicd",
+      "type": "file",
+      "file": "06-Pipeline-CI-CD.md",
+      "x": 0,
+      "y": 320,
+      "width": 320,
+      "height": 240
+    }
+  ],
+  "edges": [
+    {
+      "id": "edge-1",
+      "fromNode": "node-moc",
+      "fromSide": "left",
+      "toNode": "node-arch",
+      "toSide": "right"
+    },
+    {
+      "id": "edge-2",
+      "fromNode": "node-moc",
+      "fromSide": "right",
+      "toNode": "node-roles",
+      "toSide": "left"
+    },
+    {
+      "id": "edge-3",
+      "fromNode": "node-moc",
+      "fromSide": "top",
+      "toNode": "node-science",
+      "toSide": "bottom"
+    },
+    {
+      "id": "edge-4",
+      "fromNode": "node-moc",
+      "fromSide": "bottom",
+      "toNode": "node-cicd",
+      "toSide": "top"
+    },
+    {
+      "id": "edge-5",
+      "fromNode": "node-arch",
+      "fromSide": "bottom",
+      "toNode": "node-docker",
+      "toSide": "top"
+    },
+    {
+      "id": "edge-6",
+      "fromNode": "node-roles",
+      "fromSide": "bottom",
+      "toNode": "node-sprints",
+      "toSide": "top"
+    }
+  ]
+}

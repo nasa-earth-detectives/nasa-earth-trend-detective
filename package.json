@@ -1,0 +1,34 @@
+{
+  "name": "nasa-earth-system-trend-detective-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Monorrepo oficial de la plataforma NASA Earth System Trend Detective - NASA Space Apps Challenge 2026",
+  "workspaces": [
+    "apps/*",
+    "tools/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace=apps/web",
+    "build": "npm run build --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "docker:up": "docker compose up --build",
+    "docker:down": "docker compose down",
+    "sync:clickup": "npm run sync --workspace=tools/clickup-sync"
+  },
+  "keywords": [
+    "nasa",
+    "space-apps-challenge-2026",
+    "earth-science",
+    "climate-trends",
+    "mann-kendall",
+    "sens-slope",
+    "monorepo",
+    "dotnet10",
+    "react19",
+    "duckdb"
+  ],
+  "author": "Brayan Stid Cortés Lombana & Team",
+  "license": "MIT"
+}

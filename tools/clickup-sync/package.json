@@ -1,0 +1,32 @@
+{
+  "name": "nasa-clickup-sync",
+  "version": "1.0.0",
+  "description": "Automatización y sincronización de tareas del proyecto NASA Earth System Trend Detective con ClickUp API v2",
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "start": "tsx src/index.ts",
+    "dry-run": "tsx src/index.ts --dry-run",
+    "teams": "tsx src/index.ts --list-teams",
+    "sync": "tsx src/index.ts --sync",
+    "build": "tsc",
+    "type-check": "tsc --noEmit"
+  },
+  "keywords": [
+    "clickup",
+    "nasa",
+    "spaceapps",
+    "automation",
+    "project-management"
+  ],
+  "author": "bscl",
+  "license": "MIT",
+  "dependencies": {
+    "dotenv": "^16.4.7"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.9",
+    "tsx": "^4.19.3",
+    "typescript": "^5.7.3"
+  }
+}
