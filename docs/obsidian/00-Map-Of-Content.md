@@ -11,7 +11,7 @@
 Bienvenido a la bóveda central de documentación y diseño de ingeniería de nuestra plataforma de detección de tendencias biofísicas globales. Utiliza los siguientes enlaces para navegar por las especificaciones del sistema:
 
 ### 🏛️ Arquitectura & Organización
-- [[01-Arquitectura-Monorrepo]]: Estructura unificada de aplicaciones (`apps/`), herramientas (`tools/`) y paquetes (`packages/`).
+- [[01-Arquitectura-Monorrepo]]: Estructura unificada de `backend/`, `frontend/` y paquetes compartidos (`packages/`).
 - [[02-Estrategia-Git-3-Ramas]]: Protocolo estricto de ramas (`development` ➔ `qa` ➔ `production`).
 - [[03-Roles-y-Equipo]]: Perfiles técnicos y asignación de responsabilidades de los 5 participantes.
 - [[08-Contenedores-Docker]]: Guía de ejecución unificada con Docker Compose en local y staging.
