@@ -8,6 +8,13 @@ using NasaTrendDetective.Infrastructure.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Soporte dinámico para puerto en entornos Cloud (Render, Docker, Kubernetes)
+var renderPort = Environment.GetEnvironmentVariable("PORT");
+if (!string.IsNullOrWhiteSpace(renderPort))
+{
+    builder.WebHost.UseUrls($"http://*:{renderPort}");
+}
+
 // 1. Inyección de Dependencias (Servicios y Repositorios)
 builder.Services.AddControllers();
 builder.Services.AddScoped<ITrendAnalysisService, TrendAnalysisService>();
