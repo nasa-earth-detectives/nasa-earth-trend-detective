@@ -89,13 +89,20 @@ nasa-project/
 
 ---
 
-## 🌿 4. Protocolo de Ramas en Git (3 Ramas Estrictas)
+## 🌿 4. Protocolo de Ramas en Git y Despliegues en Vivo (3 Ramas Estrictas)
 
-El repositorio sigue un protocolo estricto de 3 ramas para garantizar estabilidad:
+El repositorio sigue un protocolo estricto de 3 ramas para garantizar estabilidad y previsualización continua:
 
-1. `development`: Rama de desarrollo activo donde se integran las tareas y componentes de los 5 participantes.
-2. `qa`: Rama de aseguramiento de calidad (Staging), donde el pipeline de CI/CD despliega automáticamente para pruebas de estrés.
-3. `production` (o `main`): Rama de entrega oficial para el jurado de la NASA. **Bloqueada contra commits directos; requiere pruebas previas en QA y orden explícita del equipo.**
+| Rama | Entorno en Vercel | Tipo de Despliegue | Propósito y Cómo Verlo en Vivo |
+| :--- | :--- | :--- | :--- |
+| **`production`** ⭐ | 🔵 **`Production` (Current)** | Oficial / Estable | **Demo Jurado NASA:** [nasa-earth-trend-detective.vercel.app](https://nasa-earth-trend-detective.vercel.app/) |
+| **`qa`** | 🟡 **`Preview`** | Staging / Pruebas | Generado automáticamente en cada merge a `qa`. Visible en la pestaña *Deployments* de Vercel. |
+| **`development`** | 🟡 **`Preview`** | Desarrollo Activo | Generado en cada PR o push a `development` para pruebas de los 5 participantes en navegadores reales. |
+
+> 💡 **¿Cómo abrir la versión en vivo de `development` o `qa` en Vercel?**  
+> 1. En tu panel de Vercel, ve a la pestaña **Deployments**.  
+> 2. Haz clic sobre el despliegue que tenga la etiqueta de la rama que quieres probar (`development` o `qa`).  
+> 3. En la esquina superior derecha, pulsa el botón **Visit** o copia el enlace de la sección **Domains**.
 
 ---
 

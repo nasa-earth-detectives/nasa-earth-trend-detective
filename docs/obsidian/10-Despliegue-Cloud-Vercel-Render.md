@@ -86,6 +86,16 @@ El archivo `render.yaml` define la especificación completa del servicio web:
 
 ---
 
-## 🚀 5. Flujo de Despliegue Continuo (CI/CD)
-- **Producción:** Todo Pull Request aprobado y fusionado en `production` genera un nuevo despliegue en Vercel y Render automáticamente.
-- **Previsualizaciones (Previews):** Los Pull Requests hacia `development` o `qa` generan entornos temporales de previsualización en Vercel para pruebas antes de producción.
+## 🚀 5. Flujo de Despliegue Continuo (CI/CD) y Previsualizaciones
+
+| Entorno | Rama de Origen | Tipo de Despliegue en Vercel | Propósito y Acceso |
+| :--- | :--- | :--- | :--- |
+| **Producción Oficial** | `production` | 🔵 **`Production` (Current)** | [nasa-earth-trend-detective.vercel.app](https://nasa-earth-trend-detective.vercel.app/) |
+| **Staging (QA)** | `qa` | 🟡 **`Preview`** | Pruebas de estrés y previsualización del equipo |
+| **Desarrollo Activo** | `development` | 🟡 **`Preview`** | Previsualización de Pull Requests y nuevas funciones |
+
+### 🔍 Cómo acceder a la previsualización en Vercel:
+1. Ingresa a tu panel en [Vercel Dashboard](https://vercel.com).
+2. Entra al proyecto `nasa-earth-trend-detective` y haz clic en la pestaña **Deployments**.
+3. Verás la lista de despliegues identificados con su respectiva etiqueta de rama (`production`, `qa` o `development`).
+4. Al hacer clic en cualquiera de ellos, pulsa el botón **Visit** en la esquina superior derecha para probar esa rama en vivo.
