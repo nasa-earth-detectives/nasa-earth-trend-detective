@@ -1,30 +1,30 @@
 # ==============================================================================
 # CODEOWNERS - NASA Earth System Trend Detective
-# Asignación automática de revisión por módulo para los 5 integrantes
+# Asignación automática de revisión por módulo para los subequipos de la Org
 # ==============================================================================
 
 # Gobernanza y configuración global
-*                                   @brayancortes22 @july-backend
-/.github/                           @brayancortes22 @july-backend
+*                                   @brayancortes22 @nasa-earth-detectives/backend-team
+/.github/                           @brayancortes22 @nasa-earth-detectives/backend-team
 /docs/                              @brayancortes22
 
 # Backend & API (.NET 10 Clean Architecture)
-/backend/                           @july-backend
-/backend/src/NasaTrendDetective.Api/ @july-backend
+/backend/                           @nasa-earth-detectives/backend-team @july-backend
+/backend/src/NasaTrendDetective.Api/ @nasa-earth-detectives/backend-team @july-backend
 
 # Motor de Datos, ETL Satelital y Persistencia DuckDB
-/backend/src/NasaTrendDetective.Infrastructure/ @reving-data @johan-datascience
-/data/                              @reving-data @johan-datascience
+/backend/src/NasaTrendDetective.Infrastructure/ @nasa-earth-detectives/backend-team @reving-data @johan-datascience
+/data/                              @nasa-earth-detectives/backend-team @reving-data @johan-datascience
 
 # Dominio y Algoritmos Estadísticos (Mann-Kendall, Sen's Slope)
-/backend/src/NasaTrendDetective.Domain/         @johan-datascience @reving-data
-/backend/src/NasaTrendDetective.Application/    @johan-datascience @july-backend
+/backend/src/NasaTrendDetective.Domain/         @nasa-earth-detectives/backend-team @johan-datascience @reving-data
+/backend/src/NasaTrendDetective.Application/    @nasa-earth-detectives/backend-team @johan-datascience @july-backend
 
 # Visualización 3D WebGL / Three.js / Globe.gl
-/frontend/src/components/Globe/     @diego-webgl
-/public/textures/                   @diego-webgl
-/public/models/                     @diego-webgl
+/frontend/src/components/Globe/     @nasa-earth-detectives/frontend-team @diego-webgl
+/public/textures/                   @nasa-earth-detectives/frontend-team @diego-webgl
+/public/models/                     @nasa-earth-detectives/frontend-team @diego-webgl
 
 # Frontend UI/UX (React 19, Tailwind, Controls, Pages)
-/frontend/                          @brayancortes22
-/packages/shared/                   @brayancortes22 @july-backend
+/frontend/                          @nasa-earth-detectives/frontend-team @brayancortes22
+/packages/shared/                   @nasa-earth-detectives/frontend-team @nasa-earth-detectives/backend-team

@@ -6,15 +6,21 @@
 
 ---
 
-## 👥 Equipo de Desarrollo (5 Integrantes)
+## 👥 Estructura del Equipo y Roles Oficiales
+> Para conocer la matriz de responsabilidades completa y flujos de revisión, consulta [TEAM.md](TEAM.md).
 
-| Integrante | Rol Oficial | Especialidad Técnica |
-| :--- | :--- | :--- |
-| **July** | **Lead Backend & Arquitectura** | C# .NET 10, Clean Architecture, APIs REST, Middlewares |
-| **Fabriany Medina (Reving)** | **Data & ETL Engineer** | Extracción Satelital NASA, Normalización Espacial, DuckDB OLAP |
-| **Johan Sebastian Olaya Reyes** | **Data Scientist & Matemáticas** | Test de Mann-Kendall, Estimador de Sen, Opposing Trends Engine |
-| **Diego Arias** | **3D WebGL Specialist** | Three.js, Globe.gl, Capas de Hexágonos 3D, Shaders 60 FPS |
-| **Brayan Stid Cortés Lombana (bscl)** | **Frontend Lead, UI/UX & Pitch** | React 19, Tailwind CSS, Glassmorphism, Time-Slider, Pitch NASA |
+### 🖥️ Subequipo Backend & Núcleo Científico ([@nasa-earth-detectives/backend-team](https://github.com/orgs/nasa-earth-detectives/teams/backend-team))
+| Integrante | Rol Oficial | Especialidad Técnica | Responsabilidad Monorrepo |
+| :--- | :--- | :--- | :--- |
+| **July** | **Lead Backend & Arquitectura** | C# .NET 10, Clean Architecture, APIs REST, Middlewares | `backend/src/NasaTrendDetective.Api/` |
+| **Fabriany Medina (Reving)** | **Data & ETL Engineer** | Extracción Satelital NASA, Normalización Espacial, DuckDB OLAP | `backend/src/NasaTrendDetective.Infrastructure/`, `data/` |
+| **Johan Sebastian Olaya Reyes** | **Data Scientist & Matemáticas** | Test de Mann-Kendall, Estimador de Sen, Opposing Trends Engine | `backend/src/NasaTrendDetective.Application/` |
+
+### 🎨 Subequipo Frontend & Visualización 3D ([@nasa-earth-detectives/frontend-team](https://github.com/orgs/nasa-earth-detectives/teams/frontend-team))
+| Integrante | Rol Oficial | Especialidad Técnica | Responsabilidad Monorrepo |
+| :--- | :--- | :--- | :--- |
+| **Brayan Stid Cortés Lombana (bscl)** | **Frontend Lead, UI/UX & Pitch** | React 19, Tailwind CSS, Glassmorphism, Time-Slider, Pitch NASA | `frontend/`, `packages/shared/`, `docs/` |
+| **Diego Arias** | **3D WebGL Specialist** | Three.js, Globe.gl, Capas de Hexágonos 3D, Shaders 60 FPS | `frontend/src/components/Globe/`, `public/` |
 
 ---
 

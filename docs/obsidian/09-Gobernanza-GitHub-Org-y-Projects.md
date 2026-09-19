@@ -13,7 +13,10 @@ El monorrepo está alojado oficialmente en la **Organización de GitHub**:
 ### Distribución de Roles para los 5 Participantes:
 - **Owners (2 Administradores):** Brayan Stid Cortés (@brayancortes22) y July (garantiza respaldo sin dependencia de una sola cuenta).
 - **Members (3 Integrantes):** Fabriany Medina (Reving), Johan Olaya y Diego Arias.
-- **Equipo de Desarrollo (Team):** [developers](https://github.com/orgs/nasa-earth-detectives/teams/developers) con permisos de escritura activos en el repositorio.
+- **Equipos en GitHub Organization (Teams):**
+  - [developers](https://github.com/orgs/nasa-earth-detectives/teams/developers): Todos los 5 participantes con permisos de lectura y escritura base.
+  - [backend-team](https://github.com/orgs/nasa-earth-detectives/teams/backend-team): July, Reving y Johan (Revisores CODEOWNERS de Backend, ETL y Matemáticas).
+  - [frontend-team](https://github.com/orgs/nasa-earth-detectives/teams/frontend-team): Brayan y Diego (Revisores CODEOWNERS de UI/UX, Componentes y WebGL 3D).
 
 ---
 

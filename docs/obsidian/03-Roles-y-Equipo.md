@@ -6,11 +6,20 @@ Volver al [[00-Map-Of-Content]]
 
 ## 🚀 Integrantes del Equipo
 
+### 🖥️ Subequipo Backend & Núcleo Científico
+👉 **Team GitHub:** [teams/backend-team](https://github.com/orgs/nasa-earth-detectives/teams/backend-team)
+
 | Participante | Especialidad | Stack Principal | Horas Estimadas |
 | :--- | :--- | :--- | :---: |
 | **July** | **Lead Backend & Arquitectura** | C# .NET 10, Clean Architecture, APIs, Middlewares | **25h** |
 | **Fabriany Medina (Reving)** | **Data & ETL Engineer** | Datasets NASA, DuckDB OLAP, Parquet, Pipelines | **26h** |
 | **Johan Sebastian Olaya** | **Data Scientist** | Mann-Kendall, Sen's Slope, Opposing Trends Engine | **28h** |
+
+### 🎨 Subequipo Frontend & Visualización 3D
+👉 **Team GitHub:** [teams/frontend-team](https://github.com/orgs/nasa-earth-detectives/teams/frontend-team)
+
+| Participante | Especialidad | Stack Principal | Horas Estimadas |
+| :--- | :--- | :--- | :---: |
 | **Diego Arias** | **3D WebGL Specialist** | Three.js, Globe.gl, Hexágonos 3D, Shaders 60 FPS | **25h** |
 | **Brayan Stid Cortés (bscl)** | **Frontend Lead, UI/UX & Pitch** | React 19, Tailwind CSS, Glassmorphism, Pitch | **24h** |
 
