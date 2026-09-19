@@ -1,0 +1,30 @@
+# ==============================================================================
+# CODEOWNERS - NASA Earth System Trend Detective
+# Asignación automática de revisión por módulo para los 5 integrantes
+# ==============================================================================
+
+# Gobernanza y configuración global
+*                                   @brayancortes22 @july-backend
+/.github/                           @brayancortes22 @july-backend
+/docs/                              @brayancortes22
+
+# Backend & API (.NET 10 Clean Architecture)
+/backend/                           @july-backend
+/backend/src/NasaTrendDetective.Api/ @july-backend
+
+# Motor de Datos, ETL Satelital y Persistencia DuckDB
+/backend/src/NasaTrendDetective.Infrastructure/ @reving-data @johan-datascience
+/data/                              @reving-data @johan-datascience
+
+# Dominio y Algoritmos Estadísticos (Mann-Kendall, Sen's Slope)
+/backend/src/NasaTrendDetective.Domain/         @johan-datascience @reving-data
+/backend/src/NasaTrendDetective.Application/    @johan-datascience @july-backend
+
+# Visualización 3D WebGL / Three.js / Globe.gl
+/frontend/src/components/Globe/     @diego-webgl
+/public/textures/                   @diego-webgl
+/public/models/                     @diego-webgl
+
+# Frontend UI/UX (React 19, Tailwind, Controls, Pages)
+/frontend/                          @brayancortes22
+/packages/shared/                   @brayancortes22 @july-backend

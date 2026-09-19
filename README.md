@@ -96,3 +96,12 @@ Toda la base de conocimiento está estructurada en Markdown interconectado para 
 - Abre la carpeta `docs/obsidian/` en tu aplicación de **Obsidian**.
 - Navega desde el Map of Content: `00-Map-Of-Content.md`.
 - Explora el lienzo visual interactivo: `Canvas/NASA-Detective.canvas`.
+- Revisa la guía de gobernanza y reglas de GitHub en `09-Gobernanza-GitHub-Org-y-Projects.md`.
+
+---
+
+## 🤝 6. Gobernanza de Equipo y Contribución
+
+- **Guía de Contribución:** Consulta [CONTRIBUTING.md](CONTRIBUTING.md) para conocer el protocolo de Pull Requests y commits convencionales.
+- **Asignación de Revisores:** Consulta [.github/CODEOWNERS](.github/CODEOWNERS) para identificar al responsable de cada módulo técnico.
+- **Gestión de Sprints:** Seguimiento de tareas atómicas mediante GitHub Projects Kanban y ClickUp.
