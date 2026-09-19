@@ -10,7 +10,7 @@ El proyecto adopta un enfoque de **Monorrepo Unificado** para coordinar el traba
 
 ### 📦 Estructura de Directorios
 
-1. **`apps/api` (Backend .NET 10 & DuckDB OLAP):**
+1. **`backend/` (Backend .NET 10 & DuckDB OLAP):**
    - **Clean Architecture:** Desacoplamiento estricto en 4 capas concisas (<150 líneas por archivo):
      - `Domain`: Entidades biofísicas puras, Enums tipados sin cadenas mágicas.
      - `Application`: Motor matemático de Mann-Kendall, Sen's Slope y casos de uso.
@@ -18,7 +18,7 @@ El proyecto adopta un enfoque de **Monorrepo Unificado** para coordinar el traba
      - `Api`: Controladores delgados (Skinny Controllers), Middlewares y Swagger.
    - Ver detalles de roles en [[03-Roles-y-Equipo]].
 
-2. **`apps/web` (Frontend React 19 + TypeScript + Globe.gl):**
+2. **`frontend/` (Frontend React 19 + TypeScript + Globe.gl):**
    - Lienzo 3D esférico WebGL acelerado por GPU a 60 FPS con texturas NASA.
    - Design System en Modo Oscuro Espacial con efectos de Glassmorphism refinado.
    - Custom Hooks desacoplados (`useGlobeData`, `useTrendAnalysis`).

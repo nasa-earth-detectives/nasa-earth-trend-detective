@@ -54,9 +54,8 @@ docker compose down
 
 ```
 nasa-project/
-├── apps/
-│   ├── api/                       # Backend .NET 10 (Clean Architecture & DuckDB)
-│   └── web/                       # Frontend React 19 + Three.js + Globe.gl
+├── backend/                       # Backend .NET 10 (Clean Architecture & DuckDB)
+├── frontend/                      # Frontend React 19 + Three.js + Globe.gl + Tailwind
 ├── packages/
 │   └── shared/                    # Contratos de datos biofísicos y DTOs comunes
 ├── tools/

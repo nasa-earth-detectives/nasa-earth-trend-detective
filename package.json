@@ -4,12 +4,12 @@
   "private": true,
   "description": "Monorrepo oficial de la plataforma NASA Earth System Trend Detective - NASA Space Apps Challenge 2026",
   "workspaces": [
-    "apps/*",
+    "frontend",
     "tools/*",
     "packages/*"
   ],
   "scripts": {
-    "dev": "npm run dev --workspace=apps/web",
+    "dev": "npm run dev --workspace=frontend",
     "build": "npm run build --workspaces --if-present",
     "lint": "npm run lint --workspaces --if-present",
     "test": "npm run test --workspaces --if-present",
