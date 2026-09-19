@@ -1,0 +1,25 @@
+services:
+  - type: web
+    name: nasa-trend-detective-api
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    plan: free
+    region: oregon
+    branch: production
+    healthCheckPath: /health
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: ASPNETCORE_URLS
+        value: http://+:5000
+      - key: PORT
+        value: "5000"
+      - key: RateLimiting__GlobalPermitLimit
+        value: "300"
+      - key: RateLimiting__HeavyAnalysisPermitLimit
+        value: "60"
+      - key: RateLimiting__WindowSeconds
+        value: "60"
+      - key: RateLimiting__RequestTimeoutSeconds
+        value: "15"

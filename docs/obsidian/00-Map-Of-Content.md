@@ -25,6 +25,7 @@ Bienvenido a la bóveda central de documentación y diseño de ingeniería de nu
 - [[04-Sprints-y-Roadmap]]: Desglose detallado de los 4 Sprints, 20 tareas técnicas y 55 subtareas atómicas vinculadas a ClickUp.
 - [[06-Pipeline-CI-CD]]: Automatización de compilación, linters y despliegue a QA, con freno de seguridad antes de producción.
 - [[07-Estandares-Ingenieria]]: Directivas de Clean Architecture, clases <150 líneas, tipado estricto y seguridad contra bots.
+- [[10-Despliegue-Cloud-Vercel-Render]]: Arquitectura serverless en Vercel Edge y contenedor .NET 10 en Render Cloud.
 
 ---
 
