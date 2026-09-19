@@ -23,11 +23,7 @@ El proyecto adopta un enfoque de **Monorrepo Unificado** para coordinar el traba
    - Design System en Modo Oscuro Espacial con efectos de Glassmorphism refinado.
    - Custom Hooks desacoplados (`useGlobeData`, `useTrendAnalysis`).
 
-3. **`tools/clickup-sync` (Automatización de Proyecto):**
-   - Herramienta CLI en TypeScript para sincronizar las 20 tareas y 55 subtareas en ClickUp API v2.
-   - Ver desglose completo en [[04-Sprints-y-Roadmap]].
-
-4. **`packages/shared` (Contratos Compartidos):**
+3. **`packages/shared` (Contratos Compartidos):**
    - Tipos TypeScript compartidos (`EarthVariableType`, `MannKendallResult`, `RegionalTrendSummary`).
 
 ---

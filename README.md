@@ -58,8 +58,6 @@ nasa-project/
 ├── frontend/                      # Frontend React 19 + Three.js + Globe.gl + Tailwind
 ├── packages/
 │   └── shared/                    # Contratos de datos biofísicos y DTOs comunes
-├── tools/
-│   └── clickup-sync/              # Automatizador de Sprints y Tareas en ClickUp
 ├── docs/
 │   └── obsidian/                  # Bóveda de documentación técnica y científica
 ├── .github/

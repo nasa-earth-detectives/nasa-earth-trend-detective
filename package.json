@@ -5,7 +5,6 @@
   "description": "Monorrepo oficial de la plataforma NASA Earth System Trend Detective - NASA Space Apps Challenge 2026",
   "workspaces": [
     "frontend",
-    "tools/*",
     "packages/*"
   ],
   "scripts": {
@@ -14,8 +13,7 @@
     "lint": "npm run lint --workspaces --if-present",
     "test": "npm run test --workspaces --if-present",
     "docker:up": "docker compose up --build",
-    "docker:down": "docker compose down",
-    "sync:clickup": "npm run sync --workspace=tools/clickup-sync"
+    "docker:down": "docker compose down"
   },
   "keywords": [
     "nasa",

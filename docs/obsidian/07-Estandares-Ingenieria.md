@@ -23,3 +23,7 @@ Volver al [[00-Map-Of-Content]]
 
 ### 4. Cobertura de Pruebas Unitarias
 - Toda lógica matemática (Mann-Kendall, Sen's Slope, Z-Scores) debe contar con tests unitarios automatizados contra datos de control oficiales de la NASA.
+
+### 5. Documentación Viva: Actualización Obligatoria en Cada Cambio o Fix
+- **Regla Estricta:** Cualquier ajuste de arquitectura, corrección de bugs (fixes), nuevos endpoints o cambios de modelos debe actualizar de inmediato las notas técnicas correspondientes en `docs/obsidian/` y `README.md`.
+- **Prohibido** finalizar tareas dejando código desfasado con respecto a la documentación. Mantener trazabilidad viva para todo el equipo.
