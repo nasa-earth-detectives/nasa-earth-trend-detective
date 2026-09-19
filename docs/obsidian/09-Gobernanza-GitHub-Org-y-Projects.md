@@ -20,22 +20,31 @@ El monorrepo está alojado oficialmente en la **Organización de GitHub**:
 
 ---
 
-## 🔒 2. Reglas de Protección de Ramas Activas (Branch Protection)
+## 🔒 2. Blindaje Anti-Force-Push y Reglas de Protección (GitHub Ruleset v2)
 
-Las 3 ramas oficiales del repositorio cuentan con protección automática configurada:
-- **`production`**:
-  - ☑ *Require a pull request before merging* (Aprobación obligatoria de un Owner).
-  - ☑ *Require review from Code Owners* activo vía `CODEOWNERS`.
-  - ☑ *Dismiss stale pull request approvals when new commits are pushed*.
-  - ☑ *Block force pushes* y *Block branch deletions*.
-- **`qa`**:
-  - ☑ *Require a pull request before merging*.
-  - ☑ *Require review from Code Owners* activo.
-  - ☑ *Block force pushes*.
-- **`development`** (Rama predeterminada de desarrollo):
-  - ☑ *Require a pull request before merging* (Mínimo 1 aprobación técnica).
-  - ☑ *Require review from Code Owners* activo.
-  - ☑ *Block force pushes*.
+El repositorio cuenta con una doble capa de seguridad inquebrantable que aplica a las 3 ramas oficiales (`development`, `qa` y `production`):
+
+### A. Ruleset Global v2: `Strict Shield - No Force Push, No Deletion, Require PR` (ID: `23708910`)
+- **🚫 Bloqueo Estricto de Force Pushes (`non_fast_forward`):** Ningún desarrollador puede ejecutar `git push --force` o `git push -f`. Se rechaza cualquier intento de sobreescribir la historia de commits compartida.
+- **🚫 Prohibición de Borrado de Ramas (`deletion`):** Queda bloqueado el comando `git push origin --delete <rama>` o la eliminación desde la interfaz web.
+- **🛡️ Cero Excepciones (`bypass_actors: []`):** Los administradores y propietarios de la organización **tienen prohibido saltear las reglas** (`current_user_can_bypass: never`). Nadie puede forzar cambios por accidente.
+- **👥 Flujo Obligatorio de Pull Requests (`pull_request`):**
+  - Mínimo **1 aprobación técnica** de un par antes de fusionar.
+  - Revisión estricta de `CODEOWNERS` activa (los cambios en backend requieren aprobación de July, Reving o Johan; los de frontend requieren aprobación de Brayan o Diego).
+  - Invalidación automática de aprobaciones previas al enviar nuevos commits (`dismiss_stale_reviews_on_push: true`).
+  - Resolución obligatoria de todos los hilos de conversación y comentarios antes del merge.
+
+### B. Doble Capa: Branch Protection Legacy con `enforce_admins: true`
+Las tres ramas tienen habilitada la restricción `enforce_admins: true`, asegurando que ni las llamadas API ni la consola administrativa permitan modificar el historial directo.
+
+### C. Comportamiento ante intentos de `push --force`:
+Si un desarrollador ejecuta accidentalmente `git push --force`, GitHub abortará inmediatamente la transacción con el siguiente mensaje de seguridad:
+```text
+remote: error: GH006: Protected branch update failed for refs/heads/development.
+remote: error: Cannot force-push to a protected branch
+To https://github.com/nasa-earth-detectives/nasa-earth-trend-detective.git
+ ! [remote rejected] development -> development (protected branch hook declined)
+```
 
 ---
 
