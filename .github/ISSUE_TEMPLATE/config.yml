@@ -1,5 +1,5 @@
 blank_issues_enabled: false
 contact_links:
   - name: "Documentación en Obsidian"
-    url: "https://github.com/brayancortes22/nasa-earth-trend-detective/tree/main/docs/obsidian"
+    url: "https://github.com/nasa-earth-detectives/nasa-earth-trend-detective/tree/production/docs/obsidian"
     about: "Consulta la base de conocimiento y arquitectura del proyecto antes de abrir un Issue"

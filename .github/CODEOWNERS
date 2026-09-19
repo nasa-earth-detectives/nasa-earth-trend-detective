@@ -1,30 +1,41 @@
 # ==============================================================================
 # CODEOWNERS - NASA Earth System Trend Detective
 # Asignación automática de revisión por módulo para los subequipos de la Org
+# Regla: en CODEOWNERS gana la ÚLTIMA regla que coincide (general -> específico)
+#
+# Handles oficiales:
+#   Brayan  @brayancortes22          Diego   @DiegoArias32
+#   July    @july173                 Reving  @reivyng
+#   Johan   @JohanSebastianOlayaReyes
 # ==============================================================================
 
 # Gobernanza y configuración global
 *                                   @brayancortes22 @nasa-earth-detectives/backend-team
-/.github/                           @brayancortes22 @nasa-earth-detectives/backend-team
-/docs/                              @brayancortes22
-
-# Backend & API (.NET 10 Clean Architecture)
-/backend/                           @nasa-earth-detectives/backend-team @july-backend
-/backend/src/NasaTrendDetective.Api/ @nasa-earth-detectives/backend-team @july-backend
-
-# Motor de Datos, ETL Satelital y Persistencia DuckDB
-/backend/src/NasaTrendDetective.Infrastructure/ @nasa-earth-detectives/backend-team @reving-data @johan-datascience
-/data/                              @nasa-earth-detectives/backend-team @reving-data @johan-datascience
-
-# Dominio y Algoritmos Estadísticos (Mann-Kendall, Sen's Slope)
-/backend/src/NasaTrendDetective.Domain/         @nasa-earth-detectives/backend-team @johan-datascience @reving-data
-/backend/src/NasaTrendDetective.Application/    @nasa-earth-detectives/backend-team @johan-datascience @july-backend
-
-# Visualización 3D WebGL / Three.js / Globe.gl
-/frontend/src/components/Globe/     @nasa-earth-detectives/frontend-team @diego-webgl
-/public/textures/                   @nasa-earth-detectives/frontend-team @diego-webgl
-/public/models/                     @nasa-earth-detectives/frontend-team @diego-webgl
+/.github/                           @brayancortes22 @july173
+/docs/                              @brayancortes22 @july173
+/TEAM.md                            @brayancortes22 @july173
+/CONTRIBUTING.md                    @brayancortes22 @july173
 
 # Frontend UI/UX (React 19, Tailwind, Controls, Pages)
 /frontend/                          @nasa-earth-detectives/frontend-team @brayancortes22
 /packages/shared/                   @nasa-earth-detectives/frontend-team @nasa-earth-detectives/backend-team
+
+# Backend & API (.NET 10 Clean Architecture)
+/backend/                           @nasa-earth-detectives/backend-team @july173
+/backend/src/NasaTrendDetective.Api/ @nasa-earth-detectives/backend-team @july173
+
+# Motor de Datos, ETL Satelital y Persistencia DuckDB
+/backend/src/NasaTrendDetective.Infrastructure/ @nasa-earth-detectives/backend-team @reivyng @JohanSebastianOlayaReyes
+/data/                              @nasa-earth-detectives/backend-team @reivyng @JohanSebastianOlayaReyes
+
+# Dominio y Algoritmos Estadísticos (Mann-Kendall, Sen's Slope)
+/backend/src/NasaTrendDetective.Domain/         @nasa-earth-detectives/backend-team @july173 @JohanSebastianOlayaReyes
+/backend/src/NasaTrendDetective.Application/    @nasa-earth-detectives/backend-team @JohanSebastianOlayaReyes @july173
+
+# Visualización 3D WebGL / Three.js / Globe.gl
+# (declaradas DESPUÉS de /frontend/ para que la regla específica prevalezca)
+/frontend/src/components/Globe/     @nasa-earth-detectives/frontend-team @DiegoArias32
+/frontend/public/textures/          @nasa-earth-detectives/frontend-team @DiegoArias32
+/frontend/public/models/            @nasa-earth-detectives/frontend-team @DiegoArias32
+/public/textures/                   @nasa-earth-detectives/frontend-team @DiegoArias32
+/public/models/                     @nasa-earth-detectives/frontend-team @DiegoArias32
