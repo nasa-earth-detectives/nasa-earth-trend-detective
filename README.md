@@ -3,9 +3,21 @@
 > **Categoría:** Ciencias de la Tierra (*Earth Science*) | **Dificultad:** Avanzada  
 > **Plataforma:** Motor Analítico de Series Temporales y Visualizador Geoespacial 3D  
 > **Monorrepo:** Backend .NET 10 (Clean Architecture & DuckDB) + Frontend React 19 + Three.js + Docker
+---
 
-👉 **🌐 Demo en Vivo (Vercel Edge):** [https://nasa-earth-trend-detective.vercel.app/](https://nasa-earth-trend-detective.vercel.app/)  
-👉 **📡 API en Vivo (Render Cloud):** [https://nasa-trend-detective-api.onrender.com/health](https://nasa-trend-detective-api.onrender.com/health)
+## 🚀 Panel de Acceso Rápido para Desarrolladores
+
+| Entorno / Recurso | Rama / Origen | Enlace de Acceso Directo | Estado / Propósito |
+| :--- | :--- | :--- | :---: |
+| 🌐 **Frontend Producción** | `production` | [nasa-earth-trend-detective.vercel.app](https://nasa-earth-trend-detective.vercel.app/) | 🟢 **200 OK (En Vivo)** |
+| 📡 **Backend REST API** | `production` | [nasa-trend-detective-api.onrender.com/health](https://nasa-trend-detective-api.onrender.com/health) | 🟢 **200 OK (En Vivo)** |
+| 🧪 **Staging (QA)** | `qa` | [Despliegues Staging de QA](https://github.com/nasa-earth-detectives/nasa-earth-trend-detective/deployments/activity_log?environments_filter=qa) | 🟡 **Staging Activo** |
+| 🛠️ **Desarrollo Activo** | `development` | [Despliegues Preview de Dev](https://github.com/nasa-earth-detectives/nasa-earth-trend-detective/deployments/activity_log?environments_filter=development) | 🟡 **Preview Activo** |
+| 📋 **Tablero Kanban** | GitHub Projects | [NASA Trend Detective Projects #1](https://github.com/orgs/nasa-earth-detectives/projects/1) | 📌 **Gestión de Tareas** |
+| 👥 **Matriz de Roles** | Monorrepo | [TEAM.md](TEAM.md) | 📄 **Responsabilidades** |
+| 🤝 **Guía de Contribución** | Protocolo Git | [CONTRIBUTING.md](CONTRIBUTING.md) | 🛡️ **Flujo de Pull & PRs** |
+
+> 💡 **Acceso en 1 Clic desde GitHub:** En la barra lateral derecha de este repositorio (sección **Environments**), haz clic en **`production`**, **`qa`** o **`development`** para ver el historial y abrir el despliegue directamente.
 
 ---
 
