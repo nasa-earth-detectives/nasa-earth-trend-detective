@@ -4,50 +4,51 @@ Volver al [[00-Map-Of-Content]] | [[02-Estrategia-Git-3-Ramas]]
 
 ---
 
-## 👥 1. Creación y Estructura de la Organización en GitHub
+## 👥 1. Organización Oficial en GitHub
 
-Para un proyecto competitivo de la NASA, es fundamental alojar el monorrepo bajo una **Organización de GitHub** en lugar de una cuenta personal:
+El monorrepo está alojado oficialmente en la **Organización de GitHub**:
+👉 **URL de la Organización:** [https://github.com/nasa-earth-detectives](https://github.com/nasa-earth-detectives)  
+👉 **Repositorio Oficial:** [https://github.com/nasa-earth-detectives/nasa-earth-trend-detective](https://github.com/nasa-earth-detectives/nasa-earth-trend-detective)
 
-1. **Crear Organización:** En tu perfil de GitHub -> *Your organizations* -> *New organization* -> Seleccionar plan **Free** (recomendado para proyectos abiertos).
-2. **Nombre sugerido:** `nasa-earth-detectives` o `earth-trend-detective`.
-3. **Distribución de Roles para los 5 Participantes:**
-   - **Owners (2 Administradores):** Brayan Stid Cortés y July (garantiza respaldo sin dependencia de una sola cuenta).
-   - **Members (3 Integrantes):** Fabriany Medina (Reving), Johan Olaya y Diego Arias.
-4. **Equipo (Team):** Crear el equipo `developers` con permisos de **Write** en el repositorio para desarrollo activo.
+### Distribución de Roles para los 5 Participantes:
+- **Owners (2 Administradores):** Brayan Stid Cortés (@brayancortes22) y July (garantiza respaldo sin dependencia de una sola cuenta).
+- **Members (3 Integrantes):** Fabriany Medina (Reving), Johan Olaya y Diego Arias.
+- **Equipo de Desarrollo (Team):** [developers](https://github.com/orgs/nasa-earth-detectives/teams/developers) con permisos de escritura activos en el repositorio.
 
 ---
 
-## 🔒 2. Configuración de Reglas de Protección (Rulesets)
+## 🔒 2. Reglas de Protección de Ramas Activas (Branch Protection)
 
-En el repositorio: *Settings -> Rules -> Rulesets -> New branch ruleset*.
-
-Configurar reglas para las ramas protegidas:
+Las 3 ramas oficiales del repositorio cuentan con protección automática configurada:
 - **`production`**:
-  - ☑ *Require a pull request before merging* (Mínimo 1 aprobación de un Owner).
-  - ☑ *Require branches to be up to date before merging*.
-  - ☑ *Block force pushes*.
-  - ☑ *Restrict deletions*.
+  - ☑ *Require a pull request before merging* (Aprobación obligatoria de un Owner).
+  - ☑ *Require review from Code Owners* activo vía `CODEOWNERS`.
+  - ☑ *Dismiss stale pull request approvals when new commits are pushed*.
+  - ☑ *Block force pushes* y *Block branch deletions*.
 - **`qa`**:
-  - ☑ *Require status checks to pass* (Pipeline `ci-qa.yml` exitoso).
   - ☑ *Require a pull request before merging*.
+  - ☑ *Require review from Code Owners* activo.
   - ☑ *Block force pushes*.
-- **`development`**:
-  - ☑ *Require a pull request before merging* (1 aprobación de compañero según `CODEOWNERS`).
+- **`development`** (Rama predeterminada de desarrollo):
+  - ☑ *Require a pull request before merging* (Mínimo 1 aprobación técnica).
+  - ☑ *Require review from Code Owners* activo.
   - ☑ *Block force pushes*.
 
 ---
 
 ## 📋 3. Tablero de Gestión: GitHub Projects
 
-Crear un proyecto Kanban dentro de la Organización con las 5 columnas estándar:
+👉 **Tablero Kanban Oficial:** [https://github.com/orgs/nasa-earth-detectives/projects/1](https://github.com/orgs/nasa-earth-detectives/projects/1)
+
+Columnas configuradas para los 4 Sprints:
 1. **📥 Backlog:** Ideas, requerimientos futuros y datasets adicionales de la NASA.
 2. **📋 To Do:** Tareas atómicas priorizadas del sprint actual.
 3. **🚧 In Progress:** Tareas en desarrollo activo (asociadas a una rama `feat/*`).
-4. **👀 Review:** Pull Requests abiertos pendientes de revisión de código.
+4. **👀 Review:** Pull Requests abiertos pendientes de revisión según `CODEOWNERS`.
 5. **✅ Done:** Código fusionado en `development` y verificado en staging.
 
 ---
 
 ## 🛡️ 4. Blindaje y Pauta Anti-IA para el Jurado de la NASA
 - **Regla Estricta:** No conectar extensiones, bots visibles ni aplicaciones externas de IA al repositorio en GitHub.
-- Los metadatos de GitHub, descripciones de Issues, PRs y commits deben ser 100% técnicos y redactados por el equipo, demostrando dominio pleno del dominio biofísico y arquitectónico ante el jurado calificador.
+- Los metadatos de GitHub, descripciones de Issues, PRs y commits son 100% técnicos y redactados por el equipo, demostrando dominio pleno del dominio biofísico y arquitectónico ante el jurado calificador de la NASA.

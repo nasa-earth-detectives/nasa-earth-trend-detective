@@ -102,6 +102,8 @@ Toda la base de conocimiento está estructurada en Markdown interconectado para 
 
 ## 🤝 6. Gobernanza de Equipo y Contribución
 
+- **Organización de GitHub:** [https://github.com/nasa-earth-detectives](https://github.com/nasa-earth-detectives)
+- **Tablero GitHub Projects:** [NASA Earth System Trend Detective](https://github.com/orgs/nasa-earth-detectives/projects/1)
 - **Guía de Contribución:** Consulta [CONTRIBUTING.md](CONTRIBUTING.md) para conocer el protocolo de Pull Requests y commits convencionales.
 - **Asignación de Revisores:** Consulta [.github/CODEOWNERS](.github/CODEOWNERS) para identificar al responsable de cada módulo técnico.
-- **Gestión de Sprints:** Seguimiento de tareas atómicas mediante GitHub Projects Kanban y ClickUp.
+- **Gestión de Sprints:** Sincronización de tareas atómicas mediante GitHub Projects Kanban y ClickUp.
