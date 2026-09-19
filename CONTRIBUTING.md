@@ -57,3 +57,42 @@ Usa siempre prefijos semánticos en minúsculas:
 - **Modularidad (< 150 líneas por archivo):** No crear clases ni componentes monolíticos.
 - **Cero Código Quemado:** Utilizar siempre variables de entorno y Enums fuertemente tipados.
 - **Documentación Viva:** Al corregir un bug o agregar un endpoint, actualizar la nota correspondiente en `docs/obsidian/` en el mismo ciclo.
+
+---
+
+## 🔒 4. Protocolo de Actualización Segura (Cómo hacer Pull sin dañar código)
+
+Para proteger el trabajo de los 5 participantes, el repositorio cuenta con **GitHub Rulesets v2** que bloquea estrictamente los force-pushes (`git push --force`), el borrado de ramas y la escritura directa a `development`, `qa` y `production`.
+
+### Reglas de Oro para Todo el Equipo:
+1. **🚫 Jamás uses `git push --force` o `git push -f`:** GitHub rechazará la petición con error `GH006` porque la historia compartida está protegida contra sobreescritura.
+2. **🚫 Nunca trabajes directamente en `development`:** Toda tarea se desarrolla en una rama `feat/*` o `fix/*`.
+
+### Escenarios Frecuentes y Cómo Resolverlos de Forma Segura:
+
+#### Caso A: Quieres actualizar tu rama de desarrollo local
+```bash
+# Cambiar a development y traer los últimos cambios limpios
+git checkout development
+git pull origin development
+```
+
+#### Caso B: Estás trabajando en `feat/mi-tarea` y necesitas los cambios nuevos de `development`
+```bash
+# Estando en tu rama personal:
+git fetch origin
+git merge origin/development
+# Si hay algún conflicto menor, resuélvelo en tu editor, guarda y ejecuta:
+# git commit -m "chore: sincronizar con development"
+```
+
+#### Caso C: Tienes cambios sin commitear y necesitas actualizarte sin perder nada
+```bash
+# 1. Guarda temporalmente tus cambios en el stash
+git stash
+# 2. Actualiza tu rama base
+git pull origin development
+# 3. Recupera tus cambios intactos
+git stash pop
+```
+

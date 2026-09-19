@@ -9,7 +9,7 @@ Volver al [[00-Map-Of-Content]] | Responsable: [[03-Roles-y-Equipo#Johan Sebasti
 | Interrogante NASA | Solución Técnica en Nuestra Plataforma |
 | :--- | :--- |
 | **1. ¿Qué está cambiando?** | Detección multivariable: GISTEMP ($T^\circ$), MODIS (NDVI), GRACE-FO (Hielo), OCO-2 ($CO_2$). |
-| **2. ¿Dónde está cambiando?** | Mapeo geoespacial 3D por celdas latitud/longitud en [[01-Arquitectura-Monorrepo#appsweb]]. |
+| **2. ¿Dónde está cambiando?** | Mapeo geoespacial 3D por celdas latitud/longitud en [[01-Arquitectura-Monorrepo]]. |
 | **3. ¿Cuánto está cambiando?** | Estimador no paramétrico de **Pendiente de Sen (*Sen's Slope*)** por década. |
 | **4. ¿Es significativo?** | Evaluación matemática mediante el **Test de Tendencia de Mann-Kendall** ($p < 0.05$). |
 

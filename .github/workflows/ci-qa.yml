@@ -5,10 +5,12 @@ on:
     branches:
       - development
       - qa
+      - production
   pull_request:
     branches:
       - development
       - qa
+      - production
   workflow_dispatch:
     inputs:
       target_env:
@@ -20,12 +22,19 @@ on:
           - qa
           - manual-production-review
 
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   # ============================================================================
-  # 1. Calidad de Código, Linters y Chequeo Estricto de Tipos
+  # 1. Calidad de Código, Chequeo Estricto de Tipos y Build del Frontend
   # ============================================================================
   code-quality:
-    name: Code Quality & Type Check
+    name: Code Quality, Type Check & Frontend Build
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
@@ -38,12 +47,27 @@ jobs:
           cache: 'npm'
 
       - name: Install Root & Workspace Dependencies
-        run: npm ci || npm install
+        run: npm ci
 
       - name: Verify TypeScript Types (Shared & Web)
         run: |
-          npm run type-check --workspace=packages/shared --if-present
-          npm run type-check --workspace=frontend --if-present
+          npm run type-check --workspace=packages/shared
+          npm run type-check --workspace=frontend
+
+      - name: Enforce File Size Rule (< 200 lines per source file)
+        run: |
+          oversized=$(find frontend/src packages/shared/src backend/src \
+            \( -name '*.ts' -o -name '*.tsx' -o -name '*.cs' \) \
+            -not -path '*/bin/*' -not -path '*/obj/*' \
+            -exec awk 'END { if (NR > 200) print FILENAME " (" NR " líneas)" }' {} \;)
+          if [ -n "$oversized" ]; then
+            echo "::error::Archivos que superan el límite de 200 líneas:"
+            echo "$oversized"
+            exit 1
+          fi
+
+      - name: Build Frontend Bundle (Vite)
+        run: npm run build --workspace=frontend
 
   # ============================================================================
   # 2. Compilación y Pruebas Unitarias del Backend (.NET 10)
@@ -61,16 +85,27 @@ jobs:
           dotnet-version: '10.0.x'
 
       - name: Restore Backend Dependencies
-        run: dotnet restore backend/src/NasaTrendDetective.Api/NasaTrendDetective.Api.csproj --ignore-failed-sources || true
+        run: dotnet restore backend/NasaTrendDetective.slnx
 
-      - name: Build Backend (Release)
-        run: dotnet build backend/src/NasaTrendDetective.Api/NasaTrendDetective.Api.csproj -c Release --no-restore || true
+      - name: Build Backend (Release, warnings as errors)
+        run: dotnet build backend/NasaTrendDetective.slnx -c Release --no-restore -warnaserror
+
+      - name: Detect Test Projects
+        id: tests
+        run: |
+          if find backend -name '*Tests*.csproj' | grep -q .; then
+            echo "found=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "found=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::No existen proyectos de pruebas (*Tests*.csproj). Pendiente: tests de Mann-Kendall y Sen's Slope (S1-T3 / S2-T3)."
+          fi
 
       - name: Run Scientific Mathematical Tests (Mann-Kendall & Sen)
-        run: echo "Verificación matemática de Mann-Kendall y Sen's Slope completada con éxito."
+        if: steps.tests.outputs.found == 'true'
+        run: dotnet test backend/NasaTrendDetective.slnx -c Release --no-build
 
   # ============================================================================
-  # 3. Validación de Contenedores Docker
+  # 3. Validación de Contenedores Docker (build real de las imágenes)
   # ============================================================================
   docker-validation:
     name: Docker Build Validation
@@ -84,37 +119,63 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Validate Docker Compose Configuration
-        run: docker compose config
+        run: docker compose config -q
+
+      - name: Build Backend Image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./backend
+          file: ./backend/Dockerfile
+          push: false
+          cache-from: type=gha,scope=api
+          cache-to: type=gha,mode=max,scope=api
+
+      - name: Build Frontend Image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./frontend/Dockerfile
+          push: false
+          cache-from: type=gha,scope=web
+          cache-to: type=gha,mode=max,scope=web
 
   # ============================================================================
   # 4. Despliegue Automático a QA (Staging)
+  #    Solo en push a development/qa o ejecución manual con target_env=qa
   # ============================================================================
   deploy-qa:
     name: Deploy to QA (Staging Environment)
     runs-on: ubuntu-latest
     needs: [docker-validation]
-    if: github.ref == 'refs/heads/qa' || github.event.inputs.target_env == 'qa'
+    if: >-
+      (github.event_name == 'push' && (github.ref == 'refs/heads/development' || github.ref == 'refs/heads/qa'))
+      || (github.event_name == 'workflow_dispatch' && github.event.inputs.target_env == 'qa')
     environment:
       name: qa
     steps:
       - name: Announce QA Staging Deployment
         run: |
-          echo "🚀 Desplegando versión de prueba en el entorno de QA..."
-          echo "Ambiente: Staging (QA)"
-          echo "Compilación exitosa. Listo para validación de equipo."
+          echo "Desplegando versión de prueba en el entorno de QA..."
+          echo "Ambiente: Staging (QA) - rama ${GITHUB_REF_NAME}"
+          echo "Compilación validada. Listo para validación de equipo."
 
   # ============================================================================
   # 5. FRENO ESTRICTO DE PRODUCCIÓN (Requiere Aprobación y Orden Explícita)
+  #    Depende solo de docker-validation: no exige pasar por deploy-qa, que
+  #    se omite en la rama production. El entorno "production" debe configurarse
+  #    en GitHub con Required reviewers para que el freno sea efectivo.
   # ============================================================================
   production-gate:
     name: Production Safety Gate (Blocked until Explicit Approval)
     runs-on: ubuntu-latest
-    needs: [deploy-qa]
-    if: github.ref == 'refs/heads/production' || github.event.inputs.target_env == 'manual-production-review'
+    needs: [docker-validation]
+    if: >-
+      (github.event_name == 'push' && github.ref == 'refs/heads/production')
+      || (github.event_name == 'workflow_dispatch' && github.event.inputs.target_env == 'manual-production-review')
     environment:
       name: production
     steps:
       - name: Safety Gate Check
         run: |
-          echo "🛑 FRENO DE SEGURIDAD ACTIVO: El despliegue a producción requiere aprobación explícita."
-          echo "Esta etapa solo se ejecuta cuando Brayan y el equipo autorizan el pase final a producción."
+          echo "FRENO DE SEGURIDAD: el pase a producción requiere aprobación explícita del entorno 'production'."
+          echo "Solo se ejecuta cuando Brayan, July y el equipo autorizan el pase final."

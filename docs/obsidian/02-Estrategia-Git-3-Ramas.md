@@ -32,6 +32,14 @@ Para asegurar máxima estabilidad y rigor profesional en el repositorio, el proy
 
 ---
 
+## 🛡️ Blindaje Técnico: Prohibición de Force Push (`git push --force`)
+1. **Inmutabilidad del Historial:** Las 3 ramas tienen activo el GitHub Ruleset `Strict Shield` (`non_fast_forward`). Ningún miembro del equipo puede reescribir la historia ni sobrescribir commits ya publicados.
+2. **Actualizaciones Limpias:** Para actualizar ramas locales de trabajo sin generar conflictos destructivos, se utiliza `git fetch origin` seguido de `git merge origin/development` o `git stash` si existen cambios sin guardar.
+3. **Gestión de PRs:** Toda integración a `development` requiere revisión de pares (`CODEOWNERS`) y superación de la suite de pruebas automatizadas.
+
+---
+
 ## 🔗 Enlaces Relacionados
 - [[06-Pipeline-CI-CD]]
 - [[07-Estandares-Ingenieria]]
+- [[09-Gobernanza-GitHub-Org-y-Projects]]
