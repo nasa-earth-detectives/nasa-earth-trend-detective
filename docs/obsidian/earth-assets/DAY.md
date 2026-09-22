@@ -17,8 +17,8 @@
   se añade reenfoque; dimensiones, hash de fuente y procesamiento se verifican.
 - Interpretación de color en Three.js: `SRGBColorSpace`.
 - Es una base visual de 2004, no un producto anual enlazado al timeline.
-- Bytes y hashes de cada derivado: [manifest](../asset-manifest.json).
-- Condiciones y reproducción: [README general](../README.md).
+- Bytes y hashes de cada derivado: [manifest](asset-manifest.json).
+- Condiciones y reproducción: [README general](README.md).
 
 ## Cierre mínimo del empalme polar
 

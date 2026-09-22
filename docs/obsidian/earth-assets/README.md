@@ -43,8 +43,9 @@ al build sin incorporarlos como módulos JavaScript.
   almacena ese canal alfa, no el color cian de la visualización.
   No se atribuye a esta capa estática una versión anual MOD44W no documentada.
 
-Cada subdirectorio contiene el enlace directo a su original y los detalles
-de procesamiento. `night` está reservado; no se descargó Black Marble.
+Los documentos `DAY.md`, `ELEVATION.md` y `MASKS.md` contienen los enlaces
+directos a cada original y sus detalles de procesamiento. `NIGHT.md` registra
+el alcance reservado; no se descargó Black Marble.
 
 ## Reproducción
 
@@ -72,7 +73,7 @@ rechaza una fuente cuyo hash haya cambiado para evitar reemplazos silenciosos.
   exclusivamente en la cola derecha conectada a +180°, por encima de 83,5° N.
   Se modifica el relleno uniforme, no observaciones de hielo/agua. Los originales
   permanecen intactos; hashes antes/después verifican todos los píxeles fuera
-  de la guarda. [Límites y algoritmo exactos](day/README.md#cierre-mínimo-del-empalme-polar)
+  de la guarda. [Límites y algoritmo exactos](DAY.md#cierre-mínimo-del-empalme-polar)
   y los intervalos por fila están documentados en el manifiesto.
 - Elevación: reducción Lanczos directa desde el GeoTIFF 5400×2700;
   PNG gris de 8 bits sin gamma añadida ni normalización adicional.
@@ -145,7 +146,7 @@ Se descartaron variantes con topografía sombreada y la versión Blue Marble
 pero tres bandas no constituyen albedo RGB validado y la conversión literal
 dio agua aún más oscura. Esas pruebas permanecen fuera de `public`; no se
 cargan en la aplicación. Diagnóstico y comparación:
-[`13-Rescate-Realismo-Diurno.md`](../../../docs/obsidian/13-Rescate-Realismo-Diurno.md).
+[`13-Rescate-Realismo-Diurno.md`](../13-Rescate-Realismo-Diurno.md).
 
 API de color y muestreo contrastada con la
 [documentación de Texture de Three.js](https://threejs.org/docs/pages/Texture.html)

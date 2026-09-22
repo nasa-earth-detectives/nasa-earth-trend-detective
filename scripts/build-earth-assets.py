@@ -17,6 +17,7 @@ from PIL import Image, __version__ as pillow_version
 ROOT = Path(__file__).resolve().parents[1]
 CACHE = ROOT / "output/earth-source"
 DESTINATION = ROOT / "frontend/public/earth"
+DOCUMENTATION = ROOT / "docs/obsidian/earth-assets"
 NASA_ASSETS = "https://assets.science.nasa.gov/content/dam/science/esd/eo/images/bmng/"
 DAY_8K_SOURCE = "world.200407.3x21600x10800.jpg"
 # Permite inspeccionar la cabecera de la fuente verificada; nunca se carga a este tamaño.
@@ -108,6 +109,7 @@ def close_polar_fill(image: Image.Image) -> dict:
 
 def main() -> None:
     source_records = fetch_sources()
+    DOCUMENTATION.mkdir(parents=True, exist_ok=True)
     for folder in ("day", "elevation", "masks", "night"):
         (DESTINATION / folder).mkdir(parents=True, exist_ok=True)
 
@@ -165,7 +167,9 @@ def main() -> None:
                     "color_adjustments": "no global adjustment; documented polar fill closure before resize",
                     "sharpening": "none",
                 }}}
-    (DESTINATION / "asset-manifest.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
+    (DOCUMENTATION / "asset-manifest.json").write_text(
+        json.dumps(manifest, indent=2) + "\n", encoding="utf-8"
+    )
     print(json.dumps(output_records, indent=2))
 
 

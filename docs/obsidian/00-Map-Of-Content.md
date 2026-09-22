@@ -15,6 +15,7 @@ Bienvenido a la bóveda central de documentación y diseño de ingeniería de nu
 - [[11-Experiencia-Observacion-Espacial]]: Modos de observación, instrumentos científicos, movimiento y escena estable.
 - [[12-Superficie-Terrestre-NASA]]: Assets locales, material terrestre, perfiles de textura y ciclo de vida.
 - [[13-Rescate-Realismo-Diurno]]: Diagnóstico del render, material GGX y comparación visual diurna.
+- [[earth-assets/README|Fuentes de assets terrestres]]: Procedencia, transformación, hashes y créditos de las imágenes científicas.
 - [[02-Estrategia-Git-3-Ramas]]: Protocolo estricto de ramas (`development` ➔ `qa` ➔ `production`).
 - [[03-Roles-y-Equipo]]: Perfiles técnicos y asignación de responsabilidades de los 5 participantes.
 - [[08-Contenedores-Docker]]: Guía de ejecución unificada con Docker Compose en local y staging.

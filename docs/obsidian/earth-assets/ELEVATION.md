@@ -11,4 +11,4 @@
 - `NoColorSpace`; luminosidad proporcional a la altura representada por NASA.
 - El GeoTIFF declara EPSG:4326 y origen −180°, +90°; se conserva orientación.
 - No contiene profundidad oceánica y no debe usarse como DEM de precisión.
-- Bytes/hashes: [manifest](../asset-manifest.json). Uso: [README general](../README.md).
+- Bytes/hashes: [manifest](asset-manifest.json). Uso: [README general](README.md).

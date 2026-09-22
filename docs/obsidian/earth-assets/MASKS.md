@@ -13,5 +13,5 @@
 - Sirve como máscara gráfica conservadora de reflejo; no como producto
   hidrológico anual, máscara de hielo ni clasificación científica completa.
 - Créditos: NASA EOSDIS GIBS / MODIS. [Contexto MODIS](https://modis.gsfc.nasa.gov/data/dataprod/mod44w.php).
-- Fuente y derivados con bytes/hashes en el [manifest](../asset-manifest.json).
-- Condiciones y reproducción: [README general](../README.md).
+- Fuente y derivados con bytes/hashes en el [manifest](asset-manifest.json).
+- Condiciones y reproducción: [README general](README.md).

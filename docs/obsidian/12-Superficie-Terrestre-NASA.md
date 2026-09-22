@@ -27,7 +27,7 @@ canónica es `frontend/public/earth/`; el `/public` de la raíz no contiene los
 assets nuevos. Las imágenes se copian a `dist/earth` y no entran al JavaScript.
 
 Procedencia, originales, resoluciones, bytes, hashes, créditos y reproducción:
-[README de assets](../../frontend/public/earth/README.md).
+[documentación de assets](earth-assets/README.md).
 
 ## Lifecycle y recursos
 

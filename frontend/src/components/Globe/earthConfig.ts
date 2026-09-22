@@ -1,4 +1,4 @@
-/** Assets estáticos de Vite. Procedencia y procesamiento: public/earth/README.md. */
+/** Assets estáticos de Vite. Procedencia y procesamiento: docs/obsidian/earth-assets/README.md. */
 const earthPath = (path: string): string => `${import.meta.env.BASE_URL}earth/${path}`;
 
 export const EARTH_ASSETS = {
