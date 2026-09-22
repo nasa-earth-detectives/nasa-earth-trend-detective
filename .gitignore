@@ -48,3 +48,6 @@ desktop.ini
 # Testing coverage reports
 coverage/
 TestResults/
+
+# Local visual validation artifacts and downloaded source tooling
+output/
