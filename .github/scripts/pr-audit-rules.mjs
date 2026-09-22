@@ -4,6 +4,37 @@
  * Cumple con GEMINI.md: Anti God-Class (<200 líneas), Anti-Hardcoding y Blindaje.
  */
 
+export const CODE_EXTENSIONS = [
+  '.ts', '.tsx', '.js', '.jsx', '.mjs', '.cjs',
+  '.cs', '.py', '.php', '.go', '.rs', '.java'
+];
+
+export const IGNORED_FILES = [
+  'package-lock.json',
+  'yarn.lock',
+  'pnpm-lock.yaml',
+  'asset-manifest.json'
+];
+
+export const BINARY_EXTENSIONS = [
+  '.jpg', '.jpeg', '.png', '.webp', '.gif', '.ico',
+  '.woff', '.woff2', '.ttf', '.eot', '.pdf',
+  '.parquet', '.db', '.duckdb', '.lock'
+];
+
+/**
+ * Determina si un archivo corresponde a código fuente ejecutable
+ * para aplicar reglas de arquitectura (SRP, Anti God-Class).
+ * @param {string} filename
+ * @returns {boolean}
+ */
+export function isCodeFile(filename) {
+  const lower = filename.toLowerCase();
+  if (IGNORED_FILES.some(f => lower.endsWith(f))) return false;
+  if (BINARY_EXTENSIONS.some(ext => lower.endsWith(ext))) return false;
+  return CODE_EXTENSIONS.some(ext => lower.endsWith(ext));
+}
+
 export const AUDIT_POLICIES = {
   maxLinesPerFile: 200,
   warnLinesPerFile: 150,
@@ -28,6 +59,12 @@ export const AUDIT_POLICIES = {
  */
 export function auditCodeStatic(filename, content) {
   const issues = [];
+
+  // Omitir archivos no considerados código fuente (binarios, lockfiles, docs)
+  if (!isCodeFile(filename)) {
+    return issues;
+  }
+
   const lines = content.split('\n').length;
 
   if (lines > AUDIT_POLICIES.maxLinesPerFile) {
