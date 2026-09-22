@@ -47,8 +47,13 @@
 [data-mode='layers'] .time-explore, [data-mode='view'] .time-explore,
 [data-mode='inspection'] .time-explore { visibility: hidden; }
 .location-instrument { position: absolute; z-index: 30; left: var(--gutter); bottom: 164px;
-  width: 380px; max-width: calc(100vw - 40px); padding: 12px 28px 28px 0;
-  background: linear-gradient(100deg, rgba(8,12,12,.97), rgba(8,12,12,.85) 75%, transparent);
+  width: 380px; max-width: calc(100vw - 40px); padding: 18px 24px 20px;
+  background: rgba(10, 15, 29, 0.82);
+  backdrop-filter: blur(var(--glass-blur, 16px));
+  -webkit-backdrop-filter: blur(var(--glass-blur, 16px));
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  box-shadow: 0 12px 36px 0 rgba(0, 0, 0, 0.5), 0 0 20px -5px var(--active-accent-soft);
   opacity: 0; transform: translate(-18px, 12px); transform-origin: left bottom;
   transition: opacity var(--motion-panel) var(--ease-soft), transform var(--motion-panel) var(--ease-panel); }
 .location-instrument[data-open='true'] { opacity: 1; transform: none; }

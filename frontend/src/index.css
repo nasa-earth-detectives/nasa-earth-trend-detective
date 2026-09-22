@@ -42,6 +42,11 @@
   --ease-panel: cubic-bezier(.16, 1, .3, 1);
   --ease-soft: cubic-bezier(.33, 1, .68, 1);
   --ease-soft-out: var(--ease-soft);
+  --glass-bg: rgba(13, 21, 39, 0.72);
+  --glass-bg-deep: rgba(7, 13, 29, 0.88);
+  --glass-border: rgba(255, 255, 255, 0.09);
+  --glass-border-hover: rgba(255, 255, 255, 0.22);
+  --glass-blur: 16px;
   --font-readout: 'Cascadia Mono', 'Consolas', monospace;
   transition: --active-accent var(--motion-panel) var(--ease-soft);
 }
@@ -62,6 +67,50 @@ button:disabled { cursor: not-allowed; }
   .label-instrument { font-size: 11px; letter-spacing: .15em; color: var(--text-secondary); }
   .label-meta { font-size: 11px; color: var(--text-tertiary); }
   .marker-soon { font-size: 10px; letter-spacing: .09em; color: var(--text-quaternary); }
+
+  /* Glassmorphism Espacial (S1-T5.2) */
+  .glass-panel {
+    background: var(--glass-bg);
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.42);
+  }
+  .glass-panel-deep {
+    background: var(--glass-bg-deep);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.55);
+  }
+  .glass-panel-glow {
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.42), 0 0 24px -6px var(--active-accent-soft);
+    border-color: var(--edge-highlight);
+  }
+  .glass-panel-interactive {
+    transition: border-color var(--motion-fast), box-shadow var(--motion-fast), transform var(--motion-fast) var(--ease-instrument);
+  }
+  .glass-panel-interactive:hover {
+    border-color: var(--glass-border-hover);
+    box-shadow: 0 12px 36px 0 rgba(0, 0, 0, 0.48), 0 0 20px -4px var(--active-accent-soft);
+    transform: translateY(-1px);
+  }
+  .glass-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 9px;
+    border-radius: 9999px;
+    background: rgba(255, 255, 255, 0.04);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid var(--edge-subtle);
+    font-size: 11px;
+    letter-spacing: 0.05em;
+  }
+  .nasa-glow-text {
+    text-shadow: 0 0 20px var(--active-accent-soft);
+  }
 }
 .scrollbar-instrument { scrollbar-width: thin; scrollbar-color: var(--edge-highlight) transparent; }
 .scene-vignette::after { content: ''; position: absolute; inset: 0; pointer-events: none;

@@ -1,13 +1,38 @@
-export function MissionHeader() {
+import { Globe2 } from 'lucide-react';
+
+interface MissionHeaderProps {
+  edition?: string;
+  projectName?: string;
+}
+
+export function MissionHeader({
+  edition = 'NASA Space Apps · 2026',
+  projectName = 'Trend Detective',
+}: MissionHeaderProps) {
   return (
-    <div className="mission-signature">
-      <svg className="mission-mark" width="40" height="40" viewBox="0 0 40 40" fill="none" aria-hidden="true">
-        <path d="M4 21a16 16 0 0 1 32 0M2 21h36" stroke="currentColor" strokeWidth="1.5" />
-        <path d="M8 27h24M12 32h16M17 37h6" stroke="currentColor" strokeWidth="1.5" />
-        <path d="m5 21 10-7 7 7h14" stroke="var(--active-accent)" strokeWidth="2" />
-      </svg>
-      <div><p>Earth System</p><h1>Trend Detective</h1>
-        <small>NASA Space Apps · 2026</small></div>
-    </div>
+    <header className="mission-signature" aria-label="Insignia de Misión NASA">
+      <div className="relative flex items-center justify-center w-10 h-10 rounded-full bg-cyan-950/40 border border-cyan-400/30 text-cyan-300 shadow-[0_0_15px_-3px_rgba(6,182,212,0.3)]">
+        <Globe2 className="w-5 h-5 animate-pulse text-cyan-300" aria-hidden="true" />
+        <span className="absolute -top-0.5 -right-0.5 flex h-2 w-2">
+          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+          <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+        </span>
+      </div>
+
+      <div className="flex flex-col pr-1">
+        <div className="flex items-center gap-1.5">
+          <span className="text-[10px] font-bold tracking-wider uppercase text-cyan-400 font-mono">
+            Earth System
+          </span>
+          <span className="inline-block w-1 h-1 rounded-full bg-slate-500" />
+          <span className="text-[10px] font-medium tracking-wide text-slate-400">
+            {edition}
+          </span>
+        </div>
+        <h1 className="text-base font-bold tracking-tight text-slate-100 leading-tight">
+          {projectName}
+        </h1>
+      </div>
+    </header>
   );
 }

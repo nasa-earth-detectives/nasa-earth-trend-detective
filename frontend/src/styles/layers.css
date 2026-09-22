@@ -2,7 +2,12 @@
   position: fixed; z-index: 30; right: 104px; top: clamp(140px, 18vh, 220px); bottom: 170px;
   width: clamp(310px, 26vw, 390px); display: flex; flex-direction: column;
   padding: 24px 20px 12px 32px; pointer-events: none; overflow: hidden;
-  background: radial-gradient(ellipse at 65% 50%, rgba(10, 13, 12, .96) 20%, rgba(10, 13, 12, .75) 55%, transparent 80%);
+  background: rgba(10, 15, 29, 0.78);
+  backdrop-filter: blur(var(--glass-blur, 16px));
+  -webkit-backdrop-filter: blur(var(--glass-blur, 16px));
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  box-shadow: 0 16px 48px -8px rgba(0, 0, 0, 0.6), 0 0 24px -6px var(--active-accent-soft);
   opacity: 0; transform: translateX(18px);
   transition: opacity var(--motion-panel) var(--ease-soft), transform var(--motion-panel) var(--ease-panel);
 }
