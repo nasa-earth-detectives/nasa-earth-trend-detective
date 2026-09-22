@@ -9,10 +9,10 @@
 
 | Entorno / Recurso | Rama / Origen | Enlace de Acceso Directo | Estado / Propósito |
 | :--- | :--- | :--- | :---: |
-| 🌐 **Frontend Producción** | `production` | [nasa-earth-trend-detective.vercel.app](https://nasa-earth-trend-detective.vercel.app/) | 🟢 **200 OK (En Vivo)** |
+| 🌐 **Frontend Producción** | `production` | [nasa-earth-trend-detective.vercel.app](https://nasa-earth-trend-detective.vercel.app/) | 🟢 **200 OK (En Vivo Oficial)** |
+| 🧪 **Frontend Staging (QA)** | `qa` | [nasa-earth-trend-detective-qa.vercel.app](https://nasa-earth-trend-detective-qa.vercel.app/) | 🟢 **200 OK (En Vivo Fijo)** |
+| 🛠️ **Frontend Development** | `development` | [nasa-earth-trend-detective-dev.vercel.app](https://nasa-earth-trend-detective-dev.vercel.app/) | 🟢 **200 OK (En Vivo Fijo)** |
 | 📡 **Backend REST API** | `production` | [nasa-trend-detective-api.onrender.com/health](https://nasa-trend-detective-api.onrender.com/health) | 🟢 **200 OK (En Vivo)** |
-| 🧪 **Frontend Staging (QA)** | `qa` | [nasa-earth-trend-detective-git-qa-brayancortes22s-projects.vercel.app](https://nasa-earth-trend-detective-git-qa-brayancortes22s-projects.vercel.app/) | 🟡 **En Vivo (Fijo)** |
-| 🛠️ **Desarrollo Activo** | `development` | [Despliegues Preview de Dev](https://github.com/nasa-earth-detectives/nasa-earth-trend-detective/deployments/activity_log?environments_filter=development) | 🟡 **Preview Activo** |
 | 📋 **Tablero Kanban** | GitHub Projects | [NASA Trend Detective Projects #1](https://github.com/orgs/nasa-earth-detectives/projects/1) | 📌 **Gestión de Tareas** |
 | 👥 **Matriz de Roles** | Monorrepo | [TEAM.md](TEAM.md) | 📄 **Responsabilidades** |
 | 🤝 **Guía de Contribución** | Protocolo Git | [CONTRIBUTING.md](CONTRIBUTING.md) | 🛡️ **Flujo de Pull & PRs** |
@@ -105,16 +105,13 @@ nasa-project/
 
 El repositorio sigue un protocolo estricto de 3 ramas para garantizar estabilidad y previsualización continua:
 
-| Rama | Entorno en Vercel | Tipo de Despliegue | Propósito y Cómo Verlo en Vivo |
+| Rama | Entorno en Vercel | Dominio Fijo Permanente | Propósito y Estado |
 | :--- | :--- | :--- | :--- |
-| **`production`** ⭐ | 🔵 **`Production` (Current)** | Oficial / Estable | **Demo Jurado NASA:** [nasa-earth-trend-detective.vercel.app](https://nasa-earth-trend-detective.vercel.app/) |
-| **`qa`** | 🟡 **`Preview`** | Staging / Pruebas | Generado automáticamente en cada merge a `qa`. Visible en la pestaña *Deployments* de Vercel. |
-| **`development`** | 🟡 **`Preview`** | Desarrollo Activo | Generado en cada PR o push a `development` para pruebas de los 5 participantes en navegadores reales. |
+| **`production`** ⭐ | 🔵 **`Production`** | [nasa-earth-trend-detective.vercel.app](https://nasa-earth-trend-detective.vercel.app/) | **Demo Jurado NASA:** Versión oficial y estable evaluada. |
+| **`qa`** | 🟡 **`Preview (QA)`** | [nasa-earth-trend-detective-qa.vercel.app](https://nasa-earth-trend-detective-qa.vercel.app/) | **Staging / Pruebas:** Validación continua del equipo. |
+| **`development`** | 🟣 **`Preview (Dev)`** | [nasa-earth-trend-detective-dev.vercel.app](https://nasa-earth-trend-detective-dev.vercel.app/) | **Desarrollo Activo:** Últimos cambios de código en tiempo real. |
 
-> 💡 **¿Cómo abrir la versión en vivo de `development` o `qa` en Vercel?**  
-> 1. En tu panel de Vercel, ve a la pestaña **Deployments**.  
-> 2. Haz clic sobre el despliegue que tenga la etiqueta de la rama que quieres probar (`development` o `qa`).  
-> 3. En la esquina superior derecha, pulsa el botón **Visit** o copia el enlace de la sección **Domains**.
+> 💡 **Enlaces Fijos Permanentes:** Cada una de las 3 ramas tiene su propio dominio canónico asignado en Vercel. Nunca cambian de URL, independientemente de los commits o PRs que se generen. Cada push o merge a la rama correspondiente actualiza automáticamente su sitio en vivo.
 
 ---
 
