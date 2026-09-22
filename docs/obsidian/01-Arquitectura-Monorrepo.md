@@ -14,9 +14,11 @@ El proyecto adopta un enfoque de **Monorrepo Unificado**, estructurado bajo el e
 Organización modular por capas de responsabilidad única (*Smart vs Dumb Components* < 150 líneas):
 - **`components/`**: Componentes visuales reutilizables.
   - `Globe/GlobeViewer.tsx`: Contenedor 3D WebGL / Three.js para renderizado esférico a 60 FPS.
-  - `Controls/TimeSlider.tsx`: Control de línea de tiempo satelital interactiva.
-  - `Cards/MetricCard.tsx`: Tarjetas de variables biofísicas con tendencias estadísticas.
-  - `Common/Header.tsx`: Encabezado con monitor de estado en tiempo real.
+  - `Controls/TimeNavigator.tsx`: Archivo temporal desplegable con transporte anual.
+  - `Layers/LayerPanel.tsx`: Instrumentos de variables científicas y controles reales de escena.
+  - `Rail/ModeNavigator.tsx`: Navegación por intención: Variables, Tiempo y Escena.
+  - `Inspector/LocationInstrument.tsx`: Coordenadas reales de la ubicación seleccionada.
+  - `Mission/`: Contexto científico, identidad y estado de conexión. Ver [[11-Experiencia-Observacion-Espacial]].
 - **`pages/`**: Vistas completas de la aplicación (`DashboardPage.tsx`).
 - **`hooks/`**: Custom Hooks desacoplados (`useGlobeData.ts`, `useTrendFilter.ts`).
 - **`services/`**: Clientes de comunicación HTTP (`apiClient.ts`, `trendService.ts`).

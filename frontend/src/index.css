@@ -2,14 +2,125 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-  color-scheme: dark;
+/* Un color interpolable transmite el cambio de instrumento a todo el chasis. */
+@property --active-accent {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #d4834a;
 }
+:root {
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  color-scheme: dark;
+  --surface-space: #05070a;
+  --surface-optical-glass: rgba(28, 29, 27, .55);
+  --surface-instrument: rgba(22, 24, 22, .88);
+  --surface-deep-instrument: rgba(11, 14, 13, .96);
+  --surface-raised: rgba(236, 232, 219, .045);
+  --surface-pressed: rgba(0, 0, 0, .3);
+  --edge-subtle: rgba(232, 230, 218, .11);
+  --edge-highlight: rgba(232, 230, 218, .24);
+  --edge-inner-top: rgba(255, 255, 255, .08);
+  --text-primary: #eae8df;
+  --text-secondary: #afb3ac;
+  --text-tertiary: #8b948f;
+  --text-quaternary: #79827e;
+  --science-temperature: #d4834a;
+  --science-vegetation: #86a05c;
+  --science-ice: #9dc0d2;
+  --science-co2: #a38cb9;
+  --science-sea: #5f88a6;
+  --active-accent: #d4834a;
+  --active-accent-soft: rgba(212, 131, 74, .22);
+  --active-accent-glow: rgba(212, 131, 74, .3);
+  --status-live: #93b185;
+  --status-local: #bda778;
+  --motion-instant: 120ms;
+  --motion-fast: 200ms;
+  --motion-standard: 320ms;
+  --motion-panel: 480ms;
+  --ease-instrument: cubic-bezier(.22, 1, .36, 1);
+  --ease-panel: cubic-bezier(.16, 1, .3, 1);
+  --ease-soft: cubic-bezier(.33, 1, .68, 1);
+  --ease-soft-out: var(--ease-soft);
+  --glass-bg: rgba(13, 21, 39, 0.72);
+  --glass-bg-deep: rgba(7, 13, 29, 0.88);
+  --glass-border: rgba(255, 255, 255, 0.09);
+  --glass-border-hover: rgba(255, 255, 255, 0.22);
+  --glass-blur: 16px;
+  --font-readout: 'Cascadia Mono', 'Consolas', monospace;
+  transition: --active-accent var(--motion-panel) var(--ease-soft);
+}
+body { margin: 0; background: var(--surface-space); color: var(--text-primary); overflow: hidden;
+  overscroll-behavior: none; -webkit-font-smoothing: antialiased; }
+button, input { font: inherit; }
+button { -webkit-tap-highlight-color: transparent; }
+button:disabled { cursor: not-allowed; }
+::selection { background: var(--active-accent-soft); }
+@layer components {
+  .focus-ring:focus-visible { outline: 2px solid var(--active-accent); outline-offset: 4px; }
+  .tactile-control { width: 44px; height: 44px; display: inline-grid; place-items: center;
+    color: var(--text-secondary); transition: color var(--motion-fast), transform var(--motion-fast) var(--ease-instrument); }
+  .tactile-control:hover { color: var(--text-primary); transform: translateY(-1px); }
+  .tactile-control:active { transform: translateY(1px); }
+  .label-section { font-size: 10px; font-weight: 500; letter-spacing: .13em;
+    text-transform: uppercase; color: var(--text-tertiary); }
+  .label-instrument { font-size: 11px; letter-spacing: .15em; color: var(--text-secondary); }
+  .label-meta { font-size: 11px; color: var(--text-tertiary); }
+  .marker-soon { font-size: 10px; letter-spacing: .09em; color: var(--text-quaternary); }
 
-body {
-  margin: 0;
-  min-height: 100vh;
-  background-color: #050b14;
-  color: #f8fafc;
+  /* Glassmorphism Espacial (S1-T5.2) */
+  .glass-panel {
+    background: var(--glass-bg);
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.42);
+  }
+  .glass-panel-deep {
+    background: var(--glass-bg-deep);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.55);
+  }
+  .glass-panel-glow {
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.42), 0 0 24px -6px var(--active-accent-soft);
+    border-color: var(--edge-highlight);
+  }
+  .glass-panel-interactive {
+    transition: border-color var(--motion-fast), box-shadow var(--motion-fast), transform var(--motion-fast) var(--ease-instrument);
+  }
+  .glass-panel-interactive:hover {
+    border-color: var(--glass-border-hover);
+    box-shadow: 0 12px 36px 0 rgba(0, 0, 0, 0.48), 0 0 20px -4px var(--active-accent-soft);
+    transform: translateY(-1px);
+  }
+  .glass-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 9px;
+    border-radius: 9999px;
+    background: rgba(255, 255, 255, 0.04);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid var(--edge-subtle);
+    font-size: 11px;
+    letter-spacing: 0.05em;
+  }
+  .nasa-glow-text {
+    text-shadow: 0 0 20px var(--active-accent-soft);
+  }
+}
+.scrollbar-instrument { scrollbar-width: thin; scrollbar-color: var(--edge-highlight) transparent; }
+.scene-vignette::after { content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(120% 90% at 50% 45%, transparent 45%, rgba(0,0,0,.45) 100%); }
+.scene-grain::before { content: ''; position: absolute; inset: 0; z-index: 2; pointer-events: none;
+  opacity: .018; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+@keyframes context-arrival { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+.context-crossfade { animation: context-arrival var(--motion-panel) var(--ease-soft); }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important; transition-delay: 0ms !important; scroll-behavior: auto !important; }
+  .context-crossfade { transform: none; }
 }
