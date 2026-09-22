@@ -44,18 +44,14 @@ jobs:
 
           if [ -z "$EXISTING_PR" ] || [ "$EXISTING_PR" = "null" ]; then
             echo "Creando Pull Request de sincronización continua hacia qa..."
+
+            printf '## 🚀 Sincronización Automática: `development` ➔ `qa`\n\nEste Pull Request fue generado automáticamente por GitHub Actions para consolidar los cambios aprobados en `development` y promocionarlos al entorno de pruebas (**QA Staging**).\n\n- **Rama Base:** `qa`\n- **Rama Origen:** `development`\n- **Entorno de Despliegue:** Staging (QA)\n- **Pipeline:** Al fusionarse, se ejecuta `ci-qa.yml` para validación de contenedores y despliegue a QA.\n' > /tmp/pr_sync_body.md
+
             PR_URL=$(gh pr create \
               --base qa \
               --head development \
               --title "🔀 sync(qa): sincronizar cambios de development hacia qa" \
-              --body "## 🚀 Sincronización Automática: \`development\` ➔ \`qa\`
-
-Este Pull Request fue generado automáticamente por GitHub Actions para consolidar los cambios aprobados en \`development\` y promocionarlos al entorno de pruebas (**QA Staging**).
-
-- **Rama Base:** \`qa\`
-- **Rama Origen:** \`development\`
-- **Entorno de Despliegue:** Staging (QA)
-- **Pipeline:** Al fusionarse, se ejecuta \`ci-qa.yml\` para validación de contenedores y despliegue a QA." \
+              --body-file /tmp/pr_sync_body.md \
               --repo "${{ github.repository }}")
             echo "✅ Pull Request creado exitosamente: $PR_URL"
           else
