@@ -70,6 +70,7 @@ export function DetectiveCard({ open, location, variable, year, onClose, onYearC
 
   return (
     <aside
+      id="tour-detective-card"
       className="fixed z-40 left-6 bottom-20 md:bottom-24 w-80 md:w-96 max-w-[calc(100vw-32px)] transition-all duration-300 animate-in fade-in slide-in-from-bottom-4"
       aria-label="Inspector de Detective Regional"
     >

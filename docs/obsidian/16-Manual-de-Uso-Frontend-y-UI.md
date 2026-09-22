@@ -111,3 +111,41 @@ El badge resume el resultado del **Test no paramétrico de Mann-Kendall** ($|Z| 
 * **Cierre Inmediato:** Presionar la tecla `Escape` (`Esc`) cierra inmediatamente el Inspector de Detective y regresa la cámara a la órbita general.
 * **Navegación por Teclado:** Se puede tabular (`Tab` y `Shift + Tab`) hacia el botón de cierre y los controles de inspección sin perder el foco ni desbordar la pantalla.
 * **Soporte `prefers-reduced-motion`:** Los usuarios con sensibilidad al movimiento tienen desactivadas automáticamente las animaciones de pulso y las transiciones bruscas de cámara.
+
+---
+
+## 🚀 4. Manual de Uso Interactivo: Tour Guiado de Misión (`driver.js`)
+
+Inspirado en la experiencia de usuario interactiva implementada en *Accesorios Lilís*, la estación orbital integra un sistema de **recorrido guiado (*Walkthrough*)** basado en la librería `driver.js: ^1.8.0`, adaptado estéticamente con una atmósfera de telemetría espacial profunda (*Deep Space Glassmorphism*).
+
+### 4.1 Activación del Recorrido Guiado
+- **Botón en Cabecera:** Al pulsar el botón **"Guía de Misión"** (`#tour-launch-button`) ubicado en la esquina superior izquierda (`MissionHeader`), se despliega el foco *spotlight* sobre la estación orbital.
+- **Persistencia en LocalStorage:** El sistema registra si el usuario ya completó el recorrido (`nasa_mission_tour_seen`).
+
+### 4.2 Pasos del Recorrido Cósmico
+
+```
+[ Paso 1: MissionHeader ] ──➔ [ Paso 2: ObservationContext ] ──➔ [ Paso 3: ModeNavigator ]
+                                                                          │
+                                                                          ▼
+[ Paso 5: DetectiveCard ] ◀── [ Paso 4: TimeNavigator ] ◀─────────────────┘
+```
+
+1. **Paso 1 · Control de Misión & Telemetría (`#tour-mission-header`):**
+   - Resalta la insignia de misión de la NASA, el estado del enlace de datos satelitales y explica el objetivo de la plataforma *Trend Detective*.
+2. **Paso 2 · Coordenadas & Dominio Activo (`#tour-observation-context`):**
+   - Presenta la perspectiva terrestre en monitoreo, la misión satelital activa (MODIS, CERES, Landsat) y las unidades de medida físicas.
+3. **Paso 3 · Instrumentos de Navegación (`#tour-mode-navigator`):**
+   - Instruye al usuario en el uso de los 4 accesos rápidos: selección de variables climáticas, línea de tiempo, parámetros de escena 3D e inspección de superficie.
+4. **Paso 4 · Línea Temporal Satelital (`#tour-time-navigator`):**
+   - Explica cómo navegar entre los años 2000 y 2026, y cómo iniciar la reproducción continua para observar la evolución ambiental.
+5. **Paso 5 · Inspector Científico: Trend Detective (`#tour-detective-card`):**
+   - El servicio ejecuta el callback `onOpenInspector()` para abrir automáticamente la tarjeta analítica si estaba oculta.
+   - Enseña la interpretación del test de Mann-Kendall, la pendiente de Sen, la evaluación del $p$-valor y la exploración táctil de la serie de tiempo en SVG.
+
+### 4.3 Navegación y Atajos de Teclado del Tour
+- **Avanzar:** Clic en `Siguiente ➔` o pulsar la tecla **Flecha Derecha** (`➔`).
+- **Retroceder:** Clic en `⬅ Anterior` o pulsar la tecla **Flecha Izquierda** (`⬅`).
+- **Salir:** Clic en la `✕` superior, clic en el fondo oscurecido o pulsar la tecla **`Escape`** (`Esc`).
+- **Finalizar:** Clic en `✓ Finalizar Misión` en el último paso.
+

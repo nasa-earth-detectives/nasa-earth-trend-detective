@@ -15,8 +15,10 @@ import { ModeNavigator } from '../Rail/ModeNavigator';
 import { LayerPanel } from '../Layers/LayerPanel';
 import { DetectiveCard } from '../Detective/DetectiveCard';
 import { TimeNavigator } from '../Controls/TimeNavigator';
+import { guidedTourService } from '../../services/guidedTourService';
 import '../../styles/workspace.css';
 import '../../styles/instrument-chrome.css';
+import '../../styles/guided-tour.css';
 
 interface ImmersiveEarthLayoutProps {
   observations: ClimateObservation[];
@@ -58,13 +60,30 @@ export function ImmersiveEarthLayout({ observations, loading, observationError, 
   }, [panelOpen]);
 
   const mission = CLIMATE_VARIABLES.find(item => item.id === filter.variable)?.satelliteMission ?? '';
+
+  const handleStartTour = () => {
+    guidedTourService.startMissionTour({
+      onOpenInspector: () => {
+        if (!ui.location) {
+          ui.selectLocation({ lat: 4.5709, lng: -74.2973 });
+        }
+        ui.toggleMode('inspection');
+      },
+      onCloseInspector: () => {
+        ui.observe();
+      },
+    });
+  };
+
   return (
     <main className="earth-workspace" data-mode={ui.mode} data-idle={isIdle}>
       <GlobeViewer apiRef={sceneApiRef} preferencesRef={scene.preferencesRef} />
       <div className="observation-position quiet-instrument">
         <ObservationContext variable={filter.variable} />
       </div>
-      <div className="mission-position quiet-instrument"><MissionHeader /></div>
+      <div className="mission-position quiet-instrument">
+        <MissionHeader onStartTour={handleStartTour} />
+      </div>
       <div className="system-position quiet-instrument">
         <SystemReadout connected={apiConnected} observationCount={observations.length}
           loading={loading} error={observationError} year={filter.endYear} variable={filter.variable} />
@@ -74,7 +93,7 @@ export function ImmersiveEarthLayout({ observations, loading, observationError, 
           onModeChange={ui.toggleMode} onRecenter={scene.resetCamera}
           onInspectCenter={() => sceneApiRef.current?.inspectCenter()} />
       </div>
-      <div className="time-position quiet-instrument" data-expanded={timeOpen}
+      <div id="tour-time-navigator" className="time-position quiet-instrument" data-expanded={timeOpen}
         inert={panelOpen || ui.mode === 'inspection'}>
         <TimeNavigator startYear={SATELLITE_TIMELINE.startYear} endYear={SATELLITE_TIMELINE.endYear}
           currentYear={filter.endYear} missionLabel={mission} onChange={onYearChange}
