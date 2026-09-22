@@ -126,3 +126,172 @@
   .time-navigator *, .time-navigator *::before { animation: none !important; transition-duration: .01ms !important; }
   .time-control:hover:not(:disabled), .time-control:active:not(:disabled), .time-explore:hover svg { transform: none; }
 }
+
+/* ==========================================================================
+   SPRINT 3: Extensiones del Time-Slider (Hitos, Velocidades y Bucle)
+   ========================================================================== */
+
+.time-control.time-speed {
+  font-family: var(--font-readout);
+  font-size: 11px;
+  font-weight: 600;
+  gap: 4px;
+  padding: 0 8px;
+  min-width: 46px;
+}
+.time-control.time-speed.active-speed {
+  border-color: rgba(6, 182, 212, 0.4);
+  background: rgba(6, 182, 212, 0.1);
+  color: #06b6d4;
+}
+
+.time-control.time-loop.active-loop {
+  border-color: rgba(6, 182, 212, 0.4);
+  background: rgba(6, 182, 212, 0.1);
+}
+
+.time-ticks > span.tick-milestone {
+  height: 12px;
+  width: 2px;
+  background: #38bdf8;
+  box-shadow: 0 0 6px rgba(56, 189, 248, 0.6);
+}
+
+.time-milestone-beacons {
+  position: absolute;
+  top: 15px;
+  inset-inline: 0;
+  pointer-events: none;
+}
+
+.milestone-beacon {
+  position: absolute;
+  transform: translateX(-50%);
+  width: 14px;
+  height: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  pointer-events: auto;
+  padding: 0;
+  z-index: 4;
+}
+
+.beacon-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #38bdf8;
+  box-shadow: 0 0 8px #38bdf8;
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.milestone-beacon:hover .beacon-dot,
+.milestone-beacon.selected .beacon-dot {
+  transform: scale(1.6);
+  background: #06b6d4;
+  box-shadow: 0 0 12px #06b6d4;
+}
+
+.beacon-ping {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 1px solid rgba(56, 189, 248, 0.5);
+  animation: beacon-pulse 2.5s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+@keyframes beacon-pulse {
+  0% { transform: scale(0.6); opacity: 0.9; }
+  100% { transform: scale(2.2); opacity: 0; }
+}
+
+/* Tooltip de hito climático */
+.milestone-tooltip-container {
+  margin-top: 12px;
+  animation: tooltip-appear 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.climate-milestone-tooltip {
+  background: rgba(10, 15, 26, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  border-radius: 10px;
+  padding: 12px 14px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 20px rgba(6, 182, 212, 0.15);
+}
+
+.milestone-tooltip-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.milestone-tooltip-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-readout);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--milestone-accent, #38bdf8);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.milestone-tooltip-close {
+  background: transparent;
+  border: none;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  padding: 2px;
+  display: flex;
+  align-items: center;
+}
+.milestone-tooltip-close:hover {
+  color: var(--text-primary);
+}
+
+.milestone-tooltip-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 4px;
+}
+
+.milestone-tooltip-summary {
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--text-secondary);
+  margin: 0 0 8px;
+}
+
+.milestone-tooltip-impact {
+  font-size: 11px;
+  line-height: 1.4;
+  padding-top: 6px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  gap: 6px;
+}
+
+.milestone-tooltip-impact .impact-label {
+  color: #38bdf8;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.milestone-tooltip-impact .impact-text {
+  color: var(--text-tertiary);
+}
+
+@keyframes tooltip-appear {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
