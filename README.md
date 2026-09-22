@@ -11,7 +11,7 @@
 | :--- | :--- | :--- | :---: |
 | 🌐 **Frontend Producción** | `production` | [nasa-earth-trend-detective.vercel.app](https://nasa-earth-trend-detective.vercel.app/) | 🟢 **200 OK (En Vivo)** |
 | 📡 **Backend REST API** | `production` | [nasa-trend-detective-api.onrender.com/health](https://nasa-trend-detective-api.onrender.com/health) | 🟢 **200 OK (En Vivo)** |
-| 🧪 **Staging (QA)** | `qa` | [Despliegues Staging de QA](https://github.com/nasa-earth-detectives/nasa-earth-trend-detective/deployments/activity_log?environments_filter=qa) | 🟡 **Staging Activo** |
+| 🧪 **Frontend Staging (QA)** | `qa` | [nasa-earth-trend-detective-git-qa-brayancortes22s-projects.vercel.app](https://nasa-earth-trend-detective-git-qa-brayancortes22s-projects.vercel.app/) | 🟡 **En Vivo (Fijo)** |
 | 🛠️ **Desarrollo Activo** | `development` | [Despliegues Preview de Dev](https://github.com/nasa-earth-detectives/nasa-earth-trend-detective/deployments/activity_log?environments_filter=development) | 🟡 **Preview Activo** |
 | 📋 **Tablero Kanban** | GitHub Projects | [NASA Trend Detective Projects #1](https://github.com/orgs/nasa-earth-detectives/projects/1) | 📌 **Gestión de Tareas** |
 | 👥 **Matriz de Roles** | Monorrepo | [TEAM.md](TEAM.md) | 📄 **Responsabilidades** |

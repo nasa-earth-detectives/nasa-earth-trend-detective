@@ -6,6 +6,16 @@
 
 ---
 
+## 🌐 Accesos Directos a la Plataforma en Vivo
+
+| Entorno | Rama Git | Enlace Directo Permanente | Estado |
+| :--- | :---: | :--- | :---: |
+| **Producción Oficial** | `production` | [nasa-earth-trend-detective.vercel.app](https://nasa-earth-trend-detective.vercel.app/) | 🟢 **En Vivo** |
+| **Staging / QA (Pruebas)** | `qa` | [nasa-earth-trend-detective-git-qa-brayancortes22s-projects.vercel.app](https://nasa-earth-trend-detective-git-qa-brayancortes22s-projects.vercel.app/) | 🟡 **Fijo Permanente** |
+| **Backend REST API** | `production` | [nasa-trend-detective-api.onrender.com/health](https://nasa-trend-detective-api.onrender.com/health) | 🟢 **En Vivo** |
+
+---
+
 ## 🗺️ Mapa de Contenido del Proyecto
 
 Bienvenido a la bóveda central de documentación y diseño de ingeniería de nuestra plataforma de detección de tendencias biofísicas globales. Utiliza los siguientes enlaces para navegar por las especificaciones del sistema:
