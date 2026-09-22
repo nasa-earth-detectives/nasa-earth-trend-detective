@@ -15,11 +15,12 @@
 * **ID ClickUp:** `86e3ban07`
 * **Nombre:** **[S2-T5] Wireframes y maquetación de la tarjeta "Inspector de Detective"**
 * **URL:** [https://app.clickup.com/t/86e3ban07](https://app.clickup.com/t/86e3ban07)
-* **Estado:** `desarrollando` 🔵 (En desarrollo activo)
+* **Estado:** `en pruebas` 🟡 (Desarrollo y tour completados, listo para validación)
 * **Prioridad:** Normal (3) 🔵
 * **Asignado:** Brayan Stid Cortés Lombana (`Participante 5 / Frontend Lead & UI/UX`)
 * **Horas Estimadas:** 5h
 * **Rama de Trabajo:** `feat/s2-t5-detective-card` ➔ `development`
+* **Pull Request:** [PR #10](https://github.com/nasa-earth-detectives/nasa-earth-trend-detective/pull/10)
 
 ---
 
@@ -27,9 +28,9 @@
 
 | Código | Subtarea | ID ClickUp | Asignado | Estado | Prioridad | Componentes Clave |
 | :--- | :--- | :---: | :--- | :---: | :---: | :--- |
-| **S2-T5.1** | Maquetar tarjeta flotante DetectiveCard con Glassmorphism | `86e3ban08` | Brayan | `desarrollando` 🔵 | Normal (3) | `src/components/Detective/DetectiveCard.tsx`, `GlassPanel.tsx` |
-| **S2-T5.2** | Crear badges de significancia estadística (\|Z\| > 1.96, p < 0.05) | `86e3ban0a` | Brayan | `desarrollando` 🔵 | Normal (3) | `src/components/Detective/TrendSignificanceBadge.tsx`, `mathTypes.ts` |
-| **S2-T5.3** | Integrar gráfico de series temporales interactivo en SVG ligero | `86e3ban0c` | Brayan | `desarrollando` 🔵 | Normal (3) | `src/components/Detective/TimeSeriesChart.tsx`, Sen's slope line |
+| **S2-T5.1** | Maquetar tarjeta flotante DetectiveCard con Glassmorphism | `86e3ban08` | Brayan | `en pruebas` 🟡 | Normal (3) | `src/components/Detective/DetectiveCard.tsx`, `GlassPanel.tsx` |
+| **S2-T5.2** | Crear badges de significancia estadística (\|Z\| > 1.96, p < 0.05) | `86e3ban0a` | Brayan | `en pruebas` 🟡 | Normal (3) | `src/components/Detective/TrendSignificanceBadge.tsx`, `mathTypes.ts` |
+| **S2-T5.3** | Integrar gráfico de series temporales interactivo en SVG ligero | `86e3ban0c` | Brayan | `en pruebas` 🟡 | Normal (3) | `src/components/Detective/TimeSeriesChart.tsx`, Sen's slope line |
 
 ---
 
@@ -64,4 +65,4 @@
 | **[S2-T2]** | Almacén Columnar DuckDB embebido | Fabriany (Reving) | `86e3ban01` | `to do` |
 | **[S2-T3]** | Algoritmo de Mann-Kendall y Sen's Slope | Johan | `86e3ban03` | `to do` |
 | **[S2-T4]** | Hexágonos 3D y Mapas de Calor dinámicos | Diego | `86e3ban05` | `to do` |
-| **[S2-T5]** | Wireframes y maquetación de la tarjeta "Inspector de Detective" | Brayan | `86e3ban07` | `desarrollando` 🔵 |
+| **[S2-T5]** | Wireframes y maquetación de la tarjeta "Inspector de Detective" | Brayan | `86e3ban07` | `en pruebas` 🟡 |

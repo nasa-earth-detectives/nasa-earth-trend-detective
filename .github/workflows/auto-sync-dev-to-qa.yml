@@ -1,0 +1,71 @@
+name: Auto Sync Development to QA
+
+on:
+  push:
+    branches:
+      - development
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: sync-dev-to-qa
+  cancel-in-progress: true
+
+jobs:
+  sync-to-qa:
+    name: Sincronizar Development hacia QA (Staging)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Sincronizar Ramas y Gestionar PR Automático
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git fetch origin qa development
+
+          # Contar si hay commits en development que falten en qa
+          COMMITS_AHEAD=$(git rev-list --count origin/qa..origin/development)
+          echo "Commits en development pendientes por sincronizar a qa: $COMMITS_AHEAD"
+
+          if [ "$COMMITS_AHEAD" -eq 0 ]; then
+            echo "✅ qa ya se encuentra 100% al día con development. Nada que sincronizar."
+            exit 0
+          fi
+
+          # Verificar si ya existe un PR abierto de development hacia qa
+          EXISTING_PR=$(gh pr list --base qa --head development --state open --json number,url --jq '.[0]')
+
+          if [ -z "$EXISTING_PR" ] || [ "$EXISTING_PR" = "null" ]; then
+            echo "Creando Pull Request de sincronización continua hacia qa..."
+            PR_URL=$(gh pr create \
+              --base qa \
+              --head development \
+              --title "🔀 sync(qa): sincronizar cambios de development hacia qa" \
+              --body "## 🚀 Sincronización Automática: \`development\` ➔ \`qa\`
+
+Este Pull Request fue generado automáticamente por GitHub Actions para consolidar los cambios aprobados en \`development\` y promocionarlos al entorno de pruebas (**QA Staging**).
+
+- **Rama Base:** \`qa\`
+- **Rama Origen:** \`development\`
+- **Entorno de Despliegue:** Staging (QA)
+- **Pipeline:** Al fusionarse, se ejecuta \`ci-qa.yml\` para validación de contenedores y despliegue a QA." \
+              --repo "${{ github.repository }}")
+            echo "✅ Pull Request creado exitosamente: $PR_URL"
+          else
+            echo "ℹ️ Ya existe un Pull Request abierto de development hacia qa: $EXISTING_PR"
+          fi
+
+          # Intentar auto-merge si las políticas del repositorio lo permiten
+          echo "Intentando auto-merge o fusión directa hacia qa..."
+          PR_NUM=$(gh pr list --base qa --head development --state open --json number --jq '.[0].number')
+          if [ -n "$PR_NUM" ] && [ "$PR_NUM" != "null" ]; then
+            gh pr merge "$PR_NUM" --auto --merge --repo "${{ github.repository }}" || \
+            echo "Nota: El PR requiere aprobación previa de code owners antes del merge final."
+          fi

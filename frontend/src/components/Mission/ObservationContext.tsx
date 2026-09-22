@@ -7,7 +7,7 @@ export function ObservationContext({ variable }: { variable: ClimateVariable }) 
   const metadata = CLIMATE_VARIABLES.find(item => item.id === variable)!;
   const lens = OBSERVATION_LENSES[variable];
   return (
-    <section className="observation-context" aria-label="Observación actual">
+    <section id="tour-observation-context" className="observation-context" aria-label="Observación actual">
       <p className="context-kicker">Perspectiva terrestre <span>activa</span></p>
       <div className="context-crossfade" key={variable}>
         <div className="context-measure"><span className="context-symbol" aria-hidden="true">{lens.symbol}</span>

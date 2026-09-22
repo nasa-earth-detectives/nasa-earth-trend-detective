@@ -81,3 +81,4 @@
 1. **Frontend en Vercel:** [nasa-earth-trend-detective.vercel.app](https://nasa-earth-trend-detective.vercel.app/).
 2. **Backend en Render:** [nasa-trend-detective-api.onrender.com/health](https://nasa-trend-detective-api.onrender.com/health).
 3. **Flujo de PRs:** PR #8 (Agente Revisor IA) y PR #9 (Design System espacial) activos en `development`.
+

@@ -20,6 +20,7 @@ Bienvenido a la bóveda central de documentación y diseño de ingeniería de nu
 - [[03-Roles-y-Equipo]]: Perfiles técnicos y asignación de responsabilidades de los 5 participantes.
 - [[08-Contenedores-Docker]]: Guía de ejecución unificada con Docker Compose en local y staging.
 - [[09-Gobernanza-GitHub-Org-y-Projects]]: Organización de GitHub, CODEOWNERS, rulesets de ramas y tablero Kanban en Projects.
+- [[16-Manual-de-Uso-Frontend-y-UI]]: Manual de uso, componentes espaciales (Glassmorphism), DetectiveCard y accesibilidad.
 
 ### 🔬 Rigor Científico & Datos NASA
 - [[05-Rigor-Cientifico-MannKendall]]: Fórmulas matemáticas del Test de Mann-Kendall, Pendiente de Sen y Motor de Tendencias Opuestas.

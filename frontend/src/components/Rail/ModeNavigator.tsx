@@ -21,7 +21,7 @@ export function ModeNavigator({ mode, variable, year, onModeChange, onRecenter, 
     { mode: 'view', label: 'Escena', detail: 'Órbita y referencias', panel: 'layer-panel', symbol: <Orbit size={19} /> },
   ] as const;
   return (
-    <nav className="mode-navigator" aria-label="Explorar la Tierra" data-ui-control>
+    <nav id="tour-mode-navigator" className="mode-navigator" aria-label="Explorar la Tierra" data-ui-control>
       <p className="mode-index-label">Instrumentos de observación</p>
       {instruments.map(item => (
         <button key={item.mode} type="button" className="mode-entry focus-ring"

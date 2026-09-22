@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@nasa-trend-detective/shared": "*",
+    "driver.js": "^1.8.0",
     "globe.gl": "^2.36.0",
     "lucide-react": "^0.475.0",
     "react": "^19.0.0",
