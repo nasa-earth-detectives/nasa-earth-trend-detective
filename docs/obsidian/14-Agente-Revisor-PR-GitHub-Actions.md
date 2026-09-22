@@ -75,3 +75,16 @@ Los desarrolladores pueden ejecutar el revisor en sus máquinas antes de abrir u
 # Ejecutar auditoría estática en modo dry-run contra la rama base
 node .github/scripts/ai-pr-reviewer.mjs --dry-run
 ```
+
+---
+
+## 🔍 Filtro Inteligente de Archivos (Anti Falsos Positivos)
+
+Para evitar reportes erróneos en auditorías masivas de integración:
+- **Archivos de Código Evaluados:** `.ts`, `.tsx`, `.js`, `.jsx`, `.cs`, `.py`, `.php`, `.go`, `.rs`.
+- **Archivos Excluidos de Regla God-Class (SRP):**
+  - **Binarios:** Texturas de alta resolución (`.jpg`, `.png`, `.webp`), fuentes y modelos 3D.
+  - **Lockfiles autogenerados:** `package-lock.json`, `yarn.lock`, `pnpm-lock.yaml`.
+  - **Manifiestos y datos:** `asset-manifest.json`, archivos `.parquet` y `.csv`.
+  - **Estilos:** Archivos `.css` (se evalúan por reglas visuales, no por SRP de clases u objetos).
+

@@ -6,8 +6,8 @@
  */
 import { VariableMetadata } from '../types/climate.types';
 
-/** Rango de navegación configurado; no implica cobertura de cada producto. */
-export const SATELLITE_TIMELINE = { startYear: 2002, endYear: 2024 } as const;
+/** Rango de navegación configurado (2000-2026 para análisis multidecenal de la NASA). */
+export const SATELLITE_TIMELINE = { startYear: 2000, endYear: 2026 } as const;
 
 /** Variables soportadas hoy de extremo a extremo (tipo `ClimateVariable`). */
 export const CLIMATE_VARIABLES: VariableMetadata[] = [

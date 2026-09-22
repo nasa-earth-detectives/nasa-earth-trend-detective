@@ -1,6 +1,14 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 
-const PLAYBACK_INTERVAL_MS = 1200;
+export type PlaybackSpeed = 1 | 2 | 5;
+
+const BASE_INTERVAL_MS = 1200;
+
+const SPEED_INTERVALS: Record<PlaybackSpeed, number> = {
+  1: BASE_INTERVAL_MS,
+  2: BASE_INTERVAL_MS / 2, // 600ms
+  5: BASE_INTERVAL_MS / 5, // 240ms
+};
 
 interface TimelinePlaybackParams {
   startYear: number;
@@ -9,16 +17,22 @@ interface TimelinePlaybackParams {
   onChange: (year: number) => void;
   onPlaybackChange: (playing: boolean) => void;
 }
-/** Un avance por año. Los cambios de interfaz no reinician el reloj. */
+
+/**
+ * Hook para control de reproducción temporal con velocidad regulable (1x, 2x, 5x)
+ * y modo bucle (loop) para simulación histórica continua.
+ */
 export function useTimelinePlayback({
   startYear, endYear, currentYear, onChange, onPlaybackChange,
 }: TimelinePlaybackParams) {
   const [isPlaying, setIsPlaying] = useState(false);
-  const latest = useRef({ startYear, endYear, currentYear, onChange });
+  const [speed, setSpeed] = useState<PlaybackSpeed>(1);
+  const [isLooping, setIsLooping] = useState(true);
+  const latest = useRef({ startYear, endYear, currentYear, onChange, isLooping });
 
   useEffect(() => {
-    latest.current = { startYear, endYear, currentYear, onChange };
-  }, [startYear, endYear, currentYear, onChange]);
+    latest.current = { startYear, endYear, currentYear, onChange, isLooping };
+  }, [startYear, endYear, currentYear, onChange, isLooping]);
 
   useEffect(() => {
     onPlaybackChange(isPlaying);
@@ -26,12 +40,23 @@ export function useTimelinePlayback({
 
   useEffect(() => {
     if (!isPlaying) return;
+
+    const intervalMs = SPEED_INTERVALS[speed];
     const interval = window.setInterval(() => {
       const state = latest.current;
-      state.onChange(state.currentYear >= state.endYear ? state.startYear : state.currentYear + 1);
-    }, PLAYBACK_INTERVAL_MS);
+      if (state.currentYear >= state.endYear) {
+        if (state.isLooping) {
+          state.onChange(state.startYear);
+        } else {
+          setIsPlaying(false);
+        }
+      } else {
+        state.onChange(state.currentYear + 1);
+      }
+    }, intervalMs);
+
     return () => window.clearInterval(interval);
-  }, [isPlaying]);
+  }, [isPlaying, speed]);
 
   const togglePlayback = useCallback(() => setIsPlaying((value) => !value), []);
   const pausePlayback = useCallback(() => setIsPlaying(false), []);
@@ -40,5 +65,23 @@ export function useTimelinePlayback({
     onChange(startYear);
   }, [onChange, startYear]);
 
-  return { isPlaying, togglePlayback, pausePlayback, resetPlayback };
+  const cycleSpeed = useCallback(() => {
+    setSpeed((current) => (current === 1 ? 2 : current === 2 ? 5 : 1));
+  }, []);
+
+  const toggleLoop = useCallback(() => {
+    setIsLooping((prev) => !prev);
+  }, []);
+
+  return {
+    isPlaying,
+    speed,
+    isLooping,
+    togglePlayback,
+    pausePlayback,
+    resetPlayback,
+    setSpeed,
+    cycleSpeed,
+    toggleLoop,
+  };
 }
