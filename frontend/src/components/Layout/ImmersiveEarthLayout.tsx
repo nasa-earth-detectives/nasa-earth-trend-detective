@@ -13,7 +13,7 @@ import { SystemReadout } from '../Mission/SystemReadout';
 import { ObservationContext } from '../Mission/ObservationContext';
 import { ModeNavigator } from '../Rail/ModeNavigator';
 import { LayerPanel } from '../Layers/LayerPanel';
-import { LocationInstrument } from '../Inspector/LocationInstrument';
+import { DetectiveCard } from '../Detective/DetectiveCard';
 import { TimeNavigator } from '../Controls/TimeNavigator';
 import '../../styles/workspace.css';
 import '../../styles/instrument-chrome.css';
@@ -93,11 +93,17 @@ export function ImmersiveEarthLayout({ observations, loading, observationError, 
         gridVisible={scene.preferences.gridVisible} atmosphereVisible={scene.preferences.atmosphereVisible}
         onAutoRotateChange={scene.setAutoRotate} onStarsChange={scene.setStarsVisible}
         onGridChange={scene.setGridVisible} onAtmosphereChange={scene.setAtmosphereVisible} />
-      <LocationInstrument open={ui.mode === 'inspection'} location={ui.location}
-        variable={filter.variable} year={filter.endYear} onClose={() => {
+      <DetectiveCard
+        open={ui.mode === 'inspection'}
+        location={ui.location}
+        variable={filter.variable}
+        year={filter.endYear}
+        onClose={() => {
           ui.observe();
           requestAnimationFrame(() => document.querySelector<HTMLButtonElement>('[data-mode-trigger="inspection"]')?.focus());
-        }} />
+        }}
+        onYearChange={onYearChange}
+      />
     </main>
   );
 }
