@@ -13,9 +13,6 @@ export function MissionHeader({
 }: MissionHeaderProps) {
   return (
     <header id="tour-mission-header" className="mission-signature" aria-label="Insignia de Misión NASA">
-}: MissionHeaderProps) {
-  return (
-    <header className="mission-signature" aria-label="Insignia de Misión NASA">
       <div className="relative flex items-center justify-center w-10 h-10 rounded-full bg-cyan-950/40 border border-cyan-400/30 text-cyan-300 shadow-[0_0_15px_-3px_rgba(6,182,212,0.3)]">
         <Globe2 className="w-5 h-5 animate-pulse text-cyan-300" aria-hidden="true" />
         <span className="absolute -top-0.5 -right-0.5 flex h-2 w-2">
