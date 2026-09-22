@@ -1,0 +1,5 @@
+{
+  "livePreview.defaultPreviewPath": "http://localhost:3001/",
+  "livePreview.openPreviewTarget": "Embedded Preview",
+  "livePreview.autoRefreshPreview": "On Changes to Saved Files"
+}
