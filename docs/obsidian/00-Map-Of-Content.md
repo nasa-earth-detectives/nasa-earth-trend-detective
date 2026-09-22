@@ -28,9 +28,11 @@ Bienvenido a la bóveda central de documentación y diseño de ingeniería de nu
 ### 🚀 Ciclo de Vida, Sprints & CI/CD
 - [[04-Sprints-y-Roadmap]]: Desglose detallado de los 4 Sprints, 20 tareas técnicas y 55 subtareas atómicas vinculadas a ClickUp.
 - [[06-Pipeline-CI-CD]]: Automatización de compilación, linters y despliegue a QA, con freno de seguridad antes de producción.
+- [[14-Agente-Revisor-PR-GitHub-Actions]]: Agente automatizado con Google Gemini para auditoría continua de Pull Requests en GitHub Actions.
 - [[07-Estandares-Ingenieria]]: Directivas de Clean Architecture, clases <150 líneas, tipado estricto y seguridad contra bots.
 - [[10-Despliegue-Cloud-Vercel-Render]]: Arquitectura serverless en Vercel Edge y contenedor .NET 10 en Render Cloud.
-- [[11-Trazabilidad-ClickUp-Sprint-1]]: Trazabilidad en vivo de la tarea madre [S1-T0] y sus 5 subtareas en ClickUp API v2.
+- [[11-Trazabilidad-ClickUp-Sprint-1]]: Trazabilidad en vivo de infraestructura [S1-T0] y Design System espacial [S1-T5].
+- [[15-Trazabilidad-ClickUp-Sprint-2]]: Trazabilidad de Sprint 2, panel de Inspector de Detective [S2-T5], Mann-Kendall y DuckDB.
 
 ---
 
