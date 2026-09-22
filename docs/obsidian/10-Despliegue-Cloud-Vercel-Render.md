@@ -4,13 +4,18 @@ Volver al [[00-Map-Of-Content]] | Ver contenedores en [[08-Contenedores-Docker]]
 
 ---
 
-## 🌐 URLs Oficiales de Producción (Verificadas)
+## 🌐 Entornos de Despliegue y URLs Oficiales (Verificadas)
 
-| Componente | Plataforma Cloud | URL Pública Oficial | Estado |
-| :--- | :--- | :--- | :---: |
-| **Frontend Web 3D** | **Vercel Edge** | [https://nasa-earth-trend-detective.vercel.app/](https://nasa-earth-trend-detective.vercel.app/) | ✅ 200 OK |
-| **Backend REST API** | **Render Web Service** | [https://nasa-trend-detective-api.onrender.com](https://nasa-trend-detective-api.onrender.com) | ✅ 200 OK |
-| **Health Check** | **Render Cloud** | [https://nasa-trend-detective-api.onrender.com/health](https://nasa-trend-detective-api.onrender.com/health) | ✅ 200 OK (Healthy) |
+| Entorno | Componente | Rama Git | Plataforma Cloud | URL Pública Directa | Tipo de Enlace | Estado |
+| :--- | :--- | :---: | :--- | :--- | :--- | :---: |
+| **Producción** | **Frontend Web 3D** | `production` | **Vercel Edge** | [https://nasa-earth-trend-detective.vercel.app/](https://nasa-earth-trend-detective.vercel.app/) | Dominio Canónico Oficial | ✅ 200 OK |
+| **QA (Staging)** | **Frontend Web 3D** | `qa` | **Vercel Edge** | [https://nasa-earth-trend-detective-git-qa-brayancortes22s-projects.vercel.app/](https://nasa-earth-trend-detective-git-qa-brayancortes22s-projects.vercel.app/) | Branch URL Fija Permanente | ✅ Activo |
+| **Producción** | **Backend REST API** | `production` | **Render Cloud** | [https://nasa-trend-detective-api.onrender.com](https://nasa-trend-detective-api.onrender.com) | Render Web Service | ✅ 200 OK |
+| **Producción** | **Health Check API** | `production` | **Render Cloud** | [https://nasa-trend-detective-api.onrender.com/health](https://nasa-trend-detective-api.onrender.com/health) | Health Monitor | ✅ 200 OK |
+
+> 📌 **¿El enlace de QA cambia?**
+> - **NO cambia:** El enlace de arriba es un **Branch URL de Vercel** asociado permanentemente a la rama `qa`. Cada vez que el workflow `auto-sync-dev-to-qa.yml` sincroniza cambios hacia `qa`, este enlace se actualiza de forma automática y siempre muestra la última versión de pruebas del equipo.
+> - Los enlaces temporales que contienen códigos hash (ej. `...git-02832a...vercel.app`) corresponden a despliegues de previsualización (*Preview Deployments*) generados para commits específicos o Pull Requests.
 
 ---
 

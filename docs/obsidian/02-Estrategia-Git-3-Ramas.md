@@ -27,7 +27,8 @@ Para asegurar máxima estabilidad y rigor profesional en el repositorio, el proy
 - Rama donde se validan las pruebas de integración, latencia de DuckDB (<50ms) y fluidez WebGL a 60 FPS.
 - **Sincronización Automática:** El workflow `.github/workflows/auto-sync-dev-to-qa.yml` detecta cada push/merge en `development`, crea/actualiza el PR de sincronización e integra los cambios automáticamente hacia `qa`.
 - El pipeline de [[06-Pipeline-CI-CD]] ejecuta el job `deploy-qa` automáticamente al recibir cambios.
-- **En Vivo:** Cuenta con su propio despliegue de staging en Vercel (disponible en la pestaña *Deployments*).
+- **En Vivo (Enlace Fijo Permanente):** [https://nasa-earth-trend-detective-git-qa-brayancortes22s-projects.vercel.app/](https://nasa-earth-trend-detective-git-qa-brayancortes22s-projects.vercel.app/)
+  *(Nota: Este enlace NO cambia con cada commit; se actualiza automáticamente con cada cambio que llega a la rama `qa`).*
 
 ### 3. `production` (Producción Oficial)
 - Rama protegida y predeterminada del repositorio, reservada exclusivamente para la entrega oficial ante el jurado de la NASA.
