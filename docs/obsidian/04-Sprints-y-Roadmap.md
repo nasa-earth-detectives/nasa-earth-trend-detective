@@ -20,12 +20,13 @@ El proyecto divide el desarrollo en **4 Sprints técnicos y científicos**, con 
 - **[S1-T5]** Design System espacial Glassmorphism (5h) ➔ **Brayan**
   - Subtareas: S1-T5.1 (Tokens Tailwind), S1-T5.2 (Clases Blur 16px), S1-T5.3 (Navbar Espacial)
 
-### 🔹 Sprint 2: Motor Científico y Pipeline Analítico
+### 🔹 Sprint 2: Motor Científico y Pipeline Analítico ([[15-Trazabilidad-ClickUp-Sprint-2]])
 - **[S2-T1]** Endpoints REST y DTOs tipados (8h) ➔ **July**
 - **[S2-T2]** Almacén Columnar DuckDB embebido (8h) ➔ **Fabriany (Reving)**
 - **[S2-T3]** Algoritmo de Mann-Kendall y Sen's Slope (8h) ➔ **Johan**
 - **[S2-T4]** Hexágonos 3D y Mapas de Calor dinámicos (7h) ➔ **Diego**
-- **[S2-T5]** Panel "Inspector de Detective" (5h) ➔ **Brayan**
+- **[S2-T5]** Panel "Inspector de Detective" (5h) ➔ **Brayan** *(En Desarrollo Activo)*
+  - Subtareas: S2-T5.1 (Tarjeta DetectiveCard Glassmorphism), S2-T5.2 (Badges Significancia \|Z\| > 1.96), S2-T5.3 (Gráfico SVG de Series Temporales)
 
 ### 🔹 Sprint 3: Experiencia 3D, Tendencias Opuestas e Integración
 - **[S3-T1]** Seguridad de API, Rate Limiting y Caché (6h) ➔ **July**
