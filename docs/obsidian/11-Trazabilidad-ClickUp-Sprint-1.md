@@ -72,15 +72,16 @@
 * **ID ClickUp:** `86e3bamyp`
 * **Nombre:** **[S1-T5] Definición del Design System espacial (Glassmorphism, paleta y tipografía)**
 * **URL:** [https://app.clickup.com/t/86e3bamyp](https://app.clickup.com/t/86e3bamyp)
-* **Estado:** `In Development / Ready for PR` 🚀
+* **Estado:** `Complete` ✅
 * **Prioridad:** Normal (3) 🔵
 * **Asignado:** Brayan Stid Cortés Lombana (`Participante 5 / Frontend Lead & UI/UX`)
 * **Horas Estimadas:** 5h
+* **Pull Request:** [feat/s1-t5-design-system-spatial](https://github.com/nasa-earth-detectives/nasa-earth-trend-detective/pull/new/feat/s1-t5-design-system-spatial)
 
-### Subtareas Desarrolladas:
+### Subtareas Desarrolladas y Sincronizadas:
 | Código | Subtarea | ID ClickUp | Estado | Componentes / Archivos Clave |
 | :--- | :--- | :---: | :---: | :--- |
-| **S1-T5.1** | Configurar tokens de Tailwind y paleta espacial | `86e3bamyr` | ✅ Listo | `tailwind.config.js` (colores `cosmic-*`, `nasa-*`, `science-*`, shadows, blurs) |
-| **S1-T5.2** | Crear clases utilitarias de Glassmorphism (blur 16px) | `86e3bamyt` | ✅ Listo | `src/index.css` (`.glass-panel`, `.glass-panel-glow`, `.glass-badge`), `src/components/UI/GlassPanel.tsx`, `StatusBadge.tsx` |
-| **S1-T5.3** | Construir barra de navegación espacial (Navbar) | `86e3bamyu` | ✅ Listo | `src/components/Mission/MissionHeader.tsx`, `src/styles/instrument-chrome.css` |
+| **S1-T5.1** | Configurar tokens de Tailwind y paleta espacial | `86e3bamyr` | `Complete` ✅ | `tailwind.config.js` (colores `cosmic-*`, `nasa-*`, `science-*`, shadows, blurs) |
+| **S1-T5.2** | Crear clases utilitarias de Glassmorphism (blur 16px) | `86e3bamyt` | `Complete` ✅ | `src/index.css` (`.glass-panel`, `.glass-panel-glow`, `.glass-badge`), `src/components/UI/GlassPanel.tsx`, `StatusBadge.tsx` |
+| **S1-T5.3** | Construir barra de navegación espacial (Navbar) | `86e3bamyu` | `Complete` ✅ | `src/components/Mission/MissionHeader.tsx`, `src/styles/instrument-chrome.css` |
 
