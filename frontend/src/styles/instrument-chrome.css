@@ -22,11 +22,26 @@
 .context-reference dt { color: var(--text-tertiary); }
 .context-reference dd { margin: 0; color: var(--text-secondary); }
 .context-reference .context-unit { color: var(--active-accent); font-family: var(--font-readout); }
-.mission-signature { display: flex; align-items: center; gap: 13px; user-select: none; }
-.mission-mark { color: var(--text-secondary); flex-shrink: 0; }
-.mission-signature p { font-size: 12px; color: var(--text-secondary); }
-.mission-signature h1 { font-size: 23px; font-weight: 650; letter-spacing: -.04em; line-height: 1.25; }
-.mission-signature small { display: block; font-size: 10px; margin-top: 5px; color: var(--text-tertiary); }
+.mission-signature {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  user-select: none;
+  padding: 8px 18px 8px 10px;
+  background: var(--glass-bg, rgba(10, 15, 29, 0.72));
+  backdrop-filter: blur(var(--glass-blur, 16px));
+  -webkit-backdrop-filter: blur(var(--glass-blur, 16px));
+  border: 1px solid var(--glass-border);
+  border-radius: 9999px;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.42);
+  pointer-events: auto;
+  transition: border-color var(--motion-fast), box-shadow var(--motion-fast), transform var(--motion-fast) var(--ease-instrument);
+}
+.mission-signature:hover {
+  border-color: var(--glass-border-hover);
+  box-shadow: 0 12px 36px 0 rgba(0, 0, 0, 0.48), 0 0 20px -4px var(--active-accent-soft);
+  transform: translateY(-1px);
+}
 .system-readout { width: 294px; user-select: none; border-top: 2px solid var(--edge-highlight); padding-top: 10px; }
 .query-heading { display: flex; gap: 12px; justify-content: space-between; font-size: 11px; color: var(--text-secondary); }
 .query-key { font-family: var(--font-readout); color: var(--active-accent); white-space: nowrap; }

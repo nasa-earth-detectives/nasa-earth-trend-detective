@@ -63,3 +63,24 @@
 * Tabla de accesos directos en el `README.md` principal del repositorio.
 * Enlaces rápidos a Frontend Vercel, Backend Render, Health Check, Swagger UI y Render Dashboard.
 * Configuración de GitHub Environments (`production`, `qa`, `development`) con badges visuales.
+
+---
+
+## 🎨 Tarea Principal: Design System Espacial y Experiencia UI
+
+* **Código:** `[S1-T5]`
+* **ID ClickUp:** `86e3bamyp`
+* **Nombre:** **[S1-T5] Definición del Design System espacial (Glassmorphism, paleta y tipografía)**
+* **URL:** [https://app.clickup.com/t/86e3bamyp](https://app.clickup.com/t/86e3bamyp)
+* **Estado:** `In Development / Ready for PR` 🚀
+* **Prioridad:** Normal (3) 🔵
+* **Asignado:** Brayan Stid Cortés Lombana (`Participante 5 / Frontend Lead & UI/UX`)
+* **Horas Estimadas:** 5h
+
+### Subtareas Desarrolladas:
+| Código | Subtarea | ID ClickUp | Estado | Componentes / Archivos Clave |
+| :--- | :--- | :---: | :---: | :--- |
+| **S1-T5.1** | Configurar tokens de Tailwind y paleta espacial | `86e3bamyr` | ✅ Listo | `tailwind.config.js` (colores `cosmic-*`, `nasa-*`, `science-*`, shadows, blurs) |
+| **S1-T5.2** | Crear clases utilitarias de Glassmorphism (blur 16px) | `86e3bamyt` | ✅ Listo | `src/index.css` (`.glass-panel`, `.glass-panel-glow`, `.glass-badge`), `src/components/UI/GlassPanel.tsx`, `StatusBadge.tsx` |
+| **S1-T5.3** | Construir barra de navegación espacial (Navbar) | `86e3bamyu` | ✅ Listo | `src/components/Mission/MissionHeader.tsx`, `src/styles/instrument-chrome.css` |
+
