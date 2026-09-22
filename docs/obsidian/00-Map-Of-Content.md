@@ -10,8 +10,9 @@
 
 | Entorno | Rama Git | Enlace Directo Permanente | Estado |
 | :--- | :---: | :--- | :---: |
-| **Producción Oficial** | `production` | [nasa-earth-trend-detective.vercel.app](https://nasa-earth-trend-detective.vercel.app/) | 🟢 **En Vivo** |
-| **Staging / QA (Pruebas)** | `qa` | [nasa-earth-trend-detective-git-qa-brayancortes22s-projects.vercel.app](https://nasa-earth-trend-detective-git-qa-brayancortes22s-projects.vercel.app/) | 🟡 **Fijo Permanente** |
+| **Producción Oficial** | `production` | [nasa-earth-trend-detective.vercel.app](https://nasa-earth-trend-detective.vercel.app/) | 🟢 **En Vivo Oficial** |
+| **Staging / QA (Pruebas)** | `qa` | [nasa-earth-trend-detective-qa.vercel.app](https://nasa-earth-trend-detective-qa.vercel.app/) | 🟢 **Fijo Permanente** |
+| **Desarrollo Activo (Dev)** | `development` | [nasa-earth-trend-detective-dev.vercel.app](https://nasa-earth-trend-detective-dev.vercel.app/) | 🟢 **Fijo Permanente** |
 | **Backend REST API** | `production` | [nasa-trend-detective-api.onrender.com/health](https://nasa-trend-detective-api.onrender.com/health) | 🟢 **En Vivo** |
 
 ---
