@@ -7,13 +7,12 @@ export default {
   theme: {
     extend: {
       colors: {
-        nasa: {
-          blue: '#0B3D91',
-          red: '#FC3D21',
-          dark: '#050B14',
-          card: '#0D1527',
-        }
-      }
+        instrument: {
+          space: 'var(--surface-space)',
+          text: 'var(--text-primary)',
+          accent: 'var(--active-accent)',
+        },
+      },
     },
   },
   plugins: [],

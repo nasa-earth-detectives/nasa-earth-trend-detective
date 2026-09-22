@@ -1,0 +1,127 @@
+/* El planeta es el espacio de trabajo; sólo el instrumento elegido gana superficie. */
+.earth-workspace { position: fixed; inset: 0; overflow: hidden; --gutter: clamp(28px, 3.5vw, 88px); }
+.observation-position, .mission-position, .system-position, .intent-position, .time-position,
+.scene-guidance { position: absolute; z-index: 10; }
+.observation-position { top: clamp(160px, 20vh, 260px); left: var(--gutter); pointer-events: none; }
+.mission-position { top: 35px; left: var(--gutter); pointer-events: none; }
+.system-position { bottom: 38px; left: var(--gutter); pointer-events: none; }
+.intent-position { right: var(--gutter); top: 40%; width: 236px; z-index: 40;
+  transition: width var(--motion-panel) var(--ease-panel), right var(--motion-panel) var(--ease-panel); }
+.time-position { top: clamp(36px, 6vh, 86px); right: var(--gutter); }
+.time-position[data-expanded='true'] { top: auto; bottom: 160px; left: var(--gutter); right: 130px; }
+.scene-guidance { bottom: 40px; left: 50%; transform: translateX(-50%); margin: 0;
+  text-align: center; font-size: 10px; line-height: 1.8; color: var(--text-tertiary); pointer-events: none; }
+.scene-guidance > span { display: block; }
+.scene-guidance .guidance-touch { display: none; }
+.quiet-instrument { transition: opacity 700ms var(--ease-soft), transform var(--motion-panel) var(--ease-panel); }
+[data-idle='true'] .quiet-instrument { opacity: .9; }
+[data-idle='true'] .observation-context h2, [data-idle='true'] .time-year { opacity: .6; }
+[data-idle='true'] .mission-mark { opacity: .5; }
+[data-idle='true'] .intent-position { opacity: 1; transform: translateX(5px); }
+[data-idle='true'] .mode-label > span { color: var(--text-tertiary); }
+[data-idle='true'] .mode-entry { border-color: rgba(232,230,218,.045); }
+[data-idle='true'] .mode-arrow { opacity: .18; }
+[data-mode]:not([data-mode='observation']) .intent-position { right: 25px; width: 44px; }
+[data-mode]:not([data-mode='observation']) .mode-index-label,
+[data-mode]:not([data-mode='observation']) .mode-label,
+[data-mode]:not([data-mode='observation']) .mode-actuator,
+[data-mode]:not([data-mode='observation']) .recenter-control span { display: none; }
+[data-mode]:not([data-mode='observation']) .mode-entry { height: 58px; min-height: 58px; justify-content: center; }
+[data-mode]:not([data-mode='observation']) .recenter-control { justify-content: center; }
+[data-mode]:not([data-mode='observation']) .scene-utilities { display: none; }
+[data-mode]:not([data-mode='observation']) .mode-entry::after {
+  content: attr(aria-label); position: absolute; right: calc(100% + 12px); white-space: nowrap;
+  font-size: 12px; color: var(--text-primary); padding: 6px 9px; background: #0a0e0d;
+  opacity: 0; pointer-events: none; transform: translateX(3px);
+  transition: opacity var(--motion-fast), transform var(--motion-fast) var(--ease-instrument);
+}
+[data-mode]:not([data-mode='observation']) .mode-entry:hover::after,
+[data-mode]:not([data-mode='observation']) .mode-entry:focus-visible::after { opacity: 1; transform: none; }
+[data-mode]:not([data-mode='observation']) .scene-guidance { opacity: 0; }
+[data-mode='time'] .observation-position { opacity: .65; }
+[data-mode='inspection'] .observation-position { opacity: 0; }
+[data-mode='layers'] .context-section, [data-mode='view'] .context-section,
+[data-mode='layers'] .context-reference, [data-mode='view'] .context-reference { display: none; }
+[data-mode='layers'] .time-position, [data-mode='view'] .time-position,
+[data-mode='inspection'] .time-position { opacity: .5; }
+[data-mode='layers'] .time-explore, [data-mode='view'] .time-explore,
+[data-mode='inspection'] .time-explore { visibility: hidden; }
+.location-instrument { position: absolute; z-index: 30; left: var(--gutter); bottom: 164px;
+  width: 380px; max-width: calc(100vw - 40px); padding: 12px 28px 28px 0;
+  background: linear-gradient(100deg, rgba(8,12,12,.97), rgba(8,12,12,.85) 75%, transparent);
+  opacity: 0; transform: translate(-18px, 12px); transform-origin: left bottom;
+  transition: opacity var(--motion-panel) var(--ease-soft), transform var(--motion-panel) var(--ease-panel); }
+.location-instrument[data-open='true'] { opacity: 1; transform: none; }
+.location-instrument header { display: flex; justify-content: space-between; align-items: center; }
+.location-instrument header p { display: flex; gap: 12px; align-items: center; color: var(--active-accent);
+  font-size: 11px; letter-spacing: .07em; }
+.location-coordinates { display: flex; gap: 28px; margin: 24px 0; animation: context-arrival var(--motion-standard) var(--ease-soft); }
+.location-coordinates small { display: block; font-size: 11px; margin-bottom: 6px; color: var(--text-tertiary); }
+.location-coordinates strong { font: 500 23px var(--font-readout); letter-spacing: -.04em; }
+.location-source { font-size: 12px; color: var(--text-secondary); border-top: 1px solid var(--edge-highlight); padding-top: 14px; }
+.location-source span { color: var(--active-accent); }
+.location-empty { font-size: 13px; margin-top: 16px; }
+.location-helper { font-size: 11px; line-height: 1.6; color: var(--text-tertiary); margin-top: 8px; max-width: 29ch; }
+@media (min-width: 1800px) {
+  .intent-position { width: 280px; }
+  .time-position[data-expanded='true'] { bottom: 170px; }
+}
+@media (max-width: 1200px) and (min-width: 1024px) {
+  .observation-position { top: 150px; }
+  .observation-context h2 { max-width: 240px; }
+  .intent-position { top: 34%; width: 190px; }
+  .scene-guidance { display: none; }
+}
+/* Tableta: instrumentos a la derecha y hoja inferior; reserva superior para el planeta. */
+@media (max-width: 1023px) {
+  .earth-workspace { --gutter: 30px; }
+  .observation-position { top: 145px; }
+  .time-position { top: 36px; }
+  .intent-position { top: auto; bottom: 162px; left: 40px; right: 40px; width: auto; }
+  .scene-guidance { bottom: 46px; right: 30px; left: auto; transform: none; text-align: right; }
+  [data-mode]:not([data-mode='observation']) .intent-position { left: auto; right: 24px; top: 230px; bottom: auto; }
+  .time-position[data-expanded='true'] { bottom: 144px; right: 28px; }
+  .location-instrument { bottom: 0; left: 0; max-width: none; width: 100%; padding: 24px 30px 34px;
+    background: linear-gradient(180deg, rgba(12,16,15,.97), #090c0c); }
+  [data-mode='inspection'] .system-position { opacity: 0; }
+  [data-mode='layers'] .system-position, [data-mode='view'] .system-position { opacity: 0; }
+}
+/* Teléfono: contexto superior, globo central, índice horizontal abierto bajo la órbita. */
+@media (max-width: 600px) {
+  .earth-workspace { --gutter: 22px; }
+  .observation-position { top: 109px; right: 125px; }
+  .time-position { top: 109px; right: 20px; }
+  .mission-position { top: max(25px, env(safe-area-inset-top)); bottom: auto; }
+  .system-position { bottom: max(23px, env(safe-area-inset-bottom)); right: 22px; }
+  .intent-position { left: 22px; right: 22px; bottom: 152px; width: auto; }
+  .scene-guidance { bottom: 108px; left: 0; right: 0; font-size: 10px; text-align: center; }
+  .scene-guidance .guidance-desktop { display: none; }
+  .scene-guidance .guidance-touch { display: block; }
+  [data-mode]:not([data-mode='observation']) .intent-position { top: 200px; bottom: auto; left: auto; right: 14px; }
+  .time-position[data-expanded='true'] { top: auto; left: 22px; right: 22px; bottom: 124px; }
+  [data-mode='time'] .observation-position { opacity: .5; }
+  [data-mode='layers'] .context-kicker, [data-mode='view'] .context-kicker { display: none; }
+  .location-instrument { padding: 18px 24px 28px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-idle='true'] .quiet-instrument { opacity: .7; transform: none; }
+}
+@media (max-width: 1023px) and (max-height: 600px) {
+  .observation-position { top: 115px; }
+  .observation-context .context-section { display: none; }
+  .mission-position { top: 20px; bottom: auto; }
+  .system-position, .scene-guidance { display: none; }
+  .intent-position { top: 150px; bottom: auto; left: auto; right: 26px; width: 42%; }
+  .mode-label > span { font-size: 17px; }
+  .mode-label small { display: none; }
+  .time-position { top: 20px; }
+  .time-position[data-expanded='true'] { bottom: 100px; }
+  [data-mode='time'] .observation-position { visibility: hidden; }
+  [data-mode]:not([data-mode='observation']) .intent-position {
+    top: 20px; right: 24px; width: 150px; bottom: auto;
+  }
+  .earth-workspace[data-mode]:not([data-mode='observation']) .mode-navigator { flex-direction: row; gap: 6px; }
+  [data-mode]:not([data-mode='observation']) .mode-entry { height: 44px; }
+  [data-mode]:not([data-mode='observation']) .time-position:not([data-expanded='true']) { visibility: hidden; }
+  [data-mode]:not([data-mode='observation']) .mode-entry::after { top: 100%; right: 0; }
+}
