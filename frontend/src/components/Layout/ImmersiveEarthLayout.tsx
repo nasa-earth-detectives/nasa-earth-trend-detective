@@ -63,14 +63,20 @@ export function ImmersiveEarthLayout({ observations, loading, observationError, 
 
   const handleStartTour = () => {
     guidedTourService.startMissionTour({
+      onResetView: () => {
+        ui.observe();
+      },
+      onOpenTime: () => {
+        if (ui.mode !== 'time') {
+          ui.toggleMode('time');
+        }
+      },
       onOpenInspector: () => {
         if (!ui.location) {
           ui.selectLocation({ lat: 4.5709, lng: -74.2973 });
+        } else if (ui.mode !== 'inspection') {
+          ui.toggleMode('inspection');
         }
-        ui.toggleMode('inspection');
-      },
-      onCloseInspector: () => {
-        ui.observe();
       },
     });
   };

@@ -1,36 +1,104 @@
 /* ==========================================================================
    NASA TREND DETECTIVE - INTERACTIVE MISSION TOUR STYLES (DRIVER.JS)
-   Theme: Deep Space Glassmorphism & Neon Telemetry Accents
+   Theme: Deep Space Glassmorphism & High-Visibility Neon Signaling
    ========================================================================== */
 
-/* OVERLAY CON BLUR CÓSMICO PROFUNDO */
+/* OVERLAY OSCURO DE DRIVER.JS */
 .driver-overlay {
-  backdrop-filter: blur(5px);
-  -webkit-backdrop-filter: blur(5px);
+  transition: all 0.3s ease;
 }
 
-/* RESALTADO SPOTLIGHT DEL INSTRUMENTO ACTIVO */
+/* ELEVACIÓN Y DESBLOQUEO DE CONTENEDORES PADRE DURANTE EL TOUR */
+body.driver-active .observation-position,
+body.driver-active .mission-position,
+body.driver-active .system-position,
+body.driver-active .intent-position,
+body.driver-active .time-position {
+  pointer-events: auto !important;
+}
+
+.driver-active-element-parent,
+.observation-position:has(.driver-active-element),
+.mission-position:has(.driver-active-element),
+.intent-position:has(.driver-active-element),
+.time-position:has(.driver-active-element) {
+  z-index: 100001 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* RESALTADO SPOTLIGHT NEÓN DEL INSTRUMENTO ACTIVO */
 .driver-active-element {
-  outline: 2px solid rgba(6, 182, 212, 0.95) !important;
-  outline-offset: 4px !important;
-  box-shadow: 0 0 30px rgba(6, 182, 212, 0.45), 0 0 10px rgba(16, 185, 129, 0.3) !important;
+  position: relative !important;
+  z-index: 100002 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  outline: 3px solid #06b6d4 !important;
+  outline-offset: 6px !important;
+  box-shadow: 0 0 0 4px rgba(6, 182, 212, 0.4),
+              0 0 35px rgba(6, 182, 212, 0.8),
+              0 0 70px rgba(14, 165, 233, 0.4) !important;
   border-radius: 14px !important;
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  animation: tourSpotlightPulse 2s infinite ease-in-out !important;
+}
+
+@keyframes tourSpotlightPulse {
+  0%, 100% {
+    outline-color: #06b6d4;
+    box-shadow: 0 0 0 4px rgba(6, 182, 212, 0.4),
+                0 0 30px rgba(6, 182, 212, 0.75),
+                0 0 60px rgba(14, 165, 233, 0.35);
+  }
+  50% {
+    outline-color: #38bdf8;
+    box-shadow: 0 0 0 8px rgba(56, 189, 248, 0.65),
+                0 0 45px rgba(6, 182, 212, 0.95),
+                0 0 85px rgba(14, 165, 233, 0.55);
+  }
+}
+
+/* BALIZA DE SEÑALIZACIÓN VISUAL (PIN) SOBRE EL INSTRUMENTO */
+.driver-active-element::before {
+  content: '🎯 INSTRUMENTO SEÑALIZADO';
+  position: absolute;
+  top: -30px;
+  left: 0;
+  background: linear-gradient(90deg, #0891b2 0%, #0284c7 100%);
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  box-shadow: 0 0 16px rgba(6, 182, 212, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  pointer-events: none;
+  z-index: 100003;
+  animation: tourBadgeBounce 1.8s infinite ease-in-out;
+}
+
+@keyframes tourBadgeBounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
 }
 
 /* POPOVER FLOTANTE CÓSMICO */
 .driver-popover.cosmic-driver-popover {
-  background: rgba(10, 15, 29, 0.96) !important;
+  background: rgba(10, 15, 29, 0.98) !important;
   color: #f1f5f9 !important;
-  border: 1px solid rgba(6, 182, 212, 0.35) !important;
+  border: 1.5px solid rgba(6, 182, 212, 0.45) !important;
   border-radius: 18px !important;
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.85), 0 0 35px rgba(6, 182, 212, 0.22) !important;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.9), 0 0 35px rgba(6, 182, 212, 0.3) !important;
   padding: 1.25rem 1.4rem !important;
   max-width: 420px !important;
   font-family: inherit !important;
   z-index: 10000002 !important;
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
   animation: cosmicPopoverEntry 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -45,18 +113,29 @@
   }
 }
 
-/* FLECHAS DEL POPOVER */
+/* FLECHAS VISIBLES DEL POPOVER APUNTANDO AL INSTRUMENTO */
+.driver-popover.cosmic-driver-popover .driver-popover-arrow {
+  border-width: 10px !important;
+}
+
 .driver-popover.cosmic-driver-popover .driver-popover-arrow-side-top.driver-popover-arrow {
-  border-top-color: rgba(10, 15, 29, 0.96) !important;
+  border-top-color: rgba(10, 15, 29, 0.98) !important;
+  filter: drop-shadow(0 -2px 4px rgba(6, 182, 212, 0.6));
 }
+
 .driver-popover.cosmic-driver-popover .driver-popover-arrow-side-bottom.driver-popover-arrow {
-  border-bottom-color: rgba(10, 15, 29, 0.96) !important;
+  border-bottom-color: rgba(10, 15, 29, 0.98) !important;
+  filter: drop-shadow(0 2px 4px rgba(6, 182, 212, 0.6));
 }
+
 .driver-popover.cosmic-driver-popover .driver-popover-arrow-side-left.driver-popover-arrow {
-  border-left-color: rgba(10, 15, 29, 0.96) !important;
+  border-left-color: rgba(10, 15, 29, 0.98) !important;
+  filter: drop-shadow(-2px 0 4px rgba(6, 182, 212, 0.6));
 }
+
 .driver-popover.cosmic-driver-popover .driver-popover-arrow-side-right.driver-popover-arrow {
-  border-right-color: rgba(10, 15, 29, 0.96) !important;
+  border-right-color: rgba(10, 15, 29, 0.98) !important;
+  filter: drop-shadow(2px 0 4px rgba(6, 182, 212, 0.6));
 }
 
 /* ENCABEZADO DE MISIÓN CON TELEMETRÍA */
@@ -66,7 +145,7 @@
   gap: 0.85rem;
   margin-bottom: 0.85rem;
   padding-bottom: 0.75rem;
-  border-bottom: 1px solid rgba(6, 182, 212, 0.2);
+  border-bottom: 1px solid rgba(6, 182, 212, 0.25);
 }
 
 .tour-cosmic-icon-wrapper {
@@ -75,26 +154,26 @@
   height: 42px;
   flex-shrink: 0;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(6, 182, 212, 0.25) 0%, rgba(15, 23, 42, 0.8) 70%);
+  background: radial-gradient(circle, rgba(6, 182, 212, 0.3) 0%, rgba(15, 23, 42, 0.85) 70%);
   border: 1.5px solid rgba(6, 182, 212, 0.6);
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 0 16px rgba(6, 182, 212, 0.35);
+  box-shadow: 0 0 16px rgba(6, 182, 212, 0.4);
 }
 
 .tour-cosmic-pulse {
   position: absolute;
   inset: -2px;
   border-radius: 50%;
-  border: 1.5px solid rgba(6, 182, 212, 0.5);
+  border: 1.5px solid rgba(6, 182, 212, 0.6);
   animation: cosmicPing 2.5s cubic-bezier(0, 0, 0.2, 1) infinite;
 }
 
 @keyframes cosmicPing {
   0% {
     transform: scale(0.95);
-    opacity: 0.8;
+    opacity: 0.85;
   }
   70%, 100% {
     transform: scale(1.35);
@@ -150,7 +229,7 @@
 }
 
 .tour-cosmic-tip {
-  background: rgba(6, 182, 212, 0.1);
+  background: rgba(6, 182, 212, 0.12);
   border-left: 3px solid #06b6d4;
   padding: 0.55rem 0.8rem;
   border-radius: 0 8px 8px 0;
@@ -221,13 +300,13 @@
   font-size: 0.82rem !important;
   font-weight: 800 !important;
   cursor: pointer !important;
-  box-shadow: 0 4px 12px rgba(8, 145, 178, 0.35) !important;
+  box-shadow: 0 4px 14px rgba(8, 145, 178, 0.4) !important;
   transition: all 0.2s ease !important;
 }
 
 .driver-popover.cosmic-driver-popover button.driver-popover-next-btn:hover {
   transform: translateY(-1px);
-  box-shadow: 0 6px 18px rgba(8, 145, 178, 0.5) !important;
+  box-shadow: 0 6px 18px rgba(8, 145, 178, 0.55) !important;
   border-color: #38bdf8 !important;
 }
 

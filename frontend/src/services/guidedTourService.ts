@@ -2,8 +2,9 @@ import { driver, type Driver, type DriveStep } from 'driver.js';
 import 'driver.js/dist/driver.css';
 
 export interface TourCallbacks {
+  onResetView?: () => void;
+  onOpenTime?: () => void;
   onOpenInspector?: () => void;
-  onCloseInspector?: () => void;
 }
 
 /**
@@ -23,7 +24,7 @@ const renderCosmicPopoverHeader = (title: string, badge = '🛰️ Misión NASA'
 `;
 
 /**
- * Define los pasos de la expedición orbital
+ * Define los pasos de la expedición orbital con señalización y alineación precisa
  */
 const getMissionSteps = (callbacks?: TourCallbacks): DriveStep[] => [
   {
@@ -33,13 +34,16 @@ const getMissionSteps = (callbacks?: TourCallbacks): DriveStep[] => [
       description: `
         <div class="tour-cosmic-content">
           <p>Bienvenido a <strong>Trend Detective</strong>, la plataforma orbital de análisis climático del <em>NASA Space Apps Challenge</em>.</p>
-          <p>Desde esta insignia monitoreas el estado en tiempo real de la misión y puedes volver a activar este recorrido interactivo en cualquier momento con el botón <strong>"Guía de Misión"</strong>.</p>
+          <p>Desde esta insignia monitoreas el estado en tiempo real de la misión y puedes relanzar esta guía interactiva con el botón <strong>"Guía de Misión"</strong>.</p>
           <div class="tour-cosmic-tip">💡 Usa los botones <strong>Siguiente ➔</strong> o las flechas de tu teclado (⬅ / ➔) para navegar.</div>
         </div>
       `,
       side: 'bottom',
       align: 'start',
       popoverClass: 'cosmic-driver-popover',
+    },
+    onHighlightStarted: () => {
+      callbacks?.onResetView?.();
     },
   },
   {
@@ -52,9 +56,12 @@ const getMissionSteps = (callbacks?: TourCallbacks): DriveStep[] => [
           <p>Supervisa la variable física bajo estudio, su unidad de medida y el ámbito de observación global en tiempo real.</p>
         </div>
       `,
-      side: 'bottom',
+      side: 'right',
       align: 'start',
       popoverClass: 'cosmic-driver-popover',
+    },
+    onHighlightStarted: () => {
+      callbacks?.onResetView?.();
     },
   },
   {
@@ -70,9 +77,12 @@ const getMissionSteps = (callbacks?: TourCallbacks): DriveStep[] => [
              • <strong>Inspeccionar:</strong> Fija el visor en una región de la superficie.</p>
         </div>
       `,
-      side: 'right',
+      side: 'left',
       align: 'center',
       popoverClass: 'cosmic-driver-popover',
+    },
+    onHighlightStarted: () => {
+      callbacks?.onResetView?.();
     },
   },
   {
@@ -89,6 +99,9 @@ const getMissionSteps = (callbacks?: TourCallbacks): DriveStep[] => [
       align: 'center',
       popoverClass: 'cosmic-driver-popover',
     },
+    onHighlightStarted: () => {
+      callbacks?.onOpenTime?.();
+    },
   },
   {
     element: '#tour-detective-card',
@@ -102,8 +115,8 @@ const getMissionSteps = (callbacks?: TourCallbacks): DriveStep[] => [
           <div class="tour-cosmic-congrats">🚀 ¡Listo para investigar! Haz clic en cualquier punto de la Tierra para comenzar el análisis.</div>
         </div>
       `,
-      side: 'left',
-      align: 'center',
+      side: 'right',
+      align: 'start',
       popoverClass: 'cosmic-driver-popover',
     },
     onHighlightStarted: () => {
@@ -116,37 +129,44 @@ let activeDriverInstance: Driver | null = null;
 
 export const guidedTourService = {
   /**
-   * Inicia el Tour Interactivo de Misión Espacial
+   * Inicia el Tour Interactivo de Misión Espacial con sincronización de estado de la UI
    */
   startMissionTour: (callbacks?: TourCallbacks) => {
     if (activeDriverInstance) {
       activeDriverInstance.destroy();
     }
 
-    const steps = getMissionSteps(callbacks);
+    // Reiniciar vista primero para asegurar que todos los instrumentos estén en DOM visible
+    callbacks?.onResetView?.();
 
-    activeDriverInstance = driver({
-      showProgress: true,
-      animate: true,
-      overlayColor: 'rgba(3, 7, 18, 0.86)',
-      stagePadding: 8,
-      stageRadius: 14,
-      nextBtnText: 'Siguiente ➔',
-      prevBtnText: '⬅ Anterior',
-      doneBtnText: '✓ Finalizar Misión',
-      allowClose: true,
-      steps,
-      onDestroyed: () => {
-        activeDriverInstance = null;
-        try {
-          localStorage.setItem('nasa_mission_tour_seen', 'true');
-        } catch {
-          // LocalStorage fallback en entornos restringidos
-        }
-      },
-    });
+    setTimeout(() => {
+      const steps = getMissionSteps(callbacks);
 
-    activeDriverInstance.drive();
+      activeDriverInstance = driver({
+        showProgress: true,
+        animate: true,
+        overlayColor: '#030712',
+        overlayOpacity: 0.72,
+        stagePadding: 12,
+        stageRadius: 16,
+        nextBtnText: 'Siguiente ➔',
+        prevBtnText: '⬅ Anterior',
+        doneBtnText: '✓ Finalizar Misión',
+        allowClose: true,
+        steps,
+        onDestroyed: () => {
+          activeDriverInstance = null;
+          callbacks?.onResetView?.();
+          try {
+            localStorage.setItem('nasa_mission_tour_seen', 'true');
+          } catch {
+            // LocalStorage fallback
+          }
+        },
+      });
+
+      activeDriverInstance.drive();
+    }, 120);
   },
 
   /**
