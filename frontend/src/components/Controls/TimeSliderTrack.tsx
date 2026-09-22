@@ -19,16 +19,14 @@ export function TimeSliderTrack({
   onSelectYear,
   onPausePlayback,
 }: TimeSliderTrackProps) {
-  const [hoveredMilestoneYear, setHoveredMilestoneYear] = useState<number | null>(null);
+  const [dismissedMilestoneYear, setDismissedMilestoneYear] = useState<number | null>(null);
   const span = Math.max(endYear - startYear, 0);
   const years = Array.from({ length: span + 1 }, (_, index) => startYear + index);
   const marks = years.filter(
     (year) => year === startYear || year === endYear || (year % 5 === 0 && year - startYear > 1 && endYear - year > 1)
   );
 
-  const activeMilestone = hoveredMilestoneYear
-    ? CLIMATE_MILESTONES[hoveredMilestoneYear]
-    : CLIMATE_MILESTONES[currentYear];
+  const activeMilestone = dismissedMilestoneYear === currentYear ? undefined : CLIMATE_MILESTONES[currentYear];
 
   return (
     <div className="time-scale-wrapper">
@@ -66,7 +64,7 @@ export function TimeSliderTrack({
         </div>
 
         {/* Balizas interactivas de hitos históricos */}
-        <div className="time-milestone-beacons" aria-hidden="true">
+        <div className="time-milestone-beacons">
           {MILESTONE_YEARS.filter((yr) => yr >= startYear && yr <= endYear).map((year) => {
             const position = ((year - startYear) / (span || 1)) * 100;
             const isSelected = year === currentYear;
@@ -78,13 +76,10 @@ export function TimeSliderTrack({
                 type="button"
                 className={`milestone-beacon ${isSelected ? 'selected' : ''}`}
                 style={{ left: `${position}%` }}
-                onClick={() => onSelectYear(year)}
-                onMouseEnter={() => setHoveredMilestoneYear(year)}
-                onMouseLeave={() => setHoveredMilestoneYear(null)}
+                onClick={() => { setDismissedMilestoneYear(null); onSelectYear(year); }}
                 aria-label={`Hito de ${year}: ${milestone.title}`}
                 title={`${year}: ${milestone.title}`}
               >
-                <span className="beacon-ping" />
                 <span className="beacon-dot" />
               </button>
             );
@@ -110,12 +105,12 @@ export function TimeSliderTrack({
         })}
       </div>
 
-      {/* Tooltip contextual si hay un hito activo o hovered */}
+      {/* Detalle del hito seleccionado; no desplaza los controles al pasar el puntero. */}
       {activeMilestone && (
         <div className="milestone-tooltip-container">
           <ClimateMilestoneTooltip
             milestone={activeMilestone}
-            onClose={() => setHoveredMilestoneYear(null)}
+            onClose={() => setDismissedMilestoneYear(activeMilestone.year)}
           />
         </div>
       )}

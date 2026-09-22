@@ -82,7 +82,7 @@ export function TimelineTransportControls({
         aria-label={`Velocidad de reproducción: ${speed}x. Clic para cambiar.`}
         title="Cambiar velocidad (1x, 2x, 5x)"
       >
-        <Zap size={13} className={speed > 1 ? 'text-cyan-400' : 'text-slate-400'} />
+        <Zap size={13} aria-hidden="true" />
         <span>{speed}x</span>
       </button>
 
@@ -94,7 +94,7 @@ export function TimelineTransportControls({
         aria-label={isLooping ? 'Bucle temporal activado' : 'Bucle desactivado'}
         title={isLooping ? 'Bucle activado (repite al finalizar)' : 'Bucle desactivado'}
       >
-        <Repeat size={14} className={isLooping ? 'text-cyan-400' : 'text-slate-500'} />
+        <Repeat size={14} aria-hidden="true" />
       </button>
 
       <button
