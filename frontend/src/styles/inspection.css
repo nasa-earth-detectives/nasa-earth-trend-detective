@@ -1,0 +1,52 @@
+/* Instrumento regional: una superficie mineral y lecturas abiertas. */
+.inspection-instrument {
+  position: absolute; z-index: 30; left: var(--gutter); bottom: 156px;
+  width: 380px; max-width: calc(100vw - 44px); max-height: calc(100dvh - 200px);
+  overflow-y: auto; overscroll-behavior: contain; padding: 18px 20px 16px;
+  background: #141815; color: var(--text-primary);
+  border: 1px solid var(--edge-subtle); border-top: 2px solid var(--active-accent);
+  border-radius: 3px; box-shadow: 0 12px 30px rgba(0, 0, 0, .18);
+  animation: inspection-arrive var(--motion-standard) var(--ease-instrument);
+}
+.inspection-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.inspection-header p { font-size: 11px; color: var(--text-tertiary); margin-bottom: 4px; }
+.inspection-header h2 { font-size: 19px; font-weight: 600; letter-spacing: -.025em; line-height: 1.2; }
+.inspection-close { display: grid; place-items: center; flex-shrink: 0; width: 44px; height: 44px;
+  margin-right: -10px; color: var(--text-secondary); background: transparent; border: 0; cursor: pointer;
+  transition: color var(--motion-fast) var(--ease-soft), background var(--motion-fast) var(--ease-soft); }
+.inspection-close:hover { color: var(--text-primary); background: var(--surface-raised); }
+.inspection-close:active { background: var(--surface-pressed); }
+.inspection-coordinates { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 17px 0 15px; }
+.inspection-coordinates dt { color: var(--text-tertiary); font-size: 11px; margin-bottom: 5px; }
+.inspection-coordinates dd { margin: 0; font: 500 19px var(--font-readout); letter-spacing: -.035em; }
+.inspection-variable { border-top: 1px solid var(--edge-subtle); padding-top: 12px; }
+.inspection-variable > p:first-child { font-size: 13px; font-weight: 500; margin-bottom: 5px; }
+.inspection-variable > p:last-child { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 14px;
+  color: var(--text-tertiary); font-size: 11px; line-height: 1.5; }
+.inspection-variable strong { color: var(--active-accent); font: 11px var(--font-readout); }
+.inspection-series-heading { display: flex; justify-content: space-between; align-items: baseline;
+  gap: 12px; margin: 18px 0 6px; }
+.inspection-series-heading h3 { color: var(--text-secondary); font-size: 12px; font-weight: 500; }
+.inspection-series-heading > span { font: 11px var(--font-readout); color: var(--text-tertiary); }
+.inspection-provenance { margin-top: 14px; padding-top: 11px; border-top: 1px solid var(--edge-subtle);
+  color: var(--text-tertiary); font-size: 11px; line-height: 1.5; }
+.inspection-provenance > p + p { display: flex; justify-content: space-between; gap: 12px; margin-top: 5px; }
+.inspection-provenance span { color: var(--text-secondary); }
+@keyframes inspection-arrive { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+@media (max-width: 1023px) {
+  .inspection-instrument { bottom: 28px; max-height: calc(100dvh - 180px); }
+}
+@media (max-width: 600px) {
+  .inspection-instrument { left: 22px; bottom: max(22px, env(safe-area-inset-bottom));
+    width: calc(100vw - 44px); max-width: 380px; padding: 14px 16px; }
+  .inspection-header h2 { font-size: 18px; }
+  .inspection-coordinates { margin: 14px 0 12px; }
+  .inspection-coordinates dd { font-size: 18px; }
+  .inspection-series-heading { margin-top: 14px; }
+}
+@media (max-height: 600px) {
+  .inspection-instrument { bottom: 16px; max-height: calc(100dvh - 96px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .inspection-instrument { animation: none; }
+}

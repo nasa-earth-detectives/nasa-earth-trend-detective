@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { ClimateObservation, ClimateVariable } from '../../types/climate.types';
 import type { TrendFilterParams } from '../../types/trend.types';
 import { CLIMATE_VARIABLES, SATELLITE_TIMELINE } from '../../config/climateLayers';
@@ -37,11 +37,13 @@ export function ImmersiveEarthLayout({ observations, loading, observationError, 
   const ui = useImmersiveUi();
   const scene = useSceneControls(sceneApiRef);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [tourRunning, setTourRunning] = useState(false);
   const panelOpen = ui.mode === 'layers' || ui.mode === 'view';
   const timeOpen = ui.mode === 'time';
-  const isIdle = useIdleUi({ disabled: ui.mode !== 'observation' || isPlaying });
+  const isIdle = useIdleUi({ disabled: ui.mode !== 'observation' || isPlaying || tourRunning });
 
   useEffect(() => applyScienceAccent(filter.variable, document.documentElement), [filter.variable]);
+  useEffect(() => () => guidedTourService.stopTour(), []);
   useEffect(() => {
     sceneApiRef.current?.setLocationSelectHandler(ui.selectLocation);
     return () => sceneApiRef.current?.setLocationSelectHandler(null);
@@ -61,23 +63,24 @@ export function ImmersiveEarthLayout({ observations, loading, observationError, 
 
   const mission = CLIMATE_VARIABLES.find(item => item.id === filter.variable)?.satelliteMission ?? '';
 
+  const handleCloseInspector = useCallback(() => {
+    ui.observe();
+    requestAnimationFrame(() => document.querySelector<HTMLButtonElement>('[data-mode-trigger="inspection"]')?.focus());
+  }, [ui.observe]);
+
   const handleStartTour = () => {
     guidedTourService.startMissionTour({
       onResetView: () => {
         ui.observe();
       },
       onOpenTime: () => {
-        if (ui.mode !== 'time') {
-          ui.toggleMode('time');
-        }
+        ui.openMode('time');
       },
       onOpenInspector: () => {
-        if (!ui.location) {
-          ui.selectLocation({ lat: 4.5709, lng: -74.2973 });
-        } else if (ui.mode !== 'inspection') {
-          ui.toggleMode('inspection');
-        }
+        if (ui.location) ui.selectLocation(ui.location);
+        else sceneApiRef.current?.inspectCenter();
       },
+      onRunningChange: setTourRunning,
     });
   };
 
@@ -123,10 +126,7 @@ export function ImmersiveEarthLayout({ observations, loading, observationError, 
         location={ui.location}
         variable={filter.variable}
         year={filter.endYear}
-        onClose={() => {
-          ui.observe();
-          requestAnimationFrame(() => document.querySelector<HTMLButtonElement>('[data-mode-trigger="inspection"]')?.focus());
-        }}
+        onClose={handleCloseInspector}
         onYearChange={onYearChange}
       />
     </main>

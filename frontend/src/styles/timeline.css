@@ -140,21 +140,19 @@
   min-width: 46px;
 }
 .time-control.time-speed.active-speed {
-  border-color: rgba(6, 182, 212, 0.4);
-  background: rgba(6, 182, 212, 0.1);
-  color: #06b6d4;
+  background: color-mix(in srgb, var(--active-accent) 10%, transparent);
+  color: var(--active-accent);
 }
 
 .time-control.time-loop.active-loop {
-  border-color: rgba(6, 182, 212, 0.4);
-  background: rgba(6, 182, 212, 0.1);
+  background: color-mix(in srgb, var(--active-accent) 10%, transparent);
+  color: var(--active-accent);
 }
 
 .time-ticks > span.tick-milestone {
   height: 12px;
   width: 2px;
-  background: #38bdf8;
-  box-shadow: 0 0 6px rgba(56, 189, 248, 0.6);
+  background: var(--active-accent);
 }
 
 .time-milestone-beacons {
@@ -184,16 +182,14 @@
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: #38bdf8;
-  box-shadow: 0 0 8px #38bdf8;
+  background: var(--active-accent);
   transition: transform 0.2s ease, background 0.2s ease;
 }
 
 .milestone-beacon:hover .beacon-dot,
 .milestone-beacon.selected .beacon-dot {
   transform: scale(1.6);
-  background: #06b6d4;
-  box-shadow: 0 0 12px #06b6d4;
+  background: var(--text-primary);
 }
 
 .beacon-ping {
@@ -217,13 +213,12 @@
 }
 
 .climate-milestone-tooltip {
-  background: rgba(10, 15, 26, 0.85);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(56, 189, 248, 0.3);
-  border-radius: 10px;
+  background: #141815;
+  border: 1px solid var(--edge-subtle);
+  border-left: 2px solid var(--active-accent);
+  border-radius: 2px;
   padding: 12px 14px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 20px rgba(6, 182, 212, 0.15);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
 }
 
 .milestone-tooltip-header {
@@ -240,7 +235,7 @@
   font-family: var(--font-readout);
   font-size: 11px;
   font-weight: 600;
-  color: var(--milestone-accent, #38bdf8);
+  color: var(--active-accent);
   letter-spacing: 0.05em;
   text-transform: uppercase;
 }
@@ -282,7 +277,7 @@
 }
 
 .milestone-tooltip-impact .impact-label {
-  color: #38bdf8;
+  color: var(--active-accent);
   font-weight: 600;
   white-space: nowrap;
 }

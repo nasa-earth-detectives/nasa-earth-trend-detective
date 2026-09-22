@@ -9,6 +9,7 @@ export function useImmersiveUi() {
   const [mode, setMode] = useState<InstrumentMode>('observation');
   const [location, setLocation] = useState<SelectedLocation | null>(null);
   const observe = useCallback(() => setMode('observation'), []);
+  const openMode = useCallback((next: InstrumentMode) => setMode(next), []);
   const toggleMode = useCallback((next: InstrumentMode) => {
     setMode(current => current === next ? 'observation' : next);
   }, []);
@@ -29,5 +30,5 @@ export function useImmersiveUi() {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [mode, observe]);
-  return { mode, location, observe, toggleMode, selectLocation, setLayerTab };
+  return { mode, location, observe, openMode, toggleMode, selectLocation, setLayerTab };
 }

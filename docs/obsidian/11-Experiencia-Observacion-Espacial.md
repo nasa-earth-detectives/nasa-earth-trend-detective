@@ -19,7 +19,8 @@ luces nocturnas, mapas de calor ni cambios al backend.
   reinicio y cierre. Recorrer avanza el filtro entre 2002 y 2024; cerrar pausa.
 - **Escena:** interruptores reales de rotación, estrellas, retícula y atmósfera.
 - **Inspección:** un clic sobre la Tierra o «Inspeccionar centro» muestra latitud y
-  longitud reales. El análisis estadístico regional sigue pendiente, sin resultados simulados.
+  longitud reales. La serie de ejemplo está identificada como sintética; el análisis
+  estadístico regional sigue pendiente y no muestra confianza ni significancia ficticias.
 
 ## Componentes y estado
 
@@ -29,11 +30,36 @@ luces nocturnas, mapas de calor ni cambios al backend.
 - `ObservationContext`, `MissionHeader`, `SystemReadout`: contexto, firma y datos de conexión.
 - `LayerPanel`, `VariableLayerList`, `ViewOptionsList`: instrumentación científica y visual.
 - `TimeNavigator`, `useTimelinePlayback`: archivo temporal y avance anual estable.
-- `LocationInstrument`: lectura de ubicación sin consultas ni valores regionales inventados.
+- `DetectiveCard`: coordenadas, producto de referencia y serie de demostración explícita.
+- `TimeSeriesChart`: SVG con acento contextual y selección anual accesible por teclado y tacto.
 - `useIdleUi`: reposo suspendido por instrumento abierto, reproducción, foco visible,
   hover, puntero presionado, interacción táctil o preferencia de movimiento reducido.
 
 ## Movimiento y materiales
+
+La identidad usa una firma tipográfica abierta, un raíl con el acento de la variable
+activa y crédito secundario. El acceso a la guía conserva sus identificadores de
+recorrido y usa un control de 44 px con foco visible y excepción de reposo.
+En móvil se abrevia a «Guía» y se oculta la edición; no usa cápsula, cian fijo,
+brillo ni indicadores animados de conexión.
+
+La guía usa el mismo material mineral. Cada paso apunta al control descrito:
+Guía, contexto actual, Variables, Escena, archivo temporal e inspector.
+`guidedTourService` prepara el modo antes de resaltar; `tourTarget` espera el
+montaje y la estabilización de la caja y las transiciones finitas, con cancelación
+y límite de dos segundos. No se modifica la posición CSS del objetivo ni se
+eleva su contenedor sobre el overlay. Driver conserva el cálculo de la flecha.
+El recorrido suspende Idle, admite anterior/siguiente y Escape devuelve el foco
+a Guía. El inspector usa la selección existente o el centro real de la cámara;
+la descripción identifica sus datos actuales como demostrativos.
+
+El inspector usa `inspection.css`: carbón mineral, coordenadas abiertas, producto
+de referencia y un gráfico del mismo acento científico. `inspection-chart.css`
+controla la línea sin relleno brillante, los ejes y la lectura de año/valor.
+La serie sintética conserva el rango global 2002–2024. No se atribuye a NASA ni
+se muestra un p-valor fijo, «95% de confianza» o una resolución espacial inventada.
+El panel conserva `tour-detective-card`, cierre con Escape y retorno de foco;
+cambiar el año no vuelve a enfocar el botón de cierre.
 
 Los tokens en `index.css` gobiernan duración y curvas. El acento registrado con
 `@property` interpola entre variables científicas. Los estilos se separan por

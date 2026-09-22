@@ -1,183 +1,131 @@
-import { driver, type Driver, type DriveStep } from 'driver.js';
+import { driver, type DriveStep } from 'driver.js';
+import { SATELLITE_TIMELINE } from '../config/climateLayers';
+import { waitForTourTarget } from './tourTarget';
 import 'driver.js/dist/driver.css';
 
 export interface TourCallbacks {
   onResetView?: () => void;
   onOpenTime?: () => void;
   onOpenInspector?: () => void;
+  onRunningChange?: (running: boolean) => void;
 }
 
-/**
- * Genera el encabezado HTML personalizado con la insignia y telemetría de misión espacial
- */
-const renderCosmicPopoverHeader = (title: string, badge = '🛰️ Misión NASA') => `
-  <div class="tour-cosmic-header">
-    <div class="tour-cosmic-icon-wrapper">
-      <span class="tour-cosmic-pulse"></span>
-      <span class="tour-cosmic-symbol">🛰️</span>
-    </div>
-    <div class="tour-cosmic-meta">
-      <strong class="tour-cosmic-title">${title}</strong>
-      <span class="tour-cosmic-badge">${badge}</span>
-    </div>
-  </div>
-`;
+interface ObservationStep extends DriveStep {
+  element: string;
+  prepare?: () => void;
+}
 
-/**
- * Define los pasos de la expedición orbital con señalización y alineación precisa
- */
-const getMissionSteps = (callbacks?: TourCallbacks): DriveStep[] => [
+const getMissionSteps = (callbacks: TourCallbacks): ObservationStep[] => [
   {
-    element: '#tour-mission-header',
+    element: '#tour-launch-button', prepare: callbacks.onResetView,
     popover: {
-      title: renderCosmicPopoverHeader('Control de Misión & Telemetría', '🛰️ Estación Orbital'),
-      description: `
-        <div class="tour-cosmic-content">
-          <p>Bienvenido a <strong>Trend Detective</strong>, la plataforma orbital de análisis climático del <em>NASA Space Apps Challenge</em>.</p>
-          <p>Desde esta insignia monitoreas el estado en tiempo real de la misión y puedes relanzar esta guía interactiva con el botón <strong>"Guía de Misión"</strong>.</p>
-          <div class="tour-cosmic-tip">💡 Usa los botones <strong>Siguiente ➔</strong> o las flechas de tu teclado (⬅ / ➔) para navegar.</div>
-        </div>
-      `,
-      side: 'bottom',
-      align: 'start',
-      popoverClass: 'cosmic-driver-popover',
-    },
-    onHighlightStarted: () => {
-      callbacks?.onResetView?.();
+      title: 'Guía de observación', side: 'bottom', align: 'start',
+      description: '<p>Este botón abre la guía de los instrumentos de Trend Detective.</p><p class="tour-hint">Avanza con Siguiente o las flechas del teclado. Esc cierra la guía.</p>',
     },
   },
   {
-    element: '#tour-observation-context',
+    element: '#tour-observation-context', prepare: callbacks.onResetView,
     popover: {
-      title: renderCosmicPopoverHeader('Coordenadas & Dominio Activo', '📡 Sensor Satelital'),
-      description: `
-        <div class="tour-cosmic-content">
-          <p>Aquí se reporta la telemetría del instrumento satelital activo (misiones <strong>MODIS, CERES, Landsat</strong> y reanálisis orbital).</p>
-          <p>Supervisa la variable física bajo estudio, su unidad de medida y el ámbito de observación global en tiempo real.</p>
-        </div>
-      `,
-      side: 'right',
-      align: 'start',
-      popoverClass: 'cosmic-driver-popover',
-    },
-    onHighlightStarted: () => {
-      callbacks?.onResetView?.();
+      title: 'Tu observación actual', side: 'right', align: 'start',
+      description: '<p>Aquí se muestran la variable seleccionada, su fuente científica y su unidad. Este contexto cambia al elegir otra variable.</p>',
     },
   },
   {
-    element: '#tour-mode-navigator',
+    element: '[data-mode-trigger="layers"]', prepare: callbacks.onResetView,
     popover: {
-      title: renderCosmicPopoverHeader('Instrumentos de Navegación', '🧭 Barra de Control'),
-      description: `
-        <div class="tour-cosmic-content">
-          <p>Barra de control orbital para alternar entre los modos de visualización:</p>
-          <p>• <strong>Variables:</strong> Capas climáticas (temperatura, ozono, CO₂, vegetación).<br/>
-             • <strong>Tiempo:</strong> Navegación histórica interanual.<br/>
-             • <strong>Escena:</strong> Control de rotación terrestre, estrellas y atmósfera.<br/>
-             • <strong>Inspeccionar:</strong> Fija el visor en una región de la superficie.</p>
-        </div>
-      `,
-      side: 'left',
-      align: 'center',
-      popoverClass: 'cosmic-driver-popover',
-    },
-    onHighlightStarted: () => {
-      callbacks?.onResetView?.();
+      title: 'Cambiar variable', side: 'left', align: 'center',
+      description: '<p>Abre Variables para elegir temperatura, vegetación, masa de agua y hielo o CO₂. El acento y la información de referencia siguen tu selección.</p>',
     },
   },
   {
-    element: '#tour-time-navigator',
+    element: '[data-mode-trigger="view"]', prepare: callbacks.onResetView,
     popover: {
-      title: renderCosmicPopoverHeader('Línea Temporal (2000 - 2026)', '⏱️ Análisis Multitemporal'),
-      description: `
-        <div class="tour-cosmic-content">
-          <p>Explora más de dos décadas de registros satelitales calibrados por la NASA.</p>
-          <p>Puedes arrastrar el selector de años o presionar el botón de <strong>Reproducción</strong> para animar la transformación bioclimática del planeta de forma continua.</p>
-        </div>
-      `,
-      side: 'top',
-      align: 'center',
-      popoverClass: 'cosmic-driver-popover',
-    },
-    onHighlightStarted: () => {
-      callbacks?.onOpenTime?.();
+      title: 'Ajustar la escena', side: 'left', align: 'center',
+      description: '<p>Desde Escena puedes activar la rotación, las estrellas, la retícula geográfica y la atmósfera.</p>',
     },
   },
   {
-    element: '#tour-detective-card',
+    element: '#mission-time-navigator', prepare: callbacks.onOpenTime,
     popover: {
-      title: renderCosmicPopoverHeader('Inspector Científico: Trend Detective', '🔬 Rigor Estadístico'),
-      description: `
-        <div class="tour-cosmic-content">
-          <p>El núcleo de investigación climática: ejecuta el test no paramétrico de <strong>Mann-Kendall</strong> y la pendiente mediana de <strong>Sen</strong>.</p>
-          <p>• <strong>Insignia de Significancia:</strong> Evalúa el p-valor estadístico (< 0.05).<br/>
-             • <strong>Serie Temporal Interactiva:</strong> Gráfico SVG con gradiente que proyecta la evolución anual y la línea de tendencia calculada.</p>
-          <div class="tour-cosmic-congrats">🚀 ¡Listo para investigar! Haz clic en cualquier punto de la Tierra para comenzar el análisis.</div>
-        </div>
-      `,
-      side: 'right',
-      align: 'start',
-      popoverClass: 'cosmic-driver-popover',
+      title: 'Recorrer los años', side: 'top', align: 'center',
+      description: `<p>El archivo temporal está abierto. Selecciona un año entre ${SATELLITE_TIMELINE.startYear} y ${SATELLITE_TIMELINE.endYear}, o usa Recorrer para avanzar año a año.</p><p class="tour-hint">La textura terrestre es una referencia visual; no representa una imagen satelital de cada año.</p>`,
     },
-    onHighlightStarted: () => {
-      callbacks?.onOpenInspector?.();
+  },
+  {
+    element: '#tour-detective-card', prepare: callbacks.onOpenInspector,
+    popover: {
+      title: 'Inspeccionar una ubicación', side: 'right', align: 'start',
+      description: '<p>El inspector muestra las coordenadas de la ubicación seleccionada. También puedes abrirlo tocando un punto de la Tierra.</p><p class="tour-hint">La serie de ejemplo contiene datos sintéticos. El análisis estadístico regional sigue pendiente.</p>',
     },
   },
 ];
 
-let activeDriverInstance: Driver | null = null;
+let stopActiveTour: (() => void) | null = null;
 
 export const guidedTourService = {
-  /**
-   * Inicia el Tour Interactivo de Misión Espacial con sincronización de estado de la UI
-   */
-  startMissionTour: (callbacks?: TourCallbacks) => {
-    if (activeDriverInstance) {
-      activeDriverInstance.destroy();
-    }
+  startMissionTour(callbacks: TourCallbacks = {}) {
+    stopActiveTour?.();
+    const controller = new AbortController();
+    const steps = getMissionSteps(callbacks);
+    let preparing = false;
+    let finished = false;
 
-    // Reiniciar vista primero para asegurar que todos los instrumentos estén en DOM visible
-    callbacks?.onResetView?.();
-
-    setTimeout(() => {
-      const steps = getMissionSteps(callbacks);
-
-      activeDriverInstance = driver({
-        showProgress: true,
-        animate: true,
-        overlayColor: '#030712',
-        overlayOpacity: 0.72,
-        stagePadding: 12,
-        stageRadius: 16,
-        nextBtnText: 'Siguiente ➔',
-        prevBtnText: '⬅ Anterior',
-        doneBtnText: '✓ Finalizar Misión',
-        allowClose: true,
-        steps,
-        onDestroyed: () => {
-          activeDriverInstance = null;
-          callbacks?.onResetView?.();
-          try {
-            localStorage.setItem('nasa_mission_tour_seen', 'true');
-          } catch {
-            // LocalStorage fallback
-          }
-        },
+    const finish = () => {
+      if (finished) return;
+      finished = true;
+      controller.abort();
+      stopActiveTour = null;
+      callbacks.onResetView?.();
+      callbacks.onRunningChange?.(false);
+      requestAnimationFrame(() => {
+        if (!stopActiveTour) document.getElementById('tour-launch-button')?.focus({ preventScroll: true });
       });
+      try { localStorage.setItem('nasa_mission_tour_seen', 'true'); } catch { /* Almacenamiento opcional. */ }
+    };
 
-      activeDriverInstance.drive();
-    }, 120);
-  },
+    const goTo = async (index: number) => {
+      if (preparing || finished || !steps[index]) return;
+      preparing = true;
+      // Cambiar el modo ANTES de que Driver resuelva y mida el elemento.
+      steps[index].prepare?.();
+      const target = await waitForTourTarget(steps[index].element, controller.signal);
+      if (finished) return;
+      preparing = false;
+      if (!target) { tour.destroy(); finish(); return; }
+      tour.drive(index);
+    };
 
-  /**
-   * Detiene el tour activo
-   */
-  stopTour: () => {
-    if (activeDriverInstance) {
-      activeDriverInstance.destroy();
-      activeDriverInstance = null;
-    }
+    const tour = driver({
+      steps, popoverClass: 'instrument-tour-popover',
+      showProgress: true, progressText: '{{current}} / {{total}}',
+      nextBtnText: 'Siguiente', prevBtnText: 'Anterior', doneBtnText: 'Terminar',
+      animate: false, smoothScroll: false, allowScroll: false,
+      overlayColor: '#050706', overlayOpacity: 0.56,
+      stagePadding: 6, stageRadius: 3, popoverOffset: 16,
+      disableActiveInteraction: true,
+      onNextClick: () => { void goTo((tour.getActiveIndex() ?? 0) + 1); },
+      onPrevClick: () => { void goTo((tour.getActiveIndex() ?? 0) - 1); },
+      onDoneClick: () => tour.destroy(),
+      onPopoverRender: popover => {
+        popover.closeButton.setAttribute('aria-label', 'Cerrar guía');
+        popover.wrapper.setAttribute('data-ui-control', '');
+      },
+      onDestroyed: finish,
+    });
+
+    const stop = () => { tour.destroy(); finish(); };
+    stopActiveTour = stop;
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') return;
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      stop();
+    };
+    window.addEventListener('keydown', handleEscape, { capture: true, signal: controller.signal });
+    callbacks.onRunningChange?.(true);
+    void goTo(0);
   },
+  stopTour() { stopActiveTour?.(); },
 };
 
 export default guidedTourService;

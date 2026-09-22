@@ -6,13 +6,15 @@ import type { GlobeInstance } from 'globe.gl';
 import { EARTH_ASSETS, EARTH_DETAIL_CONFIG, EARTH_MATERIAL_CONFIG, chooseEarthQuality, type EarthSurfaceStatus } from './earthConfig';
 import { createEarthLighting } from './earthLighting';
 import { createEarthMaterial } from './earthMaterial';
+import { createEarthEnvelope } from './earthEnvelope';
 
 /** Propietario del material y mapas: conserva la geometría, instancia y renderer de Globe. */
 export function createEarthSurface(globe: GlobeInstance, container: HTMLElement,
-  onStatus?: (status: EarthSurfaceStatus) => void): () => void {
+  onStatus?: (status: EarthSurfaceStatus) => void) {
   const renderer = globe.renderer();
   const originalMaterial = globe.globeMaterial();
-  const material = createEarthMaterial();
+  const lighting = createEarthLighting(globe);
+  const material = createEarthMaterial(lighting.sunDirection);
   globe.globeMaterial(material);
   const ownedTextures = new Set<Texture>();
   const loader = new TextureLoader();
@@ -24,10 +26,13 @@ export function createEarthSurface(globe: GlobeInstance, container: HTMLElement,
   };
   const quality = chooseEarthQuality(container.clientWidth, renderer.capabilities.maxTextureSize,
     window.matchMedia('(pointer: coarse)').matches);
+  const envelope = createEarthEnvelope(globe, lighting.sunDirection, quality);
+  globe.showAtmosphere(false);
   const deviceMemory = (navigator as Navigator & { deviceMemory?: number }).deviceMemory;
-  const canLoadDetail = quality === 'desktop'
-    && renderer.capabilities.maxTextureSize >= EARTH_DETAIL_CONFIG.minTextureSize
-    && (deviceMemory === undefined || deviceMemory >= EARTH_DETAIL_CONFIG.minDeviceMemory);
+  const detailConfig = EARTH_DETAIL_CONFIG[quality];
+  const detailAsset = quality === 'desktop' ? EARTH_ASSETS.dayDetail : EARTH_ASSETS.day.desktop;
+  const canLoadDetail = renderer.capabilities.maxTextureSize >= detailConfig.minTextureSize
+    && (deviceMemory === undefined ? quality === 'desktop' : deviceMemory >= detailConfig.minDeviceMemory);
   const controls = globe.controls();
   let interacted = false;
   let detailRequested = false;
@@ -37,7 +42,6 @@ export function createEarthSurface(globe: GlobeInstance, container: HTMLElement,
   renderer.outputColorSpace = SRGBColorSpace;
   renderer.toneMapping = AgXToneMapping;
   renderer.toneMappingExposure = EARTH_MATERIAL_CONFIG.exposure;
-  const disposeLighting = createEarthLighting(globe);
 
   const load = (url: string, color: boolean): Promise<Texture | null> => new Promise(resolve => {
     const texture = loader.load(url, loaded => {
@@ -65,11 +69,11 @@ export function createEarthSurface(globe: GlobeInstance, container: HTMLElement,
     if (disposed || !interacted || !canLoadDetail || detailRequested || !material.map
       || globe.pointOfView().altitude > EARTH_DETAIL_CONFIG.maxAltitude) return;
     detailRequested = true;
-    void load(EARTH_ASSETS.dayDetail, true).then(texture => {
-      if (disposed || !texture) return; // Un fallo opcional conserva el mapa 4K y no reintenta.
+    void load(detailAsset, true).then(texture => {
+      if (disposed || !texture) return; // Un fallo opcional conserva el mapa inicial y no reintenta.
       const previous = material.map;
       material.map = texture;
-      container.dataset.earthDetail = '8k';
+      container.dataset.earthDetail = detailConfig.label;
       if (previous) { ownedTextures.delete(previous); previous.dispose(); }
     });
   };
@@ -98,20 +102,39 @@ export function createEarthSurface(globe: GlobeInstance, container: HTMLElement,
     }
     return texture;
   });
-  void Promise.all([day, elevation, water]).then(([dayMap, bumpMap, waterMap]) => {
-    status(!dayMap ? 'fallback' : bumpMap && waterMap ? 'ready' : 'degraded');
+  const night = load(EARTH_ASSETS.night[quality], true).then(texture => {
+    if (disposed) return null;
+    if (texture) { material.emissiveMap = texture; material.needsUpdate = true; }
+    container.dataset.earthNight = texture ? 'ready' : 'unavailable';
+    return texture;
+  });
+  const clouds = load(EARTH_ASSETS.clouds[quality], false).then(texture => {
+    if (disposed) return null;
+    if (texture) envelope.setCloudTexture(texture);
+    container.dataset.earthClouds = texture ? 'ready' : 'unavailable';
+    return texture;
+  });
+  void Promise.all([day, elevation, water, night, clouds]).then(([dayMap, bumpMap, waterMap, nightMap, cloudMap]) => {
+    status(!dayMap ? 'fallback' : bumpMap && waterMap && nightMap && cloudMap ? 'ready' : 'degraded');
   });
 
-  return () => {
+  const dispose = (): void => {
     disposed = true;
     controls.removeEventListener('end', onInteractionEnd);
-    disposeLighting();
+    lighting.dispose();
+    envelope.dispose();
     material.map = null;
     material.bumpMap = null;
     material.roughnessMap = null;
+    material.emissiveMap = null;
     ownedTextures.forEach(texture => texture.dispose());
     ownedTextures.clear();
     globe.globeMaterial(originalMaterial);
     material.dispose();
+  };
+  return {
+    dispose,
+    setAtmosphereVisible: envelope.setAtmosphereVisible,
+    setSolarMotionEnabled: lighting.setMotionEnabled,
   };
 }
