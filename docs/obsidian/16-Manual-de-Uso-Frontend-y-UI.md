@@ -60,50 +60,36 @@ Ubicada en la parte superior izquierda de la pantalla (`top: 35px`, `left: var(-
 2. **Coordenadas de Selección:** El motor geoespacial detecta la latitud y longitud exacta del punto tocado y abre automáticamente el panel `DetectiveCard`.
 3. **Desplazamiento Dinámico de Cámara:** La cámara ajusta suavemente su proyección lateral (`focusOffset`) para que el planeta no quede tapado por la tarjeta de análisis.
 
-### 2.2 Anatomía del `DetectiveCard`
+### 2.2 Anatomía del inspector
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│ 🧭 INSPECTOR DE DETECTIVE                                [X]│
-├──────────────────────────────┬──────────────────────────────┤
-│ Latitud: 18.25° N            │ Longitud: 66.42° O           │
-│ Misión: GISTEMP v4           │ Satélite: Superficie NASA    │
-├──────────────────────────────┴──────────────────────────────┤
-│ [ 🔴 Calentamiento Acelerado ]           ✨ 95% Confianza   │
-├─────────────────────────────────────────────────────────────┤
-│ EVOLUCIÓN HISTÓRICA (2000 - 2026)                           │
-│                                                             │
-│   +1.2 ─── ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ •         │
-│   +0.8 ─── ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ • ─ • ─ • ─            │
-│   +0.4 ─── ─ • ─ • ─ • ─ • ─ • ─ • ─                        │
-│   +0.0 ──•───────────────────────────────────────           │
-│        2000                                    2026         │
-│                                                             │
-│ [ Año: 2024 | Lectura: +1.28 °C ]                           │
-├─────────────────────────────────────────────────────────────┤
-│ Fuente: NASA Earth Observations | Resolución: 1.0°          │
-└─────────────────────────────────────────────────────────────┘
-```
+El panel usa carbón mineral, texto cálido y el acento de la variable seleccionada.
+Una sola superficie contiene:
 
-### 2.3 Interpretación de los Badges de Significancia (`TrendSignificanceBadge`)
-El badge resume el resultado del **Test no paramétrico de Mann-Kendall** ($|Z| \ge 1.96$, $p < 0.05$):
+- **Inspección regional:** título y cierre con objetivo táctil de 44 px.
+- **Coordenadas reales:** latitud y longitud del punto seleccionado.
+- **Variable y producto de referencia:** contexto de la observación, no atribución de los datos de ejemplo.
+- **Serie de ejemplo (2002–2024):** gráfico sintético para probar navegación anual.
+- **Procedencia:** «Datos sintéticos · no son observaciones NASA» y «Mann–Kendall / Sen · Sin calcular».
 
-| Badge Visual | Condición Estadística | Significado Físico / Científico |
-| :--- | :--- | :--- |
-| 🔴 **Calentamiento Acelerado** | $Z \ge +1.96$, $p < 0.05$, $Q > 0$ | Aumento de temperatura estadísticamente consistente que supera la variabilidad natural. |
-| 🔵 **Enfriamiento Anómalo** | $Z \le -1.96$, $p < 0.05$, $Q < 0$ | Tendencia de enfriamiento térmico regional significativa. |
-| 🟢 **Enverdecimiento Acelerado** | $Z \ge +1.96$, $p < 0.05$ (MODIS) | Incremento sostenido de biomasa vegetal (NDVI). |
-| 🟠 **Pérdida Crítica de Biomasa** | $Z \le -1.96$, $p < 0.05$ (MODIS) | Deforestación, desertificación o sequía prolongada. |
-| 🔷 **Pérdida Acelerada de Masa** | $Z \le -1.96$, $p < 0.05$ (GRACE) | Deshielo crítico en glaciares o agotamiento de acuíferos subterráneos. |
-| ⚪ **Sin Tendencia Significativa** | $\|Z\| < 1.96$, $p \ge 0.05$ | El comportamiento observado se mantiene dentro del rango estocástico esperado. |
+En móvil se compactan espacios y la superficie permanece dentro del viewport;
+si la altura es limitada, el desplazamiento queda dentro del inspector.
 
-> **💡 Consejo Interactivo:** Al pasar el cursor o hacer clic sobre el Badge, se despliega un **Tooltip Científico** que revela la puntuación $Z$, el valor exacto de $p$ y la Pendiente Mediana de Sen ($Q$) en unidades/año.
+### 2.3 Estado del análisis estadístico
 
-### 2.4 Interacción con el Gráfico de Series Temporales (`TimeSeriesChart`)
-- **Visualización a 60 FPS:** Desarrollado en SVG vectorial puro sin librerías pesadas, garantizando fluidez total en pantallas móviles y monitores 4K.
-- **Exploración por Años:** Al desplazar el ratón o deslizar el dedo sobre el gráfico, una línea de mira vertical resalta el punto correspondiente y actualiza la tarjeta inferior con el año y el valor registrado con precisión decimal.
-- **Sincronización:** Al hacer clic en un punto del gráfico, se sincroniza el año seleccionado con el motor global del visor.
+El inspector todavía no recibe resultados regionales del backend. Los valores
+fijos de p-valor, Z y pendiente del prototipo no se presentan como resultados
+calculados, y se retiraron sus badges de significancia y confianza.
 
+`TrendSignificanceBadge` sigue disponible como componente separado para una
+integración futura. Su existencia no implica que el análisis esté conectado.
+
+### 2.4 Interacción con el gráfico de series temporales
+
+- SVG ligero, línea contextual sin resplandor ni relleno azul fijo.
+- Lectura del año y valor de ejemplo junto con la unidad seleccionada.
+- Selección anual accesible por teclado y tacto, sincronizada con el año global.
+- El rango coincide con `SATELLITE_TIMELINE`; cambiar el año conserva el foco.
+- No se afirma una tasa de FPS sin medición.
 ---
 
 ## ♿ 3. Accesibilidad y Atajos de Teclado

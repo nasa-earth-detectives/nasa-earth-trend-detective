@@ -42,6 +42,8 @@ export const GLOBE_CONFIG = {
   initialLng: -12,
   /** Distancia mínima de órbita: impide entrar dentro del planeta. */
   minDistance: GLOBE_RADIUS * 1.5,
+  /** Distancia de recorte: da precisión de profundidad a la capa de nubes (R + 0.12). */
+  nearPlane: 1,
   /**
    * Distancia máxima de órbita: impide que la Tierra se vuelva irrelevante.
    * Debe superar la distancia inicial más lejana (`maxInitialAltitude`).

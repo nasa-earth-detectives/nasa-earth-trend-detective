@@ -9,8 +9,9 @@ import { PerspectiveCamera } from 'three';
 import { GLOBE_CONFIG } from './globeConfig';
 
 /**
- * Amplía el plano lejano de la cámara para que el cascarón de estrellas quede
- * dentro del frustum, sin depender del valor por defecto de la librería.
+ * Conserva estrellas dentro del frustum y precisión entre superficie y nubes.
+ * near=1 queda muy por debajo de los 50 de separación mínima cámara/superficie;
+ * evita z-fighting de nubes lejanas sin cambiar encuadre ni límites de órbita.
  */
 export function extendCameraFarPlane(globe: GlobeInstance): void {
   const camera = globe.camera();
@@ -18,10 +19,9 @@ export function extendCameraFarPlane(globe: GlobeInstance): void {
   if (camera instanceof PerspectiveCamera) {
     const required = GLOBE_CONFIG.starOuterRadius * 2.5;
 
-    if (camera.far < required) {
-      camera.far = required;
-      camera.updateProjectionMatrix();
-    }
+    camera.far = Math.max(camera.far, required);
+    camera.near = GLOBE_CONFIG.nearPlane;
+    camera.updateProjectionMatrix();
   }
 }
 

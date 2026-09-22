@@ -1,7 +1,14 @@
 # Superficie terrestre: fuentes y preparación
 
+Revisión actual del 22 de septiembre de 2026:
+[sistema orbital y validación final](FINAL-ORBITAL-REVIEW.md).
+Black Marble y las nubes separadas ya están integrados, junto al ciclo día/noche
+y la atmósfera sensible a la luz. El [control de etapa A](STAGE-A-REVIEW.md)
+conserva la evidencia histórica de la evaluación anterior; su estado de pausa
+fue superado por este pase y no describe la integración actual.
+
 Estos archivos son derivados determinísticos de productos publicados por NASA,
-descargados el 21 de septiembre de 2026. No contienen imágenes generadas.
+descargados el 21 y 22 de septiembre de 2026. No contienen imágenes generadas.
 Son material visual de referencia: no representan una medición del año elegido
 en el timeline ni cambian según la variable científica seleccionada.
 
@@ -9,16 +16,21 @@ en el timeline ni cambian según la variable científica seleccionada.
 
 | Ruta desde `/earth/` | Dimensiones | Canal / interpretación | Perfil |
 | --- | --- | --- | --- |
-| `day/blue-marble-july-4k.jpg` | 4096×2048 | RGB, sRGB | Escritorio inicial |
+| `day/blue-marble-july-4k.jpg` | 4096×2048 | RGB, sRGB | Escritorio inicial; detalle móvil opcional |
 | `day/blue-marble-july-8k.jpg` | 8192×4096 | RGB, sRGB | Escritorio, zoom cercano opcional |
-| `day/blue-marble-july-2k.jpg` | 2048×1024 | RGB, sRGB | Móvil |
+| `day/blue-marble-july-2k.jpg` | 2048×1024 | RGB, sRGB | Móvil inicial |
 | `elevation/gebco-elevation-2k.png` | 2048×1024 | L, altura lineal | Escritorio |
 | `elevation/gebco-elevation-1k.png` | 1024×512 | L, altura lineal | Móvil |
 | `masks/modis-water-2k.png` | 2048×1024 | L, cobertura de agua | Escritorio |
 | `masks/modis-water-1k.png` | 1024×512 | L, cobertura de agua | Móvil |
+| `night/black-marble-2016-4k.jpg` | 4096×2048 | RGB, sRGB, luces sobre negro | Escritorio |
+| `night/black-marble-2016-2k.jpg` | 2048×1024 | RGB, sRGB, luces sobre negro | Móvil |
+| `clouds/blue-marble-clouds-2k.png` | 2048×1024 | L, cobertura visual de nube | Escritorio |
+| `clouds/blue-marble-clouds-1k.png` | 1024×512 | L, cobertura visual de nube | Móvil |
 
 Dimensiones, bytes y SHA-256 exactos de fuentes y derivados están en
-[`asset-manifest.json`](asset-manifest.json). No hay solicitudes a NASA durante
+[`asset-manifest.json`](asset-manifest.json) y, para luces y nubes,
+[`orbital-manifest.json`](orbital-manifest.json). No hay solicitudes a NASA durante
 la ejecución de la aplicación: Vite sirve `public/earth` y copia los archivos
 al build sin incorporarlos como módulos JavaScript.
 
@@ -42,10 +54,18 @@ al build sin incorporarlos como módulos JavaScript.
   identifica agua opaca y ausencia de datos transparente. El archivo local
   almacena ese canal alfa, no el color cian de la visualización.
   No se atribuye a esta capa estática una versión anual MOD44W no documentada.
+- **Luces nocturnas:** NASA Black Marble 2016, capa oficial GIBS
+  `VIIRS_Night_Lights`, compuesta sólo por luces sobre transparencia. Se conserva
+  la imagen sobre fondo negro para emisión condicionada al hemisferio nocturno;
+  no se utiliza el JPEG que incluye un fondo azul de tierra y hielo.
+- **Nubes:** NASA Blue Marble: Clouds, compuesto histórico publicado en 2002,
+  `cloud_combined_2048.jpg`. Es una máscara gris de nubes sin superficie diurna
+  incorporada, usada sobre una esfera separada. No representa meteorología actual.
 
 Los documentos `DAY.md`, `ELEVATION.md` y `MASKS.md` contienen los enlaces
-directos a cada original y sus detalles de procesamiento. `NIGHT.md` registra
-el alcance reservado; no se descargó Black Marble.
+directos a cada original y sus detalles de procesamiento. [NIGHT.md](NIGHT.md)
+describe la integración nocturna; [ORBITAL-SOURCES.md](ORBITAL-SOURCES.md)
+documenta fuentes, procesamiento y límites de luces y nubes.
 
 ## Reproducción
 
@@ -53,13 +73,14 @@ Desde la raíz del repositorio, con Python y Pillow disponibles:
 
 ```sh
 python scripts/build-earth-assets.py
+python scripts/build-earth-orbital-assets.py
 ```
 
-El script descarga fuentes faltantes a `output/earth-source`, valida sus
-SHA-256 y dimensiones, y genera los derivados. Las fuentes no forman parte del
+Los scripts descargan fuentes faltantes a `output/earth-source`, validan sus
+SHA-256 y dimensiones, y generan los derivados. Las fuentes no forman parte del
 build web. Las entregas actuales se produjeron con Pillow **12.3.0**; diferentes
-versiones de Pillow/libjpeg pueden generar bytes JPEG distintos. El script
-rechaza una fuente cuyo hash haya cambiado para evitar reemplazos silenciosos.
+versiones de Pillow/libjpeg pueden generar bytes JPEG distintos. Ambos scripts
+rechazan una fuente cuyo hash haya cambiado para evitar reemplazos silenciosos.
 
 - Day 2K/4K: reducción Lanczos desde 5400×2700; JPEG progresivo 4:4:4,
   calidad 92 para 4K y 90 para 2K; sin ajuste global de color, contraste o saturación.
@@ -79,50 +100,75 @@ rechaza una fuente cuyo hash haya cambiado para evitar reemplazos silenciosos.
   PNG gris de 8 bits sin gamma añadida ni normalización adicional.
 - Agua: alfa RGBA 4096×2048 → escala gris mediante promedio de área BOX;
   PNG sin pérdidas. Los grises costeros representan cobertura parcial.
+- Luces: capa GIBS RGBA 8192×4096 de 2016 sobre negro opaco → reducción Lanczos
+  → JPEG94 progresivo 4:4:4, a 4096×2048 y 2048×1024. Sin extracción mediante
+  umbrales de color, aumento de brillo, tintado ni bloom en los assets.
+- Nubes: RGB gris 2048×1024 → L → PNG sin pérdidas a 2K; Lanczos para 1K.
+  Sin ajustes de gamma, contraste o umbrales en la imagen derivada.
 - Todas las imágenes conservan la proyección equirectangular 2:1, norte arriba,
   longitud −180° en el borde izquierdo y +180° en el derecho.
 
 ## Integración y límites
 
-Day debe configurarse como `SRGBColorSpace`; elevación y agua como
-`NoColorSpace`. La máscara expresa 255 = agua, 0 = terreno **o ausencia de
+Day y Black Marble deben configurarse como `SRGBColorSpace`; elevación, agua
+y cobertura de nube como `NoColorSpace`. La máscara de agua expresa
+255 = agua, 0 = terreno **o ausencia de
 datos**; no es una clasificación científica exhaustiva del uso del suelo.
 La topografía gris se utiliza para bump sutil; no debe interpretarse como un
 DEM de precisión ni exagerarse como desplazamiento de la esfera.
 
-Los perfiles desktop inicial (day 4K + dos auxiliares 2K) y móvil (day 2K +
-auxiliares 1K) estiman aproximadamente **64 MiB** y **16 MiB** respectivamente
-si la GPU expande cada textura a RGBA8 incluyendo mipmaps. La actualización
-opcional a day 8K eleva el conjunto estable de escritorio a **192 MiB**;
-durante el reemplazo puede alcanzar **234,7 MiB** mientras coexisten 4K y 8K.
-El consumo real depende del formato interno del renderer.
+El conjunto activo contiene **cinco mapas**: day, elevación, agua, luces y nubes.
+Estimación de memoria si cada textura se expande a RGBA8 incluyendo mipmaps:
+
+| Perfil | Day / luces | Elevación / agua / nubes | Total de mapas |
+| --- | --- | --- | --- |
+| Mobile Reduced | 2K / 2K | 1K / 1K / 1K | **29,33 MiB** |
+| Móvil, detalle cercano elegible | 4K / 2K | 1K / 1K / 1K | **61,33 MiB** |
+| Desktop Balanced | 4K / 4K | 2K / 2K / 2K | **117,33 MiB** |
+| Desktop High, zoom cercano | 8K / 4K | 2K / 2K / 2K | **245,33 MiB** |
+
+Durante el reemplazo de day 2K por 4K en móvil pueden coexistir temporalmente
+ambos mapas, hasta aproximadamente **72 MiB**. En escritorio, el reemplazo
+4K por 8K puede alcanzar aproximadamente **288 MiB**. El consumo real depende del formato
+interno del renderer; estos números no son una medición de memoria GPU total.
 
 La implementación elige el perfil móvil cuando el ancho inicial es menor que
 1024 px, el puntero principal es táctil o `maxTextureSize` es menor que 4096.
-No cambia de perfil durante un resize. Transferencia conjunta: escritorio
-inicial 1.562.586 bytes; móvil 452.746 bytes. El 8K añade **4.453.772 bytes**
-cuando se solicita una sola vez al acercarse a altitud `<= 1.2`. Sólo es
-elegible el perfil desktop con `maxTextureSize >= 8192` y, cuando se informa
-`deviceMemory`, al menos 8 GiB; móvil permanece en 2K. Esta carga opcional no
-reconstruye el globo ni cambia los mapas auxiliares.
+No cambia de perfil durante un resize. Transferencia conjunta de los cinco
+mapas: escritorio inicial 3.248.594 bytes; móvil inicial 911.928 bytes.
+Tras una interacción de cámara y al acercarse a altitud `<= 1.2`, se permite
+una única mejora opcional del mapa diurno:
+
+- Móvil: **2K → 4K**, sólo con `maxTextureSize >= 4096` y `deviceMemory`
+  conocido de al menos 4 GiB. Añade 1.190.421 bytes de transferencia. Si la
+  memoria no se informa o es inferior al umbral, conserva 2K. Nunca carga 8K.
+- Escritorio: **4K → 8K**, con `maxTextureSize >= 8192` y, cuando se informa
+  `deviceMemory`, al menos 8 GiB. Si esa API no existe, la capacidad de textura
+  permite la mejora. Añade 4.453.772 bytes de transferencia.
+
+Ambas cargas conservan el mapa inicial mientras esperan; si fallan, lo
+mantienen sin reintentos. Al completar la sustitución se libera el anterior.
+No reconstruyen el globo ni cambian luces, elevación, agua o nubes.
 
 La decisión de incluir 8K se tomó tras comparar costas y terreno a zoom
 cercano (altitud 0,5), donde mejoró el detalle frente a 4K. Se conserva 4K
-al iniciar para limitar transferencia y memoria. No se afirma rendimiento
-de 60 FPS: debe medirse en el dispositivo de destino. La estimación de GPU
+al iniciar para limitar transferencia y memoria. Las mediciones de rendimiento
+y sus límites se registran en [la revisión final](FINAL-ORBITAL-REVIEW.md);
+la resolución de una textura no garantiza 60 FPS. La estimación de GPU
 no incluye imágenes decodificadas en CPU, framebuffer, geometrías ni recursos
 del navegador.
 
-## Material diurno revisado
+## Material diurno y sistema orbital
 
 - `MeshStandardMaterial` sustituye Phong una sola vez sobre la misma geometría.
-  GGX nativo, metalness 0, emisión negra, bumpScale 0,065 (radio 100).
-- La máscara se muestrea una vez para mezclar rugosidad 0,92 de terreno y 0,54
+  GGX nativo, metalness 0, bumpScale 0,1 (radio 100). La emisión de Black Marble
+  queda limitada al lado nocturno, con intensidad configurada de 1,4.
+- La máscara se muestrea una vez para mezclar rugosidad 0,92 de terreno y 0,12
   de agua. F0 pasa de 0,04 de terreno a 0,0204 de agua (IOR 1,333).
   Sin máscara se conserva una respuesta rugosa; no se vuelve brillante todo el globo.
 - BMNG **no contiene observaciones de color del océano profundo**. Donde el
   color coincide con su relleno RGB (2,5,20), el material aplica una reflectancia
-  difusa lineal aproximada (0,003; 0,017; 0,042), con transición suave y máscara
+  difusa lineal aproximada (0,003; 0,014; 0,035), con transición suave y máscara
   de agua. Es un parámetro visual del material, **no un color medido por NASA**,
   ni un albedo radiométrico validado. No se inventan variaciones regionales.
   La corrección es aditiva, modulada por cercanía al relleno (distancia lineal
@@ -134,11 +180,21 @@ del navegador.
 - Repetición longitudinal y clamp en latitud; `flipY=true`, sin inversión ni
   desplazamientos arbitrarios. La geometría de Globe ya orienta Greenwich.
 - Renderer sRGB con `AgXToneMapping` y exposición 1,1. Dos luces reemplazan las
-  predeterminadas: ambiente 0,24 y direccional 3,2 relativa a la cámara. No son
-  una simulación solar y no definen un lado nocturno científico.
+  predeterminadas: ambiente 0,12 y direccional 3,2. La direccional ya no sigue
+  la cámara: comparte `sunDirection` en referencia fija a la Tierra con la
+  máscara nocturna, las nubes y la atmósfera.
+- El Sol parte de latitud 12° y longitud −65° y avanza en un ciclo visual de
+  **20 minutos**. El movimiento se pausa con «Rotación automática» desactivada
+  o `prefers-reduced-motion: reduce`. Orbitar con la cámara no arrastra el
+  terminador. Es un ciclo de presentación, **no efemérides ni fecha del timeline**.
+- Las luces emergen gradualmente al pasar el coseno solar de 0 a −0,12;
+  desaparecen por completo en el hemisferio diurno. No hay mezcla global 50/50.
+- Las nubes forman una esfera independiente y la atmósfera un limbo transparente
+  sensible a la luz. Ambos reciben la misma dirección solar. No hay bloom,
+  lens flare, sombras de nubes ni sistema meteorológico animado.
 - La superficie se actualiza al cargar el mapa; no hay segundo globo, renderer,
   bucle de animación ni transición de opacidad de la esfera.
-- Las tres texturas propias siguen siendo las indicadas en el manifiesto;
+- Las cinco texturas propias están registradas en los dos manifiestos;
   Three r186 añade su LUT DFG interna al usar el material físico.
 
 Se descartaron variantes con topografía sombreada y la versión Blue Marble
@@ -156,7 +212,9 @@ y el [material Standard](https://threejs.org/docs/pages/MeshStandardMaterial.htm
 
 Crédito de color: **NASA Earth Observatory**. Crédito de elevación: **Jesse
 Allen, NASA Earth Observatory; GEBCO / British Oceanographic Data Centre**.
-Crédito de agua: **NASA EOSDIS GIBS / MODIS**.
+Crédito de agua: **NASA EOSDIS GIBS / MODIS**. Luces: **NASA Earth Observatory,
+NASA Goddard / Suomi NPP VIIRS, servidas por NASA GIBS**. Nubes: **NASA Goddard,
+Reto Stöckli y Robert Simmon / Terra MODIS**.
 
 Las [directrices de imágenes y medios de NASA](https://www.nasa.gov/nasa-brand-center/images-and-media/)
 permiten usos informativos y educativos de su material, incluidas texturas

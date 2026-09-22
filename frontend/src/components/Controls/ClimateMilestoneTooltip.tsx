@@ -10,15 +10,13 @@ export function ClimateMilestoneTooltip({ milestone, onClose }: ClimateMilestone
   return (
     <div
       className="climate-milestone-tooltip"
-      role="tooltip"
+      role="region"
+      aria-label={`Hito de ${milestone.year}`}
       aria-live="polite"
-      style={{
-        '--milestone-accent': milestone.badgeColor,
-      } as React.CSSProperties}
     >
       <div className="milestone-tooltip-header">
         <div className="milestone-tooltip-badge">
-          <Sparkles size={13} className="text-amber-400" />
+          <Sparkles size={13} aria-hidden="true" />
           <span>{milestone.categoryLabel} · {milestone.year}</span>
         </div>
         {onClose && (

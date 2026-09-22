@@ -42,7 +42,9 @@ export function useGlobeScene(
       .width(container.clientWidth)
       .height(container.clientHeight);
 
-    const disposeSurface = createEarthSurface(globe, container, onSurfaceStatus);
+    const surface = createEarthSurface(globe, container, onSurfaceStatus);
+    surface.setAtmosphereVisible(initialPreferences?.atmosphereVisible ?? true);
+    surface.setSolarMotionEnabled(initialPreferences?.autoRotate ?? true);
     extendCameraFarPlane(globe);
 
     const renderer = globe.renderer();
@@ -133,6 +135,7 @@ export function useGlobeScene(
       apiRef.current = {
         setAutoRotateEnabled: (enabled) => {
           autoRotatePreferred = enabled;
+          surface.setSolarMotionEnabled(enabled);
           syncAutoRotate();
         },
         setStarsVisible: (visible) => {
@@ -141,7 +144,7 @@ export function useGlobeScene(
           });
         },
         setGridVisible: (visible) => { globe.showGraticules(visible); },
-        setAtmosphereVisible: (visible) => { globe.showAtmosphere(visible); },
+        setAtmosphereVisible: surface.setAtmosphereVisible,
         setLocationSelectHandler: (handler) => { locationSelectHandler = handler; },
         inspectCenter: () => {
           const { lat, lng } = globe.pointOfView();
@@ -160,7 +163,7 @@ export function useGlobeScene(
       if (apiRef) apiRef.current = null;
       locationSelectHandler = null;
       disposeSelection();
-      disposeSurface();
+      surface.dispose();
       focusOffset.dispose();
       resizeObserver.disconnect();
       controls.removeEventListener('start', handleInteractionStart);
