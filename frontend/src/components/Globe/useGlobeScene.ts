@@ -12,31 +12,8 @@ import {
   extendCameraFarPlane,
   resolveInitialAltitude,
 } from './globeSetup';
-
-export interface GlobeLocation { lat: number; lng: number }
-
-/** Superficie imperativa que la interfaz flotante usa para actuar sobre la escena. */
-export interface GlobeSceneApi {
-  /** Preferencia del usuario sobre la rotación en reposo. */
-  setAutoRotateEnabled(enabled: boolean): void;
-  setStarsVisible(visible: boolean): void;
-  setGridVisible(visible: boolean): void;
-  setAtmosphereVisible(visible: boolean): void;
-  setLocationSelectHandler(handler: ((location: GlobeLocation) => void) | null): void;
-  inspectCenter(): void;
-  /** Devuelve la cámara al encuadre inicial con una transición suave. */
-  resetCamera(): void;
-  /** Aparta el planeta lateralmente para dejar sitio a un instrumento. */
-  setFocusOffset(offsetPx: number, verticalOffsetPx?: number): void;
-}
-
-/** Preferencias visuales de escena que el usuario controla desde la pestaña Vista. */
-export interface ScenePreferences {
-  autoRotate: boolean;
-  starsVisible: boolean;
-  gridVisible: boolean;
-  atmosphereVisible: boolean;
-}
+export type { GlobeLocation, GlobeSceneApi, ScenePreferences } from '../../types/globe.types';
+import type { GlobeLocation, GlobeSceneApi, ScenePreferences } from '../../types/globe.types';
 
 export function useGlobeScene(
   containerRef: RefObject<HTMLDivElement | null>,
