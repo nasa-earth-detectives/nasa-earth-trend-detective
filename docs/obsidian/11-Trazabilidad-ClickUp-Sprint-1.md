@@ -19,10 +19,7 @@
 * **Asignados:** Todo el equipo (Brayan Stid Cortés, July, Fabriany Medina, Johan Sebastian Olaya, Diego Arias)
 * **Horas Estimadas:** 16h
 
----
-
-## 🧩 Subtareas Atómicas Vinculadas
-
+### Subtareas de Infraestructura:
 | Código | Subtarea | ID ClickUp | Asignado(s) | Estado | Prioridad | Enlace |
 | :--- | :--- | :---: | :--- | :---: | :---: | :---: |
 | **S1-T0.1** | Despliegue de Frontend en Vercel Edge con SPA Routing y proxy API | `86e3bbazf` | Brayan | `Complete` ✅ | Urgente (1) | [Ver Tarea](https://app.clickup.com/t/86e3bbazf) |
@@ -33,33 +30,28 @@
 
 ---
 
-## 🛠️ Detalles Técnicos Registrados por Subtarea
+## 🎨 Tarea Principal: Design System Espacial y Experiencia UI
 
-### 1. [S1-T0.1] Despliegue Frontend en Vercel Edge
-* Configuración de `apps/web/vercel.json` con regla de reescritura SPA: `/(.*) -> /index.html`.
-* Pipeline CI/CD automático vinculado a la rama `production` de GitHub.
-* Producción oficial activa en: **[nasa-earth-trend-detective.vercel.app](https://nasa-earth-trend-detective.vercel.app/)**.
+* **Código:** `[S1-T5]`
+* **ID ClickUp:** `86e3bamyp`
+* **Nombre:** **[S1-T5] Definición del Design System espacial (Glassmorphism, paleta y tipografía)**
+* **URL:** [https://app.clickup.com/t/86e3bamyp](https://app.clickup.com/t/86e3bamyp)
+* **Estado:** `Espera por bug` 🛑 (Código finalizado; pendiente de validación visual por bug en renderizado 3D de Diego Arias `[S1-T4]`)
+* **Prioridad:** Normal (3) 🔵
+* **Asignado:** Brayan Stid Cortés Lombana (`Participante 5 / Frontend Lead & UI/UX`)
+* **Horas Estimadas:** 5h
+* **Pull Request:** [PR #9 en GitHub](https://github.com/nasa-earth-detectives/nasa-earth-trend-detective/pull/9)
 
-### 2. [S1-T0.2] Despliegue Backend .NET 10 en Render Cloud
-* Blueprint de infraestructura como código `render.yaml` en la raíz del repositorio.
-* Dockerfile multi-stage basado en SDK .NET 10 Preview y runtime Linux/Alpine.
-* Inyección dinámica de puerto `$PORT` en `Program.cs` (`http://0.0.0.0:${port}`).
-* Endpoint de verificación de salud operacional: **[nasa-trend-detective-api.onrender.com/health](https://nasa-trend-detective-api.onrender.com/health)** respondiendo `Healthy`.
+### Subtareas de S1-T5:
+| Código | Subtarea | ID ClickUp | Estado | Componentes / Archivos Clave |
+| :--- | :--- | :---: | :---: | :--- |
+| **S1-T5.1** | Configurar tokens de Tailwind y paleta espacial | `86e3bamyr` | `Espera por bug` 🛑 | `tailwind.config.js` (colores `cosmic-*`, `nasa-*`, `science-*`, shadows, blurs) |
+| **S1-T5.2** | Crear clases utilitarias de Glassmorphism (blur 16px) | `86e3bamyt` | `Espera por bug` 🛑 | `src/index.css` (`.glass-panel`, `.glass-panel-glow`, `.glass-badge`), `GlassPanel.tsx`, `StatusBadge.tsx` |
+| **S1-T5.3** | Construir barra de navegación espacial (Navbar) | `86e3bamyu` | `Espera por bug` 🛑 | `MissionHeader.tsx`, `instrument-chrome.css` |
 
-### 3. [S1-T0.3] Blindaje de Ramas con GitHub Rulesets v2
-* Protección aplicada a `production`, `qa` y `development`.
-* `Block force pushes` activado (Anti-Force Push estricto para evitar pérdidas de historial).
-* `Prevent branch deletion` activado.
-* Obligatoriedad de Pull Requests y revisiones de pares antes de fusionar.
+---
 
-### 4. [S1-T0.4] Gobernanza de Equipos en GitHub y CODEOWNERS
-* Equipos creados en la organización `@nasa-trend-detective`:
-  * `@nasa-trend-detective/backend-team` (July, Fabriany, Brayan)
-  * `@nasa-trend-detective/frontend-team` (Johan, Diego, Brayan)
-* Archivo `.github/CODEOWNERS` activo para asignación automática de PRs según rutas.
-* Documento `TEAM.md` en la raíz con roles, especialidades y acuerdos de equipo.
-
-### 5. [S1-T0.5] Panel de Acceso Rápido para Desarrolladores
-* Tabla de accesos directos en el `README.md` principal del repositorio.
-* Enlaces rápidos a Frontend Vercel, Backend Render, Health Check, Swagger UI y Render Dashboard.
-* Configuración de GitHub Environments (`production`, `qa`, `development`) con badges visuales.
+## 🛠️ Detalles Técnicos Registrados
+1. **Frontend en Vercel:** [nasa-earth-trend-detective.vercel.app](https://nasa-earth-trend-detective.vercel.app/).
+2. **Backend en Render:** [nasa-trend-detective-api.onrender.com/health](https://nasa-trend-detective-api.onrender.com/health).
+3. **Flujo de PRs:** PR #8 (Agente Revisor IA) y PR #9 (Design System espacial) activos en `development`.
