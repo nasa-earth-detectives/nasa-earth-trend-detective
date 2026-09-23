@@ -1,0 +1,210 @@
+/* Driver.js controla la geometría del objetivo, el overlay y las flechas. */
+.driver-active {
+  --driver-animation-duration: var(--motion-fast, 200ms);
+}
+
+.driver-active-element {
+  outline: 1px solid color-mix(in srgb, var(--active-accent) 72%, transparent);
+  outline-offset: 3px;
+}
+
+.driver-popover.instrument-tour-popover {
+  --tour-surface: #151815;
+  width: 340px;
+  min-width: 0;
+  max-width: calc(100vw - 32px);
+  padding: 20px;
+  border: 1px solid var(--edge-highlight);
+  border-radius: 3px;
+  background: var(--tour-surface);
+  color: var(--text-primary);
+  box-shadow: none;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+}
+
+.instrument-tour-popover .driver-popover-title {
+  margin: 0 28px 0 0;
+  color: var(--text-primary);
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1.35;
+  letter-spacing: -.015em;
+}
+
+.instrument-tour-popover .driver-popover-title[style*="block"] + .driver-popover-description {
+  margin-top: 12px;
+}
+
+.instrument-tour-popover .driver-popover-description {
+  max-height: min(320px, calc(100dvh - 196px));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: var(--edge-highlight) transparent;
+  color: var(--text-secondary);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.instrument-tour-popover .driver-popover-description p {
+  margin: 0;
+}
+
+.instrument-tour-popover .driver-popover-description p + p {
+  margin-top: 10px;
+}
+
+.instrument-tour-popover .driver-popover-description strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.instrument-tour-popover .driver-popover-description .tour-hint {
+  margin-top: 14px;
+  padding-left: 10px;
+  border-left: 1px solid var(--active-accent);
+  color: var(--text-tertiary);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.instrument-tour-popover .driver-popover-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 18px;
+  padding-top: 12px;
+  border-top: 1px solid var(--edge-subtle);
+}
+
+.instrument-tour-popover .driver-popover-progress-text {
+  flex-shrink: 0;
+  color: var(--text-tertiary);
+  font-family: var(--font-readout);
+  font-size: 11px;
+  line-height: 1.4;
+  font-variant-numeric: tabular-nums;
+}
+
+.instrument-tour-popover .driver-popover-navigation-btns {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.instrument-tour-popover .driver-popover-navigation-btns button + button {
+  margin-left: 0;
+}
+
+.instrument-tour-popover .driver-popover-footer-btn {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid var(--edge-subtle);
+  border-radius: 2px;
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.3;
+  cursor: pointer;
+  transition: color var(--motion-fast) var(--ease-instrument),
+    background-color var(--motion-fast) var(--ease-instrument),
+    border-color var(--motion-fast) var(--ease-instrument);
+}
+
+.instrument-tour-popover .driver-popover-next-btn {
+  border-color: color-mix(in srgb, var(--active-accent) 48%, transparent);
+  background: color-mix(in srgb, var(--active-accent) 10%, var(--tour-surface));
+  color: var(--text-primary);
+}
+
+.instrument-tour-popover .driver-popover-footer-btn:hover {
+  border-color: var(--edge-highlight);
+  background: var(--surface-raised);
+  color: var(--text-primary);
+}
+
+.instrument-tour-popover .driver-popover-next-btn:hover {
+  border-color: var(--active-accent);
+  background: color-mix(in srgb, var(--active-accent) 18%, var(--tour-surface));
+}
+
+.instrument-tour-popover .driver-popover-footer-btn:active {
+  background: var(--surface-pressed);
+}
+
+.instrument-tour-popover .driver-popover-footer .driver-popover-btn-disabled {
+  opacity: .4;
+  cursor: not-allowed;
+}
+
+.instrument-tour-popover .driver-popover-close-btn {
+  width: 44px;
+  height: 44px;
+  top: 3px;
+  right: 3px;
+  border-radius: 2px;
+  color: var(--text-tertiary);
+  font-size: 22px;
+  font-weight: 400;
+  transition: color var(--motion-fast) var(--ease-instrument),
+    background-color var(--motion-fast) var(--ease-instrument);
+}
+
+.instrument-tour-popover .driver-popover-close-btn:hover,
+.instrument-tour-popover .driver-popover-close-btn:focus {
+  background: var(--surface-raised);
+  color: var(--text-primary);
+}
+
+.instrument-tour-popover .driver-popover-close-btn:active {
+  background: var(--surface-pressed);
+}
+
+.instrument-tour-popover button:focus-visible {
+  outline: 2px solid var(--active-accent);
+  outline-offset: 3px;
+}
+
+.instrument-tour-popover .driver-popover-arrow-side-top {
+  border-top-color: var(--tour-surface);
+}
+
+.instrument-tour-popover .driver-popover-arrow-side-bottom {
+  border-bottom-color: var(--tour-surface);
+}
+
+.instrument-tour-popover .driver-popover-arrow-side-left {
+  border-left-color: var(--tour-surface);
+}
+
+.instrument-tour-popover .driver-popover-arrow-side-right {
+  border-right-color: var(--tour-surface);
+}
+
+@media (max-width: 420px) {
+  .driver-popover.instrument-tour-popover {
+    width: 320px;
+    padding: 16px;
+  }
+
+  .instrument-tour-popover .driver-popover-footer-btn {
+    padding-inline: 10px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .driver-active {
+    --driver-animation-duration: 0ms;
+  }
+
+  .instrument-tour-popover button {
+    transition: none;
+  }
+}

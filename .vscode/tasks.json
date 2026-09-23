@@ -1,0 +1,15 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "🌐 Estado Servidor NASA Trend Detective",
+      "type": "shell",
+      "command": "node -e \"fetch('http://localhost:3001/').then(r => console.log('✅ Servidor Activo en http://localhost:3001/ (Status: ' + r.status + ')')).catch(e => console.error('❌ Error de conexión:', e.message))\"",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    }
+  ]
+}

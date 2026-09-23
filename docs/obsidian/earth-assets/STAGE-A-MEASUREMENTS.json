@@ -1,0 +1,193 @@
+{
+  "date": "2026-09-22",
+  "gpu": "NVIDIA GeForce RTX 4060 / ANGLE Direct3D11",
+  "browser": "Edge Chromium / Playwright CLI",
+  "pixelRatio": 1,
+  "stageAVisualPassed": false,
+  "laterStagesReached": false,
+  "desktop4k": {
+    "viewport": {
+      "width": 1920,
+      "height": 1080
+    },
+    "result": [
+      {
+        "mode": "idle",
+        "seconds": 8.004600000000744,
+        "frames": 1321,
+        "averageFps": 165.03010768806402,
+        "worstOneSecondFps": 164.98350164983526,
+        "worstFrameMs": 6.299999999999272,
+        "p95FrameMs": 6.199999999998909,
+        "map": 4096,
+        "memory": {
+          "geometries": 4,
+          "textures": 4
+        }
+      },
+      {
+        "mode": "orbit",
+        "seconds": 8.00160000000149,
+        "frames": 1321,
+        "averageFps": 165.09198160364852,
+        "worstOneSecondFps": 164.98350164983526,
+        "worstFrameMs": 6.200000000000728,
+        "p95FrameMs": 6.100000000002183,
+        "map": 4096,
+        "memory": {
+          "geometries": 4,
+          "textures": 4
+        }
+      },
+      {
+        "mode": "zoom",
+        "seconds": 8.00519999999851,
+        "frames": 1321,
+        "averageFps": 165.01773847002522,
+        "worstOneSecondFps": 164.98350164983526,
+        "worstFrameMs": 6.299999999999272,
+        "p95FrameMs": 6.100000000002183,
+        "map": 4096,
+        "memory": {
+          "geometries": 4,
+          "textures": 4
+        }
+      },
+      {
+        "mode": "ui",
+        "seconds": 8.0041,
+        "frames": 1311,
+        "averageFps": 163.79105708324485,
+        "worstOneSecondFps": 161.35458167330677,
+        "worstFrameMs": 18.19999999999709,
+        "p95FrameMs": 6.19999999999709,
+        "map": 4096,
+        "memory": {
+          "geometries": 4,
+          "textures": 4
+        }
+      }
+    ]
+  },
+  "desktop8k": {
+    "viewport": {
+      "width": 1920,
+      "height": 1080
+    },
+    "result": [
+      {
+        "mode": "idle",
+        "seconds": 8.002300000000744,
+        "frames": 1321,
+        "averageFps": 165.07754020717508,
+        "worstOneSecondFps": 164.98350164983495,
+        "worstFrameMs": 6.200000000000728,
+        "p95FrameMs": 6.100000000002183,
+        "map": 8192,
+        "memory": {
+          "geometries": 4,
+          "textures": 4
+        }
+      },
+      {
+        "mode": "orbit",
+        "seconds": 8.002600000000744,
+        "frames": 1321,
+        "averageFps": 165.0713518106462,
+        "worstOneSecondFps": 164.98350164983466,
+        "worstFrameMs": 6.299999999999272,
+        "p95FrameMs": 6.100000000002183,
+        "map": 8192,
+        "memory": {
+          "geometries": 4,
+          "textures": 4
+        }
+      },
+      {
+        "mode": "zoom",
+        "seconds": 8.001599999999256,
+        "frames": 1321,
+        "averageFps": 165.09198160369462,
+        "worstOneSecondFps": 164.98350164983466,
+        "worstFrameMs": 6.299999999999272,
+        "p95FrameMs": 6.100000000002183,
+        "map": 8192,
+        "memory": {
+          "geometries": 4,
+          "textures": 4
+        }
+      },
+      {
+        "mode": "ui",
+        "seconds": 8.00270000000149,
+        "frames": 1317,
+        "averageFps": 164.56945780795917,
+        "worstOneSecondFps": 162.98370162983724,
+        "worstFrameMs": 12.200000000004366,
+        "p95FrameMs": 6.100000000005821,
+        "map": 8192,
+        "memory": {
+          "geometries": 4,
+          "textures": 4
+        }
+      }
+    ]
+  },
+  "mobileViewport": {
+    "loading": "loading",
+    "sameCanvas": true,
+    "hardware": {
+      "quality": "mobile",
+      "map": 2048,
+      "dpr": 1,
+      "canvas": [
+        390,
+        844
+      ]
+    },
+    "closestMap": 2048,
+    "performance": {
+      "averageFps": 164.97319185632335,
+      "worstFrameMs": 12.100000000000364,
+      "frames": 1320
+    },
+    "physicalPhone": false
+  },
+  "visualChecks": {
+    "views": [
+      "africa-europe",
+      "north-america",
+      "south-america",
+      "asia",
+      "australia",
+      "pacific",
+      "atlantic",
+      "arctic",
+      "antarctic"
+    ],
+    "resolutions": [
+      {
+        "width": 2048,
+        "memory": {
+          "geometries": 4,
+          "textures": 5
+        }
+      },
+      {
+        "width": 4096,
+        "memory": {
+          "geometries": 4,
+          "textures": 5
+        }
+      },
+      {
+        "width": 8192,
+        "memory": {
+          "geometries": 4,
+          "textures": 5
+        }
+      }
+    ],
+    "sameCanvas": true
+  }
+}

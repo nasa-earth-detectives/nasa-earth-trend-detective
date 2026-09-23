@@ -6,16 +6,33 @@
 
 ---
 
+## 🌐 Accesos Directos a la Plataforma en Vivo
+
+| Entorno | Rama Git | Enlace Directo Permanente | Estado |
+| :--- | :---: | :--- | :---: |
+| **Producción Oficial** | `production` | [nasa-earth-trend-detective.vercel.app](https://nasa-earth-trend-detective.vercel.app/) | 🟢 **En Vivo Oficial** |
+| **Staging / QA (Pruebas)** | `qa` | [nasa-earth-trend-detective-qa.vercel.app](https://nasa-earth-trend-detective-qa.vercel.app/) | 🟢 **Fijo Permanente** |
+| **Desarrollo Activo (Dev)** | `development` | [nasa-earth-trend-detective-dev.vercel.app](https://nasa-earth-trend-detective-dev.vercel.app/) | 🟢 **Fijo Permanente** |
+| **Backend REST API** | `production` | [nasa-trend-detective-api.onrender.com/health](https://nasa-trend-detective-api.onrender.com/health) | 🟢 **En Vivo** |
+
+---
+
 ## 🗺️ Mapa de Contenido del Proyecto
 
 Bienvenido a la bóveda central de documentación y diseño de ingeniería de nuestra plataforma de detección de tendencias biofísicas globales. Utiliza los siguientes enlaces para navegar por las especificaciones del sistema:
 
 ### 🏛️ Arquitectura & Organización
 - [[01-Arquitectura-Monorrepo]]: Estructura unificada de `backend/`, `frontend/` y paquetes compartidos (`packages/`).
+- [[11-Experiencia-Observacion-Espacial]]: Modos de observación, instrumentos científicos, movimiento y escena estable.
+- [[12-Superficie-Terrestre-NASA]]: Assets locales, material terrestre, perfiles de textura y ciclo de vida.
+- [[13-Rescate-Realismo-Diurno]]: Diagnóstico del render, material GGX y comparación visual diurna.
+- [[earth-assets/README|Fuentes de assets terrestres]]: Procedencia, transformación, hashes y créditos de las imágenes científicas.
 - [[02-Estrategia-Git-3-Ramas]]: Protocolo estricto de ramas (`development` ➔ `qa` ➔ `production`).
 - [[03-Roles-y-Equipo]]: Perfiles técnicos y asignación de responsabilidades de los 5 participantes.
 - [[08-Contenedores-Docker]]: Guía de ejecución unificada con Docker Compose en local y staging.
 - [[09-Gobernanza-GitHub-Org-y-Projects]]: Organización de GitHub, CODEOWNERS, rulesets de ramas y tablero Kanban en Projects.
+- [[16-Manual-de-Uso-Frontend-y-UI]]: Manual de uso, componentes espaciales (Glassmorphism), DetectiveCard y accesibilidad.
+- [[17-Time-Slider-Interactivo-y-Control-Multivelocidad]]: Time-Slider interactivo espacial (2000-2026), control multivelocidad (1x, 2x, 5x) e hitos históricos de la NASA.
 
 ### 🔬 Rigor Científico & Datos NASA
 - [[05-Rigor-Cientifico-MannKendall]]: Fórmulas matemáticas del Test de Mann-Kendall, Pendiente de Sen y Motor de Tendencias Opuestas.
@@ -24,9 +41,11 @@ Bienvenido a la bóveda central de documentación y diseño de ingeniería de nu
 ### 🚀 Ciclo de Vida, Sprints & CI/CD
 - [[04-Sprints-y-Roadmap]]: Desglose detallado de los 4 Sprints, 20 tareas técnicas y 55 subtareas atómicas vinculadas a ClickUp.
 - [[06-Pipeline-CI-CD]]: Automatización de compilación, linters y despliegue a QA, con freno de seguridad antes de producción.
+- [[14-Agente-Revisor-PR-GitHub-Actions]]: Agente automatizado con Google Gemini para auditoría continua de Pull Requests en GitHub Actions.
 - [[07-Estandares-Ingenieria]]: Directivas de Clean Architecture, clases <150 líneas, tipado estricto y seguridad contra bots.
 - [[10-Despliegue-Cloud-Vercel-Render]]: Arquitectura serverless en Vercel Edge y contenedor .NET 10 en Render Cloud.
-- [[11-Trazabilidad-ClickUp-Sprint-1]]: Trazabilidad en vivo de la tarea madre [S1-T0] y sus 5 subtareas en ClickUp API v2.
+- [[11-Trazabilidad-ClickUp-Sprint-1]]: Trazabilidad en vivo de infraestructura [S1-T0] y Design System espacial [S1-T5].
+- [[15-Trazabilidad-ClickUp-Sprint-2]]: Trazabilidad de Sprint 2, panel de Inspector de Detective [S2-T5], Mann-Kendall y DuckDB.
 
 ---
 

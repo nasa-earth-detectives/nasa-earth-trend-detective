@@ -1,0 +1,435 @@
+{
+  "date": "2026-09-22",
+  "browser": "Microsoft Edge / Playwright CLI",
+  "gpu": "NVIDIA GeForce RTX 4060 / ANGLE Direct3D11",
+  "device_pixel_ratio": 1,
+  "fps_method": "Cambios de renderer.info.render.frame muestreados por requestAnimationFrame, 8 segundos por tramo, sin capturas durante la muestra.",
+  "physical_phone_tested": false,
+  "desktop_1920_4k": {
+    "viewport": {
+      "width": 1920,
+      "height": 1080
+    },
+    "result": [
+      {
+        "mode": "idle",
+        "seconds": 8.002699999994038,
+        "frames": 1321,
+        "averageFps": 165.0692891150467,
+        "worstOneSecondFps": 164.98350164983526,
+        "worstFrameMs": 6.200000000004366,
+        "p95FrameMs": 6.100000000005821,
+        "map": 4096,
+        "memory": {
+          "geometries": 6,
+          "textures": 6
+        }
+      },
+      {
+        "mode": "orbit",
+        "seconds": 8.001999999997016,
+        "frames": 1320,
+        "averageFps": 164.95876030998403,
+        "worstOneSecondFps": 164,
+        "worstFrameMs": 12.200000000004366,
+        "p95FrameMs": 6.100000000005821,
+        "map": 4096,
+        "memory": {
+          "geometries": 6,
+          "textures": 6
+        }
+      },
+      {
+        "mode": "zoom",
+        "seconds": 8.003,
+        "frames": 1321,
+        "averageFps": 165.0631013369986,
+        "worstOneSecondFps": 164.98350164983407,
+        "worstFrameMs": 6.2000000000116415,
+        "p95FrameMs": 6.100000000005821,
+        "map": 4096,
+        "memory": {
+          "geometries": 6,
+          "textures": 6
+        }
+      },
+      {
+        "mode": "ui",
+        "seconds": 8.002899999995527,
+        "frames": 1318,
+        "averageFps": 164.69029976642673,
+        "worstOneSecondFps": 163.98360163983506,
+        "worstFrameMs": 12.200000000011642,
+        "p95FrameMs": 6.100000000005821,
+        "map": 4096,
+        "memory": {
+          "geometries": 6,
+          "textures": 6
+        }
+      }
+    ]
+  },
+  "desktop_1920_final": {
+    "viewport": {
+      "width": 1920,
+      "height": 1080
+    },
+    "result": [
+      {
+        "mode": "idle",
+        "seconds": 8.004100000000001,
+        "frames": 1321,
+        "averageFps": 165.04041678639695,
+        "worstOneSecondFps": 164.98350164983495,
+        "worstFrameMs": 6.200000000000728,
+        "p95FrameMs": 6.100000000000364,
+        "map": 4096,
+        "memory": {
+          "geometries": 5,
+          "textures": 6
+        }
+      },
+      {
+        "mode": "orbit",
+        "seconds": 8.00189999999404,
+        "frames": 1319,
+        "averageFps": 164.83585148539504,
+        "worstOneSecondFps": 163.7053304062444,
+        "worstFrameMs": 18.19999999999891,
+        "p95FrameMs": 6.100000000002183,
+        "map": 4096,
+        "memory": {
+          "geometries": 5,
+          "textures": 6
+        }
+      },
+      {
+        "mode": "zoom",
+        "seconds": 8.00259999999404,
+        "frames": 1321,
+        "averageFps": 165.07135181078448,
+        "worstOneSecondFps": 164.98350164983526,
+        "worstFrameMs": 6.200000000000728,
+        "p95FrameMs": 6.100000000002183,
+        "map": 4096,
+        "memory": {
+          "geometries": 5,
+          "textures": 6
+        }
+      },
+      {
+        "mode": "ui",
+        "seconds": 8.002599999998507,
+        "frames": 1318,
+        "averageFps": 164.69647364609574,
+        "worstOneSecondFps": 164,
+        "worstFrameMs": 12.200000000000728,
+        "p95FrameMs": 6.100000000005821,
+        "map": 4096,
+        "memory": {
+          "geometries": 5,
+          "textures": 6
+        }
+      }
+    ]
+  },
+  "desktop_2560_8k": {
+    "viewport": {
+      "width": 2560,
+      "height": 1440
+    },
+    "result": [
+      {
+        "mode": "idle",
+        "seconds": 8.004300000001487,
+        "frames": 1321,
+        "averageFps": 165.03629299248584,
+        "worstOneSecondFps": 164.98350164983526,
+        "worstFrameMs": 6.200000000004366,
+        "p95FrameMs": 6.100000000005821,
+        "map": 8192,
+        "memory": {
+          "geometries": 5,
+          "textures": 6
+        }
+      },
+      {
+        "mode": "orbit",
+        "seconds": 8.002200000002981,
+        "frames": 1321,
+        "averageFps": 165.07960310908348,
+        "worstOneSecondFps": 164.98350164983526,
+        "worstFrameMs": 6.200000000004366,
+        "p95FrameMs": 6.100000000005821,
+        "map": 8192,
+        "memory": {
+          "geometries": 5,
+          "textures": 6
+        }
+      },
+      {
+        "mode": "zoom",
+        "seconds": 8.002499999998516,
+        "frames": 1321,
+        "averageFps": 165.07341455798124,
+        "worstOneSecondFps": 164.98350164983526,
+        "worstFrameMs": 6.2000000000116415,
+        "p95FrameMs": 6.100000000005821,
+        "map": 8192,
+        "memory": {
+          "geometries": 5,
+          "textures": 6
+        }
+      },
+      {
+        "mode": "ui",
+        "seconds": 8.003000000001485,
+        "frames": 1317,
+        "averageFps": 164.56328876668195,
+        "worstOneSecondFps": 163.52577525152643,
+        "worstFrameMs": 12.19999999999709,
+        "p95FrameMs": 6.100000000005821,
+        "map": 8192,
+        "memory": {
+          "geometries": 5,
+          "textures": 6
+        }
+      }
+    ]
+  },
+  "mobile_initial": {
+    "loading": "loading",
+    "sameCanvas": true,
+    "hardware": {
+      "quality": "mobile",
+      "map": 2048,
+      "dpr": 1,
+      "canvas": [
+        390,
+        844
+      ]
+    },
+    "closestMap": 2048,
+    "performance": {
+      "averageFps": 165.05072717264932,
+      "worstFrameMs": 6.200000000000728,
+      "frames": 1321
+    },
+    "physicalPhone": false
+  },
+  "mobile_detail": {
+    "high": {
+      "sameCanvas": true,
+      "map": 4096,
+      "deviceMemory": 32,
+      "profile": "mobile"
+    },
+    "low": {
+      "map": 2048,
+      "deviceMemory": 2
+    },
+    "reducedMotionPausesSun": true
+  },
+  "scene_validation": {
+    "start": [
+      -0.8870256611326177,
+      0.20791169081775945,
+      0.4122598759442191
+    ],
+    "advanced": [
+      -0.8913021385646267,
+      0.20791169081775945,
+      0.4029307963055464
+    ],
+    "state": {
+      "canvases": 1,
+      "grid": false,
+      "sharedSun": true,
+      "colorSpace": "srgb",
+      "nightColorSpace": "srgb",
+      "cloudsColorSpace": "",
+      "dusk": [
+        -0.12,
+        0
+      ],
+      "calls": 5,
+      "triangles": 20880
+    },
+    "fixed": {
+      "sunUnchanged": true,
+      "lightUnchanged": true,
+      "canvasUnchanged": true
+    },
+    "atmosphereOff": true,
+    "gridOn": true
+  },
+  "solar_cycle": {
+    "testOnlyCycleSeconds": 2,
+    "productionCycleSeconds": 1200,
+    "samples": [
+      {
+        "cosine": 0.8730717430874995,
+        "nightMask": 0,
+        "lightAligned": true,
+        "worldLightAligned": true
+      },
+      {
+        "cosine": 0.3930359839080856,
+        "nightMask": 0,
+        "lightAligned": true,
+        "worldLightAligned": true
+      },
+      {
+        "cosine": -0.2572981232631186,
+        "nightMask": 1,
+        "lightAligned": true,
+        "worldLightAligned": true
+      },
+      {
+        "cosine": -0.7351876229690784,
+        "nightMask": 1,
+        "lightAligned": true,
+        "worldLightAligned": true
+      },
+      {
+        "cosine": -0.8290090874588371,
+        "nightMask": 1,
+        "lightAligned": true,
+        "worldLightAligned": true
+      },
+      {
+        "cosine": -0.4942997321306825,
+        "nightMask": 1,
+        "lightAligned": true,
+        "worldLightAligned": true
+      },
+      {
+        "cosine": 0.1092156502059362,
+        "nightMask": 0,
+        "lightAligned": true,
+        "worldLightAligned": true
+      },
+      {
+        "cosine": 0.6950351779373788,
+        "nightMask": 0,
+        "lightAligned": true,
+        "worldLightAligned": true
+      },
+      {
+        "cosine": 0.9836570955938733,
+        "nightMask": 0,
+        "lightAligned": true,
+        "worldLightAligned": true
+      },
+      {
+        "cosine": 0.8377599199326501,
+        "nightMask": 0,
+        "lightAligned": true,
+        "worldLightAligned": true
+      }
+    ]
+  },
+  "asset_failures": {
+    "nightFailure": {
+      "canvases": 1,
+      "dayPresent": true,
+      "nightMissing": true,
+      "status": "degraded"
+    },
+    "dayFailure": {
+      "canvases": 1,
+      "fallbackColor": "344552",
+      "dayMissing": true,
+      "status": "fallback"
+    },
+    "recovered": true
+  },
+  "responsive": [
+    {
+      "viewport": [
+        1440,
+        900
+      ],
+      "sameCanvas": true,
+      "canvasCount": 1,
+      "size": [
+        1440,
+        900
+      ],
+      "surface": "ready"
+    },
+    {
+      "viewport": [
+        1366,
+        768
+      ],
+      "sameCanvas": true,
+      "canvasCount": 1,
+      "size": [
+        1366,
+        768
+      ],
+      "surface": "ready"
+    },
+    {
+      "viewport": [
+        1024,
+        768
+      ],
+      "sameCanvas": true,
+      "canvasCount": 1,
+      "size": [
+        1024,
+        768
+      ],
+      "surface": "ready"
+    },
+    {
+      "viewport": [
+        768,
+        1024
+      ],
+      "sameCanvas": true,
+      "canvasCount": 1,
+      "size": [
+        768,
+        1024
+      ],
+      "surface": "ready"
+    }
+  ],
+  "depth_precision": [
+    {
+      "altitude": 3.599999999999995,
+      "near": 1,
+      "canvases": 1
+    },
+    {
+      "altitude": 7.499999999999998,
+      "near": 1,
+      "canvases": 1
+    },
+    {
+      "altitude": 0.4999999999999998,
+      "near": 1,
+      "canvases": 1
+    }
+  ],
+  "night_emission_image_comparison": {
+    "capture_size": [
+      720,
+      700
+    ],
+    "day": {
+      "changed_pixels": 136,
+      "pixels_difference_above_2": 0,
+      "mean_channel_difference": 0.000145
+    },
+    "night": {
+      "changed_pixels": 55018,
+      "pixels_difference_above_2": 19184,
+      "max_channel_difference": 212
+    },
+    "note": "Comparación de capturas emisivo 0/1.4, cámara y Sol pausados; diferencias diurnas <=2 niveles de 255."
+  }
+}

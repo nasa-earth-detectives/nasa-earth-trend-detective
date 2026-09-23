@@ -1,0 +1,94 @@
+{
+  "pillow_version": "12.3.0",
+  "sources": {
+    "black-marble-2016-lights-source.png": {
+      "url": "https://gibs.earthdata.nasa.gov/wms/epsg4326/best/wms.cgi?SERVICE=WMS&REQUEST=GetMap&VERSION=1.3.0&LAYERS=VIIRS_Night_Lights&STYLES=&FORMAT=image/png&TRANSPARENT=TRUE&CRS=EPSG:4326&BBOX=-90,-180,90,180&WIDTH=8192&HEIGHT=4096&TIME=2016-01-01",
+      "product": "NASA Black Marble - Nighttime Lights only (Annual, 2016)",
+      "organization": "NASA Earth Observatory / NASA EOSDIS GIBS; Suomi NPP / VIIRS",
+      "dimensions": [
+        8192,
+        4096
+      ],
+      "mode": "RGBA",
+      "sha256": "2851f6dc5c5ebb1c80004c3a0d0e39815df28f7aac65098cac646ec488343fc7",
+      "bytes": 2211217
+    },
+    "cloud_combined_2048.jpg": {
+      "url": "https://eoimages.gsfc.nasa.gov/images/imagerecords/57000/57747/cloud_combined_2048.jpg",
+      "product": "NASA Blue Marble: Clouds, publicación de 2002",
+      "organization": "NASA Goddard Space Flight Center; Reto Stöckli, Robert Simmon; Terra / MODIS",
+      "dimensions": [
+        2048,
+        1024
+      ],
+      "mode": "RGB",
+      "sha256": "daddaad84d7a33bbbc86cdda3f591099f57cee8607b7bcf3b67eb7e4f7a1c793",
+      "bytes": 829367
+    }
+  },
+  "outputs": {
+    "night/black-marble-2016-4k.jpg": {
+      "dimensions": [
+        4096,
+        2048
+      ],
+      "mode": "RGB",
+      "bytes": 308155,
+      "sha256": "d917bab5cdda2f98400117c85964c664a5560f286e2748802da65828f43934b5",
+      "estimated_rgba8_mipmaps_bytes": 44739243
+    },
+    "night/black-marble-2016-2k.jpg": {
+      "dimensions": [
+        2048,
+        1024
+      ],
+      "mode": "RGB",
+      "bytes": 90107,
+      "sha256": "1276dfa877f30ab2193cb3c257f5e3e0ee743d40d2dd62ad3e3af56f9dc6907a",
+      "estimated_rgba8_mipmaps_bytes": 11184811
+    },
+    "clouds/blue-marble-clouds-2k.png": {
+      "dimensions": [
+        2048,
+        1024
+      ],
+      "mode": "L",
+      "bytes": 1377853,
+      "sha256": "9463a59636bcfd4dd24a51717d6a72dedfa3833aa7e0dc1c5758218a0c2c1104",
+      "estimated_rgba8_mipmaps_bytes": 11184811
+    },
+    "clouds/blue-marble-clouds-1k.png": {
+      "dimensions": [
+        1024,
+        512
+      ],
+      "mode": "L",
+      "bytes": 369075,
+      "sha256": "422b21512623de01cd6e329f378edc62c26a28534eff37f6a574adcfa82e9f19",
+      "estimated_rgba8_mipmaps_bytes": 2796203
+    }
+  },
+  "processing": {
+    "night": {
+      "source": "black-marble-2016-lights-source.png",
+      "composite": "source RGBA over opaque black before resize",
+      "resize": "LANCZOS",
+      "format": "JPEG",
+      "quality": 94,
+      "subsampling": "4:4:4",
+      "progressive": true,
+      "optimize": true,
+      "color_adjustments": "none",
+      "runtime_color_space": "SRGBColorSpace"
+    },
+    "clouds": {
+      "source": "cloud_combined_2048.jpg",
+      "conversion": "Pillow RGB to L",
+      "resize": "none at 2048; LANCZOS at 1024",
+      "format": "PNG",
+      "optimize": true,
+      "gamma_or_threshold_or_contrast": "none",
+      "runtime_color_space": "NoColorSpace; visual opacity mask"
+    }
+  }
+}

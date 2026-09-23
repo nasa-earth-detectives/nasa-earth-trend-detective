@@ -10,6 +10,7 @@ export function useGlobeData(filter: TrendFilterParams) {
 
   useEffect(() => {
     let isMounted = true;
+    setData([]);
     setLoading(true);
     setError(null);
 

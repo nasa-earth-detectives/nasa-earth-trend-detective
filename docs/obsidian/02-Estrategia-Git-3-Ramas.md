@@ -21,18 +21,22 @@ Para asegurar máxima estabilidad y rigor profesional en el repositorio, el proy
 ### 1. `development` (Desarrollo Activo)
 - Rama donde los 5 integrantes integran sus funcionalidades, endpoints, shaders y componentes.
 - Todos los commits atómicos y Pull Requests de tareas se abren contra esta rama.
-- **En Vivo:** Cada Pull Request o actualización genera un entorno de previsualización dinámico (*Preview Deployment*) en Vercel para pruebas en navegador antes del merge.
+- **En Vivo (Enlace Fijo Permanente):** [https://nasa-earth-trend-detective-dev.vercel.app/](https://nasa-earth-trend-detective-dev.vercel.app/)
+  *(Actualizado en vivo con cada push/merge a `development`).*
 
 ### 2. `qa` (Aseguramiento de Calidad y Staging)
 - Rama donde se validan las pruebas de integración, latencia de DuckDB (<50ms) y fluidez WebGL a 60 FPS.
+- **Sincronización Automática:** El workflow `.github/workflows/auto-sync-dev-to-qa.yml` detecta cada push/merge en `development`, crea/actualiza el PR de sincronización e integra los cambios automáticamente hacia `qa`.
 - El pipeline de [[06-Pipeline-CI-CD]] ejecuta el job `deploy-qa` automáticamente al recibir cambios.
-- **En Vivo:** Cuenta con su propio despliegue de staging en Vercel (disponible en la pestaña *Deployments*).
+- **En Vivo (Enlace Fijo Permanente):** [https://nasa-earth-trend-detective-qa.vercel.app/](https://nasa-earth-trend-detective-qa.vercel.app/)
+  *(Nota: Este enlace NO cambia con ningún commit; es un dominio inmutable asignado a la rama `qa`).*
 
 ### 3. `production` (Producción Oficial)
 - Rama protegida y predeterminada del repositorio, reservada exclusivamente para la entrega oficial ante el jurado de la NASA.
-- ⚠️ **Regla Inquebrantable:** Prohibido hacer commits directos a `production`. Solo se promociona tras validación exhaustiva en `qa` y orden explícita del equipo.
-- **En Vivo:** 
-  - **Frontend:** [https://nasa-earth-trend-detective.vercel.app/](https://nasa-earth-trend-detective.vercel.app/)
+- ⚠️ **Regla Inquebrantable:** Prohibido hacer commits directos a `production` y prohibido automatizar su pase. Solo se promociona tras validación exhaustiva en `qa` y orden explícita del equipo mediante el *Production Safety Gate*.
+- **Fundamento Técnico:** Evita que fallos inesperados de shaders o endpoints rompan la demo en vivo frente a los evaluadores de la NASA.
+- **En Vivo (Enlaces Fijos Oficiales):** 
+  - **Frontend Web 3D:** [https://nasa-earth-trend-detective.vercel.app/](https://nasa-earth-trend-detective.vercel.app/)
   - **Backend API:** [https://nasa-trend-detective-api.onrender.com/health](https://nasa-trend-detective-api.onrender.com/health)
   - Ver guía detallada en [[10-Despliegue-Cloud-Vercel-Render]].
 

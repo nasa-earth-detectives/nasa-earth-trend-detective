@@ -1,0 +1,64 @@
+name: Auto Sync Development to QA
+
+on:
+  push:
+    branches:
+      - development
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: sync-dev-to-qa
+  cancel-in-progress: true
+
+jobs:
+  sync-to-qa:
+    name: Sincronizar Development hacia QA (Staging)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Sincronizar Ramas y Gestionar PR Automático
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git fetch origin qa development
+
+          # Contar si hay commits en development que falten en qa
+          COMMITS_AHEAD=$(git rev-list --count origin/qa..origin/development)
+          echo "Commits en development pendientes por sincronizar a qa: $COMMITS_AHEAD"
+
+          if [ "$COMMITS_AHEAD" -eq 0 ]; then
+            echo "✅ qa ya se encuentra 100% al día con development. Nada que sincronizar."
+            exit 0
+          fi
+
+          # Verificar si ya existe un PR abierto de development hacia qa
+          EXISTING_PR=$(gh pr list --base qa --head development --state open --json number,url --jq '.[0]')
+
+          if [ -z "$EXISTING_PR" ] || [ "$EXISTING_PR" = "null" ]; then
+            echo "Intentando crear Pull Request de sincronización continua hacia qa..."
+
+            printf '## 🚀 Sincronización Automática: `development` ➔ `qa`\n\nEste Pull Request promueve los cambios aprobados en `development` hacia el entorno de pruebas (**QA Staging**).\n\n- **Rama Base:** `qa`\n- **Rama Origen:** `development`\n- **Entorno de Despliegue:** Staging (QA)\n- **Pipeline:** Al fusionarse, se ejecuta `ci-qa.yml` para validación de contenedores y despliegue a QA.\n' > /tmp/pr_sync_body.md
+
+            if PR_OUTPUT=$(gh pr create \
+              --base qa \
+              --head development \
+              --title "🔀 sync(qa): sincronizar cambios de development hacia qa" \
+              --body-file /tmp/pr_sync_body.md \
+              --repo "${{ github.repository }}" 2>&1); then
+              echo "✅ Pull Request creado exitosamente: $PR_OUTPUT"
+            else
+              echo "⚠️ Aviso de Gobernanza de GitHub: La organización restringe la creación de PRs desde GitHub Actions."
+              echo "ℹ️ Detalle: $PR_OUTPUT"
+              echo "👉 Para promocionar a QA Staging, abrir el PR desde la terminal con: gh pr create --base qa --head development"
+            fi
+          else
+            echo "ℹ️ Ya existe un Pull Request abierto de development hacia qa: $EXISTING_PR"
+          fi
