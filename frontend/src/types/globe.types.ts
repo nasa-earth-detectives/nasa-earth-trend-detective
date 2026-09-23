@@ -1,3 +1,6 @@
+import type { ClimateObservation, ClimateVariable } from './climate.types';
+import type { ObservationLayerMode } from './observationLayer.types';
+
 /**
  * Tipos e interfaces de la escena 3D del globo terráqueo (Globe.gl & Three.js).
  * Desacoplado para mantener useGlobeScene.ts conciso (< 170 líneas) y cumplir Regla 5.
@@ -10,6 +13,10 @@ export interface GlobeLocation {
 
 /** Superficie imperativa que la interfaz flotante usa para actuar sobre la escena. */
 export interface GlobeSceneApi {
+  setObservationData(data: ClimateObservation[], variable: ClimateVariable): void;
+  setObservationMode(mode: ObservationLayerMode): void;
+  setObservationSelection(id: string | null): void;
+  setObservationSelectHandler(handler: ((observation: ClimateObservation | null) => void) | null): void;
   /** Preferencia del usuario sobre la rotación en reposo. */
   setAutoRotateEnabled(enabled: boolean): void;
   setStarsVisible(visible: boolean): void;

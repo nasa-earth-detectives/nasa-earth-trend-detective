@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { ClimateObservation, ClimateVariable } from '../../types/climate.types';
 import type { TrendFilterParams } from '../../types/trend.types';
 import { CLIMATE_VARIABLES, SATELLITE_TIMELINE } from '../../config/climateLayers';
@@ -6,10 +6,14 @@ import { applyScienceAccent } from '../../config/scienceTheme';
 import { useImmersiveUi } from '../../hooks/useImmersiveUi';
 import { useSceneControls } from '../../hooks/useSceneControls';
 import { useIdleUi } from '../../hooks/useIdleUi';
+import { filterObservationCoverage } from '../../services/demo/observationDemoData';
+import { findNearbyObservation } from '../../utils/observationLookup';
+import type { ObservationCoverage, ObservationLayerMode, ObservationSource } from '../../types/observationLayer.types';
 import { GlobeViewer } from '../Globe/GlobeViewer';
+import { EARTH_HEAT_CONFIG } from '../Globe/earthHeatRaster';
 import type { GlobeSceneApi } from '../Globe/useGlobeScene';
 import { MissionHeader } from '../Mission/MissionHeader';
-import { SystemReadout } from '../Mission/SystemReadout';
+import { ObservationReadout } from '../Mission/ObservationReadout';
 import { ObservationContext } from '../Mission/ObservationContext';
 import { ModeNavigator } from '../Rail/ModeNavigator';
 import { LayerPanel } from '../Layers/LayerPanel';
@@ -19,31 +23,52 @@ import { guidedTourService } from '../../services/guidedTourService';
 import '../../styles/workspace.css';
 import '../../styles/instrument-chrome.css';
 import '../../styles/guided-tour.css';
+import '../../styles/hex-instrument.css';
 
 interface ImmersiveEarthLayoutProps {
   observations: ClimateObservation[];
   loading: boolean;
   observationError: string | null;
-  apiConnected: boolean;
+  source: ObservationSource;
   filter: TrendFilterParams;
   onVariableChange: (variable: ClimateVariable) => void;
   onYearChange: (year: number) => void;
 }
 
 /** Un único espacio WebGL; cada intención reorganiza los instrumentos DOM. */
-export function ImmersiveEarthLayout({ observations, loading, observationError, apiConnected, filter,
+export function ImmersiveEarthLayout({ observations, loading, observationError, source, filter,
   onVariableChange, onYearChange }: ImmersiveEarthLayoutProps) {
   const sceneApiRef = useRef<GlobeSceneApi | null>(null);
   const ui = useImmersiveUi();
   const scene = useSceneControls(sceneApiRef);
   const [isPlaying, setIsPlaying] = useState(false);
   const [tourRunning, setTourRunning] = useState(false);
+  const [observationMode, setObservationMode] = useState<ObservationLayerMode>('hex');
+  const [coverage, setCoverage] = useState<ObservationCoverage>('land');
+  const [selectedObservation, setSelectedObservation] = useState<ClimateObservation | null>(null);
+  const visibleObservations = useMemo(() => source === 'demo'
+    ? filterObservationCoverage(observations, coverage) : observations, [observations, coverage, source]);
+  const inspectionMatch = useMemo(() => loading || observationError ? null : findNearbyObservation(
+    visibleObservations, ui.location, filter.variable, EARTH_HEAT_CONFIG.radiusDegrees,
+  ), [visibleObservations, ui.location, filter.variable, loading, observationError]);
+  const layerVisible = observationMode !== 'none';
   const panelOpen = ui.mode === 'layers' || ui.mode === 'view';
   const timeOpen = ui.mode === 'time';
   const isIdle = useIdleUi({ disabled: ui.mode !== 'observation' || isPlaying || tourRunning });
 
   useEffect(() => applyScienceAccent(filter.variable, document.documentElement), [filter.variable]);
   useEffect(() => () => guidedTourService.stopTour(), []);
+  useEffect(() => {
+    sceneApiRef.current?.setObservationSelectHandler(setSelectedObservation);
+    return () => sceneApiRef.current?.setObservationSelectHandler(null);
+  }, []);
+  useEffect(() => {
+    if (!loading) sceneApiRef.current?.setObservationData(observationError ? [] : visibleObservations, filter.variable);
+  }, [visibleObservations, filter.variable, loading, observationError]);
+  useEffect(() => {
+    sceneApiRef.current?.setObservationMode(observationMode);
+    if (observationMode !== 'hex') setSelectedObservation(null);
+  }, [observationMode]);
   useEffect(() => {
     sceneApiRef.current?.setLocationSelectHandler(ui.selectLocation);
     return () => sceneApiRef.current?.setLocationSelectHandler(null);
@@ -85,7 +110,8 @@ export function ImmersiveEarthLayout({ observations, loading, observationError, 
   };
 
   return (
-    <main className="earth-workspace" data-mode={ui.mode} data-idle={isIdle}>
+    <main className="earth-workspace" data-mode={ui.mode} data-idle={isIdle}
+      data-hex-visible={layerVisible} data-hex-selected={selectedObservation !== null} data-observation-layer={observationMode}>
       <GlobeViewer apiRef={sceneApiRef} preferencesRef={scene.preferencesRef} />
       <div className="observation-position quiet-instrument">
         <ObservationContext variable={filter.variable} />
@@ -93,9 +119,10 @@ export function ImmersiveEarthLayout({ observations, loading, observationError, 
       <div className="mission-position quiet-instrument">
         <MissionHeader onStartTour={handleStartTour} />
       </div>
-      <div className="system-position quiet-instrument">
-        <SystemReadout connected={apiConnected} observationCount={observations.length}
-          loading={loading} error={observationError} year={filter.endYear} variable={filter.variable} />
+      <div className="system-position quiet-instrument" data-hex-active={true}>
+        <ObservationReadout observations={visibleObservations} variable={filter.variable} year={filter.endYear}
+          source={source} mode={observationMode} coverage={coverage} loading={loading} error={observationError}
+          selected={selectedObservation} onSelect={id => sceneApiRef.current?.setObservationSelection(id)} />
       </div>
       <div className="intent-position quiet-instrument">
         <ModeNavigator mode={ui.mode} variable={filter.variable} year={filter.endYear}
@@ -112,13 +139,15 @@ export function ImmersiveEarthLayout({ observations, loading, observationError, 
       <p className="scene-guidance quiet-instrument">
         <span className="guidance-desktop">Arrastra para orbitar · Desplaza para acercar</span>
         <span className="guidance-touch">Arrastra para orbitar · Pellizca para acercar</span>
-        <span>Selecciona la superficie para inspeccionar</span>
+        <span>{observationMode === 'hex' ? 'Selecciona una columna para inspeccionar su observación' : 'Selecciona la superficie para inspeccionar'}</span>
       </p>
       <LayerPanel id="layer-panel" open={panelOpen} onClose={ui.observe}
         activeTab={ui.mode === 'view' ? 'view' : 'data'} onTabChange={ui.setLayerTab}
         selectedVariable={filter.variable} onVariableSelect={onVariableChange}
         autoRotate={scene.preferences.autoRotate} starsVisible={scene.preferences.starsVisible}
         gridVisible={scene.preferences.gridVisible} atmosphereVisible={scene.preferences.atmosphereVisible}
+        observationMode={observationMode} onObservationModeChange={setObservationMode}
+        coverage={coverage} onCoverageChange={setCoverage} source={source}
         onAutoRotateChange={scene.setAutoRotate} onStarsChange={scene.setStarsVisible}
         onGridChange={scene.setGridVisible} onAtmosphereChange={scene.setAtmosphereVisible} />
       <DetectiveCard
@@ -126,6 +155,11 @@ export function ImmersiveEarthLayout({ observations, loading, observationError, 
         location={ui.location}
         variable={filter.variable}
         year={filter.endYear}
+        source={source}
+        observation={inspectionMatch?.observation ?? null}
+        observationDistanceDegrees={inspectionMatch?.distanceDegrees ?? null}
+        supportRadiusDegrees={EARTH_HEAT_CONFIG.radiusDegrees}
+        loading={loading}
         onClose={handleCloseInspector}
         onYearChange={onYearChange}
       />

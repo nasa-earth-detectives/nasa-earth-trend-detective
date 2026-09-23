@@ -1,0 +1,61 @@
+{
+  "checks": [
+    {
+      "name": "Vegetación",
+      "count": "455",
+      "heading": "Tendencia de vegetación\n2002—2020",
+      "value": "+0,00756",
+      "unit": "NDVI por año"
+    },
+    {
+      "name": "Masa de agua",
+      "count": "467",
+      "heading": "Tendencia de agua y hielo\n2002—2020",
+      "value": "+1,82",
+      "unit": "cm H₂O eq. por año"
+    },
+    {
+      "name": "Dióxido",
+      "count": "728",
+      "heading": "Tendencia de CO₂\n2002—2020",
+      "value": "+1,37",
+      "unit": "ppm por año"
+    },
+    {
+      "name": "Temperatura",
+      "count": "728",
+      "heading": "Tendencia de temperatura\n2002—2020",
+      "value": "-0,00681",
+      "unit": "°C por año"
+    }
+  ],
+  "viewports": [
+    {
+      "width": 1440,
+      "height": 900,
+      "controlsOverlap": false,
+      "sourceVisible": true
+    },
+    {
+      "width": 1024,
+      "height": 768,
+      "controlsOverlap": false,
+      "sourceVisible": true
+    },
+    {
+      "width": 768,
+      "height": 1024,
+      "controlsOverlap": false,
+      "sourceVisible": true
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "controlsOverlap": false,
+      "sourceVisible": true
+    }
+  ],
+  "excludedSelection": true,
+  "sameCanvas": true,
+  "canvasCount": 1
+}

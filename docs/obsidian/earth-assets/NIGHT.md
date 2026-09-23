@@ -30,13 +30,15 @@ Fuentes, URLs, créditos y procedimiento completo:
 
 Una sola `sunDirection`, independiente de la cámara y definida en referencia
 fija a la Tierra, controla la direccional, la máscara nocturna, la iluminación
-de las nubes separadas y la atmósfera. La dirección inicial corresponde a
-latitud 12° / longitud −65°.
+de las nubes separadas y la atmósfera. La dirección se calcula con la fecha y
+hora UTC actuales del dispositivo mediante coordenadas astronómicas USNO.
 
-El ciclo de presentación dura **20 minutos** y se pausa al desactivar
-«Rotación automática» o al solicitar movimiento reducido. No simula
-efemérides astronómicas ni se vincula a fechas del timeline. Mover la cámara
-no mueve el terminador respecto de la geografía.
+El ciclo ficticio de 20 minutos fue sustituido por el reloj real. Se actualiza
+cada segundo y recupera la hora al volver a una pestaña suspendida.
+«Rotación automática» controla únicamente la cámara: ni ese interruptor,
+ni el movimiento reducido, ni el año climático del timeline congelan el Sol.
+Mover la cámara no mueve el terminador respecto de la geografía. Algoritmo,
+fuentes y validación: [iluminación en tiempo real](../../earth-real-time-sun.md).
 
 Las luces reciben intensidad 1,4 y una transición suave en el coseno entre
 la normal superficial y la dirección solar: desde 0 en el límite diurno

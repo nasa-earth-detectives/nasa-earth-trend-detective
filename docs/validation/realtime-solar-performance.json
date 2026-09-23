@@ -1,0 +1,29 @@
+{
+  "viewport": {
+    "width": 1440,
+    "height": 900
+  },
+  "secondsPerMode": 6,
+  "clock": "real, no Playwright Clock",
+  "results": [
+    {
+      "mode": "idle",
+      "averageFps": 165.0538798488929,
+      "worstOneSecondFps": 164.98350164983495,
+      "worstFrameMs": 6.400000000000091
+    },
+    {
+      "mode": "orbit",
+      "averageFps": 164.97250458261053,
+      "worstOneSecondFps": 164.8516335300686,
+      "worstFrameMs": 12.100000000000364
+    }
+  ],
+  "scene": {
+    "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 4060 (0x00002882) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+    "pixelRatio": 1,
+    "drawCalls": 6,
+    "canvasCount": 1,
+    "cells": 1662
+  }
+}

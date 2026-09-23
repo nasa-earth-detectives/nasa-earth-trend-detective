@@ -1,0 +1,139 @@
+{
+  "viewport": {
+    "width": 1920,
+    "height": 1080
+  },
+  "secondsPerMode": 6,
+  "results": [
+    {
+      "layer": "Hexágonos 3D",
+      "mode": "idle",
+      "averageFps": 165.13914347621036,
+      "worstOneSecondFps": 164.98350164983512,
+      "worstFrameMs": 6.400000000000546,
+      "drawCalls": 6,
+      "memory": {
+        "geometries": 6,
+        "textures": 6
+      }
+    },
+    {
+      "layer": "Hexágonos 3D",
+      "mode": "orbit",
+      "averageFps": 164.97250458265148,
+      "worstOneSecondFps": 164,
+      "worstFrameMs": 12,
+      "drawCalls": 6,
+      "memory": {
+        "geometries": 6,
+        "textures": 6
+      }
+    },
+    {
+      "layer": "Hexágonos 3D",
+      "mode": "zoom",
+      "averageFps": 165.12813676804646,
+      "worstOneSecondFps": 164.98350164983526,
+      "worstFrameMs": 6.299999999999272,
+      "drawCalls": 6,
+      "memory": {
+        "geometries": 6,
+        "textures": 6
+      }
+    },
+    {
+      "layer": "Hexágonos 3D",
+      "mode": "variable",
+      "averageFps": 155.78140619801135,
+      "worstOneSecondFps": 146,
+      "worstFrameMs": 42.400000000001455,
+      "drawCalls": 6,
+      "memory": {
+        "geometries": 6,
+        "textures": 6
+      }
+    },
+    {
+      "layer": "Hexágonos 3D",
+      "mode": "timeline",
+      "averageFps": 162.4296138341262,
+      "worstOneSecondFps": 155.6264964093138,
+      "worstFrameMs": 24.200000000004366,
+      "drawCalls": 6,
+      "memory": {
+        "geometries": 6,
+        "textures": 6
+      }
+    },
+    {
+      "layer": "Mapa de calor",
+      "mode": "idle",
+      "averageFps": 164.9202885272118,
+      "worstOneSecondFps": 164,
+      "worstFrameMs": 12.099999999998545,
+      "drawCalls": 6,
+      "memory": {
+        "geometries": 7,
+        "textures": 8
+      }
+    },
+    {
+      "layer": "Mapa de calor",
+      "mode": "orbit",
+      "averageFps": 165.05387984885186,
+      "worstOneSecondFps": 164.9935394096005,
+      "worstFrameMs": 6.5,
+      "drawCalls": 6,
+      "memory": {
+        "geometries": 7,
+        "textures": 8
+      }
+    },
+    {
+      "layer": "Mapa de calor",
+      "mode": "zoom",
+      "averageFps": 165.0346389554614,
+      "worstOneSecondFps": 164.98350164983526,
+      "worstFrameMs": 6.30000000000291,
+      "drawCalls": 6,
+      "memory": {
+        "geometries": 7,
+        "textures": 8
+      }
+    },
+    {
+      "layer": "Mapa de calor",
+      "mode": "variable",
+      "averageFps": 152.2521321961621,
+      "worstOneSecondFps": 139.16500994035786,
+      "worstFrameMs": 48.400000000001455,
+      "drawCalls": 6,
+      "memory": {
+        "geometries": 7,
+        "textures": 8
+      }
+    },
+    {
+      "layer": "Mapa de calor",
+      "mode": "timeline",
+      "averageFps": 162.73840259856507,
+      "worstOneSecondFps": 159.45784333314162,
+      "worstFrameMs": 24.19999999999709,
+      "drawCalls": 6,
+      "memory": {
+        "geometries": 7,
+        "textures": 8
+      }
+    }
+  ],
+  "scene": {
+    "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 4060 (0x00002882) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+    "pixelRatio": 1,
+    "sameCanvas": true,
+    "canvasCount": 1,
+    "cells": 1662
+  },
+  "workers": [
+    "http://127.0.0.1:4173/src/components/Globe/earthHeatWorker.ts?worker_file&type=module"
+  ]
+}

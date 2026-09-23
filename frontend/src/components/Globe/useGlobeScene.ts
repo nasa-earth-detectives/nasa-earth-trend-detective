@@ -6,6 +6,7 @@ import { GLOBE_CONFIG } from './globeConfig';
 import { createStarField, disposeStarField } from './starField';
 import { createSurfaceSelection } from './surfaceSelection';
 import { createEarthSurface } from './earthSurface';
+import { createEarthObservationLayers } from './earthObservationLayers';
 import type { EarthSurfaceStatus } from './earthConfig';
 import {
   createFocusOffsetController,
@@ -44,11 +45,14 @@ export function useGlobeScene(
 
     const surface = createEarthSurface(globe, container, onSurfaceStatus);
     surface.setAtmosphereVisible(initialPreferences?.atmosphereVisible ?? true);
-    surface.setSolarMotionEnabled(initialPreferences?.autoRotate ?? true);
     extendCameraFarPlane(globe);
 
     const renderer = globe.renderer();
-    const disposeSelection = createSurfaceSelection(globe, location => locationSelectHandler?.(location));
+    const analysis = createEarthObservationLayers(globe, location => locationSelectHandler?.(location));
+    const disposeSelection = createSurfaceSelection(globe, location => {
+      analysis.select(null);
+      locationSelectHandler?.(location);
+    }, analysis.pick);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, GLOBE_CONFIG.maxPixelRatio));
 
     // ─── Controles orbitales ─────────────────────────────────────────────
@@ -133,9 +137,12 @@ export function useGlobeScene(
 
     if (apiRef) {
       apiRef.current = {
+        setObservationData: analysis.updateData,
+        setObservationMode: analysis.setMode,
+        setObservationSelection: analysis.select,
+        setObservationSelectHandler: analysis.setOnObservationSelect,
         setAutoRotateEnabled: (enabled) => {
           autoRotatePreferred = enabled;
-          surface.setSolarMotionEnabled(enabled);
           syncAutoRotate();
         },
         setStarsVisible: (visible) => {
@@ -147,6 +154,7 @@ export function useGlobeScene(
         setAtmosphereVisible: surface.setAtmosphereVisible,
         setLocationSelectHandler: (handler) => { locationSelectHandler = handler; },
         inspectCenter: () => {
+          analysis.select(null);
           const { lat, lng } = globe.pointOfView();
           locationSelectHandler?.({ lat, lng });
         },
@@ -163,6 +171,7 @@ export function useGlobeScene(
       if (apiRef) apiRef.current = null;
       locationSelectHandler = null;
       disposeSelection();
+      analysis.dispose();
       surface.dispose();
       focusOffset.dispose();
       resizeObserver.disconnect();

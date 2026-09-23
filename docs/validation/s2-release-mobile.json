@@ -1,0 +1,58 @@
+{
+  "viewport": {
+    "width": 390,
+    "height": 844
+  },
+  "emulatedOnDesktop": true,
+  "results": [
+    {
+      "mode": "idle",
+      "averageFps": 165.21165870907166,
+      "worstOneSecondFps": 164.98350164983495,
+      "worstFrameMs": 6.200000000000728
+    },
+    {
+      "mode": "orbit",
+      "averageFps": 164.91094808817982,
+      "worstOneSecondFps": 163.98360163983597,
+      "worstFrameMs": 12.100000000000364
+    },
+    {
+      "mode": "timeline",
+      "averageFps": 163.10539886875338,
+      "worstOneSecondFps": 158.55604307984896,
+      "worstFrameMs": 24.200000000000728
+    }
+  ],
+  "resources": [
+    {
+      "geometries": 7,
+      "textures": 8
+    },
+    {
+      "geometries": 7,
+      "textures": 8
+    },
+    {
+      "geometries": 7,
+      "textures": 8
+    },
+    {
+      "geometries": 7,
+      "textures": 8
+    },
+    {
+      "geometries": 7,
+      "textures": 8
+    }
+  ],
+  "scene": {
+    "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 4060 (0x00002882) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+    "pixelRatio": 1,
+    "quality": "mobile",
+    "sameCanvas": true,
+    "canvasCount": 1,
+    "cells": 1662,
+    "drawCalls": 6
+  }
+}

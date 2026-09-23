@@ -21,7 +21,7 @@ export function ViewOptionsList({
   return (
     <div className="scene-instrument">
       <h3 className="instrument-kicker">Movimiento y referencias</h3>
-      <InstrumentSwitch label="Rotación automática" description="Giro del planeta en reposo"
+      <InstrumentSwitch label="Rotación automática" description="Giro de cámara en reposo"
         checked={autoRotate} onChange={onAutoRotateChange} />
       <InstrumentSwitch label="Campo estelar" description="Referencia del espacio exterior"
         checked={starsVisible} onChange={onStarsChange} />
@@ -31,8 +31,10 @@ export function ViewOptionsList({
       <InstrumentSwitch label="Atmósfera" description="Contorno atmosférico"
         checked={atmosphereVisible} onChange={onAtmosphereChange} />
       <details className="instrument-future">
-        <summary className="focus-ring">Capacidades en desarrollo <span aria-hidden="true">+</span></summary>
-        <StatusRowList title="Sistema visual" rows={VISUAL_SYSTEM_ROWS.filter((row) => !row.active)} />
+        <summary className="focus-ring" title="Capacidades incluidas en la escena. Integrado no indica el estado de carga de sus mapas.">
+          Sistema visual integrado <span aria-hidden="true">+</span>
+        </summary>
+        <StatusRowList title="Capacidades integradas del planeta" rows={VISUAL_SYSTEM_ROWS.filter((row) => row.id !== 'atmosphere')} />
       </details>
     </div>
   );

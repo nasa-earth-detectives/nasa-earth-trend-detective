@@ -27,7 +27,15 @@
 .instrument-tabs button[aria-selected='true'] { color: var(--text-primary); }
 .instrument-tabs__indicator { position: absolute; bottom: -1px; width: 70px; height: 2px; background: var(--active-accent); pointer-events: none; transform: translateX(0); transition: transform var(--motion-standard) var(--ease-instrument), background-color var(--motion-standard); }
 .instrument-tabs[data-active='1'] .instrument-tabs__indicator { transform: translateX(70px); }
-.earth-instrument__body { min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 0 5px 12px 0; }
+.earth-instrument__body { min-height: 0; min-width: 0; overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain; padding: 0 5px 12px 0; }
+.earth-instrument__body .focus-ring:focus-visible { outline-offset: -2px; }
+.instrument-tab-content { min-width: 0; max-width: 100%; }
+.observation-mode-control { display: flex; flex-wrap: wrap; gap: 4px 14px; margin: 5px 0 6px; }
+.observation-mode-control button { min-height: 44px; font-size: 12px; color: var(--text-secondary);
+  border-bottom: 2px solid transparent; transition: color var(--motion-fast), border-color var(--motion-standard); }
+.observation-mode-control button[aria-checked='true'] { color: var(--text-primary); border-color: var(--active-accent); }
+.observation-mode-control button:hover { color: var(--text-primary); }
+.observation-mode-control button:active { transform: translateY(1px); }
 .instrument-tab-content:not([hidden]) { animation: instrument-arrive var(--motion-standard) var(--ease-soft) both; }
 .variable-index { position: relative; --variable-row-height: 58px; }
 .variable-index__marker { position: absolute; left: 1px; top: calc((var(--variable-row-height) - 6px) / 2); height: 6px; width: 6px; border-radius: 50%; background: var(--active-accent); pointer-events: none; transform: translateY(calc(var(--variable-index) * var(--variable-row-height))); transition: transform var(--motion-panel) var(--ease-instrument), background-color var(--motion-standard); }
@@ -49,8 +57,8 @@
 .variable-row:disabled { cursor: not-allowed; }
 .variable-row--future .variable-row__name { color: var(--text-tertiary); }
 .variable-row__soon { margin-left: auto; font-size: 11px; color: var(--text-tertiary); }
-.variable-readout { display: grid; padding: 20px 0 4px 18px; }
-.variable-readout__entry { grid-area: 1 / 1; opacity: 0; pointer-events: none; transform: translateY(4px); transition: opacity var(--motion-standard) var(--ease-soft), transform var(--motion-standard) var(--ease-instrument); }
+.variable-readout { display: grid; min-width: 0; grid-template-columns: minmax(0, 1fr); padding: 20px 0 4px 18px; }
+.variable-readout__entry { grid-area: 1 / 1; min-width: 0; opacity: 0; pointer-events: none; transform: translateY(4px); transition: opacity var(--motion-standard) var(--ease-soft), transform var(--motion-standard) var(--ease-instrument); }
 .variable-readout__entry[data-active='true'] { opacity: 1; transform: translateY(0); transition-delay: 90ms; }
 .variable-readout__domain { color: var(--active-accent); font-size: 11px; letter-spacing: .04em; margin: 0 0 6px; }
 .variable-readout__focus { font-size: 21px; color: var(--text-primary); line-height: 1.2; letter-spacing: -.03em; margin: 0; font-weight: 400; }
@@ -65,7 +73,8 @@
 .instrument-future[open] summary span { transform: rotate(45deg); }
 .instrument-status-list ul { list-style: none; padding: 0; margin: 0; }
 .instrument-status-list li { display: flex; justify-content: space-between; gap: 12px; padding: 7px 0; font-size: 11px; color: var(--text-secondary); }
-.instrument-status-list li span:last-child { color: var(--text-tertiary); }
+.instrument-status-list li span:first-child { min-width: 0; overflow-wrap: anywhere; }
+.instrument-status-list li span:last-child { flex-shrink: 0; color: var(--text-tertiary); }
 .scene-instrument > .instrument-kicker { margin: 10px 0 9px; }
 .scene-instrument > .scene-instrument__section { margin-top: 24px; }
 .scene-instrument .instrument-future { margin-left: 0; }
