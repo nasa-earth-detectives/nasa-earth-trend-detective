@@ -101,3 +101,19 @@ El archivo `render.yaml` define la especificación completa del servicio web:
 | **`development`** | 🟣 **`Preview (Dev)`** | [https://nasa-earth-trend-detective-dev.vercel.app](https://nasa-earth-trend-detective-dev.vercel.app) | **Desarrollo Activo:** Revisión de nuevas características en tiempo real. |
 
 > 💡 **Cero Fricción para el Equipo:** Ya no es necesario buscar el link temporal de cada commit en el dashboard de Vercel. Cada rama tiene su dirección web fija y única que se sobreescribe y actualiza de manera continua.
+
+---
+
+## 🏆 6. Registro de Releases Oficiales en Producción
+
+### Release v1.0.0-rc1 (23 de Septiembre de 2026)
+- **Pull Request Oficial:** [PR #17 (qa ➔ production)](https://github.com/nasa-earth-detectives/nasa-earth-trend-detective/pull/17) — **MERGED 🟢**
+- **Commit en Producción:** `181aab1`
+- **Módulos Integrados y Certificados:**
+  1. **🌍 [S1-T4] Experiencia Orbital 3D NASA:** Texturas satelitales diurnas Blue Marble (2K/4K/8K) con capa nubosa dinámica y visión nocturna Black Marble 2016, shaders de dispersión atmosférica Rayleigh/Mie y 60 FPS estables.
+  2. **🎛️ [S3-T5] Time-Slider Interactivo Multidecenal (2000-2026):** Rango de 27 años, controles de reproducción multivelocidad (`1x`, `2x`, `5x`), modo bucle continuo y 9 balizas de hitos climáticos históricos con tooltips descriptivos.
+  3. **🕵️ [S2-T5] Tarjeta Flotante Detective Climático:** Telemetría de coordenadas, badge de significancia Mann-Kendall y gráfica interactiva de tendencias temporales.
+  4. **🛰️ [S1-T5] Design System Espacial y Tour Guiado:** Paleta HSL Deep Space, selector de capas de observación satelital y tour guiado con Driver.js.
+  5. **🛡️ Seguridad & CI/CD:** Auditoría automática por Agente de IA, contenedor Docker validado y protección perimetral sin bloqueo SSO para acceso público inmediato.
+- **Estado de Producción:** 🟢 `https://nasa-earth-trend-detective.vercel.app` (200 OK — Público).
+
