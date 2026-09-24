@@ -1,43 +1,46 @@
 import { AmbientLight, DirectionalLight, Vector3 } from 'three';
 import type { GlobeInstance } from 'globe.gl';
 import { EARTH_MATERIAL_CONFIG, EARTH_SOLAR_CONFIG } from './earthConfig';
+import { getSubsolarPoint } from './solarPosition';
 
-/** Una única dirección solar terrestre, independiente de OrbitControls/cámara. */
+/** Reloj UTC real, independiente del timeline climático y del recorrido de cámara. */
 export function createEarthLighting(globe: GlobeInstance) {
-  const position = globe.getCoords(EARTH_SOLAR_CONFIG.latitude, EARTH_SOLAR_CONFIG.longitude);
-  const sunDirection = new Vector3(position.x, position.y, position.z).normalize();
+  // La misma referencia llega al material, Black Marble, nubes y atmósfera.
+  const sunDirection = new Vector3();
   const ambient = new AmbientLight(0xffffff, EARTH_MATERIAL_CONFIG.ambientIntensity);
   const key = new DirectionalLight(0xffffff, EARTH_MATERIAL_CONFIG.keyIntensity);
   ambient.name = 'earth-environment-fill';
   key.name = 'earth-sun';
-  key.position.copy(sunDirection).multiplyScalar(500);
-  globe.lights([ambient, key]);
-  const scene = globe.scene();
-  const previousBeforeRender = scene.onBeforeRender;
-  const polarAxis = new Vector3(0, 1, 0);
-  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-  let motionEnabled = true;
-  let previousTime = performance.now();
-  // La Tierra conserva sus coordenadas geográficas. El Sol avanza hacia el oeste
-  // en esta referencia fija a la Tierra: mismo resultado relativo que su rotación.
-  // Se usa el bucle existente; sin RAF adicional ni objetos/estado React por frame.
-  const beforeRender: typeof scene.onBeforeRender = (renderer, currentScene, camera, geometry, material, group) => {
-    previousBeforeRender.call(scene, renderer, currentScene, camera, geometry, material, group);
-    const now = performance.now();
-    const elapsed = Math.min((now - previousTime) / 1000, 0.1);
-    previousTime = now;
-    if (!motionEnabled || reducedMotion.matches) return;
-    sunDirection.applyAxisAngle(polarAxis, -elapsed * Math.PI * 2 / EARTH_SOLAR_CONFIG.cycleSeconds);
+  let disposed = false;
+
+  const synchronize = (): void => {
+    if (disposed) return;
+    const { lat, lng } = getSubsolarPoint(Date.now());
+    const position = globe.getCoords(lat, lng);
+    sunDirection.set(position.x, position.y, position.z).normalize();
     key.position.copy(sunDirection).multiplyScalar(500);
-    // onBeforeRender ocurre después de updateMatrixWorld de la escena en r186.
     key.updateMatrixWorld();
   };
-  scene.onBeforeRender = beforeRender;
+  synchronize();
+  globe.lights([ambient, key]);
+
+  // Un cálculo por segundo (≈0,004°), sin trabajo ni asignaciones por frame.
+  // El tiempo absoluto evita deriva y recupera inmediatamente una pestaña suspendida.
+  const refreshIfVisible = (): void => { if (!document.hidden) synchronize(); };
+  const timer = window.setInterval(refreshIfVisible, EARTH_SOLAR_CONFIG.updateIntervalMs);
+  document.addEventListener('visibilitychange', refreshIfVisible);
+  window.addEventListener('pageshow', refreshIfVisible);
+  window.addEventListener('focus', refreshIfVisible);
+
   return {
     sunDirection,
-    setMotionEnabled: (enabled: boolean): void => { motionEnabled = enabled; },
-    dispose: () => {
-      if (scene.onBeforeRender === beforeRender) scene.onBeforeRender = previousBeforeRender;
+    dispose(): void {
+      if (disposed) return;
+      disposed = true;
+      window.clearInterval(timer);
+      document.removeEventListener('visibilitychange', refreshIfVisible);
+      window.removeEventListener('pageshow', refreshIfVisible);
+      window.removeEventListener('focus', refreshIfVisible);
       globe.lights([]);
       ambient.dispose();
       key.dispose();

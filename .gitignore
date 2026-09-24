@@ -35,6 +35,8 @@ bin/
 obj/
 *.log
 *.tmp
+__pycache__/
+*.py[cod]
 
 # Operating System files
 .DS_Store

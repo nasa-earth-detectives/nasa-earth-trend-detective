@@ -4,7 +4,8 @@ interface SurfaceLocation { lat: number; lng: number }
 const TAP_TOLERANCE_PX = 5;
 
 /** Selección puntual con raycast actual; no depende del hover del frame anterior. */
-export function createSurfaceSelection(globe: GlobeInstance, select: (location: SurfaceLocation) => void) {
+export function createSurfaceSelection(globe: GlobeInstance, select: (location: SurfaceLocation) => void,
+  selectOverlay?: (x: number, y: number) => boolean) {
   const canvas = globe.renderer().domElement;
   const pointers = new Set<number>();
   let candidate: { id: number; x: number; y: number; moved: boolean } | null = null;
@@ -30,6 +31,7 @@ export function createSurfaceSelection(globe: GlobeInstance, select: (location: 
     const x = event.clientX - rect.left;
     const y = event.clientY - rect.top;
     if (x < 0 || y < 0 || x > rect.width || y > rect.height) return;
+    if (selectOverlay?.(x, y)) return;
     const location = globe.toGlobeCoords(x, y);
     if (location) select(location);
   };

@@ -6,6 +6,8 @@ import type { LayerTab } from '../../hooks/useImmersiveUi';
 import { VariableLayerList } from './VariableLayerList';
 import { ViewOptionsList } from './ViewOptionsList';
 import { StatusRowList } from './StatusRowList';
+import { InstrumentSwitch } from '../UI/InstrumentSwitch';
+import type { ObservationCoverage, ObservationLayerMode, ObservationSource } from '../../types/observationLayer.types';
 import '../../styles/layers.css';
 
 interface LayerPanelProps {
@@ -20,6 +22,11 @@ interface LayerPanelProps {
   starsVisible: boolean;
   gridVisible: boolean;
   atmosphereVisible: boolean;
+  observationMode: ObservationLayerMode;
+  onObservationModeChange: (value: ObservationLayerMode) => void;
+  coverage: ObservationCoverage;
+  onCoverageChange: (value: ObservationCoverage) => void;
+  source: ObservationSource;
   onAutoRotateChange: (value: boolean) => void;
   onStarsChange: (value: boolean) => void;
   onGridChange: (value: boolean) => void;
@@ -34,7 +41,8 @@ const TABS: { id: LayerTab; label: string }[] = [
 /** El instrumento abre junto a la navegación; nunca altera la escena WebGL. */
 export function LayerPanel({
   id, open, onClose, activeTab, onTabChange, selectedVariable, onVariableSelect,
-  autoRotate, starsVisible, gridVisible, atmosphereVisible,
+  autoRotate, starsVisible, gridVisible, atmosphereVisible, observationMode, onObservationModeChange,
+  coverage, onCoverageChange, source,
   onAutoRotateChange, onStarsChange, onGridChange, onAtmosphereChange,
 }: LayerPanelProps) {
   const panelRef = useRef<HTMLElement>(null);
@@ -94,6 +102,26 @@ export function LayerPanel({
       <div className="earth-instrument__body scrollbar-instrument">
         <div id={id + '-content-data'} role="tabpanel" aria-labelledby={id + '-tab-data'}
           hidden={activeTab !== 'data'} className="instrument-tab-content">
+          <div className="hex-layer-control">
+            <h3 className="instrument-kicker">Representación</h3>
+            <div className="observation-mode-control" role="radiogroup" aria-label="Representación de observaciones">
+              {([{ id: 'hex', label: 'Hexágonos 3D' }, { id: 'heat', label: 'Mapa de calor' },
+                { id: 'none', label: 'Sin capa' }] as const).map((item, index, options) =>
+                <button key={item.id} type="button" role="radio" className="focus-ring"
+                  aria-checked={observationMode === item.id} tabIndex={observationMode === item.id ? 0 : -1}
+                  onClick={() => onObservationModeChange(item.id)} onKeyDown={event => {
+                    if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+                    event.preventDefault();
+                    const next = event.key === 'Home' ? 0 : event.key === 'End' ? options.length - 1
+                      : (index + (event.key === 'ArrowRight' ? 1 : -1) + options.length) % options.length;
+                    onObservationModeChange(options[next].id);
+                    event.currentTarget.parentElement?.querySelectorAll<HTMLButtonElement>('button')[next].focus();
+                  }}>{item.label}</button>)}
+            </div>
+            {source === 'demo' && (selectedVariable === 'Gistemp' || selectedVariable === 'Oco2') &&
+              <InstrumentSwitch label="Incluir océanos" description="La vista inicial muestra tierra firme"
+                checked={coverage === 'global'} onChange={enabled => onCoverageChange(enabled ? 'global' : 'land')} />}
+          </div>
           <VariableLayerList selected={selectedVariable} onSelect={onVariableSelect} />
           <details className="instrument-future">
             <summary className="focus-ring">Capas en desarrollo <span aria-hidden="true">+</span></summary>
