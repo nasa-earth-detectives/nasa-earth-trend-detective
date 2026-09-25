@@ -1,0 +1,33 @@
+name: Mirror Organization to Personal Repo (Vercel Trigger)
+
+on:
+  push:
+    branches:
+      - development
+      - qa
+      - production
+  workflow_dispatch:
+
+concurrency:
+  group: mirror-personal-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  mirror-to-personal:
+    name: Sincronizar hacia Repo Personal (Auto-Deploy Vercel)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.PERSONAL_REPO_SYNC_TOKEN }}
+
+      - name: Push Branch to Personal Repository
+        env:
+          PERSONAL_TOKEN: ${{ secrets.PERSONAL_REPO_SYNC_TOKEN }}
+        run: |
+          BRANCH_NAME="${GITHUB_REF_NAME}"
+          echo "Sincronizando rama '${BRANCH_NAME}' hacia brayancortes22/nasa-earth-trend-detective..."
+          git push "https://${PERSONAL_TOKEN}@github.com/brayancortes22/nasa-earth-trend-detective.git" "HEAD:${BRANCH_NAME}" --force
+          echo "✅ Sincronización completada exitosamente. Vercel desplegará automáticamente la rama '${BRANCH_NAME}'."
