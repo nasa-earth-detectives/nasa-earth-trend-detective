@@ -46,6 +46,8 @@ Bienvenido a la bóveda central de documentación y diseño de ingeniería de nu
 - [[10-Despliegue-Cloud-Vercel-Render]]: Arquitectura serverless en Vercel Edge y contenedor .NET 10 en Render Cloud.
 - [[11-Trazabilidad-ClickUp-Sprint-1]]: Trazabilidad en vivo de infraestructura [S1-T0] y Design System espacial [S1-T5].
 - [[15-Trazabilidad-ClickUp-Sprint-2]]: Trazabilidad de Sprint 2, panel de Inspector de Detective [S2-T5], Mann-Kendall y DuckDB.
+- [[18-Trazabilidad-ClickUp-Sprint-3]]: Trazabilidad de Sprint 3, Time-Slider [S3-T5], Rate Limiting, optimización DuckDB y tendencias opuestas.
+- [[19-Trazabilidad-ClickUp-Sprint-4]]: Trazabilidad de Sprint 4, video pitch [S4-T5], validación científica y cierre NASA.
 
 ---
 

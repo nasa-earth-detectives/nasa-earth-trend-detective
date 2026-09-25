@@ -135,6 +135,5 @@ export function createEarthSurface(globe: GlobeInstance, container: HTMLElement,
   return {
     dispose,
     setAtmosphereVisible: envelope.setAtmosphereVisible,
-    setSolarMotionEnabled: lighting.setMotionEnabled,
   };
 }

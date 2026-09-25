@@ -36,46 +36,18 @@
 * **ID ClickUp:** `86e3bamyp`
 * **Nombre:** **[S1-T5] Definición del Design System espacial (Glassmorphism, paleta y tipografía)**
 * **URL:** [https://app.clickup.com/t/86e3bamyp](https://app.clickup.com/t/86e3bamyp)
-* **Estado:** `Espera por bug` 🛑 (Código finalizado; pendiente de validación visual por bug en renderizado 3D de Diego Arias `[S1-T4]`)
+* **Estado:** `Complete` 🟢 (Desbloqueado tras la integración de la textura orbital de Diego Arias `[S1-T4]` y promovido a `production`)
 * **Prioridad:** Normal (3) 🔵
 * **Asignado:** Brayan Stid Cortés Lombana (`Participante 5 / Frontend Lead & UI/UX`)
 * **Horas Estimadas:** 5h
-* **Pull Request:** [PR #9 en GitHub](https://github.com/nasa-earth-detectives/nasa-earth-trend-detective/pull/9)
+* **Pull Request:** Integrado en PR #9 y promovido a Producción Oficial en PR #17 (v1.0.0-rc1)
 
-### Subtareas de S1-T5:
+### Subtareas Desarrolladas, Desbloqueadas y Sincronizadas:
 | Código | Subtarea | ID ClickUp | Estado | Componentes / Archivos Clave |
 | :--- | :--- | :---: | :---: | :--- |
-| **S1-T5.1** | Configurar tokens de Tailwind y paleta espacial | `86e3bamyr` | `Espera por bug` 🛑 | `tailwind.config.js` (colores `cosmic-*`, `nasa-*`, `science-*`, shadows, blurs) |
-| **S1-T5.2** | Crear clases utilitarias de Glassmorphism (blur 16px) | `86e3bamyt` | `Espera por bug` 🛑 | `src/index.css` (`.glass-panel`, `.glass-panel-glow`, `.glass-badge`), `GlassPanel.tsx`, `StatusBadge.tsx` |
-| **S1-T5.3** | Construir barra de navegación espacial (Navbar) | `86e3bamyu` | `Espera por bug` 🛑 | `MissionHeader.tsx`, `instrument-chrome.css` |
-
----
-
-### 5. [S1-T0.5] Panel de Acceso Rápido para Desarrolladores
-* Tabla de accesos directos en el `README.md` principal del repositorio.
-* Enlaces rápidos a Frontend Vercel, Backend Render, Health Check, Swagger UI y Render Dashboard.
-* Configuración de GitHub Environments (`production`, `qa`, `development`) con badges visuales.
-
----
-
-## 🎨 Tarea Principal: Design System Espacial y Experiencia UI
-
-* **Código:** `[S1-T5]`
-* **ID ClickUp:** `86e3bamyp`
-* **Nombre:** **[S1-T5] Definición del Design System espacial (Glassmorphism, paleta y tipografía)**
-* **URL:** [https://app.clickup.com/t/86e3bamyp](https://app.clickup.com/t/86e3bamyp)
-* **Estado:** `Complete` ✅
-* **Prioridad:** Normal (3) 🔵
-* **Asignado:** Brayan Stid Cortés Lombana (`Participante 5 / Frontend Lead & UI/UX`)
-* **Horas Estimadas:** 5h
-* **Pull Request:** [feat/s1-t5-design-system-spatial](https://github.com/nasa-earth-detectives/nasa-earth-trend-detective/pull/new/feat/s1-t5-design-system-spatial)
-
-### Subtareas Desarrolladas y Sincronizadas:
-| Código | Subtarea | ID ClickUp | Estado | Componentes / Archivos Clave |
-| :--- | :--- | :---: | :---: | :--- |
-| **S1-T5.1** | Configurar tokens de Tailwind y paleta espacial | `86e3bamyr` | `Complete` ✅ | `tailwind.config.js` (colores `cosmic-*`, `nasa-*`, `science-*`, shadows, blurs) |
-| **S1-T5.2** | Crear clases utilitarias de Glassmorphism (blur 16px) | `86e3bamyt` | `Complete` ✅ | `src/index.css` (`.glass-panel`, `.glass-panel-glow`, `.glass-badge`), `src/components/UI/GlassPanel.tsx`, `StatusBadge.tsx` |
-| **S1-T5.3** | Construir barra de navegación espacial (Navbar) | `86e3bamyu` | `Complete` ✅ | `src/components/Mission/MissionHeader.tsx`, `src/styles/instrument-chrome.css` |
+| **S1-T5.1** | Configurar tokens de Tailwind y paleta espacial | `86e3bamyr` | `Complete` 🟢 | `tailwind.config.js` (colores `cosmic-*`, `nasa-*`, `science-*`, shadows, blurs) |
+| **S1-T5.2** | Crear clases utilitarias de Glassmorphism (blur 16px) | `86e3bamyt` | `Complete` 🟢 | `src/index.css` (`.glass-panel`, `.glass-panel-glow`, `.glass-badge`), `src/components/UI/GlassPanel.tsx`, `StatusBadge.tsx` |
+| **S1-T5.3** | Construir barra de navegación espacial (Navbar) | `86e3bamyu` | `Complete` 🟢 | `src/components/Mission/MissionHeader.tsx`, `src/styles/instrument-chrome.css` |
 
 ## 🛠️ Detalles Técnicos Registrados
 1. **Frontend en Vercel:** [nasa-earth-trend-detective.vercel.app](https://nasa-earth-trend-detective.vercel.app/).

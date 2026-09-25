@@ -1,0 +1,38 @@
+name: React Doctor Code Review
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches:
+      - development
+      - qa
+      - production
+    paths:
+      - 'frontend/**'
+      - 'packages/**'
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: react-doctor-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  react-audit:
+    name: React Code Quality & Architecture Audit
+    runs-on: ubuntu-latest
+    if: ${{ !github.event.pull_request.draft }}
+
+    steps:
+      - name: Checkout Repository con historial completo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Ejecutar Auditoría React Doctor (Oxlint Engine)
+        uses: millionco/react-doctor@v2
+        with:
+          diff: ${{ github.base_ref || 'development' }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}

@@ -46,14 +46,12 @@ export const EARTH_MATERIAL_CONFIG = {
   keyIntensity: 3.2,
 } as const;
 
-/** Ciclo orbital de presentación en referencia terrestre, no efemérides del timeline. */
+/** Luz sincronizada al reloj UTC; el timeline sigue siendo exclusivamente climático. */
 export const EARTH_SOLAR_CONFIG = {
-  latitude: 12,
-  longitude: -65,
+  updateIntervalMs: 1000,
   nightIntensity: 1.4,
   duskStart: 0,
   duskEnd: -0.12,
-  cycleSeconds: 1200,
 } as const;
 
 /** Mejora opcional tras acercar; memoria conocida en móvil para no penalizar equipos modestos. */
