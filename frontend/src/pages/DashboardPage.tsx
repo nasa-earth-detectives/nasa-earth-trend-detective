@@ -1,8 +1,6 @@
-import { useState, useEffect } from 'react';
 import { ImmersiveEarthLayout } from '../components/Layout/ImmersiveEarthLayout';
 import { useTrendFilter } from '../hooks/useTrendFilter';
 import { useGlobeData } from '../hooks/useGlobeData';
-import { trendService } from '../services/trendService';
 
 /**
  * Punto de entrada de la experiencia.
@@ -12,25 +10,17 @@ import { trendService } from '../services/trendService';
  */
 export function DashboardPage() {
   const { filter, setVariable, setYearRange } = useTrendFilter('Gistemp');
-  const { data: observations, loading, error } = useGlobeData(filter);
-  const [apiConnected, setApiConnected] = useState<boolean>(false);
-
-  useEffect(() => {
-    trendService
-      .getHealth()
-      .then((res) => setApiConnected(res.status === 'Healthy'))
-      .catch(() => setApiConnected(false));
-  }, []);
+  const { data: observations, loading, error, source } = useGlobeData(filter);
 
   return (
     <ImmersiveEarthLayout
       observations={observations}
       loading={loading}
       observationError={error}
-      apiConnected={apiConnected}
+      source={source}
       filter={filter}
       onVariableChange={setVariable}
-      onYearChange={(year) => setYearRange(filter.startYear, year)}
+      onYearChange={(year) => setYearRange(Math.min(filter.startYear, year), year)}
     />
   );
 }

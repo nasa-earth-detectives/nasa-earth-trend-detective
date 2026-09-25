@@ -1,6 +1,6 @@
 # 📅 Sprints y Roadmap de Trabajo
 
-Volver al [[00-Map-Of-Content]] | Ver roles en [[03-Roles-y-Equipo]] | Trazabilidad en [[15-Trazabilidad-ClickUp-Sprint-2]]
+Volver al [[00-Map-Of-Content]] | Ver roles en [[03-Roles-y-Equipo]] | Trazabilidad: [[11-Trazabilidad-ClickUp-Sprint-1|S1]] • [[15-Trazabilidad-ClickUp-Sprint-2|S2]] • [[18-Trazabilidad-ClickUp-Sprint-3|S3]] • [[19-Trazabilidad-ClickUp-Sprint-4|S4]]
 
 ---
 

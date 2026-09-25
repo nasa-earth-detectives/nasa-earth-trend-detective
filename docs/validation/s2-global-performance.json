@@ -1,0 +1,61 @@
+{
+  "fixture": "global",
+  "cells": 8192,
+  "note": "Las 8192 celdas están distribuidas sobre toda la esfera; no son 8192 celdas simultáneamente visibles.",
+  "viewport": {
+    "width": 1920,
+    "height": 1080
+  },
+  "secondsPerMode": 6,
+  "results": [
+    {
+      "mode": "idle",
+      "averageFps": 165.04838199306892,
+      "worstOneSecondFps": 164.98350164983512,
+      "worstFrameMs": 6.200000000000728
+    },
+    {
+      "mode": "hover",
+      "averageFps": 164.86535995603586,
+      "worstOneSecondFps": 164.22812779934296,
+      "worstFrameMs": 12.300000000001091
+    },
+    {
+      "mode": "orbit",
+      "averageFps": 165.06212731940533,
+      "worstOneSecondFps": 164.98350164983466,
+      "worstFrameMs": 6.400000000001455
+    },
+    {
+      "mode": "zoom",
+      "averageFps": 165.0511308750951,
+      "worstOneSecondFps": 164.98350164983466,
+      "worstFrameMs": 6.299999999999272
+    },
+    {
+      "mode": "variable",
+      "averageFps": 149.68115748999665,
+      "worstOneSecondFps": 123,
+      "worstFrameMs": 66.70000000000437
+    },
+    {
+      "mode": "timeline",
+      "averageFps": 161.79018928293817,
+      "worstOneSecondFps": 150.75878594294016,
+      "worstFrameMs": 24.19999999999709
+    }
+  ],
+  "scene": {
+    "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 4060 (0x00002882) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+    "pixelRatio": 1,
+    "calls": 6,
+    "triangles": 217488,
+    "memory": {
+      "geometries": 6,
+      "textures": 6
+    },
+    "totalCells": 8192,
+    "sameCanvas": true,
+    "canvasCount": 1
+  }
+}

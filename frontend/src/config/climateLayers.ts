@@ -52,7 +52,7 @@ export interface StatusRow {
   detail?: string;
   /** Marcador corto de disponibilidad. */
   status: string;
-  /** Verdadero cuando la capacidad ya está operativa en la escena. */
+  /** Capacidad implementada; no representa el estado de carga de sus assets. */
   active?: boolean;
 }
 
@@ -64,19 +64,17 @@ export const UPCOMING_VARIABLES: StatusRow[] = [
   { id: 'sentinel6', name: 'Nivel del mar', detail: 'Sentinel-6', status: 'API' },
 ];
 
-/** Capas analíticas sobre el globo. Ninguna tiene renderizador todavía. */
+/** Capas futuras; hexágonos y calor tienen su propio control operativo en Datos. */
 export const SCIENTIFIC_OVERLAYS: StatusRow[] = [
-  { id: 'heatmap', name: 'Mapa de calor', status: 'Pronto' },
-  { id: 'hexagons', name: 'Hexágonos 3D', status: 'Pronto' },
   { id: 'hotspots', name: 'Hotspots significativos', status: 'Pronto' },
   { id: 'opposing', name: 'Tendencias opuestas', status: 'Pronto' },
   { id: 'teleconnections', name: 'Teleconexiones', status: 'Pronto' },
 ];
 
-/** Sistema visual del planeta: lo ya operativo y lo pendiente. */
+/** Capacidades integradas en earthSurface; los interruptores se muestran sólo si existe API real. */
 export const VISUAL_SYSTEM_ROWS: StatusRow[] = [
-  { id: 'atmosphere', name: 'Atmósfera', status: 'Nativa', active: true },
-  { id: 'clouds', name: 'Capa de nubes', status: 'Pronto' },
-  { id: 'night-lights', name: 'Luces nocturnas', status: 'Pronto' },
-  { id: 'terminator', name: 'Terminador día/noche', status: 'Pronto' },
+  { id: 'atmosphere', name: 'Atmósfera', status: 'Integrado', active: true },
+  { id: 'clouds', name: 'Capa de nubes', status: 'Integrado', active: true },
+  { id: 'night-lights', name: 'Luces nocturnas', status: 'Integrado', active: true },
+  { id: 'terminator', name: 'Terminador día/noche', status: 'Hora actual', active: true },
 ];

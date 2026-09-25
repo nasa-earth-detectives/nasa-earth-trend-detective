@@ -1,0 +1,72 @@
+{
+  "fixture": "stress",
+  "cells": 6211,
+  "unobstructedCaps": 6211,
+  "viewport": {
+    "width": 1920,
+    "height": 1080
+  },
+  "secondsPerMode": 6,
+  "results": [
+    {
+      "mode": "idle",
+      "frontVisibleBefore": 6211,
+      "frontVisibleAfter": 6211,
+      "averageFps": 165.12813676804646,
+      "worstOneSecondFps": 164.98350164983495,
+      "worstFrameMs": 6.400000000000546
+    },
+    {
+      "mode": "hover",
+      "frontVisibleBefore": 6211,
+      "frontVisibleAfter": 6211,
+      "averageFps": 164.90380611301885,
+      "worstOneSecondFps": 164.4409009363263,
+      "worstFrameMs": 12.100000000000364
+    },
+    {
+      "mode": "orbit",
+      "frontVisibleBefore": 6211,
+      "frontVisibleAfter": 6211,
+      "averageFps": 165.14739947010287,
+      "worstOneSecondFps": 164.98350164983526,
+      "worstFrameMs": 6.400000000001455
+    },
+    {
+      "mode": "zoom",
+      "frontVisibleBefore": 6211,
+      "frontVisibleAfter": 6211,
+      "averageFps": 165.15565628958066,
+      "worstOneSecondFps": 164.98350164983466,
+      "worstFrameMs": 6.400000000001455
+    },
+    {
+      "mode": "variable",
+      "frontVisibleBefore": 6211,
+      "frontVisibleAfter": 6211,
+      "averageFps": 152.38571071688656,
+      "worstOneSecondFps": 129,
+      "worstFrameMs": 36.39999999999782
+    },
+    {
+      "mode": "timeline",
+      "frontVisibleBefore": 6211,
+      "frontVisibleAfter": 6211,
+      "averageFps": 162.43773220257503,
+      "worstOneSecondFps": 156.6553582114679,
+      "worstFrameMs": 24.30000000000291
+    }
+  ],
+  "scene": {
+    "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 4060 (0x00002882) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+    "pixelRatio": 1,
+    "calls": 6,
+    "triangles": 169944,
+    "memory": {
+      "geometries": 6,
+      "textures": 6
+    },
+    "sameCanvas": true,
+    "canvasCount": 1
+  }
+}

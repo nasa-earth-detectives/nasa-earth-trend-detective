@@ -32,6 +32,19 @@ export const SCIENCE_ACCENTS: Record<ClimateVariable, ScienceAccent> = {
 /** Azul marino reservado para Nivel del Mar cuando la API lo soporte. */
 export const SEA_LEVEL_ACCENT = '#5f88a6';
 
+/** Extremos de escalas de observaciones, separados del acento de interfaz. */
+export const SCIENCE_SURFACE_COLORS = {
+  cold: '#267edf',
+  neutral: '#aaa99d',
+  hot: '#e44f46',
+  drySoil: '#b28a56',
+  chlorophyll: '#397c56',
+  waterDeficit: '#bb735c',
+  glacier: '#467f9e',
+  co2Baseline: '#84935a',
+  co2Elevated: '#a565aa',
+} as const;
+
 /** Traduce la variable activa a las variables CSS que consume el instrumento. */
 export function applyScienceAccent(variable: ClimateVariable, root: HTMLElement): void {
   const { accent, rgb } = SCIENCE_ACCENTS[variable];
