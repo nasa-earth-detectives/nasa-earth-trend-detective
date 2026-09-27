@@ -14,6 +14,7 @@ public static class InfrastructureServiceCollectionExtensions
     {
         return services
             .AddDuckDb(configuration)
+            .AddNasaEarthData(configuration)
             .AddParquetImport(configuration);
     }
 

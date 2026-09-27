@@ -11,6 +11,7 @@ services:
       - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_URLS=http://+:5000
       - DUCKDB_DATABASE_PATH=/app/data/nasa_earth_trends.duckdb
+      - NASA_EARTHDATA_TOKEN=${NASA_EARTHDATA_TOKEN:-}
     volumes:
       - nasa_data:/app/data
     healthcheck:
