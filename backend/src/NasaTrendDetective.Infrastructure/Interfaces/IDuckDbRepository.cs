@@ -1,10 +1,35 @@
-using NasaTrendDetective.Domain.Entities;
-using NasaTrendDetective.Domain.Enums;
+using System.Data;
 
 namespace NasaTrendDetective.Infrastructure.Interfaces;
 
+/// <summary>
+/// Acceso asíncrono al motor OLAP DuckDB. Cada operación usa una conexión aislada.
+/// Los parámetros se enlazan por nombre ($nombre en SQL).
+/// </summary>
 public interface IDuckDbRepository
 {
-    Task<IEnumerable<TrendObservation>> QueryObservationsAsync(ClimateVariable variable, int startYear, int endYear);
-    Task ExecuteParquetIngestAsync(string parquetFilePath, string tableName);
+    Task<bool> IsHealthyAsync(CancellationToken cancellationToken = default);
+
+    Task<string> GetVersionAsync(CancellationToken cancellationToken = default);
+
+    Task<T?> ExecuteScalarAsync<T>(
+        string sql,
+        IReadOnlyDictionary<string, object?>? parameters = null,
+        CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<T>> QueryAsync<T>(
+        string sql,
+        Func<IDataRecord, T> map,
+        IReadOnlyDictionary<string, object?>? parameters = null,
+        CancellationToken cancellationToken = default);
+
+    Task<int> ExecuteAsync(
+        string sql,
+        IReadOnlyDictionary<string, object?>? parameters = null,
+        CancellationToken cancellationToken = default);
+
+    Task ExecuteParquetIngestAsync(
+        string parquetFilePath,
+        string tableName,
+        CancellationToken cancellationToken = default);
 }

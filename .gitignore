@@ -44,6 +44,7 @@ Thumbs.db
 desktop.ini
 
 # Database local runtime files
+*.duckdb
 *.duckdb.tmp
 *.duckdb.wal
 
