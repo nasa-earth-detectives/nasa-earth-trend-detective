@@ -12,7 +12,9 @@ public static class InfrastructureServiceCollectionExtensions
 {
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
-        return services.AddDuckDb(configuration);
+        return services
+            .AddDuckDb(configuration)
+            .AddParquetImport(configuration);
     }
 
     /// <summary>

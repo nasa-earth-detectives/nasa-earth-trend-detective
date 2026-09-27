@@ -1,5 +1,9 @@
 using System.Data;
+using NasaTrendDetective.Infrastructure.Etl;
+using NasaTrendDetective.Infrastructure.Etl.Models;
 using NasaTrendDetective.Infrastructure.Interfaces;
+using NasaTrendDetective.Infrastructure.Queries;
+using NasaTrendDetective.Infrastructure.Queries.Models;
 
 namespace NasaTrendDetective.Infrastructure.Implements;
 
@@ -73,18 +77,21 @@ public sealed class DuckDbRepository : IDuckDbRepository
         return await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
     }
 
-    public Task ExecuteParquetIngestAsync(
-        string parquetFilePath,
-        string tableName,
+    public async Task<ParquetImportResult> ExecuteParquetIngestAsync(
+        string parquetGlob,
         CancellationToken cancellationToken = default)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(parquetFilePath);
-        var table = DuckDbCommandHelper.QuoteIdentifier(tableName);
-        var parameters = new Dictionary<string, object?> { ["path"] = parquetFilePath };
+        ArgumentException.ThrowIfNullOrWhiteSpace(parquetGlob);
+        await using var connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken)
+            .ConfigureAwait(false);
+        return await ParquetIngestion.RunAsync(connection, parquetGlob, cancellationToken).ConfigureAwait(false);
+    }
 
-        return ExecuteAsync(
-            $"CREATE OR REPLACE TABLE {table} AS SELECT * FROM read_parquet($path)",
-            parameters,
-            cancellationToken);
+    public Task<IReadOnlyList<CellAggregate>> GetCellAggregatesAsync(
+        CellAggregationRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        var (sql, parameters) = CellAggregationSql.Build(request);
+        return QueryAsync(sql, CellAggregationSql.Map, parameters, cancellationToken);
     }
 }

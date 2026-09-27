@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using NasaTrendDetective.Infrastructure.Etl;
 using NasaTrendDetective.Infrastructure.Extensions;
 using NasaTrendDetective.Infrastructure.Implements;
 using NasaTrendDetective.Infrastructure.Interfaces;
@@ -67,5 +68,21 @@ public class InfrastructureServiceCollectionExtensionsTests
         Assert.Contains(
             provider.GetServices<Microsoft.Extensions.Hosting.IHostedService>(),
             service => service is DuckDbSchemaHostedService);
+    }
+
+    [Fact]
+    public void AddInfrastructure_RegistersParquetImporterAndBindsGlob()
+    {
+        using var provider = BuildProvider(new()
+        {
+            [DuckDbOptions.EnvironmentVariable] = DuckDbOptions.InMemoryPath,
+            ["ParquetImport:SourceGlob"] = "custom/**/*.parquet"
+        });
+
+        var options = provider.GetRequiredService<IOptions<ParquetImportOptions>>().Value;
+
+        Assert.IsType<ParquetImporter>(provider.GetRequiredService<IParquetImporter>());
+        Assert.Equal("custom/**/*.parquet", options.SourceGlob);
+        Assert.Equal("data/nasa/normalized/*.parquet", new ParquetImportOptions().SourceGlob);
     }
 }

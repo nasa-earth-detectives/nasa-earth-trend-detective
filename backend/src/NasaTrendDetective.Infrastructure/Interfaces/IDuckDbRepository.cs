@@ -1,4 +1,6 @@
 using System.Data;
+using NasaTrendDetective.Infrastructure.Etl.Models;
+using NasaTrendDetective.Infrastructure.Queries.Models;
 
 namespace NasaTrendDetective.Infrastructure.Interfaces;
 
@@ -28,8 +30,18 @@ public interface IDuckDbRepository
         IReadOnlyDictionary<string, object?>? parameters = null,
         CancellationToken cancellationToken = default);
 
-    Task ExecuteParquetIngestAsync(
-        string parquetFilePath,
-        string tableName,
+    /// <summary>
+    /// Importa en bloque los Parquet canónicos del glob (p.ej. 'data/nasa/normalized/*.parquet') a
+    /// fact_climate_observations con INSERT ... SELECT FROM read_parquet, validando antes el esquema.
+    /// </summary>
+    Task<ParquetImportResult> ExecuteParquetIngestAsync(
+        string parquetGlob,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Agregación global por celda espacial (lat/lng redondeados): promedio por variable y año.
+    /// </summary>
+    Task<IReadOnlyList<CellAggregate>> GetCellAggregatesAsync(
+        CellAggregationRequest request,
         CancellationToken cancellationToken = default);
 }

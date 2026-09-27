@@ -74,37 +74,6 @@ public sealed class DuckDbRepositoryTests : IDisposable
     }
 
     [Fact]
-    public async Task ExecuteParquetIngestAsync_LoadsParquetIntoTable()
-    {
-        var root = DuckDbTestHelpers.CreateTempDirectory();
-        try
-        {
-            var parquet = Path.Combine(root, "fixture.parquet").Replace(Path.DirectorySeparatorChar, '/');
-            await _repository.ExecuteAsync(
-                $"COPY (SELECT * FROM range(5) t(id)) TO '{parquet}' (FORMAT parquet)");
-
-            await _repository.ExecuteParquetIngestAsync(parquet, "gistemp_sample");
-
-            Assert.Equal(5L, await _repository.ExecuteScalarAsync<long>("SELECT count(*) FROM gistemp_sample"));
-        }
-        finally
-        {
-            DuckDbTestHelpers.TryDeleteDirectory(root);
-        }
-    }
-
-    [Theory]
-    [InlineData("drop table x;")]
-    [InlineData("1abc")]
-    [InlineData("name\"quote")]
-    [InlineData("")]
-    public async Task ExecuteParquetIngestAsync_InvalidTableName_Throws(string tableName)
-    {
-        await Assert.ThrowsAsync<ArgumentException>(
-            () => _repository.ExecuteParquetIngestAsync("file.parquet", tableName));
-    }
-
-    [Fact]
     public async Task QueryAsync_CancelledToken_Throws()
     {
         using var cts = new CancellationTokenSource();
