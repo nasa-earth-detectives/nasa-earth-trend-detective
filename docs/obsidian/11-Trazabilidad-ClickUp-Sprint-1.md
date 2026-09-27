@@ -57,7 +57,7 @@
 * **ID ClickUp:** `86e3bamy4`
 * **Nombre:** **[S1-T2] Implementar Extractores de Datasets Satelitales NASA (GISTEMP/MODIS/GRACE)**
 * **URL:** [https://app.clickup.com/t/86e3bamy4](https://app.clickup.com/t/86e3bamy4)
-* **Estado:** `Review` 🟣 (Pull Request abierto hacia `development`)
+* **Estado:** `en pruebas` 🟡 (PR #24, apilado sobre PR #23)
 * **Prioridad:** Urgent (1) 🔴
 * **Asignado:** Fabriany Medina (Reving)
 * **Rama de Trabajo:** `feat/s1-t2-nasa-etl-extractors` (apilada sobre `feat/s2-t2-duckdb-warehouse`) ➔ `development`
@@ -65,9 +65,9 @@
 
 | Código | Subtarea | ID ClickUp | Estado | Componentes Clave |
 | :--- | :--- | :---: | :---: | :--- |
-| **S1-T2.1** | Diseñar cliente de descarga de datasets NASA EarthData | `86e3bamy5` | `Review` 🟣 | `ExternalServices/NasaEarthDataClient.cs`, `NasaFileCache.cs`, `NasaTokenHostPolicy.cs` |
-| **S1-T2.2** | Construir pipeline normalizador de grilla espacial | `86e3bamy6` | `Review` 🟣 | `Etl/SpatialGridNormalizer.cs`, `CanonicalGridSql.cs`, `CsvRawDatasetReader.cs` |
-| **S1-T2.3** | Implementar filtros de limpieza e imputación de nulos | `86e3bamy8` | `Review` 🟣 | `Etl/DataCleaningSql.cs`, `DataCleaningOptions.cs`, `Models/DataQualityMetrics.cs` |
+| **S1-T2.1** | Diseñar cliente de descarga de datasets NASA EarthData | `86e3bamy5` | `en pruebas` 🟡 | `ExternalServices/NasaEarthDataClient.cs`, `NasaFileCache.cs`, `NasaTokenHostPolicy.cs` |
+| **S1-T2.2** | Construir pipeline normalizador de grilla espacial | `86e3bamy6` | `en pruebas` 🟡 | `Etl/SpatialGridNormalizer.cs`, `CanonicalGridSql.cs`, `CsvRawDatasetReader.cs` |
+| **S1-T2.3** | Implementar filtros de limpieza e imputación de nulos | `86e3bamy8` | `en pruebas` 🟡 | `Etl/DataCleaningSql.cs`, `DataCleaningOptions.cs`, `Models/DataQualityMetrics.cs` |
 
 ## 🛠️ Detalles Técnicos Registrados
 1. **Frontend en Vercel:** [nasa-earth-trend-detective.vercel.app](https://nasa-earth-trend-detective.vercel.app/).
