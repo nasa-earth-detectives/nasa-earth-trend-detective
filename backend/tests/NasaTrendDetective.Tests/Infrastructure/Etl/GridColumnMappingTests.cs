@@ -38,11 +38,13 @@ public class GridColumnMappingTests
             "SELECT longitude, \"timestamp\", value, anomaly FROM read_parquet("
             + GridNormalizerTestContext.Quote(result.OutputPath) + ")");
 
-        Assert.Equal(2, rows.Count);
+        Assert.Equal(3, rows.Count);
         Assert.Equal(-179.00m, Convert.ToDecimal(rows[0][0]));
         Assert.Equal(new DateTime(2021, 3, 1), rows[0][1]);
         Assert.Equal(0.8, rows[0][3]);
+        Assert.Null(rows[1][2]);
         Assert.Null(rows[1][3]);
+        Assert.Null(rows[2][3]);
     }
 
     [Fact]
@@ -89,7 +91,9 @@ public class GridColumnMappingTests
         {
             ["DuckDb:DatabasePath"] = ":memory:",
             ["GridNormalization:OutputDirectory"] = "custom/normalized",
-            ["GridNormalization:Mappings:ModisNdvi:ValueColumn"] = "NDVI"
+            ["GridNormalization:Mappings:ModisNdvi:ValueColumn"] = "NDVI",
+            ["GridNormalization:Cleaning:Rules:ModisNdvi:MaxValidValue"] = "1",
+            ["GridNormalization:Cleaning:Rules:ModisNdvi:FillValues:0"] = "-3000"
         }).Build();
         using var provider = new ServiceCollection().AddInfrastructure(configuration).BuildServiceProvider();
 
@@ -100,5 +104,8 @@ public class GridColumnMappingTests
         Assert.Equal("custom/normalized", options.OutputDirectory);
         Assert.Equal("NDVI", options.ResolveMapping(nameof(ClimateVariable.ModisNdvi)).ValueColumn);
         Assert.Equal("value", options.ResolveMapping(nameof(ClimateVariable.Oco2)).ValueColumn);
+        var cleaning = options.Cleaning.Resolve(nameof(ClimateVariable.ModisNdvi));
+        Assert.Equal(1, cleaning.MaxValidValue);
+        Assert.Contains(-3000, cleaning.FillValues);
     }
 }

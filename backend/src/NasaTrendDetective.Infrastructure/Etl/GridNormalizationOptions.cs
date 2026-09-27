@@ -21,6 +21,11 @@ public sealed class GridNormalizationOptions
     public Dictionary<string, GridColumnMapping> Mappings { get; set; } =
         new(StringComparer.OrdinalIgnoreCase);
 
+    /// <summary>
+    /// Reglas de limpieza (fill values y rangos físicos válidos) por variable.
+    /// </summary>
+    public DataCleaningOptions Cleaning { get; set; } = new();
+
     public GridColumnMapping ResolveMapping(string variableName) =>
         Mappings.TryGetValue(variableName, out var mapping) ? mapping : GridColumnMapping.Default;
 }

@@ -6,6 +6,8 @@ namespace NasaTrendDetective.Infrastructure.Etl;
 /// Genera el SQL DuckDB que transforma las columnas crudas en tuplas canónicas WGS84:
 /// latitud validada en [-90, 90], longitud cruda aceptada en [-180, 360] y llevada a [-180, 180),
 /// ambas redondeadas a 2 decimales (DECIMAL(5,2)) para que celdas de misiones distintas coincidan.
+/// El valor y la anomalía se exponen tipados pero sin filtrar: la etapa <see cref="DataCleaningSql"/>
+/// los convierte en NULL analítico e imputa, en lugar de descartar la fila.
 /// </summary>
 internal static class CanonicalGridSql
 {
@@ -19,9 +21,6 @@ internal static class CanonicalGridSql
         var time = string.IsNullOrWhiteSpace(mapping.TimeFormat)
             ? "TRY_CAST(raw_time AS TIMESTAMP)"
             : $"TRY_STRPTIME(raw_time, {DuckDbSqlText.Literal(mapping.TimeFormat)})";
-        var missing = mapping.MissingValue is { } fill
-            ? $"AND val <> {DuckDbSqlText.Number(fill)}"
-            : string.Empty;
 
         // Doble módulo: en DuckDB '%' conserva el signo del dividendo (fmod), así que se suma 360
         // antes del segundo módulo. Se redondea antes y después para evitar residuos binarios
@@ -41,11 +40,10 @@ internal static class CanonicalGridSql
             ),
             valid AS (
                 SELECT * FROM typed
-                WHERE lat IS NOT NULL AND lon IS NOT NULL AND ts IS NOT NULL AND val IS NOT NULL
-                  AND isfinite(lat) AND isfinite(lon) AND isfinite(val)
+                WHERE lat IS NOT NULL AND lon IS NOT NULL AND ts IS NOT NULL
+                  AND isfinite(lat) AND isfinite(lon)
                   AND lat BETWEEN -90 AND 90
                   AND lon BETWEEN -180 AND 360
-                  {missing}
             ),
             wrapped AS (
                 SELECT
@@ -61,12 +59,20 @@ internal static class CanonicalGridSql
                 CAST(CASE WHEN lon2 >= 180 THEN lon2 - 360 ELSE lon2 END AS DECIMAL(5,2)) AS longitude,
                 CAST(ts AS TIMESTAMP) AS "timestamp",
                 val AS value,
-                CASE WHEN isfinite(anom) THEN anom END AS anomaly
+                anom AS anomaly
             FROM wrapped
-            ORDER BY variable_id, "timestamp", latitude, longitude
             """;
     }
 
-    public static string BuildCopy(string canonicalSql, string outputPath) =>
-        $"COPY ({canonicalSql}) TO {DuckDbSqlText.Literal(outputPath)} (FORMAT PARQUET, COMPRESSION SNAPPY)";
+    /// <summary>
+    /// Exporta la tabla limpia a Parquet SNAPPY con la tupla canónica, ordenada para el data skipping.
+    /// </summary>
+    public static string BuildCopy(string cleanTable, string outputPath) =>
+        $"""
+        COPY (
+            SELECT variable_id, latitude, longitude, "timestamp", value, anomaly
+            FROM {DuckDbSqlText.Identifier(cleanTable)}
+            ORDER BY variable_id, "timestamp", latitude, longitude
+        ) TO {DuckDbSqlText.Literal(outputPath)} (FORMAT PARQUET, COMPRESSION SNAPPY)
+        """;
 }

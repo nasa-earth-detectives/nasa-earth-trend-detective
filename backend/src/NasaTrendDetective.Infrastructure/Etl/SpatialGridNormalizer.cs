@@ -1,4 +1,4 @@
-using DuckDB.NET.Data;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NasaTrendDetective.Infrastructure.Etl.Models;
 using NasaTrendDetective.Infrastructure.Interfaces;
@@ -7,7 +7,7 @@ namespace NasaTrendDetective.Infrastructure.Etl;
 
 /// <summary>
 /// Pipeline normalizador de grilla espacial: lee el archivo crudo con el <see cref="IRawDatasetReader"/>
-/// adecuado, aplica la normalización WGS84 canónica en SQL DuckDB y exporta con
+/// adecuado, aplica la normalización WGS84 canónica y la limpieza/imputación en SQL DuckDB y exporta con
 /// COPY ... TO '*.parquet' (FORMAT PARQUET, COMPRESSION SNAPPY) para el importador de hechos.
 /// </summary>
 public sealed class SpatialGridNormalizer : ISpatialGridNormalizer
@@ -15,11 +15,13 @@ public sealed class SpatialGridNormalizer : ISpatialGridNormalizer
     private readonly IDuckDbConnectionFactory _connectionFactory;
     private readonly IReadOnlyList<IRawDatasetReader> _readers;
     private readonly GridNormalizationOptions _options;
+    private readonly ILogger<SpatialGridNormalizer> _logger;
 
     public SpatialGridNormalizer(
         IDuckDbConnectionFactory connectionFactory,
         IEnumerable<IRawDatasetReader> readers,
-        IOptions<GridNormalizationOptions> options)
+        IOptions<GridNormalizationOptions> options,
+        ILogger<SpatialGridNormalizer> logger)
     {
         ArgumentNullException.ThrowIfNull(connectionFactory);
         ArgumentNullException.ThrowIfNull(readers);
@@ -27,6 +29,7 @@ public sealed class SpatialGridNormalizer : ISpatialGridNormalizer
         _connectionFactory = connectionFactory;
         _readers = readers.ToList();
         _options = options.Value;
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
     public async Task<GridNormalizationResult> NormalizeAsync(
@@ -41,29 +44,66 @@ public sealed class SpatialGridNormalizer : ISpatialGridNormalizer
         }
 
         var reader = ResolveReader(request.SourcePath);
-        var mapping = request.Mapping ?? _options.ResolveMapping(request.Variable.ToString());
+        var variableName = request.Variable.ToString();
+        var mapping = request.Mapping ?? _options.ResolveMapping(variableName);
+        var cleaning = _options.Cleaning.Resolve(variableName, mapping.MissingValue);
         var sourcePath = Path.GetFullPath(request.SourcePath);
         var outputPath = ResolveOutputPath(request);
 
         var rawSql = reader.BuildSelectSql(sourcePath, mapping);
         var canonicalSql = CanonicalGridSql.Build(rawSql, (byte)request.Variable, mapping);
+        var cleanSql = DataCleaningSql.Build(canonicalSql, cleaning);
+        var cleanTable = $"etl_clean_{Guid.NewGuid():N}";
 
         await using var connection = await _connectionFactory
             .CreateOpenConnectionAsync(cancellationToken)
             .ConfigureAwait(false);
 
-        var sourceRows = await ScalarAsync(connection, $"SELECT count(*) FROM ({rawSql})", cancellationToken)
+        var sourceRows = await DuckDbEtlCommands
+            .ScalarAsync(connection, $"SELECT count(*) FROM ({rawSql})", cancellationToken)
             .ConfigureAwait(false);
-        await ExecuteAsync(connection, CanonicalGridSql.BuildCopy(canonicalSql, outputPath), cancellationToken)
-            .ConfigureAwait(false);
-        var written = await ScalarAsync(
+        await DuckDbEtlCommands.ExecuteAsync(
                 connection,
-                $"SELECT count(*) FROM read_parquet({DuckDbSqlText.Literal(outputPath)})",
+                $"CREATE TEMP TABLE {DuckDbSqlText.Identifier(cleanTable)} AS {cleanSql}",
                 cancellationToken)
             .ConfigureAwait(false);
+        try
+        {
+            var quality = await DuckDbEtlCommands
+                .ReadQualityAsync(connection, cleanTable, request.Variable, cancellationToken)
+                .ConfigureAwait(false);
+            await DuckDbEtlCommands
+                .ExecuteAsync(connection, CanonicalGridSql.BuildCopy(cleanTable, outputPath), cancellationToken)
+                .ConfigureAwait(false);
+            var written = await DuckDbEtlCommands.ScalarAsync(
+                    connection,
+                    $"SELECT count(*) FROM read_parquet({DuckDbSqlText.Literal(outputPath)})",
+                    cancellationToken)
+                .ConfigureAwait(false);
 
-        return new GridNormalizationResult(outputPath, sourceRows, written);
+            LogQuality(quality);
+            return new GridNormalizationResult(outputPath, sourceRows, written, quality);
+        }
+        finally
+        {
+            await DuckDbEtlCommands.ExecuteAsync(
+                    connection,
+                    $"DROP TABLE IF EXISTS {DuckDbSqlText.Identifier(cleanTable)}",
+                    CancellationToken.None)
+                .ConfigureAwait(false);
+        }
     }
+
+    private void LogQuality(DataQualityMetrics quality) =>
+        _logger.LogInformation(
+            "Calidad {Variable}: {ValidBefore}% válidos antes de imputar, {ValidAfter}% después "
+            + "({Imputed} imputados, {Nulls} NULL de {Total} observaciones)",
+            quality.Variable,
+            quality.ValidPercentBeforeImputation,
+            quality.ValidPercentAfterImputation,
+            quality.ImputedValues,
+            quality.NullAfterImputation,
+            quality.TotalObservations);
 
     private IRawDatasetReader ResolveReader(string sourcePath) =>
         _readers.FirstOrDefault(reader => reader.CanRead(sourcePath))
@@ -88,20 +128,5 @@ public sealed class SpatialGridNormalizer : ISpatialGridNormalizer
         var directory = Path.GetFullPath(_options.OutputDirectory);
         Directory.CreateDirectory(directory);
         return Path.Combine(directory, fileName);
-    }
-
-    private static async Task<long> ScalarAsync(DuckDBConnection connection, string sql, CancellationToken ct)
-    {
-        await using var command = connection.CreateCommand();
-        command.CommandText = sql;
-        var value = await command.ExecuteScalarAsync(ct).ConfigureAwait(false);
-        return Convert.ToInt64(value, System.Globalization.CultureInfo.InvariantCulture);
-    }
-
-    private static async Task ExecuteAsync(DuckDBConnection connection, string sql, CancellationToken ct)
-    {
-        await using var command = connection.CreateCommand();
-        command.CommandText = sql;
-        await command.ExecuteNonQueryAsync(ct).ConfigureAwait(false);
     }
 }

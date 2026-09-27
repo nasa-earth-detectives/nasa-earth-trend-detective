@@ -25,7 +25,7 @@ public sealed class GridColumnMapping
     public string? TimeFormat { get; set; }
 
     /// <summary>
-    /// Valor de relleno que representa dato faltante (p.ej. 9999 en GISTEMP); esas filas se descartan.
+    /// Valor de relleno que representa dato faltante (p.ej. 9999 en GISTEMP); se convierte en NULL analítico.
     /// </summary>
     public double? MissingValue { get; set; }
 

@@ -1,4 +1,6 @@
 using System.Globalization;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using NasaTrendDetective.Infrastructure.Etl;
 using NasaTrendDetective.Infrastructure.Implements;
 using NasaTrendDetective.Infrastructure.Interfaces;
@@ -10,7 +12,9 @@ namespace NasaTrendDetective.Tests.Infrastructure.Etl;
 /// </summary>
 internal sealed class GridNormalizerTestContext : IDisposable
 {
-    public GridNormalizerTestContext(GridNormalizationOptions? options = null)
+    public GridNormalizerTestContext(
+        GridNormalizationOptions? options = null,
+        ILogger<SpatialGridNormalizer>? logger = null)
     {
         WorkDirectory = DuckDbTestHelpers.CreateTempDirectory();
         Factory = DuckDbTestHelpers.CreateFactory();
@@ -19,7 +23,8 @@ internal sealed class GridNormalizerTestContext : IDisposable
         Normalizer = new SpatialGridNormalizer(
             Factory,
             [new CsvRawDatasetReader()],
-            Microsoft.Extensions.Options.Options.Create(Options));
+            Microsoft.Extensions.Options.Options.Create(Options),
+            logger ?? NullLogger<SpatialGridNormalizer>.Instance);
     }
 
     public string WorkDirectory { get; }

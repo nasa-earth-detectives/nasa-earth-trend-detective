@@ -49,7 +49,7 @@ public class SpatialGridNormalizerTests
     }
 
     [Fact]
-    public async Task Normalize_DiscardsInvalidCoordinatesAndValues()
+    public async Task Normalize_DiscardsInvalidCoordinatesAndKeepsMissingValuesAsNull()
     {
         using var context = new GridNormalizerTestContext();
         var csv = context.WriteCsv("invalid.csv", Header,
@@ -62,16 +62,17 @@ public class SpatialGridNormalizerTests
             ",10,2020-01-01,1.0",
             "NaN,10,2020-01-01,1.0",
             "45,10,not-a-date,1.0",
-            "45,10,2020-01-01,",
+            "45,10,2020-01-15,",
             "-90,-180,2020-02-01,2.0");
 
         var result = await context.Normalizer.NormalizeAsync(new(csv, ClimateVariable.Gistemp));
         var coords = await context.ReadCoordinatesAsync(result.OutputPath);
 
+        // La fila sin valor no se descarta: queda como NULL analítico (etapa de limpieza S1-T2.3).
         Assert.Equal(11, result.SourceRows);
-        Assert.Equal(2, result.RowsWritten);
-        Assert.Equal(9, result.RowsDiscarded);
-        Assert.Equal([(45.00m, 10.00m), (-90.00m, -180.00m)], coords);
+        Assert.Equal(3, result.RowsWritten);
+        Assert.Equal(8, result.RowsDiscarded);
+        Assert.Equal([(45.00m, 10.00m), (45.00m, 10.00m), (-90.00m, -180.00m)], coords);
     }
 
     [Fact]
