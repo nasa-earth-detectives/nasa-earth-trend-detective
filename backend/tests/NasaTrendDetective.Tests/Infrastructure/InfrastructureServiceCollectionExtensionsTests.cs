@@ -54,4 +54,18 @@ public class InfrastructureServiceCollectionExtensionsTests
         Assert.True(factory.IsInMemory);
         Assert.True(await repository.IsHealthyAsync());
     }
+
+    [Fact]
+    public void AddInfrastructure_RegistersSchemaInitializerHostedService()
+    {
+        using var provider = BuildProvider(new()
+        {
+            [DuckDbOptions.EnvironmentVariable] = DuckDbOptions.InMemoryPath
+        });
+
+        Assert.IsType<DuckDbSchemaInitializer>(provider.GetRequiredService<IDuckDbSchemaInitializer>());
+        Assert.Contains(
+            provider.GetServices<Microsoft.Extensions.Hosting.IHostedService>(),
+            service => service is DuckDbSchemaHostedService);
+    }
 }

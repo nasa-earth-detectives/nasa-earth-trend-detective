@@ -38,6 +38,8 @@ public static class InfrastructureServiceCollectionExtensions
 
         services.AddSingleton<IDuckDbConnectionFactory, DuckDbConnectionFactory>();
         services.AddSingleton<IDuckDbRepository, DuckDbRepository>();
+        services.AddSingleton<IDuckDbSchemaInitializer, DuckDbSchemaInitializer>();
+        services.AddHostedService<DuckDbSchemaHostedService>();
         return services;
     }
 }
