@@ -62,15 +62,15 @@
 ## 🦆 Tarea Principal de Datos: Almacén Columnar DuckDB
 
 * **Código:** `[S2-T2]` | **ID ClickUp:** `86e3bamz4` | **Asignado:** Fabriany Medina (Reving)
-* **Estado:** `Review` 🟣 (Pull Request abierto hacia `development`)
+* **Estado:** `en pruebas` 🟡 (PR #23 abierto hacia `development`)
 * **Rama de Trabajo:** `feat/s2-t2-duckdb-warehouse` ➔ `development` ➔ `qa` ➔ `production`
 * **Documentación técnica:** [[22-Almacen-Columnar-DuckDB]]
 
 | Código | Subtarea | ID ClickUp | Estado | Componentes Clave |
 | :--- | :--- | :---: | :---: | :--- |
-| **S2-T2.1** | Inicializar conexión DuckDB embebida en .NET | `86e3bamz5` | `Review` 🟣 | `DuckDbConnectionFactory.cs`, `DuckDbRepository.cs`, `backend/tests/NasaTrendDetective.Tests` |
-| **S2-T2.2** | Definir esquemas SQL de hechos y dimensiones analíticas | `86e3bamz7` | `Review` 🟣 | `Scripts/init_schema.sql`, `DuckDbSchemaInitializer.cs` |
-| **S2-T2.3** | Implementar importador masivo de archivos Parquet | `86e3bamzg` | `Review` 🟣 | `Etl/ParquetImporter.cs`, `Queries/CellAggregationSql.cs` |
+| **S2-T2.1** | Inicializar conexión DuckDB embebida en .NET | `86e3bamz5` | `en pruebas` 🟡 | `DuckDbConnectionFactory.cs`, `DuckDbRepository.cs`, `backend/tests/NasaTrendDetective.Tests` |
+| **S2-T2.2** | Definir esquemas SQL de hechos y dimensiones analíticas | `86e3bamz7` | `en pruebas` 🟡 | `Scripts/init_schema.sql`, `DuckDbSchemaInitializer.cs` |
+| **S2-T2.3** | Implementar importador masivo de archivos Parquet | `86e3bamzg` | `en pruebas` 🟡 | `Etl/ParquetImporter.cs`, `Queries/CellAggregationSql.cs` |
 
 ---
 
@@ -80,6 +80,6 @@
 | :--- | :--- | :--- | :---: | :---: | :--- |
 | **[S2-T4]** | Hexágonos 3D y Mapas de Calor dinámicos | Diego Arias | `86e3bamzx` | `desarrollando` 🟡 | Integrar `earthHexLayer.ts` con Globe.gl `hexBinPointsData` a 60 FPS. |
 | **[S2-T3]** | Algoritmo de Mann-Kendall y Sen's Slope | Johan Olaya | `86e3bamzh` | `to do` ⚪ | Estadístico S, varianza con empates, Z-score, Sen's slope y tests unitarios. |
-| **[S2-T2]** | Almacén Columnar DuckDB embebido | Fabriany Medina | `86e3bamz4` | `Review` 🟣 | DuckDB en C#, esquema analítico y consultas Parquet <50ms. Ver [[22-Almacen-Columnar-DuckDB]]. |
+| **[S2-T2]** | Almacén Columnar DuckDB embebido | Fabriany Medina | `86e3bamz4` | `en pruebas` 🟡 | DuckDB en C#, esquema analítico y consultas Parquet <50ms. Ver [[22-Almacen-Columnar-DuckDB]]. |
 | **[S2-T1]** | Endpoints REST y DTOs tipados (.NET 10) | Daniela Ramos | `86e3bamz0` | `to do` ⚪ | `TrendsController`, DTOs records, FluentValidation y ProblemDetails. |
 | **[S2-T5]** | Wireframes y maquetación de la tarjeta "Inspector de Detective" | Brayan Stid Cortés | `86e3ban07` | `Complete` 🟢 | Tarjeta Glassmorphism, Badge Mann-Kendall y gráfica SVG interactiva en producción. |
