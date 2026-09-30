@@ -56,3 +56,7 @@ TestResults/
 output/
 .vercel
 .env*
+
+# NASA EarthData raw download cache
+data/nasa/
+*.partial

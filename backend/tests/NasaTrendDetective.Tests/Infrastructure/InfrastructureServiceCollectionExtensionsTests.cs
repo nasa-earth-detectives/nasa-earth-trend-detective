@@ -2,6 +2,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using NasaTrendDetective.Infrastructure.Etl;
+using NasaTrendDetective.Infrastructure.ExternalServices;
 using NasaTrendDetective.Infrastructure.Extensions;
 using NasaTrendDetective.Infrastructure.Implements;
 using NasaTrendDetective.Infrastructure.Interfaces;
@@ -84,5 +85,22 @@ public class InfrastructureServiceCollectionExtensionsTests
         Assert.IsType<ParquetImporter>(provider.GetRequiredService<IParquetImporter>());
         Assert.Equal("custom/**/*.parquet", options.SourceGlob);
         Assert.Equal("data/nasa/normalized/*.parquet", new ParquetImportOptions().SourceGlob);
+    }
+
+    [Fact]
+    public void AddInfrastructure_RegistersNasaEarthDataClientAndTokenOverride()
+    {
+        using var provider = BuildProvider(new()
+        {
+            ["NasaEarthData:CacheDirectory"] = "custom/raw",
+            [NasaEarthDataOptions.TokenEnvironmentVariable] = "token-from-config"
+        });
+
+        var options = provider.GetRequiredService<IOptions<NasaEarthDataOptions>>().Value;
+
+        Assert.IsType<NasaEarthDataClient>(provider.GetRequiredService<INasaEarthDataClient>());
+        Assert.Equal("custom/raw", options.CacheDirectory);
+        Assert.Equal("token-from-config", options.Token);
+        Assert.DoesNotContain("token-from-config", options.ToString());
     }
 }
