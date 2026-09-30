@@ -24,9 +24,16 @@ RUN dotnet build "NasaTrendDetective.Api.csproj" -c Release -o /app/build
 FROM build AS publish
 RUN dotnet publish "NasaTrendDetective.Api.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
-# Stage 3: Lightweight Production Runtime
-FROM mcr.microsoft.com/dotnet/aspnet:10.0-alpine AS final
+# Stage 3: Production Runtime (Debian/glibc: la libreria nativa de DuckDB no soporta musl/Alpine)
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS final
 WORKDIR /app
+
+# wget para el healthcheck de docker-compose y directorio de datos DuckDB con permisos del usuario app
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends wget \
+    && rm -rf /var/lib/apt/lists/* \
+    && mkdir -p /app/data \
+    && chown app:app /app/data
 
 # Non-root user for security compliance
 USER app
@@ -34,6 +41,7 @@ USER app
 EXPOSE 5000
 ENV ASPNETCORE_URLS=http://+:5000
 ENV ASPNETCORE_ENVIRONMENT=Production
+ENV DUCKDB_DATABASE_PATH=/app/data/nasa_earth_trends.duckdb
 
 COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "NasaTrendDetective.Api.dll"]

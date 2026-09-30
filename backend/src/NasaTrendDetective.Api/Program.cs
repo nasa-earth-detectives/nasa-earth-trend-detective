@@ -3,8 +3,7 @@ using Microsoft.AspNetCore.RateLimiting;
 using NasaTrendDetective.Api.Middlewares;
 using NasaTrendDetective.Application.Implements;
 using NasaTrendDetective.Application.Interfaces;
-using NasaTrendDetective.Infrastructure.Implements;
-using NasaTrendDetective.Infrastructure.Interfaces;
+using NasaTrendDetective.Infrastructure.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,7 +17,7 @@ if (!string.IsNullOrWhiteSpace(renderPort))
 // 1. Inyección de Dependencias (Servicios y Repositorios)
 builder.Services.AddControllers();
 builder.Services.AddScoped<ITrendAnalysisService, TrendAnalysisService>();
-builder.Services.AddScoped<IDuckDbRepository, DuckDbRepository>();
+builder.Services.AddInfrastructure(builder.Configuration);
 
 // 2. Parámetros Dinámicos de Rate Limiting (Regla 6 y Regla 8)
 var globalLimit = builder.Configuration.GetValue<int>("RateLimiting:GlobalPermitLimit", 300);

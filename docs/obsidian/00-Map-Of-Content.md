@@ -36,6 +36,7 @@ Bienvenido a la bóveda central de documentación y diseño de ingeniería de nu
 
 ### 🔬 Rigor Científico & Datos NASA
 - [[05-Rigor-Cientifico-MannKendall]]: Fórmulas matemáticas del Test de Mann-Kendall, Pendiente de Sen y Motor de Tendencias Opuestas.
+- [[22-Almacen-Columnar-DuckDB]]: Almacén OLAP DuckDB embebido en .NET, esquema estrella, importador Parquet y agregación por celda <50ms [S2-T2].
 - Misiones Satelitales: GISTEMP v4 (Temperatura), MODIS (Vegetación NDVI), GRACE-FO (Masa de hielo y agua), OCO-2 (Dióxido de carbono).
 
 ### 🚀 Ciclo de Vida, Sprints & CI/CD
