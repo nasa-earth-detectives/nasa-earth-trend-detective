@@ -34,6 +34,7 @@ Bienvenido a la bóveda central de documentación y diseño de ingeniería de nu
 - [[16-Manual-de-Uso-Frontend-y-UI]]: Manual de uso, componentes espaciales (Glassmorphism), DetectiveCard y accesibilidad.
 - [[17-Time-Slider-Interactivo-y-Control-Multivelocidad]]: Time-Slider interactivo espacial (2000-2026), control multivelocidad (1x, 2x, 5x) e hitos históricos de la NASA.
 - [[28-Corrientes-Oceanicas-Gods-Eye-View-y-Capas-Vivas]]: Corrientes oceánicas 3D fluidas (NASA ECCO/OSCAR) y activación de controles interactivos en tiempo real.
+- [[29-Integracion-Skills-TypeUI-para-Diseno-y-UX]]: Habilidades TypeUI importadas (16 skills en .agents/skills) para diseño espacial, glassmorphism, bento y accesibilidad WCAG AA.
 
 ### 🔬 Rigor Científico & Datos NASA
 - [[05-Rigor-Cientifico-MannKendall]]: Fórmulas matemáticas del Test de Mann-Kendall, Pendiente de Sen y Motor de Tendencias Opuestas.
