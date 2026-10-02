@@ -44,6 +44,7 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddSingleton<IDuckDbRepository, DuckDbRepository>();
         services.AddSingleton<IDuckDbSchemaInitializer, DuckDbSchemaInitializer>();
         services.AddHostedService<DuckDbSchemaHostedService>();
+        services.AddScoped<NasaTrendDetective.Application.Interfaces.ITrendObservationRepository, TrendObservationRepository>();
         return services;
     }
 }

@@ -1,5 +1,6 @@
 using NasaTrendDetective.Application.DTOs;
 using NasaTrendDetective.Application.Interfaces;
+using NasaTrendDetective.Application.Statistics;
 using NasaTrendDetective.Domain.Entities;
 using NasaTrendDetective.Domain.Enums;
 
@@ -7,55 +8,84 @@ namespace NasaTrendDetective.Application.Implements;
 
 public class TrendAnalysisService : ITrendAnalysisService
 {
-    public Task<IEnumerable<TrendResultDto>> AnalyzeTrendsAsync(TrendQueryDto query)
-    {
-        // Cálculo demostrativo / baseline para Johan Olaya y equipo
-        var results = new List<TrendResultDto>
-        {
-            new TrendResultDto
-            {
-                Variable = query.Variable,
-                Latitude = query.Latitude ?? 4.7110, // Bogotá referencia
-                Longitude = query.Longitude ?? -74.0721,
-                StartYear = query.StartYear,
-                EndYear = query.EndYear,
-                SensSlope = 0.28, // +0.28°C por década
-                MannKendallZ = 2.45, // |Z| > 1.96 => p < 0.05
-                PValue = 0.014,
-                IsSignificant = true,
-                Direction = "Increasing"
-            }
-        };
+    private readonly ITrendObservationRepository _repository;
 
-        return Task.FromResult<IEnumerable<TrendResultDto>>(results);
+    public TrendAnalysisService(ITrendObservationRepository repository)
+    {
+        _repository = repository ?? throw new ArgumentNullException(nameof(repository));
     }
 
-    public Task<IEnumerable<TrendObservation>> GetObservationsByYearAsync(ClimateVariable variable, int year)
+    public async Task<TrendResultDto> AnalyzeTrendsAsync(TrendQueryDto query, CancellationToken cancellationToken = default)
     {
-        var sampleData = new List<TrendObservation>
+        ArgumentNullException.ThrowIfNull(query);
+
+        var observations = await _repository.GetAnnualSeriesAsync(
+            query.Variable,
+            query.StartYear,
+            query.EndYear,
+            query.Latitude,
+            query.Longitude,
+            toleranceDegrees: 1.0,
+            cancellationToken).ConfigureAwait(false);
+
+        var verdict = TrendStatisticsEngine.Analyze(observations);
+
+        return new TrendResultDto
         {
-            new TrendObservation
-            {
-                Variable = variable,
-                Latitude = 0.0,
-                Longitude = -70.0, // Amazonía
-                Value = 0.82,
-                Unit = "NDVI",
-                Anomaly = -0.04,
-                Timestamp = new DateTime(year, 6, 15, 0, 0, 0, DateTimeKind.Utc)
-            },
-            new TrendObservation
-            {
-                Variable = variable,
-                Latitude = 45.0,
-                Longitude = 10.0, // Europa
-                Value = 1.15,
-                Unit = "°C Anomaly",
-                Anomaly = 0.65,
-                Timestamp = new DateTime(year, 6, 15, 0, 0, 0, DateTimeKind.Utc)
-            }
+            Variable = query.Variable,
+            Latitude = query.Latitude ?? 0.0,
+            Longitude = query.Longitude ?? 0.0,
+            StartYear = query.StartYear,
+            EndYear = query.EndYear,
+            SensSlope = verdict.SensSlope,
+            SensSlopePerDecade = verdict.SensSlopePerDecade,
+            MannKendallZ = verdict.ZScore,
+            SStatistic = verdict.SStatistic,
+            VarianceS = verdict.VarianceS,
+            PValue = verdict.PValue,
+            IsSignificant = verdict.IsSignificant,
+            Direction = verdict.Direction.ToString(),
+            ConfidenceInterval95 = verdict.ConfidenceInterval95,
+            Observations = observations
+        };
+    }
+
+    public Task<TrendResultDto> AnalyzeCustomSeriesAsync(AnalyzeSeriesRequestDto request, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+
+        var verdict = TrendStatisticsEngine.Analyze(request.Observations);
+        var startYear = request.Observations.Min(o => o.Year);
+        var endYear = request.Observations.Max(o => o.Year);
+
+        var result = new TrendResultDto
+        {
+            Variable = request.Variable,
+            Latitude = request.Latitude ?? 0.0,
+            Longitude = request.Longitude ?? 0.0,
+            StartYear = startYear,
+            EndYear = endYear,
+            SensSlope = verdict.SensSlope,
+            SensSlopePerDecade = verdict.SensSlopePerDecade,
+            MannKendallZ = verdict.ZScore,
+            SStatistic = verdict.SStatistic,
+            VarianceS = verdict.VarianceS,
+            PValue = verdict.PValue,
+            IsSignificant = verdict.IsSignificant,
+            Direction = verdict.Direction.ToString(),
+            ConfidenceInterval95 = verdict.ConfidenceInterval95,
+            Observations = request.Observations
         };
 
-        return Task.FromResult<IEnumerable<TrendObservation>>(sampleData);
+        return Task.FromResult(result);
+    }
+
+    public async Task<IEnumerable<TrendObservation>> GetObservationsByYearAsync(
+        ClimateVariable variable,
+        int year,
+        CancellationToken cancellationToken = default)
+    {
+        return await _repository.GetObservationsByYearAsync(variable, year, cancellationToken)
+            .ConfigureAwait(false);
     }
 }

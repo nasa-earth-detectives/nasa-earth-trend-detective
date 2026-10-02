@@ -33,8 +33,8 @@
 
 | Código | Tarea Principal | Responsable | ID ClickUp | Estado | Especificación Técnica Clave |
 | :--- | :--- | :--- | :---: | :---: | :--- |
-| **[S3-T1]** | Seguridad de API, Rate Limiting y Caché | July (Daniela Ramos) | `86e3ban0t` | `to do` ⚪ | Rate Limiting por IP (`AspNetCoreRateLimit`), IMemoryCache distribuido y Middleware anti-bots / User-Agent perimetral. |
+| **[S3-T1]** | Seguridad de API, Rate Limiting y Caché | July (Daniela Ramos) | `86e3ban0t` | `Complete` 🟢 | Rate Limiting dinámico particionado por IP, IMemoryCache distribuido (<1ms hit) y Middleware anti-bots / Honeypot perimetral. |
 | **[S3-T2]** | Optimización de Consultas DuckDB <50ms | Fabriany Medina | `86e3ban11` | `to do` ⚪ | Vistas analíticas pre-agregadas, índices por año/geolocalización y benchmark con latencia <50ms. |
-| **[S3-T3]** | Motor de Tendencias Opuestas (Opposing Trends) | Johan Olaya | `86e3ban18` | `to do` ⚪ | Detección de divergencias regionales (+Z vs -Z), validación de casos de estudio NASA y servicio C# desacoplado. |
+| **[S3-T3]** | Motor de Tendencias Opuestas (Opposing Trends) | Johan Olaya | `86e3ban18` | `Complete` 🟢 | Detección de divergencias regionales (+Z vs -Z), 3 casos de estudio NASA (Ártico/Atlántico, Amazonas/China, Groenlandia/Antártida) y servicio `IOpposingTrendsService`. |
 | **[S3-T4]** | Anillos Pulsantes (Ripples) y Arcos 3D | Diego Arias | `86e3ban1c` | `to do` ⚪ | Ripples en hotspots críticos, arcos parabólicos con Three.js conectando teleconexiones climáticas y 60 FPS estables. |
 | **[S3-T5]** | Time-Slider Interactivo (2000-2026) | Brayan Stid Cortés | `86e3ban1d` | `Complete` 🟢 | Slider 2000-2026 con marcas de hitos, selector 1x/2x/5x y reactividad global con el visor 3D. |
