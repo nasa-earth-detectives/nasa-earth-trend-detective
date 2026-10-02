@@ -22,6 +22,11 @@ export interface GlobeSceneApi {
   setStarsVisible(visible: boolean): void;
   setGridVisible(visible: boolean): void;
   setAtmosphereVisible(visible: boolean): void;
+  setTeleconnectionArcsVisible?(visible: boolean): void;
+  setRadarRipplesVisible?(visible: boolean): void;
+  setSatellitesVisible?(visible: boolean): void;
+  /** Maniobra cinemática "Ojo de Dios" hacia un punto específico de observación. */
+  flyToGodsEye?(lat: number, lng: number, altitude?: number, durationMs?: number): void;
   setLocationSelectHandler(handler: ((location: GlobeLocation) => void) | null): void;
   inspectCenter(): void;
   /** Devuelve la cámara al encuadre inicial con una transición suave. */
@@ -36,4 +41,7 @@ export interface ScenePreferences {
   starsVisible: boolean;
   gridVisible: boolean;
   atmosphereVisible: boolean;
+  teleconnectionArcsVisible?: boolean;
+  radarRipplesVisible?: boolean;
+  satellitesVisible?: boolean;
 }

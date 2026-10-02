@@ -3,8 +3,7 @@ using Microsoft.AspNetCore.RateLimiting;
 using NasaTrendDetective.Api.Middlewares;
 using NasaTrendDetective.Application.Implements;
 using NasaTrendDetective.Application.Interfaces;
-using NasaTrendDetective.Infrastructure.Implements;
-using NasaTrendDetective.Infrastructure.Interfaces;
+using NasaTrendDetective.Infrastructure.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,10 +14,12 @@ if (!string.IsNullOrWhiteSpace(renderPort))
     builder.WebHost.UseUrls($"http://*:{renderPort}");
 }
 
-// 1. Inyección de Dependencias (Servicios y Repositorios)
+// 1. Inyección de Dependencias (Servicios, Repositorios y Caché)
 builder.Services.AddControllers();
+builder.Services.AddMemoryCache();
 builder.Services.AddScoped<ITrendAnalysisService, TrendAnalysisService>();
-builder.Services.AddScoped<IDuckDbRepository, DuckDbRepository>();
+builder.Services.AddScoped<IOpposingTrendsService, OpposingTrendsService>();
+builder.Services.AddInfrastructure(builder.Configuration);
 
 // 2. Parámetros Dinámicos de Rate Limiting (Regla 6 y Regla 8)
 var globalLimit = builder.Configuration.GetValue<int>("RateLimiting:GlobalPermitLimit", 300);
@@ -75,6 +76,7 @@ builder.Services.AddCors(options =>
 var app = builder.Build();
 
 // 4. Pipeline HTTP y Middlewares
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseCors("AllowFrontend");
 app.UseMiddleware<BotDetectionMiddleware>();
 app.UseRateLimiter();
@@ -82,3 +84,6 @@ app.UseRateLimiter();
 app.MapControllers();
 
 app.Run();
+
+// Requerido para pruebas de integración con WebApplicationFactory<Program>
+public partial class Program { }

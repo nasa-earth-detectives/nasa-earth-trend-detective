@@ -5,4 +5,7 @@
     <Project Path="src/NasaTrendDetective.Domain/NasaTrendDetective.Domain.csproj" />
     <Project Path="src/NasaTrendDetective.Infrastructure/NasaTrendDetective.Infrastructure.csproj" />
   </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/NasaTrendDetective.Tests/NasaTrendDetective.Tests.csproj" />
+  </Folder>
 </Solution>
