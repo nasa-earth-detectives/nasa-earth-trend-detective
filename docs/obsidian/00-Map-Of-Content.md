@@ -36,6 +36,7 @@ Bienvenido a la bóveda central de documentación y diseño de ingeniería de nu
 
 ### 🔬 Rigor Científico & Datos NASA
 - [[05-Rigor-Cientifico-MannKendall]]: Fórmulas matemáticas del Test de Mann-Kendall, Pendiente de Sen y Motor de Tendencias Opuestas.
+- [[24-Implementacion-Motor-Cientifico-y-Api]]: Implementación de C# .NET 10 del motor estadístico, motor de tendencias opuestas, endpoints REST, caching y pruebas [S2-T1, S2-T3, S3-T1, S3-T3, S4-T1, S4-T3].
 - [[23-Pipeline-ETL-Datasets-NASA]]: Cliente NASA EarthData, normalizador de grilla WGS84, limpieza e imputación y exportación a Parquet SNAPPY [S1-T2].
 - [[22-Almacen-Columnar-DuckDB]]: Almacén OLAP DuckDB embebido en .NET, esquema estrella, importador Parquet y agregación por celda <50ms [S2-T2].
 - Misiones Satelitales: GISTEMP v4 (Temperatura), MODIS (Vegetación NDVI), GRACE-FO (Masa de hielo y agua), OCO-2 (Dióxido de carbono).

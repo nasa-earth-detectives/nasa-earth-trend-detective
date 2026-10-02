@@ -79,7 +79,7 @@
 | Código | Tarea Principal | Responsable | ID ClickUp | Estado | Especificación Técnica |
 | :--- | :--- | :--- | :---: | :---: | :--- |
 | **[S2-T4]** | Hexágonos 3D y Mapas de Calor dinámicos | Diego Arias | `86e3bamzx` | `desarrollando` 🟡 | Integrar `earthHexLayer.ts` con Globe.gl `hexBinPointsData` a 60 FPS. |
-| **[S2-T3]** | Algoritmo de Mann-Kendall y Sen's Slope | Johan Olaya | `86e3bamzh` | `to do` ⚪ | Estadístico S, varianza con empates, Z-score, Sen's slope y tests unitarios. |
+| **[S2-T3]** | Algoritmo de Mann-Kendall y Sen's Slope | Johan Olaya | `86e3bamzh` | `Complete` 🟢 | Estadístico S, varianza con empates, Z-score, Sen's slope e intervalos al 95%. Implementado y verificado con 125 tests. |
 | **[S2-T2]** | Almacén Columnar DuckDB embebido | Fabriany Medina | `86e3bamz4` | `en qa` 🟣 | DuckDB en C#, esquema analítico y consultas Parquet <50ms. Promovido a QA. Ver [[22-Almacen-Columnar-DuckDB]]. |
-| **[S2-T1]** | Endpoints REST y DTOs tipados (.NET 10) | Daniela Ramos | `86e3bamz0` | `to do` ⚪ | `TrendsController`, DTOs records, FluentValidation y ProblemDetails. |
+| **[S2-T1]** | Endpoints REST y DTOs tipados (.NET 10) | Daniela Ramos | `86e3bamz0` | `Complete` 🟢 | `TrendsController`, DTOs con estadísticas completas, IMemoryCache, ProblemDetails RFC 7807 y suite de integración. |
 | **[S2-T5]** | Wireframes y maquetación de la tarjeta "Inspector de Detective" | Brayan Stid Cortés | `86e3ban07` | `Complete` 🟢 | Tarjeta Glassmorphism, Badge Mann-Kendall y gráfica SVG interactiva en producción. |
