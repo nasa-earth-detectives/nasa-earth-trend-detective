@@ -34,7 +34,7 @@
 | Código | Tarea Principal | Responsable | ID ClickUp | Estado | Especificación Técnica Clave |
 | :--- | :--- | :--- | :---: | :---: | :--- |
 | **[S3-T1]** | Seguridad de API, Rate Limiting y Caché | July (Daniela Ramos) | `86e3ban0t` | `Complete` 🟢 | Rate Limiting dinámico particionado por IP, IMemoryCache distribuido (<1ms hit) y Middleware anti-bots / Honeypot perimetral. |
-| **[S3-T2]** | Optimización de Consultas DuckDB <50ms | Fabriany Medina | `86e3ban11` | `to do` ⚪ | Vistas analíticas pre-agregadas, índices por año/geolocalización y benchmark con latencia <50ms. |
+| **[S3-T2]** | Optimización de Consultas DuckDB <50ms | Fabriany Medina | `86e3ban11` | `Complete` 🟢 | Vistas analíticas pre-agregadas, índices por año/geolocalización y benchmark con latencia <50ms. |
 | **[S3-T3]** | Motor de Tendencias Opuestas (Opposing Trends) | Johan Olaya | `86e3ban18` | `Complete` 🟢 | Detección de divergencias regionales (+Z vs -Z), 3 casos de estudio NASA (Ártico/Atlántico, Amazonas/China, Groenlandia/Antártida) y servicio `IOpposingTrendsService`. |
 | **[S3-T4]** | Anillos Pulsantes (Ripples) y Arcos 3D | Diego Arias | `86e3ban1c` | `Complete` 🟢 | Ripples en hotspots críticos, arcos parabólicos con Three.js conectando teleconexiones climáticas, constelación de satélites NASA en órbita y 60 FPS estables. |
 | **[S3-T5]** | Time-Slider Interactivo (2000-2026) | Brayan Stid Cortés | `86e3ban1d` | `Complete` 🟢 | Slider 2000-2026 con marcas de hitos, selector 1x/2x/5x y reactividad global con el visor 3D. |
