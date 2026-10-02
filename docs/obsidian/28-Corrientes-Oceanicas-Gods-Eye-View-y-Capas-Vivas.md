@@ -49,11 +49,15 @@ Se eliminaron los estados pasivos *"Pronto"* en el catálogo de observación, in
 
 ## 🧩 3. Cumplimiento de Reglas de Arquitectura
 - **Regla 4 (Git 3 Ramas):** Implementación en rama feature `feat/s4-ocean-flow-live-layers`, mergeada hacia `development`, promovida a `qa` y finalmente integrada en `production` / `main`.
-- **Regla 5 (Anti God-Class / Modularity):**
-  - `earthOceanFlow.ts`: 144 líneas (< 150 líneas).
+- **Regla 5 (Anti God-Class / Modularity & Linter CI):**
+  - `earthOceanFlow.ts`: 42 líneas (< 150 líneas).
+  - `oceanCurrentsData.ts`: 156 líneas (< 200 líneas).
+  - `globeApiBuilder.ts`: 69 líneas (< 150 líneas).
+  - `useGlobeScene.ts`: 188 líneas (< 200 líneas, cumpliendo estrictamente el check de CI `< 200 lines`).
   - `LiveSystemSwitches.tsx`: 56 líneas (< 150 líneas).
   - `earthLiveSystem.ts`: 40 líneas (< 150 líneas).
   - `useSceneControls.ts`: 108 líneas (< 150 líneas).
   - `LayerPanel.tsx`: 170 líneas (< 200 líneas).
 - **Regla 6 (Cero Hardcoding):** Estados y preferencias gestionados dinámicamente mediante `ScenePreferences` y referencias de estado reactivas en React 19.
 - **Regla 9 (Documentación Viva):** Registro exhaustivo en Obsidian y vinculación con la tarea ClickUp `[S4-T5]`.
+

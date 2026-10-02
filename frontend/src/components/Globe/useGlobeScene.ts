@@ -8,6 +8,7 @@ import { createSurfaceSelection } from './surfaceSelection';
 import { createEarthSurface } from './earthSurface';
 import { createEarthObservationLayers } from './earthObservationLayers';
 import { createEarthLiveSystem } from './earthLiveSystem';
+import { buildGlobeSceneApi } from './globeApiBuilder';
 import type { EarthSurfaceStatus } from './earthConfig';
 import {
   createFocusOffsetController,
@@ -145,42 +146,21 @@ export function useGlobeScene(
     resizeObserver.observe(container);
 
     if (apiRef) {
-      apiRef.current = {
-        setObservationData: analysis.updateData,
-        setObservationMode: analysis.setMode,
-        setObservationSelection: analysis.select,
-        setObservationSelectHandler: analysis.setOnObservationSelect,
-        setAutoRotateEnabled: (enabled) => {
-          autoRotatePreferred = enabled;
-          syncAutoRotate();
-        },
-        setStarsVisible: (visible) => {
-          starLayers.forEach((layer) => {
-            layer.visible = visible;
-          });
-        },
-        setGridVisible: (visible) => { globe.showGraticules(visible); },
-        setAtmosphereVisible: surface.setAtmosphereVisible,
-        setTeleconnectionArcsVisible: liveSystem.setArcsVisible,
-        setRadarRipplesVisible: liveSystem.setRipplesVisible,
-        setSatellitesVisible: liveSystem.setSatellitesVisible,
-        setOceanFlowVisible: liveSystem.setOceanFlowVisible,
-        flyToGodsEye: (lat, lng, altitude = 0.28, durationMs = 1600) => {
-          cameraOwnedByUser = true;
-          globe.pointOfView({ lat, lng, altitude }, durationMs);
-        },
+      apiRef.current = buildGlobeSceneApi({
+        analysis,
+        surface,
+        liveSystem,
+        globe,
+        starLayers,
+        focusOffset,
+        setAutoRotatePreferred: (val) => { autoRotatePreferred = val; },
+        syncAutoRotate,
+        setCameraOwned: (val) => { cameraOwnedByUser = val; },
+        moveToInitialPov,
+        reducedMotion,
+        getLocationSelectHandler: () => locationSelectHandler,
         setLocationSelectHandler: (handler) => { locationSelectHandler = handler; },
-        inspectCenter: () => {
-          analysis.select(null);
-          const { lat, lng } = globe.pointOfView();
-          locationSelectHandler?.({ lat, lng });
-        },
-        resetCamera: () => {
-          cameraOwnedByUser = false;
-          moveToInitialPov(reducedMotion.matches ? 0 : GLOBE_CONFIG.resetCameraMs);
-        },
-        setFocusOffset: (offsetPx, verticalOffsetPx) => focusOffset.set(offsetPx, verticalOffsetPx),
-      };
+      });
     }
 
     return () => {
