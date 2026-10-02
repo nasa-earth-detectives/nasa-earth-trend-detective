@@ -6,6 +6,7 @@ import type { LayerTab } from '../../hooks/useImmersiveUi';
 import { VariableLayerList } from './VariableLayerList';
 import { ViewOptionsList } from './ViewOptionsList';
 import { StatusRowList } from './StatusRowList';
+import { LiveSystemSwitches } from './LiveSystemSwitches';
 import { InstrumentSwitch } from '../UI/InstrumentSwitch';
 import type { ObservationCoverage, ObservationLayerMode, ObservationSource } from '../../types/observationLayer.types';
 import '../../styles/layers.css';
@@ -22,6 +23,10 @@ interface LayerPanelProps {
   starsVisible: boolean;
   gridVisible: boolean;
   atmosphereVisible: boolean;
+  oceanFlowVisible?: boolean;
+  teleconnectionsVisible?: boolean;
+  radarRipplesVisible?: boolean;
+  satellitesVisible?: boolean;
   observationMode: ObservationLayerMode;
   onObservationModeChange: (value: ObservationLayerMode) => void;
   coverage: ObservationCoverage;
@@ -31,6 +36,10 @@ interface LayerPanelProps {
   onStarsChange: (value: boolean) => void;
   onGridChange: (value: boolean) => void;
   onAtmosphereChange: (value: boolean) => void;
+  onOceanFlowChange?: (value: boolean) => void;
+  onTeleconnectionsChange?: (value: boolean) => void;
+  onRadarRipplesChange?: (value: boolean) => void;
+  onSatellitesChange?: (value: boolean) => void;
 }
 
 const TABS: { id: LayerTab; label: string }[] = [
@@ -41,9 +50,13 @@ const TABS: { id: LayerTab; label: string }[] = [
 /** El instrumento abre junto a la navegación; nunca altera la escena WebGL. */
 export function LayerPanel({
   id, open, onClose, activeTab, onTabChange, selectedVariable, onVariableSelect,
-  autoRotate, starsVisible, gridVisible, atmosphereVisible, observationMode, onObservationModeChange,
+  autoRotate, starsVisible, gridVisible, atmosphereVisible,
+  oceanFlowVisible = true, teleconnectionsVisible = true, radarRipplesVisible = true, satellitesVisible = true,
+  observationMode, onObservationModeChange,
   coverage, onCoverageChange, source,
   onAutoRotateChange, onStarsChange, onGridChange, onAtmosphereChange,
+  onOceanFlowChange = () => {}, onTeleconnectionsChange = () => {},
+  onRadarRipplesChange = () => {}, onSatellitesChange = () => {},
 }: LayerPanelProps) {
   const panelRef = useRef<HTMLElement>(null);
   const triggerRef = useRef<HTMLElement | null>(null);
@@ -123,9 +136,24 @@ export function LayerPanel({
                 checked={coverage === 'global'} onChange={enabled => onCoverageChange(enabled ? 'global' : 'land')} />}
           </div>
           <VariableLayerList selected={selectedVariable} onSelect={onVariableSelect} />
-          <details className="instrument-future">
-            <summary className="focus-ring">Capas en desarrollo <span aria-hidden="true">+</span></summary>
-            <StatusRowList title="Análisis espacial" rows={SCIENTIFIC_OVERLAYS} />
+
+          <div className="instrument-live-section" style={{ marginTop: '1.25rem', paddingTop: '1rem', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+            <h3 className="instrument-kicker" style={{ marginBottom: '0.6rem' }}>Sistemas Vivos & Dinámicas 3D</h3>
+            <LiveSystemSwitches
+              oceanFlowVisible={oceanFlowVisible}
+              teleconnectionsVisible={teleconnectionsVisible}
+              radarRipplesVisible={radarRipplesVisible}
+              satellitesVisible={satellitesVisible}
+              onOceanFlowChange={onOceanFlowChange}
+              onTeleconnectionsChange={onTeleconnectionsChange}
+              onRadarRipplesChange={onRadarRipplesChange}
+              onSatellitesChange={onSatellitesChange}
+            />
+          </div>
+
+          <details className="instrument-future" style={{ marginTop: '0.85rem' }}>
+            <summary className="focus-ring">Matriz de capacidades analíticas <span aria-hidden="true">+</span></summary>
+            <StatusRowList title="Análisis espacial y capas" rows={SCIENTIFIC_OVERLAYS} />
           </details>
         </div>
         <div id={id + '-content-view'} role="tabpanel" aria-labelledby={id + '-tab-view'}
