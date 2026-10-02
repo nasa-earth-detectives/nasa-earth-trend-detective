@@ -30,4 +30,8 @@ jobs:
           BRANCH_NAME="${GITHUB_REF_NAME}"
           echo "Sincronizando rama '${BRANCH_NAME}' hacia brayancortes22/nasa-earth-trend-detective..."
           git push "https://${PERSONAL_TOKEN}@github.com/brayancortes22/nasa-earth-trend-detective.git" "HEAD:${BRANCH_NAME}" --force
+          if [ "${BRANCH_NAME}" = "production" ]; then
+            echo "Sincronizando alias 'main' para disparar despliegue de produccion en Vercel..."
+            git push "https://${PERSONAL_TOKEN}@github.com/brayancortes22/nasa-earth-trend-detective.git" "HEAD:main" --force
+          fi
           echo "✅ Sincronización completada exitosamente. Vercel desplegará automáticamente la rama '${BRANCH_NAME}'."
