@@ -32,8 +32,8 @@
 
 | Código | Tarea Principal | Responsable | ID ClickUp | Estado | Especificación Técnica Clave |
 | :--- | :--- | :--- | :---: | :---: | :--- |
-| **[S4-T1]** | Pruebas de integración de API, Swagger completo | July (Daniela Ramos) | `86e3ban22` | `to do` ⚪ | Pruebas end-to-end con `WebApplicationFactory`, validación de códigos de error y documentación interactiva. |
+| **[S4-T1]** | Pruebas de integración de API, Swagger completo | July (Daniela Ramos) | `86e3ban22` | `Complete` 🟢 | Pruebas end-to-end con `WebApplicationFactory`, validación de códigos HTTP (200, 400 ProblemDetails, 403 Bot Shield, 429 Rate Limit). |
 | **[S4-T2]** | Seeders DuckDB para demo offline | Fabriany Medina | `86e3ban2a` | `to do` ⚪ | Base DuckDB autocontenida y optimizada con scripts de arranque automático sin necesidad de conexión externa. |
-| **[S4-T3]** | Validación estadística cruzada contra informes NASA | Johan Olaya | `86e3ban2e` | `to do` ⚪ | Comparación de pendientes del Ártico (GISTEMP) y pérdida de masa en Groenlandia (GRACE-FO) con anexo para el jurado. |
+| **[S4-T3]** | Validación estadística cruzada contra informes NASA | Johan Olaya | `86e3ban2e` | `Complete` 🟢 | Validación cruzada con GISTEMP Ártico (+0.70°C/década) y masa de Groenlandia GRACE-FO (-262 Gt/año) con convergencia estadística. |
 | **[S4-T4]** | Optimización WebGL para 60 FPS estables | Diego Arias | `86e3ban2k` | `to do` ⚪ | Liberación de buffers Three.js (`dispose()`), prevención de fugas de memoria y benchmark en navegadores. |
 | **[S4-T5]** | Pitch, Video Demo y Postulación Oficial NASA | Brayan Stid Cortés | `86e3ban2t` | `to do` ⚪ | Storytelling, video demostrativo de impacto y validación de despliegues en vivo. |

@@ -36,6 +36,7 @@ Bienvenido a la bóveda central de documentación y diseño de ingeniería de nu
 
 ### 🔬 Rigor Científico & Datos NASA
 - [[05-Rigor-Cientifico-MannKendall]]: Fórmulas matemáticas del Test de Mann-Kendall, Pendiente de Sen y Motor de Tendencias Opuestas.
+- [[24-Implementacion-Motor-Cientifico-y-Api]]: Implementación de C# .NET 10 del motor estadístico, motor de tendencias opuestas, endpoints REST, caching y pruebas [S2-T1, S2-T3, S3-T1, S3-T3, S4-T1, S4-T3].
 - [[23-Pipeline-ETL-Datasets-NASA]]: Cliente NASA EarthData, normalizador de grilla WGS84, limpieza e imputación y exportación a Parquet SNAPPY [S1-T2].
 - [[22-Almacen-Columnar-DuckDB]]: Almacén OLAP DuckDB embebido en .NET, esquema estrella, importador Parquet y agregación por celda <50ms [S2-T2].
 - Misiones Satelitales: GISTEMP v4 (Temperatura), MODIS (Vegetación NDVI), GRACE-FO (Masa de hielo y agua), OCO-2 (Dióxido de carbono).
@@ -44,6 +45,7 @@ Bienvenido a la bóveda central de documentación y diseño de ingeniería de nu
 - [[04-Sprints-y-Roadmap]]: Desglose detallado de los 4 Sprints, 20 tareas técnicas y 55 subtareas atómicas vinculadas a ClickUp.
 - [[06-Pipeline-CI-CD]]: Automatización de compilación, linters y despliegue a QA, con freno de seguridad antes de producción.
 - [[14-Agente-Revisor-PR-GitHub-Actions]]: Agente automatizado con Google Gemini para auditoría continua de Pull Requests en GitHub Actions.
+- [[25-Gobernanza-y-Revision-con-GitHub-Copilot]]: Gobernanza, gestión y revisión de PRs con GitHub Copilot y estrategia anti-saturación de cuota mensual.
 - [[07-Estandares-Ingenieria]]: Directivas de Clean Architecture, clases <150 líneas, tipado estricto y seguridad contra bots.
 - [[10-Despliegue-Cloud-Vercel-Render]]: Arquitectura serverless en Vercel Edge y contenedor .NET 10 en Render Cloud.
 - [[11-Trazabilidad-ClickUp-Sprint-1]]: Trazabilidad en vivo de infraestructura [S1-T0] y Design System espacial [S1-T5].

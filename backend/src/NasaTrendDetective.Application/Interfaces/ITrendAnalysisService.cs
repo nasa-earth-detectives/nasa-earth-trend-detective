@@ -6,6 +6,7 @@ namespace NasaTrendDetective.Application.Interfaces;
 
 public interface ITrendAnalysisService
 {
-    Task<IEnumerable<TrendResultDto>> AnalyzeTrendsAsync(TrendQueryDto query);
-    Task<IEnumerable<TrendObservation>> GetObservationsByYearAsync(ClimateVariable variable, int year);
+    Task<TrendResultDto> AnalyzeTrendsAsync(TrendQueryDto query, CancellationToken cancellationToken = default);
+    Task<TrendResultDto> AnalyzeCustomSeriesAsync(AnalyzeSeriesRequestDto request, CancellationToken cancellationToken = default);
+    Task<IEnumerable<TrendObservation>> GetObservationsByYearAsync(ClimateVariable variable, int year, CancellationToken cancellationToken = default);
 }
