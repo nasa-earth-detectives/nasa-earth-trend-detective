@@ -14,6 +14,7 @@ export function createEarthOceanFlow(globe: GlobeInstance) {
     globe
       .pathsData(visible ? activePaths : [])
       .pathPoints((d: object) => (d as OceanCurrentPath).coords)
+      .pathPointAlt(0.0035)
       .pathColor((d: object) => (d as OceanCurrentPath).color)
       .pathStroke((d: object) => (d as OceanCurrentPath).stroke)
       .pathDashLength((d: object) => (d as OceanCurrentPath).dashLength)
