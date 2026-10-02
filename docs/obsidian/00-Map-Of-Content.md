@@ -52,6 +52,7 @@ Bienvenido a la bóveda central de documentación y diseño de ingeniería de nu
 - [[15-Trazabilidad-ClickUp-Sprint-2]]: Trazabilidad de Sprint 2, panel de Inspector de Detective [S2-T5], Mann-Kendall y DuckDB.
 - [[18-Trazabilidad-ClickUp-Sprint-3]]: Trazabilidad de Sprint 3, Time-Slider [S3-T5], Rate Limiting, optimización DuckDB y tendencias opuestas.
 - [[19-Trazabilidad-ClickUp-Sprint-4]]: Trazabilidad de Sprint 4, video pitch [S4-T5], validación científica y cierre NASA.
+- [[27-Guia-Produccion-Video-Pitch-HyperFrames]]: Guía de producción rápida del video pitch de 30 segundos con HyperFrames (HTML/CSS/Three.js a MP4).
 - [[20-Auditoria-React-Doctor]]: Auditoría estática de arquitectura y rendimiento React con Oxlint en Pull Requests.
 - [[21-Release-v1.1.0-Produccion-NASA]]: Registro oficial del Release v1.1.0 a producción y enlaces en vivo.
 - [[26-Release-v1.2.0-Produccion-NASA]]: Registro oficial del Release v1.2.0 a producción (Motor Científico, 3D Satelital y Copilot).
