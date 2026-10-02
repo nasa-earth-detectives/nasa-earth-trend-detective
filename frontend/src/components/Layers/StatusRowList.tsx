@@ -13,7 +13,9 @@ export function StatusRowList({ title, rows }: StatusRowListProps) {
         {rows.map((row) => (
           <li key={row.id}>
             <span>{row.name}</span>
-            <span>{row.active ? row.status : 'Pronto'}</span>
+            <span style={{ color: row.active ? '#34d399' : 'rgba(255,255,255,0.45)', fontWeight: row.active ? 600 : 400 }}>
+              {row.active ? row.status : 'Pronto'}
+            </span>
           </li>
         ))}
       </ul>

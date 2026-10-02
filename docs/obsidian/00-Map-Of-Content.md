@@ -33,6 +33,7 @@ Bienvenido a la bóveda central de documentación y diseño de ingeniería de nu
 - [[09-Gobernanza-GitHub-Org-y-Projects]]: Organización de GitHub, CODEOWNERS, rulesets de ramas y tablero Kanban en Projects.
 - [[16-Manual-de-Uso-Frontend-y-UI]]: Manual de uso, componentes espaciales (Glassmorphism), DetectiveCard y accesibilidad.
 - [[17-Time-Slider-Interactivo-y-Control-Multivelocidad]]: Time-Slider interactivo espacial (2000-2026), control multivelocidad (1x, 2x, 5x) e hitos históricos de la NASA.
+- [[28-Corrientes-Oceanicas-Gods-Eye-View-y-Capas-Vivas]]: Corrientes oceánicas 3D fluidas (NASA ECCO/OSCAR) y activación de controles interactivos en tiempo real.
 
 ### 🔬 Rigor Científico & Datos NASA
 - [[05-Rigor-Cientifico-MannKendall]]: Fórmulas matemáticas del Test de Mann-Kendall, Pendiente de Sen y Motor de Tendencias Opuestas.

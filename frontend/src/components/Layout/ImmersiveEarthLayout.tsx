@@ -146,10 +146,18 @@ export function ImmersiveEarthLayout({ observations, loading, observationError, 
         selectedVariable={filter.variable} onVariableSelect={onVariableChange}
         autoRotate={scene.preferences.autoRotate} starsVisible={scene.preferences.starsVisible}
         gridVisible={scene.preferences.gridVisible} atmosphereVisible={scene.preferences.atmosphereVisible}
+        oceanFlowVisible={scene.preferences.oceanFlowVisible}
+        teleconnectionsVisible={scene.preferences.teleconnectionArcsVisible}
+        radarRipplesVisible={scene.preferences.radarRipplesVisible}
+        satellitesVisible={scene.preferences.satellitesVisible}
         observationMode={observationMode} onObservationModeChange={setObservationMode}
         coverage={coverage} onCoverageChange={setCoverage} source={source}
         onAutoRotateChange={scene.setAutoRotate} onStarsChange={scene.setStarsVisible}
-        onGridChange={scene.setGridVisible} onAtmosphereChange={scene.setAtmosphereVisible} />
+        onGridChange={scene.setGridVisible} onAtmosphereChange={scene.setAtmosphereVisible}
+        onOceanFlowChange={scene.setOceanFlowVisible}
+        onTeleconnectionsChange={scene.setTeleconnectionsVisible}
+        onRadarRipplesChange={scene.setRadarRipplesVisible}
+        onSatellitesChange={scene.setSatellitesVisible} />
       <DetectiveCard
         open={ui.mode === 'inspection'}
         location={ui.location}

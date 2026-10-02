@@ -88,6 +88,13 @@ export function useGlobeScene(
       });
     }
 
+    if (initialPreferences) {
+      if (initialPreferences.teleconnectionArcsVisible !== undefined) liveSystem.setArcsVisible(initialPreferences.teleconnectionArcsVisible);
+      if (initialPreferences.radarRipplesVisible !== undefined) liveSystem.setRipplesVisible(initialPreferences.radarRipplesVisible);
+      if (initialPreferences.satellitesVisible !== undefined) liveSystem.setSatellitesVisible(initialPreferences.satellitesVisible);
+      if (initialPreferences.oceanFlowVisible !== undefined) liveSystem.setOceanFlowVisible(initialPreferences.oceanFlowVisible);
+    }
+
     // ─── Rotación en reposo ──────────────────────────────────────────────
     let autoRotatePreferred = initialPreferences ? initialPreferences.autoRotate : true;
     let interacting = false;
@@ -157,6 +164,7 @@ export function useGlobeScene(
         setTeleconnectionArcsVisible: liveSystem.setArcsVisible,
         setRadarRipplesVisible: liveSystem.setRipplesVisible,
         setSatellitesVisible: liveSystem.setSatellitesVisible,
+        setOceanFlowVisible: liveSystem.setOceanFlowVisible,
         flyToGodsEye: (lat, lng, altitude = 0.28, durationMs = 1600) => {
           cameraOwnedByUser = true;
           globe.pointOfView({ lat, lng, altitude }, durationMs);
