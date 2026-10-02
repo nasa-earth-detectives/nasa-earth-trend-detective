@@ -23,7 +23,7 @@
 | Código | Subtarea | ID ClickUp | Asignado | Estado | Prioridad | Entregables Clave |
 | :--- | :--- | :---: | :--- | :---: | :---: | :--- |
 | **S4-T5.1** | Elaborar guion narrativo y Storytelling del proyecto NASA | `86e3ban2u` | Brayan | `to do` ⚪ | Normal (3) | Guion de 240 palabras (30s) estructurado para el jurado internacional NASA. |
-| **S4-T5.2** | Grabar y editar video demo interactivo de 30 segundos | `86e3ban2w` | Brayan | `to do` ⚪ | Normal (3) | Captura a 1080p 60 FPS con rotación 3D, navegación temporal y tarjeta de detective. |
+| **S4-T5.2** | Grabar y editar video demo interactivo de 30 segundos | `86e3ban2w` | Brayan | `to do` ⚪ | Normal (3) | Captura a 1080p 60 FPS con rotación 3D, navegación temporal y tarjeta de detective. Opción de renderizado rápido con HyperFrames documentada en [[27-Guia-Produccion-Video-Pitch-HyperFrames]]. |
 | **S4-T5.3** | Configurar despliegue en producción y preparar postulación oficial | `86e3ban2y` | Brayan | `to do` ⚪ | Urgente (1) | Formulario oficial NASA Space Apps 2026 con URL pública de Vercel y repositorio. |
 
 ---
