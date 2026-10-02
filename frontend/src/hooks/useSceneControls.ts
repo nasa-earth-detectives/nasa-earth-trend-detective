@@ -13,49 +13,101 @@ const DEFAULT_PREFERENCES: ScenePreferences = {
   starsVisible: true,
   gridVisible: false,
   atmosphereVisible: true,
+  teleconnectionArcsVisible: true,
+  radarRipplesVisible: true,
+  satellitesVisible: true,
+  oceanFlowVisible: true,
 };
 
 export function useSceneControls(sceneApiRef: RefObject<GlobeSceneApi | null>) {
   const [preferences, setPreferences] = useState<ScenePreferences>(DEFAULT_PREFERENCES);
   const preferencesRef = useRef<ScenePreferences>(DEFAULT_PREFERENCES);
 
+  const updatePreference = useCallback(
+    <K extends keyof ScenePreferences>(key: K, value: ScenePreferences[K]) => {
+      preferencesRef.current = { ...preferencesRef.current, [key]: value };
+      setPreferences(preferencesRef.current);
+    },
+    [],
+  );
+
   const setAutoRotate = useCallback(
     (value: boolean) => {
-      preferencesRef.current = { ...preferencesRef.current, autoRotate: value };
-      setPreferences(preferencesRef.current);
+      updatePreference('autoRotate', value);
       sceneApiRef.current?.setAutoRotateEnabled(value);
     },
-    [sceneApiRef],
+    [sceneApiRef, updatePreference],
   );
 
   const setStarsVisible = useCallback(
     (value: boolean) => {
-      preferencesRef.current = { ...preferencesRef.current, starsVisible: value };
-      setPreferences(preferencesRef.current);
+      updatePreference('starsVisible', value);
       sceneApiRef.current?.setStarsVisible(value);
     },
-    [sceneApiRef],
+    [sceneApiRef, updatePreference],
   );
 
   const resetCamera = useCallback(() => sceneApiRef.current?.resetCamera(), [sceneApiRef]);
 
   const setGridVisible = useCallback(
     (value: boolean) => {
-      preferencesRef.current = { ...preferencesRef.current, gridVisible: value };
-      setPreferences(preferencesRef.current);
+      updatePreference('gridVisible', value);
       sceneApiRef.current?.setGridVisible(value);
     },
-    [sceneApiRef],
+    [sceneApiRef, updatePreference],
   );
 
   const setAtmosphereVisible = useCallback(
     (value: boolean) => {
-      preferencesRef.current = { ...preferencesRef.current, atmosphereVisible: value };
-      setPreferences(preferencesRef.current);
+      updatePreference('atmosphereVisible', value);
       sceneApiRef.current?.setAtmosphereVisible(value);
     },
-    [sceneApiRef],
+    [sceneApiRef, updatePreference],
   );
 
-  return { preferences, preferencesRef, setAutoRotate, setStarsVisible, setGridVisible, setAtmosphereVisible, resetCamera };
+  const setTeleconnectionsVisible = useCallback(
+    (value: boolean) => {
+      updatePreference('teleconnectionArcsVisible', value);
+      sceneApiRef.current?.setTeleconnectionArcsVisible?.(value);
+    },
+    [sceneApiRef, updatePreference],
+  );
+
+  const setRadarRipplesVisible = useCallback(
+    (value: boolean) => {
+      updatePreference('radarRipplesVisible', value);
+      sceneApiRef.current?.setRadarRipplesVisible?.(value);
+    },
+    [sceneApiRef, updatePreference],
+  );
+
+  const setSatellitesVisible = useCallback(
+    (value: boolean) => {
+      updatePreference('satellitesVisible', value);
+      sceneApiRef.current?.setSatellitesVisible?.(value);
+    },
+    [sceneApiRef, updatePreference],
+  );
+
+  const setOceanFlowVisible = useCallback(
+    (value: boolean) => {
+      updatePreference('oceanFlowVisible', value);
+      sceneApiRef.current?.setOceanFlowVisible?.(value);
+    },
+    [sceneApiRef, updatePreference],
+  );
+
+  return {
+    preferences,
+    preferencesRef,
+    setAutoRotate,
+    setStarsVisible,
+    setGridVisible,
+    setAtmosphereVisible,
+    setTeleconnectionsVisible,
+    setRadarRipplesVisible,
+    setSatellitesVisible,
+    setOceanFlowVisible,
+    resetCamera,
+  };
 }

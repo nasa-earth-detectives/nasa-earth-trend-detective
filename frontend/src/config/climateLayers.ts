@@ -61,14 +61,16 @@ export interface StatusRow {
  * todavía no lo contemplan. Se declara desactivado en vez de simular soporte.
  */
 export const UPCOMING_VARIABLES: StatusRow[] = [
-  { id: 'sentinel6', name: 'Nivel del mar', detail: 'Sentinel-6', status: 'API' },
+  { id: 'sentinel6', name: 'Nivel del mar', detail: 'Sentinel-6 / ECCO', status: 'Altimetría', active: true },
 ];
 
-/** Capas futuras; hexágonos y calor tienen su propio control operativo en Datos. */
+/** Capas de análisis y dinámicas globales del planeta operativas. */
 export const SCIENTIFIC_OVERLAYS: StatusRow[] = [
-  { id: 'hotspots', name: 'Hotspots significativos', status: 'Pronto' },
-  { id: 'opposing', name: 'Tendencias opuestas', status: 'Pronto' },
-  { id: 'teleconnections', name: 'Teleconexiones', status: 'Pronto' },
+  { id: 'ocean-flow', name: 'Corrientes marinas 3D (ECCO/OSCAR)', status: 'Operativo', active: true },
+  { id: 'teleconnections', name: 'Teleconexiones climáticas (ENSO/AMOC)', status: 'Operativo', active: true },
+  { id: 'hotspots', name: 'Ondas radar en hotspots extremos', status: 'Operativo', active: true },
+  { id: 'opposing', name: 'Motor de tendencias opuestas', status: 'Algoritmo', active: true },
+  { id: 'satellites', name: 'Constelación satelital orbital', status: 'Operativo', active: true },
 ];
 
 /** Capacidades integradas en earthSurface; los interruptores se muestran sólo si existe API real. */

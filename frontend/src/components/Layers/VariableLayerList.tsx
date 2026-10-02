@@ -48,7 +48,9 @@ export function VariableLayerList({ selected, onSelect }: VariableLayerListProps
             className="variable-row variable-row--future">
             <span className="variable-row__symbol" aria-hidden="true">Δh</span>
             <span className="variable-row__name">{variable.name}</span>
-            <span className="variable-row__soon">Pronto</span>
+            <span className="variable-row__soon" style={{ color: '#38bdf8', borderColor: 'rgba(56, 189, 248, 0.4)' }}>
+              {variable.status}
+            </span>
           </button>
         ))}
       </div>
