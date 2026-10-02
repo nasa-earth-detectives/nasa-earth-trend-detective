@@ -7,14 +7,15 @@ import { createStarField, disposeStarField } from './starField';
 import { createSurfaceSelection } from './surfaceSelection';
 import { createEarthSurface } from './earthSurface';
 import { createEarthObservationLayers } from './earthObservationLayers';
+import { createEarthLiveSystem } from './earthLiveSystem';
 import type { EarthSurfaceStatus } from './earthConfig';
 import {
   createFocusOffsetController,
   extendCameraFarPlane,
   resolveInitialAltitude,
 } from './globeSetup';
-export type { GlobeLocation, GlobeSceneApi, ScenePreferences } from '../../types/globe.types';
 import type { GlobeLocation, GlobeSceneApi, ScenePreferences } from '../../types/globe.types';
+export type { GlobeLocation, GlobeSceneApi, ScenePreferences };
 
 export function useGlobeScene(
   containerRef: RefObject<HTMLDivElement | null>,
@@ -49,6 +50,7 @@ export function useGlobeScene(
 
     const renderer = globe.renderer();
     const analysis = createEarthObservationLayers(globe, location => locationSelectHandler?.(location));
+    const liveSystem = createEarthLiveSystem(globe);
     const disposeSelection = createSurfaceSelection(globe, location => {
       analysis.select(null);
       locationSelectHandler?.(location);
@@ -152,6 +154,13 @@ export function useGlobeScene(
         },
         setGridVisible: (visible) => { globe.showGraticules(visible); },
         setAtmosphereVisible: surface.setAtmosphereVisible,
+        setTeleconnectionArcsVisible: liveSystem.setArcsVisible,
+        setRadarRipplesVisible: liveSystem.setRipplesVisible,
+        setSatellitesVisible: liveSystem.setSatellitesVisible,
+        flyToGodsEye: (lat, lng, altitude = 0.28, durationMs = 1600) => {
+          cameraOwnedByUser = true;
+          globe.pointOfView({ lat, lng, altitude }, durationMs);
+        },
         setLocationSelectHandler: (handler) => { locationSelectHandler = handler; },
         inspectCenter: () => {
           analysis.select(null);
@@ -171,6 +180,7 @@ export function useGlobeScene(
       if (apiRef) apiRef.current = null;
       locationSelectHandler = null;
       disposeSelection();
+      liveSystem.dispose();
       analysis.dispose();
       surface.dispose();
       focusOffset.dispose();
