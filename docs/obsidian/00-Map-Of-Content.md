@@ -26,6 +26,10 @@ Bienvenido a la bóveda central de documentación y diseño de ingeniería de nu
 - [[11-Experiencia-Observacion-Espacial]]: Modos de observación, instrumentos científicos, movimiento y escena estable.
 - [[12-Superficie-Terrestre-NASA]]: Assets locales, material terrestre, perfiles de textura y ciclo de vida.
 - [[13-Rescate-Realismo-Diurno]]: Diagnóstico del render, material GGX y comparación visual diurna.
+- [[30-Detalle-Satelital-por-Mosaicos-LOD]]: Mosaicos NASA GIBS por niveles de detalle, relieve con sol real y luces nocturnas VIIRS.
+- [[31-Datos-GISTEMP-Reales-e-Integracion-API]]: GISTEMP v4 real en DuckDB, ingesta intercambiable por manifiesto, `/api/datasets`, `/api/trends/grid` y frontend en modo auto.
+- [[32-Entorno-Espacial-Satelites-y-Alta-Resolucion]]: halo atmosférico con sol real, Vía Láctea, satélites Terra/Aqua/OCO-2/GRACE-FO, arcos finos y Esri World Imagery opcional.
+- [[33-Satelites-NASA-Luna-y-Esri-Global]]: modelos 3D oficiales de la NASA, Luna con posición real, año en curso, Esri también de noche y líneas limpias.
 - [[earth-assets/README|Fuentes de assets terrestres]]: Procedencia, transformación, hashes y créditos de las imágenes científicas.
 - [[02-Estrategia-Git-3-Ramas]]: Protocolo estricto de ramas (`development` ➔ `qa` ➔ `production`).
 - [[03-Roles-y-Equipo]]: Perfiles técnicos y asignación de responsabilidades de los 5 participantes.

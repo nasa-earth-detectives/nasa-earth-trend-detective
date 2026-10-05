@@ -60,13 +60,14 @@ La leyenda indica «Respecto al promedio de referencia» y el inspector explica 
 Configuración del frontend, seguida de reinicio de Vite o reconstrucción:
 
 ```dotenv
-VITE_OBSERVATION_DATA_SOURCE=demo
-# Para activar la respuesta real del servicio del equipo:
-# VITE_OBSERVATION_DATA_SOURCE=api
+# auto (predeterminado): consulta GET /api/datasets y usa la API solo para las variables con un
+# dataset real cargado; el resto sigue en la demo, rotulada como tal.
+VITE_OBSERVATION_DATA_SOURCE=auto
+# demo fuerza el escenario sintético; api fuerza la API aunque la variable no tenga dataset.
 # VITE_API_URL=http://localhost:PUERTO/api
 ```
 
-El valor predeterminado es `demo`. La selección `api` llama a `trendService.getObservations(variable, year)`, ruta `/trends/observations`. `VITE_HEX_DATA_SOURCE` pertenece al experimento anterior de pendientes y ya no controla el montaje actual. Elegir `api` identifica el transporte; por sí solo no demuestra procedencia NASA.
+El valor predeterminado es `auto` (antes `demo`). Si la API no responde en 6 s o devuelve error, el catálogo queda vacío y todas las variables caen a la demo; se reintenta al minuto. En `auto`, una caída puntual de `/trends/observations` también cae a la demo; en `api` se muestra el error. La etiqueta de fuente sale de la procedencia que declara la API (producto y si es fuente provisional), no del transporte. Ver [31 · Datos GISTEMP reales e integración API](obsidian/31-Datos-GISTEMP-Reales-e-Integracion-API.md).
 
 La API debe devolver una lista de objetos `ClimateObservation` con:
 
@@ -74,7 +75,7 @@ La API debe devolver una lista de objetos `ClimateObservation` con:
 - `variable`: nombre del enum solicitado, o su valor numérico actual (`1=Gistemp`, `2=ModisNdvi`, `3=GraceMass`, `4=Oco2`).
 - `latitude` y `longitude`: números finitos en ±90° y ±180°.
 - `value`: número finito; `anomaly`, si existe y no es `null`, también finito.
-- `unit`: compatible con la variable. Temperatura admite `°C`/`Celsius` con anomalía explícita, o unidad con `Anomaly`; NDVI admite `NDVI`, `1` o `adimensional`; agua/hielo admite `cm`, `cm H₂O eq.` o `cm water equivalent`; CO₂ admite `ppm`. No hay conversión automática entre metros, centímetros, tasas o concentraciones.
+- `unit`: compatible con la variable. Temperatura admite `°C`/`Celsius` con anomalía explícita, o unidad con `Anomaly`; NDVI admite `NDVI`, `1` o `adimensional`; agua/hielo admite `cm`, `cm EWH`, `cm H₂O eq.` o `cm water equivalent`; CO₂ admite `ppm`. No hay conversión automática entre metros, centímetros, tasas o concentraciones.
 - `timestamp`: fecha ISO con hora y el año solicitado.
 
 Una temperatura en `°C` sin `anomaly` se rechaza: no es posible saber si es absoluta o una anomalía. Si la unidad declara explícitamente `°C Anomaly`, puede usarse `value`. Para agua/hielo, el contrato de la capa interpreta `anomaly ?? value` como variación de agua equivalente; el proveedor debe declarar esa semántica, no enviar una reserva absoluta bajo la misma unidad.
