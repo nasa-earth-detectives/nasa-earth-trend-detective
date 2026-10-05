@@ -20,4 +20,7 @@ public class TrendResultDto
     public string Direction { get; set; } = string.Empty;
     public double[] ConfidenceInterval95 { get; set; } = Array.Empty<double>();
     public IReadOnlyList<AnnualObservation>? Observations { get; set; }
+
+    /// <summary>"observed" (DuckDB) o "synthetic" (serie de demostración: la variable no tiene dataset).</summary>
+    public string Source { get; set; } = DatasetStatusDto.Synthetic;
 }

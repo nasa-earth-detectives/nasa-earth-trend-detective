@@ -12,6 +12,7 @@ namespace NasaTrendDetective.Infrastructure.Implements;
 public sealed class DuckDbConnectionFactory : IDuckDbConnectionFactory, IDisposable, IAsyncDisposable
 {
     private readonly DuckDBConnection? _memoryAnchor;
+    private readonly string? _settingsSql;
     private bool _disposed;
 
     public DuckDbConnectionFactory(IOptions<DuckDbOptions> options)
@@ -20,6 +21,7 @@ public sealed class DuckDbConnectionFactory : IDuckDbConnectionFactory, IDisposa
         var settings = options.Value;
         IsInMemory = settings.IsInMemory;
         ConnectionString = BuildConnectionString(settings);
+        _settingsSql = BuildSettingsSql(settings);
 
         if (IsInMemory)
         {
@@ -29,6 +31,40 @@ public sealed class DuckDbConnectionFactory : IDuckDbConnectionFactory, IDisposa
     }
 
     public string ConnectionString { get; }
+
+    /// <summary>SQL de límites de recursos, validado (el valor va interpolado: SET no acepta parámetros).</summary>
+    public static string? BuildSettingsSql(DuckDbOptions options)
+    {
+        ArgumentNullException.ThrowIfNull(options);
+        var statements = new List<string>();
+        if (!string.IsNullOrWhiteSpace(options.MemoryLimit))
+        {
+            var limit = options.MemoryLimit.Trim();
+            if (!System.Text.RegularExpressions.Regex.IsMatch(limit, @"^\d+(\.\d+)?\s*(KB|MB|GB|KiB|MiB|GiB)$",
+                    System.Text.RegularExpressions.RegexOptions.IgnoreCase))
+            {
+                throw new ArgumentException($"DuckDb:MemoryLimit inválido: '{limit}'. Ejemplo: 256MB.", nameof(options));
+            }
+
+            statements.Add($"SET memory_limit = '{limit}'");
+            if (!options.IsInMemory || !string.IsNullOrWhiteSpace(options.TempDirectory))
+            {
+                var temp = Path.GetFullPath(string.IsNullOrWhiteSpace(options.TempDirectory)
+                    ? options.DatabasePath.Trim() + ".tmp"
+                    : options.TempDirectory.Trim());
+                Directory.CreateDirectory(temp);
+                statements.Add($"SET temp_directory = '{temp.Replace("'", "''", StringComparison.Ordinal)}'");
+            }
+        }
+
+        if (options.Threads is { } threads)
+        {
+            ArgumentOutOfRangeException.ThrowIfLessThan(threads, 1, nameof(options.Threads));
+            statements.Add($"SET threads = {threads}");
+        }
+
+        return statements.Count == 0 ? null : string.Join("; ", statements) + ";";
+    }
 
     public bool IsInMemory { get; }
 
@@ -62,6 +98,7 @@ public sealed class DuckDbConnectionFactory : IDuckDbConnectionFactory, IDisposa
         try
         {
             await connection.OpenAsync(cancellationToken).ConfigureAwait(false);
+            await ApplyResourceLimitsAsync(connection, cancellationToken).ConfigureAwait(false);
             return connection;
         }
         catch
@@ -69,6 +106,22 @@ public sealed class DuckDbConnectionFactory : IDuckDbConnectionFactory, IDisposa
             await connection.DisposeAsync().ConfigureAwait(false);
             throw;
         }
+    }
+
+    /// <summary>
+    /// SET memory_limit/threads son globales de la instancia; repetirlos al abrir cada conexión
+    /// cuesta microsegundos y garantiza que se aplican antes de la primera consulta pesada.
+    /// </summary>
+    private async Task ApplyResourceLimitsAsync(DuckDBConnection connection, CancellationToken cancellationToken)
+    {
+        if (_settingsSql is null)
+        {
+            return;
+        }
+
+        await using var command = connection.CreateCommand();
+        command.CommandText = _settingsSql;
+        await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
     }
 
     public void Dispose()
