@@ -1,0 +1,19 @@
+{
+  "variable": "Gistemp",
+  "provider": "nasa-giss-gistemp-v4",
+  "product": "GISTEMP v4 · anomalía de temperatura tierra-océano (GHCNv4 + ERSSTv5, 1200 km)",
+  "baseline": "1951-1980",
+  "unit": "°C Anomaly",
+  "trendUnit": "°C / año",
+  "interim": true,
+  "resolutionDegrees": 2.0,
+  "sourceUrl": "https://data.giss.nasa.gov/pub/gistemp/gistemp1200_GHCNv4_ERSSTv5.nc.gz",
+  "sourceFile": "gistemp1200_GHCNv4_ERSSTv5.nc.gz",
+  "sourceSha256": "6a597332bcefbe0fbe5a6ce7677a9012fa766cc43cea291d6207c12db2fe0cc6",
+  "retrievedAt": "2026-10-05T04:09:47+00:00",
+  "coverageStart": 2000,
+  "coverageEnd": 2026,
+  "lastMonth": "2026-08",
+  "rows": 5142681,
+  "citation": "GISTEMP Team: GISS Surface Temperature Analysis (GISTEMP), version 4. NASA Goddard Institute for Space Studies. https://data.giss.nasa.gov/gistemp/"
+}

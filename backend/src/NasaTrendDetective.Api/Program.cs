@@ -1,5 +1,7 @@
+using System.IO.Compression;
 using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.AspNetCore.ResponseCompression;
 using NasaTrendDetective.Api.Middlewares;
 using NasaTrendDetective.Application.Implements;
 using NasaTrendDetective.Application.Interfaces;
@@ -19,7 +21,20 @@ builder.Services.AddControllers();
 builder.Services.AddMemoryCache();
 builder.Services.AddScoped<ITrendAnalysisService, TrendAnalysisService>();
 builder.Services.AddScoped<IOpposingTrendsService, OpposingTrendsService>();
+builder.Services.AddScoped<IGridTrendService, GridTrendService>();
+builder.Services.AddScoped<IDatasetCatalogService, DatasetCatalogService>();
 builder.Services.AddInfrastructure(builder.Configuration);
+
+// La grilla de tendencias y las observaciones anuales son JSON de varios MB y muy repetitivos.
+// Solo viajan datos públicos (ni sesiones ni secretos), así que comprimir sobre HTTPS no expone nada.
+builder.Services.AddResponseCompression(options =>
+{
+    options.EnableForHttps = true;
+    options.Providers.Add<BrotliCompressionProvider>();
+    options.Providers.Add<GzipCompressionProvider>();
+});
+builder.Services.Configure<BrotliCompressionProviderOptions>(options => options.Level = CompressionLevel.Fastest);
+builder.Services.Configure<GzipCompressionProviderOptions>(options => options.Level = CompressionLevel.Fastest);
 
 // 2. Parámetros Dinámicos de Rate Limiting (Regla 6 y Regla 8)
 var globalLimit = builder.Configuration.GetValue<int>("RateLimiting:GlobalPermitLimit", 300);
@@ -77,6 +92,7 @@ var app = builder.Build();
 
 // 4. Pipeline HTTP y Middlewares
 app.UseMiddleware<ExceptionHandlingMiddleware>();
+app.UseResponseCompression();
 app.UseCors("AllowFrontend");
 app.UseMiddleware<BotDetectionMiddleware>();
 app.UseRateLimiter();

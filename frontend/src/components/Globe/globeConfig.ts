@@ -40,8 +40,11 @@ export const GLOBE_CONFIG = {
   minAspect: 0.42,
   initialLat: 18,
   initialLng: -12,
-  /** Distancia mínima de órbita: impide entrar dentro del planeta. */
-  minDistance: GLOBE_RADIUS * 1.5,
+  /**
+   * Distancia mínima: ≈9,6 km sobre la superficie (0,0015 radios), donde Landsat WELD
+   * ya muestra su nivel 12. El plano cercano se adapta para no recortar el suelo.
+   */
+  minDistance: GLOBE_RADIUS * 1.0015,
   /** Distancia de recorte: da precisión de profundidad a la capa de nubes (R + 0.12). */
   nearPlane: 1,
   /**
@@ -81,11 +84,16 @@ export const GLOBE_CONFIG = {
   starHueSpread: 0.08,
   starSaturation: 0.22,
   /**
-   * Dos capas => variación de tamaño con solo 2 draw calls,
-   * sin recurrir a shaders personalizados ni a miles de Mesh.
+   * Tres capas uniformes (débiles, medias, brillantes) => variación de tamaño con 3 draw calls.
+   * Los tamaños son en píxeles con un sprite redondo, por eso son algo mayores que con cuadrados.
    */
   starLayers: [
-    { count: 1400, size: 1.1, opacity: 0.75, minBrightness: 0.35 },
-    { count: 220, size: 2.1, opacity: 0.9, minBrightness: 0.6 },
+    { count: 5200, size: 1.4, opacity: 0.7, minBrightness: 0.25 },
+    { count: 1100, size: 2.2, opacity: 0.85, minBrightness: 0.45 },
+    { count: 150, size: 3.6, opacity: 1, minBrightness: 0.7 },
   ] as StarLayerConfig[],
+  /** Estrellas débiles concentradas en el plano galáctico (nubes de estrellas de la Vía Láctea). */
+  galacticStarLayer: { count: 7000, size: 1.2, opacity: 0.55, minBrightness: 0.2 } as StarLayerConfig,
+  /** Aporte de la banda horneada sobre el negro del espacio (0-1). */
+  milkyWayBrightness: 0.3,
 } as const;

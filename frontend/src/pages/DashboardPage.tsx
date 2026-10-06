@@ -10,7 +10,7 @@ import { useGlobeData } from '../hooks/useGlobeData';
  */
 export function DashboardPage() {
   const { filter, setVariable, setYearRange } = useTrendFilter('Gistemp');
-  const { data: observations, loading, error, source } = useGlobeData(filter);
+  const { data: observations, loading, error, source, provenance } = useGlobeData(filter);
 
   return (
     <ImmersiveEarthLayout
@@ -18,6 +18,7 @@ export function DashboardPage() {
       loading={loading}
       observationError={error}
       source={source}
+      provenance={provenance}
       filter={filter}
       onVariableChange={setVariable}
       onYearChange={(year) => setYearRange(Math.min(filter.startYear, year), year)}

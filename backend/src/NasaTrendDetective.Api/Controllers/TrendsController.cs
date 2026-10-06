@@ -13,17 +13,20 @@ public class TrendsController : ControllerBase
 {
     private readonly ITrendAnalysisService _trendService;
     private readonly IOpposingTrendsService _opposingTrendsService;
+    private readonly IGridTrendService _gridTrendService;
     private readonly IMemoryCache _cache;
     private readonly ILogger<TrendsController> _logger;
 
     public TrendsController(
         ITrendAnalysisService trendService,
         IOpposingTrendsService opposingTrendsService,
+        IGridTrendService gridTrendService,
         IMemoryCache cache,
         ILogger<TrendsController> logger)
     {
         _trendService = trendService ?? throw new ArgumentNullException(nameof(trendService));
         _opposingTrendsService = opposingTrendsService ?? throw new ArgumentNullException(nameof(opposingTrendsService));
+        _gridTrendService = gridTrendService ?? throw new ArgumentNullException(nameof(gridTrendService));
         _cache = cache ?? throw new ArgumentNullException(nameof(cache));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
@@ -51,6 +54,48 @@ public class TrendsController : ControllerBase
         }
 
         var result = await _trendService.AnalyzeTrendsAsync(query, cancellationToken);
+        _cache.Set(cacheKey, result, TimeSpan.FromMinutes(10));
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// Mann-Kendall / Sen en cada celda observada de la variable. 404 si no hay dataset real cargado:
+    /// el cliente debe usar su escenario de demostración y decirlo, no recibir una grilla inventada.
+    /// </summary>
+    [HttpGet("grid")]
+    [EnableRateLimiting("HeavyAnalysis")]
+    [ProducesResponseType(typeof(GridTrendResultDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetGridTrends([FromQuery] GridTrendQueryDto query, CancellationToken cancellationToken)
+    {
+        if (query.StartYear > query.EndYear || query.EndYear - query.StartYear > 200)
+        {
+            return BadRequest(new ProblemDetails
+            {
+                Title = "Parámetros temporales inválidos",
+                Detail = $"Periodo {query.StartYear}-{query.EndYear} inválido.",
+                Status = StatusCodes.Status400BadRequest
+            });
+        }
+
+        var cacheKey = $"grid_{query.Variable}_{query.StartYear}_{query.EndYear}";
+        if (_cache.TryGetValue<GridTrendResultDto>(cacheKey, out var cached) && cached != null)
+        {
+            return Ok(cached);
+        }
+
+        var result = await _gridTrendService.AnalyzeGridAsync(query, cancellationToken);
+        if (result == null)
+        {
+            return NotFound(new ProblemDetails
+            {
+                Title = "Sin datos observados",
+                Detail = $"La variable {query.Variable} no tiene un dataset real cargado.",
+                Status = StatusCodes.Status404NotFound
+            });
+        }
+
         _cache.Set(cacheKey, result, TimeSpan.FromMinutes(10));
         return Ok(result);
     }

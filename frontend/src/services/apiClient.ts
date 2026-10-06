@@ -1,6 +1,7 @@
 const BASE_URL = import.meta.env.VITE_API_URL || '/api';
 
-export async function getJson<T>(endpoint: string, params?: Record<string, string | number>): Promise<T> {
+export async function getJson<T>(endpoint: string, params?: Record<string, string | number>,
+  init?: { signal?: AbortSignal }): Promise<T> {
   const url = new URL(`${BASE_URL}${endpoint}`, window.location.origin);
   if (params) {
     Object.entries(params).forEach(([key, value]) => {
@@ -13,6 +14,7 @@ export async function getJson<T>(endpoint: string, params?: Record<string, strin
       'Accept': 'application/json',
       'X-Requested-With': 'XMLHttpRequest',
     },
+    signal: init?.signal,
   });
 
   if (!response.ok) {
