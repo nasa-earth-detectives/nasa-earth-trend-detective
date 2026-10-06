@@ -165,7 +165,7 @@ export function patchTileMaterial(
       .replace('#include <normal_fragment_maps>', `#include <normal_fragment_maps>\n${FRAGMENT_RELIEF}`)
       .replace('#include <opaque_fragment>', `${FRAGMENT_SKY_FILL}\n#include <opaque_fragment>`);
   };
-  // Mismo código para todos los mosaicos: un único programa compilado y reutilizado.
-  material.customProgramCacheKey = () => 'earth-detail-tile-v6';
+  // Clave dinámica según características estructurales del material (textura activa).
+  material.customProgramCacheKey = () => `earth-detail-tile-v6_${material.map ? 'map' : 'nomap'}`;
   material.needsUpdate = true;
 }

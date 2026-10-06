@@ -154,9 +154,10 @@ pasadas por la carga de mosaicos por red.
 
 ## Pendiente
 
-- La clave de Esri del equipo está versionada en `frontend/.env` (decisión de Diego, 2026-10-05,
-  con el repo público). Sólo admite localhost y 127.0.0.1 en los puertos 3000 y 4173: para Vercel
-  hay que añadir su dominio en ArcGIS. Caduca el 3 de enero de 2027.
+- La clave de Esri del equipo se gestiona de forma segura mediante `frontend/.env.local` (local)
+  y en GitHub Secrets / Vercel (despliegue), evitando versionar credenciales en el repositorio.
+  Admite localhost y 127.0.0.1 en los puertos 3000 y 4173: para Vercel hay que añadir su dominio
+  en ArcGIS. Caduca el 3 de enero de 2027.
 - No se pudo confirmar en la documentación de Esri si el registro gratuito pide tarjeta.
 - Luces de ciudad más visibles sobre Esri de noche.
 - Probar en un móvil real.
