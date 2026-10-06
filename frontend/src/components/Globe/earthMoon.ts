@@ -22,12 +22,25 @@ const base = import.meta.env.BASE_URL;
 
 export function createEarthMoon(scene: Scene) {
   const loader = new TextureLoader();
-  const color = loader.load(`${base}earth/moon/lroc-color-2k.jpg`);
+  const material = new MeshStandardMaterial({ roughness: 1, metalness: 0 });
+  // Si una textura no llega, el material se queda sin ella (Luna gris lisa) en vez de muestrear una
+  // imagen vacía: así se ve algo razonable y el fallo queda en la consola.
+  const color = loader.load(`${base}earth/moon/lroc-color-2k.jpg`, undefined, undefined, (error) => {
+    console.warn('Textura de la Luna no disponible; se usa gris liso.', error);
+    material.map = null;
+    material.color.setScalar(0.55);
+    material.needsUpdate = true;
+  });
   color.colorSpace = SRGBColorSpace;
-  const normal = loader.load(`${base}earth/moon/ldem-normal-1k.jpg`);
+  const normal = loader.load(`${base}earth/moon/ldem-normal-1k.jpg`, undefined, undefined, (error) => {
+    console.warn('Relieve de la Luna no disponible; se dibuja sin él.', error);
+    material.normalMap = null;
+    material.needsUpdate = true;
+  });
   normal.colorSpace = NoColorSpace;
+  material.map = color;
+  material.normalMap = normal;
   const geometry = new SphereGeometry(EARTH_MOON_CONFIG.radius, 96, 48);
-  const material = new MeshStandardMaterial({ map: color, normalMap: normal, roughness: 1, metalness: 0 });
   const moon = new Mesh(geometry, material);
   moon.name = 'earth-moon';
   moon.raycast = () => {};

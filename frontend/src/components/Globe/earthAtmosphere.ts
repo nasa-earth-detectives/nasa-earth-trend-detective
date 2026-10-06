@@ -46,6 +46,9 @@ uniform float scaleHeight;
 uniform float intensity;
 varying vec3 vWorldPosition;
 
+// pow(x, 2.0) es indefinido en GLSL si x < 0, y aquí la base es negativa en el lado nocturno.
+float sq(float x) { return x * x; }
+
 void main() {
   vec3 ray = normalize(vWorldPosition - cameraPosition);
   // Punto del rayo más cercano al centro de la Tierra (el centro está en el origen).
@@ -57,7 +60,7 @@ void main() {
   vec3 sun = normalize(sunDirection);
   float sunCos = dot(normalize(closest), sun);
   float day = smoothstep(-0.28, 0.35, sunCos);
-  float twilight = exp(-pow((sunCos + 0.02) / 0.11, 2.0));
+  float twilight = exp(-sq((sunCos + 0.02) / 0.11));
   // Contraluz: sólo el aire más denso (density²) brilla al mirar hacia el sol, como un anillo fino.
   float forward = pow(max(dot(ray, sun), 0.0), 18.0) * density;
 

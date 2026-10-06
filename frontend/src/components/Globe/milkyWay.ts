@@ -37,6 +37,9 @@ float noise(vec3 x) {
              mix(mix(hash(i + vec3(0,0,1)), hash(i + vec3(1,0,1)), f.x), mix(hash(i + vec3(0,1,1)), hash(i + vec3(1,1,1)), f.x), f.y), f.z);
 }
 float fbm(vec3 p) { float v = 0.0; float a = 0.5; for (int i = 0; i < 6; i++) { v += a * noise(p); p *= 2.03; a *= 0.5; } return v; }
+// pow(x, 2.0) es indefinido en GLSL si x < 0, y la latitud y la longitud galácticas son negativas en
+// medio cielo.
+float sq(float x) { return x * x; }
 
 void main() {
   // Mismo mapeo que SphereGeometry: u = phi / 2π, v = 1 - theta / π.
@@ -46,13 +49,13 @@ void main() {
   float b = asin(clamp(dot(d, galNorth), -1.0, 1.0));
   float l = atan(dot(d, galEast), dot(d, galCenter));
 
-  float coreWeight = exp(-pow(l / 0.75, 2.0));
+  float coreWeight = exp(-sq(l / 0.75));
   float width = 0.11 + 0.10 * coreWeight;
-  float band = exp(-pow(b / width, 2.0));
+  float band = exp(-sq(b / width));
   float clouds = fbm(d * 5.0 + 1.7);
   float fine = fbm(d * 22.0);
-  float bulge = exp(-pow(l / 0.45, 2.0) - pow(b / 0.16, 2.0));
-  float dust = smoothstep(0.42, 0.72, fbm(d * 11.0 + 7.3)) * exp(-pow((b + 0.012) / 0.045, 2.0));
+  float bulge = exp(-sq(l / 0.45) - sq(b / 0.16));
+  float dust = smoothstep(0.42, 0.72, fbm(d * 11.0 + 7.3)) * exp(-sq((b + 0.012) / 0.045));
 
   float intensity = band * (0.15 + 0.85 * clouds) * (0.5 + 0.5 * fine) * (0.4 + 0.6 * coreWeight)
     + bulge * 0.55 * (0.5 + 0.5 * clouds);
