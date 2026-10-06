@@ -1,5 +1,5 @@
 import type { GlobeInstance } from 'globe.gl';
-import type { Points } from 'three';
+import type { Object3D } from 'three';
 import { GLOBE_CONFIG } from './globeConfig';
 import type { EarthLiveSystemApi } from './earthLiveSystem';
 import type { GlobeLocation, GlobeSceneApi } from '../../types/globe.types';
@@ -16,7 +16,7 @@ export interface GlobeSceneContext {
   };
   liveSystem: EarthLiveSystemApi;
   globe: GlobeInstance;
-  starLayers: Points[];
+  starLayers: Object3D[];
   focusOffset: {
     set: (offsetPx: number, verticalOffsetPx?: number) => void;
   };
@@ -42,6 +42,7 @@ export function buildGlobeSceneApi(ctx: GlobeSceneContext): GlobeSceneApi {
     },
     setStarsVisible: (visible) => {
       ctx.starLayers.forEach((layer) => { layer.visible = visible; });
+      ctx.liveSystem.setSunVisible(visible);
     },
     setGridVisible: (visible) => { ctx.globe.showGraticules(visible); },
     setAtmosphereVisible: ctx.surface.setAtmosphereVisible,
@@ -49,6 +50,7 @@ export function buildGlobeSceneApi(ctx: GlobeSceneContext): GlobeSceneApi {
     setRadarRipplesVisible: ctx.liveSystem.setRipplesVisible,
     setSatellitesVisible: ctx.liveSystem.setSatellitesVisible,
     setOceanFlowVisible: ctx.liveSystem.setOceanFlowVisible,
+    setTeleconnections: ctx.liveSystem.setConnections,
     flyToGodsEye: (lat, lng, altitude = 0.28, durationMs = 1600) => {
       ctx.setCameraOwned(true);
       ctx.globe.pointOfView({ lat, lng, altitude }, durationMs);

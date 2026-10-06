@@ -1,11 +1,12 @@
 /** Escena imperativa estable: la instrumentación no recrea WebGL ni renderiza React por frame. */
 import { useEffect, type RefObject } from 'react';
 import Globe, { type GlobeInstance } from 'globe.gl';
-import type { Points } from 'three';
+import type { Object3D } from 'three';
 import { GLOBE_CONFIG } from './globeConfig';
 import { createStarField, disposeStarField } from './starField';
 import { createSurfaceSelection } from './surfaceSelection';
 import { createEarthSurface } from './earthSurface';
+import { createEarthDetailTiles } from './earthDetailTiles';
 import { createEarthObservationLayers } from './earthObservationLayers';
 import { createEarthLiveSystem } from './earthLiveSystem';
 import { buildGlobeSceneApi } from './globeApiBuilder';
@@ -39,19 +40,19 @@ export function useGlobeScene(
       .backgroundColor(GLOBE_CONFIG.backgroundColor)
       .showGlobe(true)
       .showGraticules(initialPreferences?.gridVisible ?? false)
-      .showAtmosphere(initialPreferences?.atmosphereVisible ?? true)
-      .atmosphereColor(GLOBE_CONFIG.atmosphereColor)
-      .atmosphereAltitude(GLOBE_CONFIG.atmosphereAltitude)
+      // La atmósfera propia (earthAtmosphere) reemplaza la genérica, que no conoce el sol.
+      .showAtmosphere(false)
       .width(container.clientWidth)
       .height(container.clientHeight);
 
     const surface = createEarthSurface(globe, container, onSurfaceStatus);
     surface.setAtmosphereVisible(initialPreferences?.atmosphereVisible ?? true);
     extendCameraFarPlane(globe);
+    const detailTiles = createEarthDetailTiles(globe, container, surface);
 
     const renderer = globe.renderer();
     const analysis = createEarthObservationLayers(globe, location => locationSelectHandler?.(location));
-    const liveSystem = createEarthLiveSystem(globe);
+    const liveSystem = createEarthLiveSystem(globe, surface.sunDirection);
     const disposeSelection = createSurfaceSelection(globe, location => {
       analysis.select(null);
       locationSelectHandler?.(location);
@@ -81,12 +82,11 @@ export function useGlobeScene(
     };
     moveToInitialPov(0);
 
-    const starLayers: Points[] = createStarField(globe.scene());
+    const starLayers: Object3D[] = createStarField(globe.scene(), renderer);
     const focusOffset = createFocusOffsetController(globe, container);
     if (initialPreferences && !initialPreferences.starsVisible) {
-      starLayers.forEach((layer) => {
-        layer.visible = false;
-      });
+      starLayers.forEach((layer) => { layer.visible = false; });
+      liveSystem.setSunVisible(false);
     }
 
     if (initialPreferences) {
@@ -170,6 +170,7 @@ export function useGlobeScene(
       disposeSelection();
       liveSystem.dispose();
       analysis.dispose();
+      detailTiles.dispose();
       surface.dispose();
       focusOffset.dispose();
       resizeObserver.disconnect();

@@ -1,14 +1,17 @@
 import {
-  BackSide, Color, Mesh, ShaderMaterial, SphereGeometry,
+  Color, Mesh, ShaderMaterial, SphereGeometry,
   type Texture, type Vector3,
 } from 'three';
 import type { GlobeInstance } from 'globe.gl';
 import { GLOBE_RADIUS } from './globeConfig';
+import { createEarthAtmosphere } from './earthAtmosphere';
 
 export interface EarthEnvelope {
   /** El propietario de los assets conserva la responsabilidad de liberar esta textura. */
   setCloudTexture(texture: Texture): void;
   setAtmosphereVisible(visible: boolean): void;
+  /** 1 en órbita; 0 al acercar, donde la textura 2K sería una mancha borrosa. */
+  setCloudFade(fade: number): void;
   dispose(): void;
 }
 
@@ -31,12 +34,13 @@ const cloudFragmentShader = /* glsl */ `
 uniform sampler2D cloudCoverage;
 uniform vec3 sunDirection;
 uniform vec3 cloudColor;
+uniform float cloudFade;
 varying vec2 vSurfaceUv;
 varying vec3 vWorldNormal;
 
 void main() {
   float coverage = texture2D(cloudCoverage, vSurfaceUv).r;
-  float opacity = smoothstep(0.08, 0.95, coverage) * 0.78;
+  float opacity = smoothstep(0.08, 0.95, coverage) * 0.78 * cloudFade;
   if (opacity < 0.006) discard;
 
   float sunCosine = dot(normalize(vWorldNormal), normalize(sunDirection));
@@ -45,26 +49,6 @@ void main() {
   // Un pequeño término ambiental deja nubes tenues de noche, nunca blancas de día.
   vec3 radiance = cloudColor * (0.014 + 0.085 * twilight + 1.28 * daylight);
   gl_FragColor = vec4(radiance, opacity);
-  #include <tonemapping_fragment>
-  #include <colorspace_fragment>
-}
-`;
-
-const atmosphereFragmentShader = /* glsl */ `
-uniform vec3 sunDirection;
-uniform vec3 atmosphereColor;
-varying vec3 vWorldPosition;
-varying vec3 vWorldNormal;
-
-void main() {
-  vec3 worldNormal = normalize(vWorldNormal);
-  vec3 toCamera = normalize(cameraPosition - vWorldPosition);
-  float limb = pow(clamp(1.0 - abs(dot(worldNormal, toCamera)), 0.0, 1.0), 3.0);
-  float sunCosine = dot(worldNormal, normalize(sunDirection));
-  float daylight = smoothstep(-0.10, 0.32, sunCosine);
-  float opacity = limb * (0.008 + 0.29 * daylight);
-
-  gl_FragColor = vec4(atmosphereColor * (0.32 + 0.68 * daylight), opacity);
   #include <tonemapping_fragment>
   #include <colorspace_fragment>
 }
@@ -86,6 +70,7 @@ export function createEarthEnvelope(
       cloudCoverage: { value: null },
       sunDirection: { value: sunDirection },
       cloudColor: { value: new Color('#f1f3f2') },
+      cloudFade: { value: 1 },
     },
     vertexShader: envelopeVertexShader,
     fragmentShader: cloudFragmentShader,
@@ -102,49 +87,38 @@ export function createEarthEnvelope(
   clouds.renderOrder = 1;
   clouds.raycast = () => {};
 
-  const atmosphereSegments = quality === 'desktop' ? 72 : 36;
-  const atmosphereGeometry = new SphereGeometry(
-    GLOBE_RADIUS * 1.012, atmosphereSegments, atmosphereSegments / 2,
-  );
-  const atmosphereMaterial = new ShaderMaterial({
-    name: 'earth-sunlit-limb',
-    uniforms: {
-      sunDirection: { value: sunDirection },
-      atmosphereColor: { value: new Color('#98b8d2') },
-    },
-    vertexShader: envelopeVertexShader,
-    fragmentShader: atmosphereFragmentShader,
-    side: BackSide,
-    transparent: true,
-    depthTest: true,
-    depthWrite: false,
-    toneMapped: true,
-  });
-  const atmosphere = new Mesh(atmosphereGeometry, atmosphereMaterial);
-  atmosphere.name = 'earth-atmosphere-envelope';
-  atmosphere.renderOrder = 2;
-  atmosphere.raycast = () => {};
-  scene.add(clouds, atmosphere);
+  // La atmósfera vive en su módulo (halo + bruma, conscientes del sol); aquí sólo se monta.
+  const atmosphere = createEarthAtmosphere(sunDirection, quality === 'desktop' ? 96 : 48);
+  scene.add(clouds, atmosphere.group);
   let disposed = false;
+  let cloudTextureReady = false;
+  const syncCloudVisibility = (): void => {
+    clouds.visible = cloudTextureReady && cloudMaterial.uniforms.cloudFade.value > 0.001;
+  };
 
   return {
     setCloudTexture(texture): void {
       if (disposed) return;
       cloudMaterial.uniforms.cloudCoverage.value = texture;
-      clouds.visible = true;
+      cloudTextureReady = true;
+      syncCloudVisibility();
+    },
+    setCloudFade(fade): void {
+      if (disposed) return;
+      cloudMaterial.uniforms.cloudFade.value = fade;
+      syncCloudVisibility();
     },
     setAtmosphereVisible(visible): void {
-      if (!disposed) atmosphere.visible = visible;
+      if (!disposed) atmosphere.group.visible = visible;
     },
     dispose(): void {
       if (disposed) return;
       disposed = true;
-      scene.remove(clouds, atmosphere);
+      scene.remove(clouds, atmosphere.group);
       cloudMaterial.uniforms.cloudCoverage.value = null;
       cloudGeometry.dispose();
       cloudMaterial.dispose();
-      atmosphereGeometry.dispose();
-      atmosphereMaterial.dispose();
+      atmosphere.dispose();
     },
   };
 }
