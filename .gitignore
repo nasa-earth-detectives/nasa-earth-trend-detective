@@ -6,6 +6,8 @@
 .env
 .env.*
 !.env.example
+# La clave de Esri del equipo se versiona a proposito (decision de Diego, 2026-10-05).
+!frontend/.env
 *.local
 *.key
 *.token
@@ -58,6 +60,8 @@ output/
 .env*
 # Las plantillas sin secretos sí se versionan (la regla de arriba las volvía a ignorar).
 !.env.example
+# La clave de Esri del equipo se versiona a proposito (decision de Diego, 2026-10-05).
+!frontend/.env
 
 # NASA EarthData raw download cache
 data/nasa/

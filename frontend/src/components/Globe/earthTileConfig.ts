@@ -72,7 +72,8 @@ export const EARTH_TILE_SOURCES = {
 
 /**
  * Alta resolución opcional: Esri World Imagery (hasta nivel 19 ≈ 0,3 m/px: coches, barcos, casas).
- * Se activa sólo si existe VITE_ESRI_API_KEY (en frontend/.env.local, no versionado); sin clave
+ * Se activa sólo si existe VITE_ESRI_API_KEY (clave del equipo en frontend/.env, versionado;
+ * frontend/.env.local la sustituye en cada máquina); sin clave
  * se queda Landsat de la NASA. Verificado el 2026-10-05 en developers.arcgis.com: plantilla
  * ibasemaps-api.../World_Imagery/MapServer/tile/{z}/{y}/{x}?token=…, CORS `*`. La clave viaja en
  * el JavaScript público: hay que restringirla por dominio en el panel de ArcGIS.
