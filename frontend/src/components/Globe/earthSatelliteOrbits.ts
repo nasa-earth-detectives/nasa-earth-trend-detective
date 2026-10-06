@@ -1,136 +1,97 @@
-import {
-  BoxGeometry,
-  BufferGeometry,
-  ConeGeometry,
-  Group,
-  LineBasicMaterial,
-  LineLoop,
-  Mesh,
-  MeshBasicMaterial,
-  SphereGeometry,
-  Vector3,
-  type Scene,
-} from 'three';
+import { Group, Matrix4, Vector3, type Camera, type Scene, type WebGLRenderer } from 'three';
+import { GLOBE_RADIUS } from './globeConfig';
+import { EARTH_SATELLITE_CONFIG, SATELLITE_MISSIONS } from './satelliteMissions';
+import { createSatelliteKit } from './satelliteModel';
+import { createSatelliteScan, orbitPoint } from './satelliteScan';
 
-export interface SatelliteConfig {
-  id: string;
-  name: string;
-  radius: number;
-  inclinationDeg: number;
-  speedRadPerSec: number;
-  colorHex: number;
-  initialAngle: number;
-}
+const DEG = Math.PI / 180;
+const EARTH_RADIUS_KM = 6371;
 
-export const SATELLITE_MISSIONS: SatelliteConfig[] = [
-  { id: 'terra', name: 'Terra (MODIS)', radius: 118, inclinationDeg: 98.2, speedRadPerSec: 0.08, colorHex: 0x00e5ff, initialAngle: 0 },
-  { id: 'aqua', name: 'Aqua (MODIS)', radius: 120, inclinationDeg: 98.2, speedRadPerSec: 0.075, colorHex: 0x00aaff, initialAngle: Math.PI * 0.5 },
-  { id: 'grace-fo', name: 'GRACE-FO (Ice Mass)', radius: 112, inclinationDeg: 89.0, speedRadPerSec: 0.09, colorHex: 0xc77dff, initialAngle: Math.PI * 1.2 },
-  { id: 'oco2', name: 'OCO-2 (CO2 Mission)', radius: 122, inclinationDeg: 98.2, speedRadPerSec: 0.07, colorHex: 0xffd166, initialAngle: Math.PI * 1.7 },
-];
+/**
+ * Constelación de misiones (Terra, Aqua, OCO-2, GRACE-FO) con órbitas reales exageradas en altura.
+ *
+ * Antes cada satélite tenía su propio requestAnimationFrame, que seguía corriendo aunque la capa
+ * estuviera oculta, y al desmontar sólo se liberaban las órbitas. Ahora la animación ocurre en el
+ * onBeforeRender de la propia capa (si no se dibuja, no se calcula) y dispose libera todo.
+ */
+export function createEarthSatelliteOrbits(scene: Scene, renderer: WebGLRenderer, sunDirection: Vector3) {
+  const config = EARTH_SATELLITE_CONFIG;
+  const root = new Group();
+  root.name = 'nasa-satellites-system';
+  const kit = createSatelliteKit(renderer);
+  const trailSegments = 32;
 
-function createOrbitTrack(radius: number, color: number): LineLoop {
-  const points: Vector3[] = [];
-  const segments = 64;
-  for (let i = 0; i < segments; i++) {
-    const theta = (i / segments) * Math.PI * 2;
-    points.push(new Vector3(Math.cos(theta) * radius, 0, Math.sin(theta) * radius));
-  }
-  const geo = new BufferGeometry().setFromPoints(points);
-  const mat = new LineBasicMaterial({ color, transparent: true, opacity: 0.22, depthWrite: false });
-  return new LineLoop(geo, mat);
-}
-
-function createSatelliteBody(color: number, radius: number): Group {
-  const bodyGroup = new Group();
-
-  // Núcleo del satélite
-  const coreMesh = new Mesh(
-    new SphereGeometry(0.85, 8, 8),
-    new MeshBasicMaterial({ color, toneMapped: false })
-  );
-
-  // Paneles solares
-  const panelsMesh = new Mesh(
-    new BoxGeometry(2.8, 0.08, 0.8),
-    new MeshBasicMaterial({ color: 0x003366, toneMapped: false })
-  );
-
-  // Haz/cono de escaneo apuntando hacia la Tierra (centro 0,0,0)
-  const coneHeight = radius * 0.45;
-  const beamMesh = new Mesh(
-    new ConeGeometry(2.5, coneHeight, 8, 1, true),
-    new MeshBasicMaterial({ color, transparent: true, opacity: 0.08, depthWrite: false })
-  );
-  beamMesh.position.y = -coneHeight * 0.5;
-  beamMesh.rotation.x = Math.PI;
-
-  bodyGroup.add(coreMesh);
-  bodyGroup.add(panelsMesh);
-  bodyGroup.add(beamMesh);
-
-  return bodyGroup;
-}
-
-export function createEarthSatelliteOrbits(scene: Scene) {
-  const masterGroup = new Group();
-  masterGroup.name = 'nasa-satellites-system';
-
-  const satellites = SATELLITE_MISSIONS.map(cfg => {
-    const orbitRing = createOrbitTrack(cfg.radius, cfg.colorHex);
-    orbitRing.rotation.z = (cfg.inclinationDeg * Math.PI) / 180;
-
-    const satBody = createSatelliteBody(cfg.colorHex, cfg.radius);
+  const satellites = SATELLITE_MISSIONS.map((mission) => {
+    const radius = GLOBE_RADIUS * (1 + (mission.altitudeKm / EARTH_RADIUS_KM) * config.altitudeExaggeration);
+    const inclination = mission.inclinationDeg * DEG;
     const pivot = new Group();
-    pivot.rotation.z = (cfg.inclinationDeg * Math.PI) / 180;
-    pivot.add(satBody);
-
-    masterGroup.add(orbitRing);
-    masterGroup.add(pivot);
-
-    return {
-      cfg,
-      pivot,
-      satBody,
-      angle: cfg.initialAngle,
-      orbitRing,
-    };
+    const frame = new Group();
+    const model = kit.build(mission.accent, mission.model, config.modelScale, config.gltfSize);
+    const scan = createSatelliteScan(mission.accent, radius, inclination, config.orbitDots, trailSegments);
+    // Cono y huella cuelgan del satélite hacia el nadir (-Y del marco).
+    const groundDistance = radius - GLOBE_RADIUS * 1.008;
+    const swath = mission.swathHalfWidth * GLOBE_RADIUS;
+    scan.cone.scale.set(swath, groundDistance, swath);
+    scan.cone.position.y = -groundDistance / 2;
+    scan.footprint.scale.setScalar(swath);
+    scan.footprint.position.y = -groundDistance;
+    frame.add(model, scan.cone, scan.footprint);
+    pivot.add(frame, scan.orbit, scan.trail);
+    root.add(pivot);
+    return { mission, radius, inclination, pivot, frame, model, scan };
   });
 
-  scene.add(masterGroup);
+  const position = new Float32Array(3);
+  const up = new Vector3();
+  const forward = new Vector3();
+  const right = new Vector3();
+  const basis = new Matrix4();
+  const trailRadians = config.trailDegrees * DEG;
 
-  let animationFrameId: number;
-  let lastTime = performance.now();
-
-  const update = () => {
-    const now = performance.now();
-    const dt = Math.min((now - lastTime) / 1000, 0.1);
-    lastTime = now;
-
-    for (const sat of satellites) {
-      sat.angle += sat.cfg.speedRadPerSec * dt;
-      const x = Math.cos(sat.angle) * sat.cfg.radius;
-      const z = Math.sin(sat.angle) * sat.cfg.radius;
-      sat.satBody.position.set(x, 0, z);
-      sat.satBody.rotation.y = sat.angle + Math.PI * 0.5;
+  const update = (_renderer?: unknown, _scene?: unknown, camera?: Camera): void => {
+    const seconds = performance.now() / 1000;
+    // Cerca del suelo la cámara queda dentro de los conos y la huella: se desvanecen entre 0,45 y
+    // 0,12 radios de altitud (antes llenaban media pantalla de verde y naranja).
+    const altitude = camera ? camera.position.length() / GLOBE_RADIUS - 1 : 2;
+    const t = Math.min(1, Math.max(0, (altitude - 0.12) / (0.45 - 0.12)));
+    const coneFade = t * t * (3 - 2 * t);
+    // Longitud del punto subsolar en el marco de getCoords: dir = (cos φ sin λ, sin φ, cos φ cos λ).
+    const subsolarLongitude = Math.atan2(sunDirection.x, sunDirection.z);
+    for (const satellite of satellites) {
+      const { mission, radius, inclination, pivot, frame, scan } = satellite;
+      pivot.rotation.y = subsolarLongitude + (mission.ascendingNodeLocalTime === null
+        ? (mission.illustrativeNodeOffsetDeg ?? 0) * DEG
+        : (mission.ascendingNodeLocalTime - 12) * 15 * DEG);
+      const u = mission.phase + (2 * Math.PI * seconds * config.timeScale) / (mission.periodMin * 60);
+      orbitPoint(radius, inclination, u, position, 0);
+      frame.position.set(position[0], position[1], position[2]);
+      up.set(position[0], position[1], position[2]).normalize();
+      forward.set(Math.cos(u) * Math.cos(inclination), Math.cos(u) * Math.sin(inclination), -Math.sin(u));
+      right.crossVectors(up, forward);
+      frame.quaternion.setFromRotationMatrix(basis.makeBasis(right, up, forward));
+      scan.coneMaterial.uniforms.time.value = seconds;
+      scan.coneMaterial.uniforms.fade.value = coneFade;
+      scan.cone.visible = scan.footprint.visible = coneFade > 0.01;
+      scan.footprintMaterial.opacity = (0.18 + 0.22 * (0.5 + 0.5 * Math.sin(seconds * 3 + mission.phase))) * coneFade;
+      scan.updateTrail(u, trailRadians);
     }
-
-    animationFrameId = requestAnimationFrame(update);
   };
-
+  // La órbita del primer satélite actúa de reloj: sólo corre mientras la capa se dibuja.
+  const driver = satellites[0].scan.orbit;
+  driver.frustumCulled = false;
+  driver.onBeforeRender = update;
   update();
+  scene.add(root);
 
   return {
-    setVisible(visible: boolean) {
-      masterGroup.visible = visible;
+    setVisible(visible: boolean): void {
+      root.visible = visible;
     },
-    dispose() {
-      cancelAnimationFrame(animationFrameId);
-      scene.remove(masterGroup);
-      for (const s of satellites) {
-        s.orbitRing.geometry.dispose();
-        (s.orbitRing.material as LineBasicMaterial).dispose();
-      }
+    dispose(): void {
+      driver.onBeforeRender = () => {};
+      scene.remove(root);
+      satellites.forEach((satellite) => satellite.scan.dispose());
+      kit.dispose();
     },
   };
 }
