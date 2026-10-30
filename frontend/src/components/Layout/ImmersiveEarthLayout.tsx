@@ -24,6 +24,8 @@ import { ObservationContext } from '../Mission/ObservationContext';
 import { ModeNavigator } from '../Rail/ModeNavigator';
 import { LayerPanel } from '../Layers/LayerPanel';
 import { DetectiveCard } from '../Detective/DetectiveCard';
+import { DetectiveMissionsModal, type MissionPreset } from '../Detective/DetectiveMissionsModal';
+import { DetectiveGlossaryModal } from '../Detective/DetectiveGlossaryModal';
 import { TimeNavigator } from '../Controls/TimeNavigator';
 import { guidedTourService } from '../../services/guidedTourService';
 import '../../styles/workspace.css';
@@ -56,6 +58,8 @@ export function ImmersiveEarthLayout({
   useTeleconnections(sceneApiRef);
   const [isPlaying, setIsPlaying] = useState(false);
   const [tourRunning, setTourRunning] = useState(false);
+  const [missionsOpen, setMissionsOpen] = useState(false);
+  const [glossaryOpen, setGlossaryOpen] = useState(false);
   const [observationMode, setObservationMode] = useState<ObservationLayerMode>('hex');
   const [reading, setReading] = useState<GlobeReading>('annual');
   const [coverage, setCoverage] = useState<ObservationCoverage>('land');
@@ -133,6 +137,13 @@ export function ImmersiveEarthLayout({
     }
   }, [geo.requestLocation, ui.selectLocation]);
 
+    const handleSelectMission = useCallback((mission: MissionPreset) => {
+    onVariableChange(mission.variable);
+    onYearChange(mission.year);
+    sceneApiRef.current?.flyToGodsEye?.(mission.location.lat, mission.location.lng, 0.45, 1500);
+    ui.selectLocation(mission.location);
+  }, [onVariableChange, onYearChange, ui.selectLocation]);
+
   const handleStartTour = () => guidedTourService.startMissionTour({
     onResetView: ui.observe, onOpenTime: () => ui.openMode('time'),
     onOpenInspector: () => {
@@ -147,7 +158,7 @@ export function ImmersiveEarthLayout({
       data-hex-visible={layerVisible} data-hex-selected={selectedObservation !== null} data-observation-layer={observationMode} data-reading={reading}>
       <GlobeViewer apiRef={sceneApiRef} preferencesRef={scene.preferencesRef} />
       <div className="observation-position quiet-instrument"><ObservationContext variable={filter.variable} /></div>
-      <div className="mission-position quiet-instrument"><MissionHeader onStartTour={handleStartTour} onOpenWizard={onOpenWizard} /></div>
+      <div className="mission-position quiet-instrument"><MissionHeader onStartTour={handleStartTour} onOpenWizard={onOpenWizard} onOpenMissions={() => setMissionsOpen(true)} onOpenGlossary={() => setGlossaryOpen(true)} /></div>
       <div className="system-position quiet-instrument" data-hex-active={true}>
         {trendReading ? (
           <HexReadout data={hexData.data} loading={hexData.loading} error={hexData.error}
@@ -192,6 +203,8 @@ export function ImmersiveEarthLayout({
         year={filter.endYear} source={source} provenance={provenance} observation={inspectionMatch?.observation ?? null}
         observationDistanceDegrees={inspectionMatch?.distanceDegrees ?? null} supportRadiusDegrees={EARTH_HEAT_CONFIG.radiusDegrees}
         loading={loading} onClose={handleCloseInspector} onYearChange={onYearChange} />
+          <DetectiveMissionsModal open={missionsOpen} onClose={() => setMissionsOpen(false)} onSelectMission={handleSelectMission} />
+      <DetectiveGlossaryModal open={glossaryOpen} onClose={() => setGlossaryOpen(false)} />
     </main>
   );
 }

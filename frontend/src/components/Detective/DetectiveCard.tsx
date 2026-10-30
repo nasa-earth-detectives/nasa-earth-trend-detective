@@ -1,3 +1,4 @@
+import { getRegionalBiomeContext } from '../../utils/regionalContext';
 import { useEffect, useMemo, useRef } from 'react';
 import { X } from 'lucide-react';
 import type { SelectedLocation } from '../../hooks/useImmersiveUi';
@@ -38,6 +39,7 @@ export function DetectiveCard({ open, location, variable, year, source, provenan
   const metadata = CLIMATE_VARIABLES.find(item => item.id === variable);
   const trend = useCellTrend(variable, open && source === 'api' ? provenance : null, observation);
   const unit = provenance?.trendUnit ?? `${OBSERVATION_SCALES[variable].unit} / año`;
+  const biomeInfo = location ? getRegionalBiomeContext(location.lat, location.lng) : null;
 
   useEffect(() => {
     if (!open) return;
@@ -83,6 +85,13 @@ export function DetectiveCard({ open, location, variable, year, source, provenan
         <div><dt>Latitud</dt><dd title={String(location.lat)}>{formatCoordinate(location.lat, 'N', 'S')}</dd></div>
         <div><dt>Longitud</dt><dd title={String(location.lng)}>{formatCoordinate(location.lng, 'E', 'O')}</dd></div>
       </dl>
+
+      {biomeInfo && (
+        <div className="inspection-biome">
+          <p className="inspection-biome-title">{biomeInfo.biome}</p>
+          <p className="inspection-biome-note">{biomeInfo.contextNote}</p>
+        </div>
+      )}
 
       {nearby && observation && <div className="inspection-provenance">
         <p>Muestra más cercana · {observationDistanceDegrees?.toLocaleString('es', { maximumFractionDigits: 2 })}° del punto elegido</p>

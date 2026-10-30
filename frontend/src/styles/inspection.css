@@ -75,3 +75,24 @@
 @media (prefers-reduced-motion: reduce) {
   .inspection-instrument { animation: none; }
 }
+
+
+.inspection-biome {
+  margin: 10px 0;
+  padding: 8px 10px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-left: 3px solid var(--active-accent, #38bdf8);
+  border-radius: 6px;
+  font-size: 11px;
+}
+.inspection-biome-title {
+  margin: 0;
+  font-weight: 600;
+  color: var(--text-primary, #f1f5f9);
+}
+.inspection-biome-note {
+  margin: 3px 0 0;
+  color: var(--text-tertiary, #94a3b8);
+  line-height: 1.35;
+}
