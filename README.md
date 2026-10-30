@@ -12,7 +12,9 @@
 | 🌐 **Frontend Producción** | `production` | [nasa-earth-trend-detective.vercel.app](https://nasa-earth-trend-detective.vercel.app/) | 🟢 **200 OK (En Vivo Oficial)** |
 | 🧪 **Frontend Staging (QA)** | `qa` | [nasa-earth-trend-detective-qa.vercel.app](https://nasa-earth-trend-detective-qa.vercel.app/) | 🟢 **200 OK (En Vivo Fijo)** |
 | 🛠️ **Frontend Development** | `development` | [nasa-earth-trend-detective-dev.vercel.app](https://nasa-earth-trend-detective-dev.vercel.app/) | 🟢 **200 OK (En Vivo Fijo)** |
-| 📡 **Backend REST API** | `production` | [nasa-trend-detective-api.onrender.com/health](https://nasa-trend-detective-api.onrender.com/health) | 🟢 **200 OK (En Vivo)** |
+| 📡 **Backend REST API** | `production` | [nasa-trend-detective-api.onrender.com/health](https://nasa-trend-detective-api.onrender.com/health) | 🟡 **Suspendido (sin datos NASA)** |
+
+> ⚠️ **Estado honesto del backend:** el servicio en Render está suspendido a propósito mientras se esperan los datos oficiales de NASA; `/api/*` responde `503`. El frontend lo detecta y muestra el escenario simulado rotulado como tal, nunca como observación real. Todos los entornos publicados sirven hoy el catálogo en modo `demo`.
 | 📋 **Tablero Kanban** | GitHub Projects | [NASA Trend Detective Projects #1](https://github.com/orgs/nasa-earth-detectives/projects/1) | 📌 **Gestión de Tareas** |
 | 👥 **Matriz de Roles** | Monorrepo | [TEAM.md](TEAM.md) | 📄 **Responsabilidades** |
 | 🤝 **Guía de Contribución** | Protocolo Git | [CONTRIBUTING.md](CONTRIBUTING.md) | 🛡️ **Flujo de Pull & PRs** |

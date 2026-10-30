@@ -102,7 +102,8 @@ export function DetectiveCard({ open, location, variable, year, source, provenan
       </div>
       {loading ? <p className="inspection-chart__empty">Consultando el año seleccionado…</p> :
         <TimeSeriesChart data={seriesData} unit={OBSERVATION_SCALES[variable].unit}
-          selectedYear={year} onYearSelect={onYearChange} />}
+          selectedYear={year} onYearSelect={onYearChange}
+          senSlope={source === 'demo' || !observation || !trend.data ? undefined : trend.data.sensSlope} />}
 
       <footer className="inspection-provenance">
         {!loading && !observation && <p>No hay muestras de esta variable a menos de {supportRadiusDegrees}° dentro de la cobertura activa.</p>}

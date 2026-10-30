@@ -55,7 +55,7 @@ const getMissionSteps = (callbacks: TourCallbacks): ObservationStep[] => [
     element: '#tour-detective-card', prepare: callbacks.onOpenInspector,
     popover: {
       title: 'Inspeccionar una ubicación', side: 'right', align: 'start',
-      description: '<p>El inspector muestra las coordenadas de la ubicación seleccionada. También puedes abrirlo tocando un punto de la Tierra.</p><p class="tour-hint">La serie de ejemplo contiene datos sintéticos. El análisis estadístico regional sigue pendiente.</p>',
+      description: '<p>El inspector muestra las coordenadas de la ubicación seleccionada. También puedes abrirlo tocando un punto de la Tierra.</p><p class="tour-hint">El veredicto usa Mann–Kendall y la pendiente de Sen sobre la serie anual. Si no hay datos observados, la app lo indica en lugar de inventarlos.</p>',
     },
   },
 ];
