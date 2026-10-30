@@ -1,12 +1,14 @@
 import { useState, useCallback } from 'react';
 import { ClimateVariable } from '../types/climate.types';
 import { TrendFilterParams } from '../types/trend.types';
+import { SATELLITE_TIMELINE } from '../config/climateLayers';
 
 export function useTrendFilter(initialVariable: ClimateVariable = 'Gistemp') {
   const [filter, setFilter] = useState<TrendFilterParams>({
     variable: initialVariable,
     startYear: 2002,
-    endYear: 2024,
+    // Abre en el año en curso, no en uno fijo.
+    endYear: SATELLITE_TIMELINE.endYear,
   });
 
   const setVariable = useCallback((variable: ClimateVariable) => {

@@ -44,4 +44,15 @@ ENV ASPNETCORE_ENVIRONMENT=Production
 ENV DUCKDB_DATABASE_PATH=/app/data/nasa_earth_trends.duckdb
 
 COPY --from=publish /app/publish .
+
+# Datasets que la API siembra en DuckDB al arrancar (Parquet + manifiesto de procedencia). Viajan en
+# la imagen porque Render construye solo con ./backend como contexto. Ver docs/obsidian/31.
+COPY --from=build /src/seed /app/seed
+ENV DATASET_SEED_DIRECTORY=/app/seed
+
+# Render gratuito tiene 512 MB. Sin tope, la importación de GISTEMP llegó a 647 MB de pico (medido
+# en local); con 256 MB y 2 hilos, la API completa (carga + consultas) se quedó en 423 MB.
+ENV DuckDb__MemoryLimit=256MB
+ENV DuckDb__Threads=2
+
 ENTRYPOINT ["dotnet", "NasaTrendDetective.Api.dll"]

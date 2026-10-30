@@ -6,8 +6,11 @@
  */
 import { VariableMetadata } from '../types/climate.types';
 
-/** Rango de navegación configurado (2000-2026 para análisis multidecenal de la NASA). */
-export const SATELLITE_TIMELINE = { startYear: 2000, endYear: 2026 } as const;
+/**
+ * Rango de navegación: desde 2000 hasta el año en curso (UTC), siempre el actual. El año en
+ * curso es parcial: la interfaz muestra hasta qué mes llegan los datos (DatasetProvenance.lastMonth).
+ */
+export const SATELLITE_TIMELINE = { startYear: 2000, endYear: new Date().getUTCFullYear() } as const;
 
 /** Variables soportadas hoy de extremo a extremo (tipo `ClimateVariable`). */
 export const CLIMATE_VARIABLES: VariableMetadata[] = [

@@ -1,97 +1,51 @@
 import type { GlobeInstance } from 'globe.gl';
+import { Color } from 'three';
+import type { Teleconnection, TeleconnectionEndpoint } from '../../types/teleconnection.types';
 
-export interface RadarHotspotRing {
-  id: string;
-  name: string;
-  lat: number;
-  lng: number;
-  maxRadius: number;
-  propagationSpeed: number;
-  repeatPeriod: number;
-  color: (t: number) => string;
+/**
+ * Anillos que marcan los extremos de cada teleconexión, del color de su arco. Antes eran cinco
+ * "hotspots" fijos con colores propios, desconectados de los arcos; ahora siguen a los datos.
+ */
+interface RingDatum extends TeleconnectionEndpoint {
+  rgb: [number, number, number];
+  period: number;
 }
-
-export const CLIMATE_RADAR_HOTSPOTS: RadarHotspotRing[] = [
-  {
-    id: 'hotspot-arctic',
-    name: 'Ártico (Svalbard) — Alerta Térmica',
-    lat: 78.22,
-    lng: 15.63,
-    maxRadius: 7.5,
-    propagationSpeed: 2.2,
-    repeatPeriod: 1200,
-    color: t => `rgba(255, 60, 60, ${Math.max(0, 1 - t)})`,
-  },
-  {
-    id: 'hotspot-subpolar',
-    name: 'Giro Subpolar — Anomalía AMOC',
-    lat: 55.0,
-    lng: -30.0,
-    maxRadius: 6.0,
-    propagationSpeed: 1.8,
-    repeatPeriod: 1500,
-    color: t => `rgba(0, 200, 255, ${Math.max(0, 1 - t)})`,
-  },
-  {
-    id: 'hotspot-amazon',
-    name: 'Cuenca Amazónica — Estrés Hídrico',
-    lat: -3.46,
-    lng: -62.21,
-    maxRadius: 6.8,
-    propagationSpeed: 2.0,
-    repeatPeriod: 1400,
-    color: t => `rgba(255, 180, 0, ${Math.max(0, 1 - t)})`,
-  },
-  {
-    id: 'hotspot-greenland',
-    name: 'Groenlandia — Pérdida Glaciar GRACE',
-    lat: 72.0,
-    lng: -40.0,
-    maxRadius: 8.0,
-    propagationSpeed: 2.5,
-    repeatPeriod: 1300,
-    color: t => `rgba(200, 80, 255, ${Math.max(0, 1 - t)})`,
-  },
-  {
-    id: 'hotspot-china',
-    name: 'Sur de China — Reverdecimiento MODIS',
-    lat: 25.0,
-    lng: 115.0,
-    maxRadius: 5.5,
-    propagationSpeed: 1.9,
-    repeatPeriod: 1600,
-    color: t => `rgba(0, 255, 128, ${Math.max(0, 1 - t)})`,
-  },
-];
 
 export function createEarthRadarRipples(globe: GlobeInstance) {
   let visible = true;
-  let rings = CLIMATE_RADAR_HOTSPOTS;
+  let rings: RingDatum[] = [];
 
-  const applyToGlobe = () => {
+  const apply = (): void => {
     globe
       .ringsData(visible ? rings : [])
-      .ringLat((d: object) => (d as RadarHotspotRing).lat)
-      .ringLng((d: object) => (d as RadarHotspotRing).lng)
-      .ringColor((d: object) => (d as RadarHotspotRing).color)
-      .ringMaxRadius((d: object) => (d as RadarHotspotRing).maxRadius)
-      .ringPropagationSpeed((d: object) => (d as RadarHotspotRing).propagationSpeed)
-      .ringRepeatPeriod((d: object) => (d as RadarHotspotRing).repeatPeriod);
+      .ringLat((d: object) => (d as RingDatum).lat)
+      .ringLng((d: object) => (d as RingDatum).lng)
+      .ringColor((d: object) => {
+        const [r, g, b] = (d as RingDatum).rgb;
+        return (t: number) => `rgba(${r},${g},${b},${Math.max(0, 1 - t) * 0.85})`;
+      })
+      .ringMaxRadius(2.8)
+      .ringPropagationSpeed(1.1)
+      .ringRepeatPeriod((d: object) => (d as RingDatum).period)
+      .ringResolution(48);
   };
 
-  applyToGlobe();
-
   return {
-    setVisible(nextVisible: boolean) {
+    setVisible(nextVisible: boolean): void {
       if (visible === nextVisible) return;
       visible = nextVisible;
-      applyToGlobe();
+      apply();
     },
-    setRings(nextRings: RadarHotspotRing[]) {
-      rings = nextRings;
-      applyToGlobe();
+    setConnections(connections: Teleconnection[]): void {
+      rings = connections.flatMap((connection, index) => {
+        const color = new Color(connection.color);
+        const rgb: [number, number, number] = [Math.round(color.r * 255), Math.round(color.g * 255), Math.round(color.b * 255)];
+        // Periodos distintos para que los anillos no laten todos a la vez.
+        return [connection.from, connection.to].map((point, k) => ({ ...point, rgb, period: 1700 + ((index * 2 + k) % 5) * 260 }));
+      });
+      apply();
     },
-    dispose() {
+    dispose(): void {
       globe.ringsData([]);
     },
   };

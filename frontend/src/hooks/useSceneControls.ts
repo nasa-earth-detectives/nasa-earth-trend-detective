@@ -16,7 +16,8 @@ const DEFAULT_PREFERENCES: ScenePreferences = {
   teleconnectionArcsVisible: true,
   radarRipplesVisible: true,
   satellitesVisible: true,
-  oceanFlowVisible: true,
+  // Apagadas al inicio: sus guiones cruzando los océanos ensuciaban la vista (pedido de Diego).
+  oceanFlowVisible: false,
 };
 
 export function useSceneControls(sceneApiRef: RefObject<GlobeSceneApi | null>) {

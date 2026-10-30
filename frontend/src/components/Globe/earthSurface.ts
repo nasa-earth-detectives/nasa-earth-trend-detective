@@ -135,5 +135,8 @@ export function createEarthSurface(globe: GlobeInstance, container: HTMLElement,
   return {
     dispose,
     setAtmosphereVisible: envelope.setAtmosphereVisible,
+    setCloudFade: envelope.setCloudFade,
+    /** Misma referencia que ilumina el material: los mosaicos comparten el sol UTC real. */
+    sunDirection: lighting.sunDirection,
   };
 }

@@ -2,17 +2,21 @@ import type { HexCell, HexDataset } from '../types/hex.types';
 import type { ClimateVariable } from '../types/climate.types';
 import type { TrendFilterParams } from '../types/trend.types';
 import { createDemoHexDataset, HEX_VARIABLE_PROFILES } from './demo/hexDemoData';
+import { readDataSourceMode, resolveVariableSource } from './datasetCatalog';
 import { trendService } from './trendService';
 
 /** Correspondencia explícita con backend/.../Enums/ClimateVariable.cs, sin suponer strings JSON. */
 const API_VARIABLE_IDS: Record<ClimateVariable, number> = { Gistemp: 1, ModisNdvi: 2, GraceMass: 3, Oco2: 4 };
 
-/** Escala API provisional, independiente del escenario demo y de su unidad anual. */
+/**
+ * Escala de la API: /trends/grid devuelve la pendiente de Sen por año, la misma unidad que el perfil
+ * demo (p. ej. °C / año), así que la altura comparte dominio y ambos escenarios se leen igual.
+ */
 export const HEX_API_PRESENTATION: Record<ClimateVariable, { heightDomain: number; resolutionDegrees: number }> = {
-  Gistemp: { heightDomain: 1, resolutionDegrees: 2.2 },
-  ModisNdvi: { heightDomain: 1, resolutionDegrees: 2.2 },
-  GraceMass: { heightDomain: 1, resolutionDegrees: 2.2 },
-  Oco2: { heightDomain: 1, resolutionDegrees: 2.2 },
+  Gistemp: { heightDomain: HEX_VARIABLE_PROFILES.Gistemp.heightDomain, resolutionDegrees: 2 },
+  ModisNdvi: { heightDomain: HEX_VARIABLE_PROFILES.ModisNdvi.heightDomain, resolutionDegrees: 2.2 },
+  GraceMass: { heightDomain: HEX_VARIABLE_PROFILES.GraceMass.heightDomain, resolutionDegrees: 2.2 },
+  Oco2: { heightDomain: HEX_VARIABLE_PROFILES.Oco2.heightDomain, resolutionDegrees: 2.2 },
 };
 
 function abortError() {
@@ -144,16 +148,14 @@ export async function getHexDataset(filter: TrendFilterParams, signal?: AbortSig
     || !Object.hasOwn(HEX_VARIABLE_PROFILES, filter.variable)) {
     throw new Error('El periodo o la variable de observación no son válidos.');
   }
-  const source: unknown = import.meta.env.VITE_HEX_DATA_SOURCE ?? 'demo';
-  if (source === 'demo') {
+  const mode = readDataSourceMode(import.meta.env.VITE_HEX_DATA_SOURCE, 'VITE_HEX_DATA_SOURCE');
+  const resolved = await withAbort(resolveVariableSource(mode, filter.variable), signal);
+  if (resolved.source === 'demo') {
     const profile: unknown = import.meta.env.VITE_HEX_DEMO_PROFILE ?? 'global';
     if (profile !== 'global' && profile !== 'regional' && profile !== 'stress') throw new Error('VITE_HEX_DEMO_PROFILE debe ser global, regional o stress.');
     return withAbort(Promise.resolve().then(() => createDemoHexDataset(filter, profile)), signal);
   }
-  if (source === 'api') {
-    const payload: unknown = await withAbort(trendService.getTrends(filter), signal);
-    if (signal?.aborted) throw abortError();
-    return adaptApiHexDataset(payload, filter);
-  }
-  throw new Error('VITE_HEX_DATA_SOURCE debe ser demo o api.');
+  const payload: unknown = await trendService.getGridTrends(filter, signal);
+  if (signal?.aborted) throw abortError();
+  return adaptApiHexDataset(payload, filter);
 }

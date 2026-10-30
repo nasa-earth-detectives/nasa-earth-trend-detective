@@ -1,16 +1,20 @@
 import type { ClimateObservation, ClimateVariable } from '../types/climate.types';
+import type { DatasetProvenance, DataSource } from '../types/dataset.types';
 import { createDemoObservations } from './demo/observationDemoData';
+import { readDataSourceMode, resolveVariableSource } from './datasetCatalog';
 import { trendService } from './trendService';
 
-export type ObservationSource = 'demo' | 'api';
-export interface ObservationDataset { observations: ClimateObservation[]; source: ObservationSource }
-const configuredSource: unknown = import.meta.env.VITE_OBSERVATION_DATA_SOURCE ?? 'demo';
-export const OBSERVATION_DATA_SOURCE: ObservationSource = configuredSource === 'api' ? 'api' : 'demo';
+export type ObservationSource = DataSource;
+export interface ObservationDataset {
+  observations: ClimateObservation[];
+  source: ObservationSource;
+  provenance: DatasetProvenance | null;
+}
 const API_VARIABLE_IDS: Record<ClimateVariable, number> = { Gistemp: 1, ModisNdvi: 2, GraceMass: 3, Oco2: 4 };
 const unitPatterns: Record<ClimateVariable, RegExp> = {
   Gistemp: /^(°c|celsius)( ?anomaly)?$/,
   ModisNdvi: /^(ndvi|1|adimensional)$/,
-  GraceMass: /^(cm|cm h2o eq\.?|cm water equivalent)$/,
+  GraceMass: /^(cm|cm ewh|cm h2o eq\.?|cm water equivalent)$/,
   Oco2: /^ppm$/,
 };
 
@@ -78,11 +82,18 @@ export async function getObservationDataset(variable: ClimateVariable, year: num
   if (!Object.hasOwn(API_VARIABLE_IDS, variable) || !Number.isInteger(year) || year < 1 || year > 9999) {
     throw new Error('La variable o el año de observación no son válidos.');
   }
-  if (configuredSource !== 'demo' && configuredSource !== 'api') {
-    throw new Error('VITE_OBSERVATION_DATA_SOURCE debe ser demo o api.');
+  const mode = readDataSourceMode(import.meta.env.VITE_OBSERVATION_DATA_SOURCE, 'VITE_OBSERVATION_DATA_SOURCE');
+  const resolved = await withAbort(resolveVariableSource(mode, variable), signal);
+  const demo = async (): Promise<ObservationDataset> => ({ observations: await withAbort(
+    Promise.resolve().then(() => createDemoObservations(variable, year)), signal), source: 'demo', provenance: null });
+  if (resolved.source === 'demo') return demo();
+  try {
+    const payload: unknown = await trendService.getObservations(variable, year, signal);
+    return { observations: adaptApiObservations(payload, variable, year), source: 'api', provenance: resolved.provenance };
+  } catch (error) {
+    // En auto, una caída puntual de la API cae a la demo, rotulada como tal; en api se muestra el error.
+    if (mode !== 'auto' || (error instanceof DOMException && error.name === 'AbortError')) throw error;
+    console.warn(`Observaciones de ${variable} ${year} no disponibles en la API; se usa la demo.`, error);
+    return demo();
   }
-  if (configuredSource === 'demo') return { observations: await withAbort(
-    Promise.resolve().then(() => createDemoObservations(variable, year)), signal), source: 'demo' };
-  const payload: unknown = await withAbort(trendService.getObservations(variable, year), signal);
-  return { observations: adaptApiObservations(payload, variable, year), source: 'api' };
 }

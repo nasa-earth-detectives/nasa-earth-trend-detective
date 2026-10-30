@@ -4,6 +4,9 @@ import type { SelectedLocation } from '../../hooks/useImmersiveUi';
 import type { ClimateObservation, ClimateVariable } from '../../types/climate.types';
 import type { ObservationSource } from '../../types/observationLayer.types';
 import type { TimeSeriesDataPoint } from '../../types/detective.types';
+import type { DatasetProvenance } from '../../types/dataset.types';
+import { useCellTrend } from '../../hooks/useCellTrend';
+import { provenanceLabel } from '../../services/datasetCatalog';
 import { CLIMATE_VARIABLES, SATELLITE_TIMELINE } from '../../config/climateLayers';
 import { formatCoordinate } from '../../utils/detectiveAnalysis';
 import { TimeSeriesChart } from './TimeSeriesChart';
@@ -17,6 +20,7 @@ interface DetectiveCardProps {
   variable: ClimateVariable;
   year: number;
   source: ObservationSource;
+  provenance?: DatasetProvenance | null;
   observation: ClimateObservation | null;
   observationDistanceDegrees: number | null;
   supportRadiusDegrees: number;
@@ -25,11 +29,13 @@ interface DetectiveCardProps {
   onYearChange?: (year: number) => void;
 }
 
-/** Coordenadas reales y una serie de demostración explícita hasta integrar la consulta regional. */
-export function DetectiveCard({ open, location, variable, year, source, observation, observationDistanceDegrees,
-  supportRadiusDegrees, loading, onClose, onYearChange }: DetectiveCardProps) {
+/** Con la API: serie anual real de la celda y su veredicto Mann-Kendall / Sen. Con la demo: escenario rotulado. */
+export function DetectiveCard({ open, location, variable, year, source, provenance = null, observation,
+  observationDistanceDegrees, supportRadiusDegrees, loading, onClose, onYearChange }: DetectiveCardProps) {
   const closeRef = useRef<HTMLButtonElement>(null);
   const metadata = CLIMATE_VARIABLES.find(item => item.id === variable);
+  const trend = useCellTrend(variable, open && source === 'api' ? provenance : null, observation);
+  const unit = provenance?.trendUnit ?? `${OBSERVATION_SCALES[variable].unit} / año`;
 
   useEffect(() => {
     if (!open) return;
@@ -43,14 +49,16 @@ export function DetectiveCard({ open, location, variable, year, source, observat
 
   const seriesData = useMemo<TimeSeriesDataPoint[]>(() => {
     if (!observation || loading) return [];
-    // Una respuesta API anual no autoriza inventar una serie temporal regional.
-    if (source === 'api') return [{ year, value: getObservationValue(observation) }];
+    // Sin la serie del backend no se inventa una regional: solo el valor anual recibido.
+    if (source === 'api') return trend.data?.series ?? [{ year, value: getObservationValue(observation) }];
     return Array.from({ length: SATELLITE_TIMELINE.endYear - SATELLITE_TIMELINE.startYear + 1 }, (_, index) => {
       const sampleYear = SATELLITE_TIMELINE.startYear + index;
       return { year: sampleYear, value: getObservationValue(sampleDemoObservation(variable, sampleYear,
         observation.latitude, observation.longitude)) };
     });
-  }, [variable, source, observation, year, loading]);
+  }, [variable, source, observation, year, loading, trend.data]);
+  const seriesYears = trend.data?.series.length
+    ? `${trend.data.series[0].year}—${trend.data.series[trend.data.series.length - 1].year}` : String(year);
 
   if (!open || !location) return null;
   const nearby = observation !== null && (observationDistanceDegrees ?? 0) > 1e-7;
@@ -88,8 +96,9 @@ export function DetectiveCard({ open, location, variable, year, source, observat
       </div>
 
       <div className="inspection-series-heading">
-        <h3>{loading ? 'Consultando observaciones' : !observation ? 'Sin muestra cercana' : source === 'demo' ? 'Serie del escenario simulado' : 'Observación disponible'}</h3>
-        <span>{observation && source === 'demo' ? `${SATELLITE_TIMELINE.startYear}—${SATELLITE_TIMELINE.endYear}` : year}</span>
+        <h3>{loading ? 'Consultando observaciones' : !observation ? 'Sin muestra cercana' : source === 'demo' ? 'Serie del escenario simulado'
+          : trend.data ? 'Serie anual observada' : 'Observación disponible'}</h3>
+        <span>{observation && source === 'demo' ? `${SATELLITE_TIMELINE.startYear}—${SATELLITE_TIMELINE.endYear}` : seriesYears}</span>
       </div>
       {loading ? <p className="inspection-chart__empty">Consultando el año seleccionado…</p> :
         <TimeSeriesChart data={seriesData} unit={OBSERVATION_SCALES[variable].unit}
@@ -98,11 +107,14 @@ export function DetectiveCard({ open, location, variable, year, source, observat
       <footer className="inspection-provenance">
         {!loading && !observation && <p>No hay muestras de esta variable a menos de {supportRadiusDegrees}° dentro de la cobertura activa.</p>}
         <p>{source === 'demo' ? 'Datos sintéticos · no son observaciones NASA.' :
-          observation ? 'Observación recibida de la API · serie histórica pendiente.' : 'Sin muestra recibida para esta ubicación.'}</p>
+          observation ? provenanceLabel(provenance) : 'Sin muestra recibida para esta ubicación.'}</p>
         <p>{variable === 'Gistemp'
           ? 'Rojo: más cálido · azul: más frío respecto al promedio de referencia. No es temperatura absoluta.'
           : `${OBSERVATION_SCALES[variable].label}.`}</p>
-        <p>Mann–Kendall / Sen <span>Sin calcular</span></p>
+        <p>Mann–Kendall / Sen <span>{source === 'demo' || !observation ? 'Sin calcular' : trend.loading ? 'Calculando…'
+          : trend.error ? 'No disponible' : trend.data ? `${trend.data.sensSlope >= 0 ? '+' : ''}${trend.data.sensSlope.toLocaleString('es',
+            { maximumFractionDigits: 3 })} ${unit} · p = ${trend.data.pValue.toLocaleString('es', { maximumSignificantDigits: 2 })}${
+            trend.data.isSignificant ? ' · significativa' : ' · no significativa'}` : 'Sin calcular'}</span></p>
       </footer>
     </aside>
   );

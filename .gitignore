@@ -56,6 +56,8 @@ TestResults/
 output/
 .vercel
 .env*
+# Las plantillas sin secretos sí se versionan (la regla de arriba las volvía a ignorar).
+!.env.example
 
 # NASA EarthData raw download cache
 data/nasa/

@@ -7,6 +7,7 @@ using NasaTrendDetective.Domain.Enums;
 
 namespace NasaTrendDetective.Tests.Api;
 
+[Collection(ApiHostCollection.Name)]
 public class TrendsControllerIntegrationTests : IClassFixture<WebApplicationFactory<Program>>
 {
     private readonly WebApplicationFactory<Program> _factory;

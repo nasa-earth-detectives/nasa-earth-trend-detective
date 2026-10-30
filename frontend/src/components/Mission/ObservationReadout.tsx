@@ -1,13 +1,16 @@
 import { useState } from 'react';
 import type { ClimateObservation, ClimateVariable } from '../../types/climate.types';
 import type { ObservationCoverage, ObservationLayerMode, ObservationSource } from '../../types/observationLayer.types';
+import type { DatasetProvenance } from '../../types/dataset.types';
 import { getObservationValue, observationColorCss, OBSERVATION_SCALES } from '../../utils/colorScales';
+import { partialYearNote, provenanceLabel } from '../../services/datasetCatalog';
 
 interface ObservationReadoutProps {
   observations: ClimateObservation[];
   variable: ClimateVariable;
   year: number;
   source: ObservationSource;
+  provenance?: DatasetProvenance | null;
   mode: ObservationLayerMode;
   coverage: ObservationCoverage;
   loading: boolean;
@@ -68,7 +71,8 @@ function ObservationPicker({ observations, selected, onSelect }: Pick<Observatio
 }
 
 /** Valores anuales, distintos de una pendiente temporal. Hexágonos y calor comparten escala. */
-export function ObservationReadout({ observations, variable, year, source, mode, coverage, loading, error, selected, onSelect }: ObservationReadoutProps) {
+export function ObservationReadout({ observations, variable, year, source, provenance = null, mode, coverage, loading, error,
+  selected, onSelect }: ObservationReadoutProps) {
   const scale = OBSERVATION_SCALES[variable];
   const [min, max] = scale.domain;
   const ready = !loading && !error;
@@ -77,10 +81,10 @@ export function ObservationReadout({ observations, variable, year, source, mode,
   const value = cell ? getObservationValue(cell) : null;
   const ramp = Array.from({ length: 9 }, (_, i) => observationColorCss(variable, min + (max - min) * i / 8)).join(', ');
   const labels = descriptions[variable];
-  const scope = source === 'api' ? 'Cobertura recibida' : coverage === 'land' || variable === 'ModisNdvi' || variable === 'GraceMass' ? 'Superficie terrestre' : 'Tierra + océano';
+  const scope = coverage === 'land' || variable === 'ModisNdvi' || variable === 'GraceMass' ? 'Superficie terrestre' : 'Tierra + océano';
   return <section className="hex-readout observation-readout" aria-label="Lectura de observaciones"
     data-state={loading ? 'loading' : error ? 'error' : observations.length ? 'ready' : 'empty'}>
-    <div className="hex-readout__heading"><span>{mode === 'heat' ? 'Mapa de calor' : mode === 'hex' ? 'Hexágonos 3D' : 'Observaciones'} · {scope}</span><span>{year}</span></div>
+    <div className="hex-readout__heading"><span>{mode === 'heat' ? 'Mapa de calor' : mode === 'hex' ? 'Hexágonos 3D' : 'Observaciones'} · {scope}</span><span title={partialYearNote(provenance, year) ? 'Año en curso: media de los meses publicados' : undefined}>{year}{partialYearNote(provenance, year) ? ` · ${partialYearNote(provenance, year)}` : ''}</span></div>
     <div className="hex-readout__body" role="status" aria-live="polite" aria-atomic="true">
       {cell && value !== null ? <>
         <p className="hex-readout__coordinates">{coordinates(cell)}</p>
@@ -103,7 +107,8 @@ export function ObservationReadout({ observations, variable, year, source, mode,
       </div>
       <p className="observation-readout__method">{mode === 'heat' ? 'Media espacial suavizada · radio de 4°' : 'Altura normalizada · escala fija por variable'}</p>
     </>}
-    <p className="hex-readout__source"><span aria-hidden="true" />{source === 'demo' ? 'Datos simulados · no son observaciones NASA' : 'Observaciones recibidas de la API'}</p>
+    <p className="hex-readout__source" title={provenance?.citation}><span aria-hidden="true" />{source === 'demo'
+      ? 'Datos simulados · no son observaciones NASA' : provenanceLabel(provenance)}</p>
     {ready && observations.length > 0 && mode === 'hex' && <ObservationPicker key={variable} observations={observations} selected={cell} onSelect={onSelect} />}
   </section>;
 }

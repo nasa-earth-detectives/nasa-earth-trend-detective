@@ -1,5 +1,6 @@
 using System.Data;
 using System.Globalization;
+using NasaTrendDetective.Application.Implements;
 using NasaTrendDetective.Application.Interfaces;
 using NasaTrendDetective.Domain.Entities;
 using NasaTrendDetective.Domain.Enums;
@@ -7,8 +8,15 @@ using NasaTrendDetective.Infrastructure.Interfaces;
 
 namespace NasaTrendDetective.Infrastructure.Implements;
 
+/// <summary>
+/// Lecturas de observaciones reales en DuckDB. No rellena con datos sintéticos: si no hay filas
+/// devuelve una lista vacía y es el servicio, que conoce el catálogo, quien decide qué mostrar.
+/// </summary>
 public class TrendObservationRepository : ITrendObservationRepository
 {
+    /// <summary>Misma regla que el análisis por celda: un año incompleto no entra en la serie.</summary>
+    private const int MinMonthsPerYear = GridTrendService.MinMonthsPerYear;
+
     private readonly IDuckDbRepository _repository;
 
     public TrendObservationRepository(IDuckDbRepository repository)
@@ -16,7 +24,7 @@ public class TrendObservationRepository : ITrendObservationRepository
         _repository = repository ?? throw new ArgumentNullException(nameof(repository));
     }
 
-    public async Task<IReadOnlyList<AnnualObservation>> GetAnnualSeriesAsync(
+    public Task<IReadOnlyList<AnnualObservation>> GetAnnualSeriesAsync(
         ClimateVariable variable,
         int startYear,
         int endYear,
@@ -29,47 +37,39 @@ public class TrendObservationRepository : ITrendObservationRepository
         {
             ["varId"] = (byte)variable,
             ["startYear"] = startYear,
-            ["endYear"] = endYear
+            ["endYear"] = endYear,
+            ["minMonths"] = MinMonthsPerYear
         };
 
-        string whereClause;
+        var where = "WHERE variable_id = $varId AND year BETWEEN $startYear AND $endYear";
         if (latitude.HasValue && longitude.HasValue)
         {
-            whereClause = "WHERE variable_id = $varId AND year BETWEEN $startYear AND $endYear " +
-                          "AND latitude BETWEEN $minLat AND $maxLat AND longitude BETWEEN $minLng AND $maxLng";
+            where += " AND latitude BETWEEN $minLat AND $maxLat AND longitude BETWEEN $minLng AND $maxLng";
             parameters["minLat"] = latitude.Value - toleranceDegrees;
             parameters["maxLat"] = latitude.Value + toleranceDegrees;
             parameters["minLng"] = longitude.Value - toleranceDegrees;
             parameters["maxLng"] = longitude.Value + toleranceDegrees;
         }
-        else
-        {
-            whereClause = "WHERE variable_id = $varId AND year BETWEEN $startYear AND $endYear";
-        }
 
-        var sql = $@"
-            SELECT 
+        // count(DISTINCT month): la ventana puede abarcar varias celdas, y lo que importa es cuántos
+        // meses del año están representados, no cuántas filas hay.
+        var sql = $"""
+            SELECT
                 CAST(year AS INTEGER) AS obs_year,
                 avg(observation_value) AS avg_val,
                 avg(anomaly_value) AS avg_anom
             FROM fact_climate_observations
-            {whereClause}
+            {where}
+              AND COALESCE(anomaly_value, observation_value) IS NOT NULL
             GROUP BY year
-            ORDER BY year;";
+            HAVING count(DISTINCT month) >= $minMonths
+            ORDER BY year
+            """;
 
-        var dbResults = await _repository.QueryAsync(sql, MapAnnualRecord, parameters, cancellationToken)
-            .ConfigureAwait(false);
-
-        if (dbResults.Count > 0)
-        {
-            return dbResults;
-        }
-
-        // Fallback demostrativo determinista si la BD aún no tiene Parquets cargados para la celda
-        return GenerateDeterministicSeries(variable, startYear, endYear, latitude ?? 0, longitude ?? 0);
+        return _repository.QueryAsync(sql, MapAnnualRecord, parameters, cancellationToken);
     }
 
-    public async Task<IReadOnlyList<TrendObservation>> GetObservationsByYearAsync(
+    public Task<IReadOnlyList<TrendObservation>> GetObservationsByYearAsync(
         ClimateVariable variable,
         int year,
         CancellationToken cancellationToken = default)
@@ -80,26 +80,23 @@ public class TrendObservationRepository : ITrendObservationRepository
             ["year"] = year
         };
 
-        var sql = @"
-            SELECT 
-                CAST(observation_id AS VARCHAR) AS obs_id,
+        // Una fila por celda (media de los meses disponibles). Antes se devolvía una fila por mes con
+        // LIMIT 5000: la misma celda aparecía hasta 12 veces y la grilla quedaba recortada al azar.
+        const string sql = """
+            SELECT
                 CAST(latitude AS DOUBLE) AS lat,
                 CAST(longitude AS DOUBLE) AS lng,
-                observation_value,
-                anomaly_value
+                avg(observation_value) AS avg_val,
+                avg(anomaly_value) AS avg_anom
             FROM fact_climate_observations
             WHERE variable_id = $varId AND year = $year
-            LIMIT 5000;";
+            GROUP BY latitude, longitude
+            HAVING avg(COALESCE(anomaly_value, observation_value)) IS NOT NULL
+            ORDER BY latitude, longitude
+            """;
 
-        var dbResults = await _repository.QueryAsync(sql, r => MapObservationRecord(r, variable, year), parameters, cancellationToken)
-            .ConfigureAwait(false);
-
-        if (dbResults.Count > 0)
-        {
-            return dbResults;
-        }
-
-        return GenerateFallbackGridObservations(variable, year);
+        return _repository.QueryAsync(
+            sql, record => MapObservationRecord(record, variable, year), parameters, cancellationToken);
     }
 
     private static AnnualObservation MapAnnualRecord(IDataRecord record) =>
@@ -108,80 +105,22 @@ public class TrendObservationRepository : ITrendObservationRepository
             record.IsDBNull(1) ? 0.0 : record.GetDouble(1),
             record.IsDBNull(2) ? null : record.GetDouble(2));
 
-    private static TrendObservation MapObservationRecord(IDataRecord record, ClimateVariable variable, int year) =>
-        new()
+    private static TrendObservation MapObservationRecord(IDataRecord record, ClimateVariable variable, int year)
+    {
+        var latitude = record.GetDouble(0);
+        var longitude = record.GetDouble(1);
+        var anomaly = record.IsDBNull(3) ? (double?)null : record.GetDouble(3);
+        return new TrendObservation
         {
-            Id = record.GetString(0),
+            // Determinista y único por celda: el frontend rechaza identificadores repetidos.
+            Id = string.Create(CultureInfo.InvariantCulture, $"{variable}:{year}:{latitude:F3}:{longitude:F3}"),
             Variable = variable,
-            Latitude = record.GetDouble(1),
-            Longitude = record.GetDouble(2),
-            Value = record.IsDBNull(3) ? 0.0 : record.GetDouble(3),
-            Anomaly = record.IsDBNull(4) ? null : record.GetDouble(4),
-            Unit = variable switch
-            {
-                ClimateVariable.Gistemp => "°C Anomaly",
-                ClimateVariable.ModisNdvi => "NDVI",
-                ClimateVariable.GraceMass => "cm EWH",
-                _ => "ppm"
-            },
+            Latitude = latitude,
+            Longitude = longitude,
+            Value = record.IsDBNull(2) ? anomaly ?? 0.0 : record.GetDouble(2),
+            Anomaly = anomaly,
+            Unit = VariableUnits.For(variable),
             Timestamp = new DateTime(year, 6, 15, 0, 0, 0, DateTimeKind.Utc)
         };
-
-    private static IReadOnlyList<AnnualObservation> GenerateDeterministicSeries(
-        ClimateVariable variable, int startYear, int endYear, double lat, double lng)
-    {
-        var count = Math.Max(1, endYear - startYear + 1);
-        var list = new List<AnnualObservation>(count);
-        var baseSeed = (int)Math.Abs(lat * 100 + lng * 10 + (int)variable);
-        var isArctic = lat > 66.0;
-
-        for (var y = startYear; y <= endYear; y++)
-        {
-            var t = y - startYear;
-            double slope = variable switch
-            {
-                ClimateVariable.Gistemp => isArctic ? 0.070 : 0.024,
-                ClimateVariable.ModisNdvi => 0.0018,
-                ClimateVariable.GraceMass => isArctic ? -220.0 : -15.0,
-                _ => 2.45 // Oco2 ppm/yr
-            };
-
-            var noise = (Math.Sin(baseSeed + t * 1.5) * 0.15) * Math.Abs(slope);
-            var val = (t * slope) + noise;
-            list.Add(new AnnualObservation(y, Math.Round(val, 4), Math.Round(val, 4)));
-        }
-
-        return list;
-    }
-
-    private static IReadOnlyList<TrendObservation> GenerateFallbackGridObservations(ClimateVariable variable, int year)
-    {
-        var points = new[]
-        {
-            (78.22, 15.63, 0.85, 1.42),   // Ártico
-            (55.0, -30.0, -0.22, -0.45),  // Atlántico Norte
-            (-3.46, -62.21, 0.72, -0.08), // Amazonía
-            (25.0, 115.0, 0.65, 0.12),    // Sur de China
-            (72.0, -40.0, -180.0, -210.0),// Groenlandia
-            (4.71, -74.07, 1.10, 0.40)    // Bogotá
-        };
-
-        return points.Select((p, idx) => new TrendObservation
-        {
-            Id = $"fb-{year}-{idx}",
-            Variable = variable,
-            Latitude = p.Item1,
-            Longitude = p.Item2,
-            Value = p.Item3,
-            Anomaly = p.Item4,
-            Unit = variable switch
-            {
-                ClimateVariable.Gistemp => "°C Anomaly",
-                ClimateVariable.ModisNdvi => "NDVI",
-                ClimateVariable.GraceMass => "cm EWH",
-                _ => "ppm"
-            },
-            Timestamp = new DateTime(year, 6, 15, 0, 0, 0, DateTimeKind.Utc)
-        }).ToList();
     }
 }

@@ -1,6 +1,7 @@
 import { useRef, useState, type RefObject } from 'react';
 import { useGlobeScene, type GlobeSceneApi, type ScenePreferences } from './useGlobeScene';
 import type { EarthSurfaceStatus } from './earthConfig';
+import { EARTH_TILE_ATTRIBUTION } from './earthTileConfig';
 
 interface GlobeViewerProps {
   /** Permite que los instrumentos actúen sobre la escena ya montada. */
@@ -22,9 +23,15 @@ export function GlobeViewer({ apiRef, preferencesRef }: GlobeViewerProps) {
   useGlobeScene(containerRef, apiRef, preferencesRef, setSurfaceStatus);
 
   return (
-    <div className="absolute inset-0 scene-vignette scene-grain">
+    <div className="group absolute inset-0 scene-vignette scene-grain">
       {/* Globe.gl monta el canvas WebGL dentro de este contenedor. */}
       <div ref={containerRef} className="absolute inset-0" />
+      {/* Crédito obligatorio de las fuentes; sólo cuando los mosaicos están en pantalla. */}
+      <p aria-hidden="true" className="absolute bottom-6 right-5 text-[10px] text-[color:var(--text-tertiary)]
+        pointer-events-none opacity-0 transition-opacity duration-500
+        group-has-[[data-earth-tiles=active]]:opacity-100">
+        {EARTH_TILE_ATTRIBUTION}
+      </p>
       {(surfaceStatus === 'fallback' || surfaceStatus === 'degraded') &&
         <p role="status" className="absolute bottom-2 right-5 text-[11px] text-[color:var(--text-tertiary)] pointer-events-none">
           {surfaceStatus === 'fallback' ? 'Imagen terrestre no disponible · vista provisional' : 'Superficie terrestre · detalle parcial'}

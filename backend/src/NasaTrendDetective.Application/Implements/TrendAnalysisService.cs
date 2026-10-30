@@ -9,10 +9,12 @@ namespace NasaTrendDetective.Application.Implements;
 public class TrendAnalysisService : ITrendAnalysisService
 {
     private readonly ITrendObservationRepository _repository;
+    private readonly IDatasetCatalogRepository _catalog;
 
-    public TrendAnalysisService(ITrendObservationRepository repository)
+    public TrendAnalysisService(ITrendObservationRepository repository, IDatasetCatalogRepository catalog)
     {
         _repository = repository ?? throw new ArgumentNullException(nameof(repository));
+        _catalog = catalog ?? throw new ArgumentNullException(nameof(catalog));
     }
 
     public async Task<TrendResultDto> AnalyzeTrendsAsync(TrendQueryDto query, CancellationToken cancellationToken = default)
@@ -27,6 +29,16 @@ public class TrendAnalysisService : ITrendAnalysisService
             query.Longitude,
             toleranceDegrees: 1.0,
             cancellationToken).ConfigureAwait(false);
+
+        // Solo una variable sin dataset recibe la serie de demostración. Con dataset cargado, una
+        // celda sin datos devuelve una serie vacía: inventarla ahí haría pasar ficción por observación.
+        var observed = observations.Count > 0
+            || await IsObservedAsync(query.Variable, cancellationToken).ConfigureAwait(false);
+        if (!observed)
+        {
+            observations = SyntheticClimateData.AnnualSeries(
+                query.Variable, query.StartYear, query.EndYear, query.Latitude ?? 0, query.Longitude ?? 0);
+        }
 
         var verdict = TrendStatisticsEngine.Analyze(observations);
 
@@ -46,7 +58,8 @@ public class TrendAnalysisService : ITrendAnalysisService
             IsSignificant = verdict.IsSignificant,
             Direction = verdict.Direction.ToString(),
             ConfidenceInterval95 = verdict.ConfidenceInterval95,
-            Observations = observations
+            Observations = observations,
+            Source = observed ? DatasetStatusDto.Observed : DatasetStatusDto.Synthetic
         };
     }
 
@@ -85,7 +98,16 @@ public class TrendAnalysisService : ITrendAnalysisService
         int year,
         CancellationToken cancellationToken = default)
     {
-        return await _repository.GetObservationsByYearAsync(variable, year, cancellationToken)
+        var observations = await _repository.GetObservationsByYearAsync(variable, year, cancellationToken)
             .ConfigureAwait(false);
+        if (observations.Count > 0 || await IsObservedAsync(variable, cancellationToken).ConfigureAwait(false))
+        {
+            return observations;
+        }
+
+        return SyntheticClimateData.GridSnapshot(variable, year);
     }
+
+    private async Task<bool> IsObservedAsync(ClimateVariable variable, CancellationToken cancellationToken) =>
+        await _catalog.GetAsync(variable, cancellationToken).ConfigureAwait(false) is not null;
 }

@@ -84,7 +84,7 @@ export const CLIMATE_MILESTONES: Record<number, ClimateMilestone> = {
     title: 'Cúspide de Anomalía GISTEMP v4',
     category: 'record',
     categoryLabel: 'Cúspide Instrumental',
-    summary: 'Máximo histórico de temperatura media global superficial (+1,28°C s/ media preindustrial).',
+    summary: 'Máximo histórico de temperatura media global superficial (+1,28 °C sobre la media 1951-1980, GISTEMP v4).',
     scientificImpact: 'Riesgo inminente de rebasamiento transitorio del umbral de 1,5°C de París.',
     badgeColor: '#f43f5e',
   },

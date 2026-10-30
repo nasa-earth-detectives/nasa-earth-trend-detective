@@ -8,7 +8,7 @@ import { ViewOptionsList } from './ViewOptionsList';
 import { StatusRowList } from './StatusRowList';
 import { LiveSystemSwitches } from './LiveSystemSwitches';
 import { InstrumentSwitch } from '../UI/InstrumentSwitch';
-import type { ObservationCoverage, ObservationLayerMode, ObservationSource } from '../../types/observationLayer.types';
+import type { ObservationCoverage, ObservationLayerMode } from '../../types/observationLayer.types';
 import '../../styles/layers.css';
 
 interface LayerPanelProps {
@@ -31,7 +31,6 @@ interface LayerPanelProps {
   onObservationModeChange: (value: ObservationLayerMode) => void;
   coverage: ObservationCoverage;
   onCoverageChange: (value: ObservationCoverage) => void;
-  source: ObservationSource;
   onAutoRotateChange: (value: boolean) => void;
   onStarsChange: (value: boolean) => void;
   onGridChange: (value: boolean) => void;
@@ -53,7 +52,7 @@ export function LayerPanel({
   autoRotate, starsVisible, gridVisible, atmosphereVisible,
   oceanFlowVisible = true, teleconnectionsVisible = true, radarRipplesVisible = true, satellitesVisible = true,
   observationMode, onObservationModeChange,
-  coverage, onCoverageChange, source,
+  coverage, onCoverageChange,
   onAutoRotateChange, onStarsChange, onGridChange, onAtmosphereChange,
   onOceanFlowChange = () => {}, onTeleconnectionsChange = () => {},
   onRadarRipplesChange = () => {}, onSatellitesChange = () => {},
@@ -131,7 +130,7 @@ export function LayerPanel({
                     event.currentTarget.parentElement?.querySelectorAll<HTMLButtonElement>('button')[next].focus();
                   }}>{item.label}</button>)}
             </div>
-            {source === 'demo' && (selectedVariable === 'Gistemp' || selectedVariable === 'Oco2') &&
+            {(selectedVariable === 'Gistemp' || selectedVariable === 'Oco2') &&
               <InstrumentSwitch label="Incluir océanos" description="La vista inicial muestra tierra firme"
                 checked={coverage === 'global'} onChange={enabled => onCoverageChange(enabled ? 'global' : 'land')} />}
           </div>

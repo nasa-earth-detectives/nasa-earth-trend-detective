@@ -10,13 +10,18 @@ namespace NasaTrendDetective.Infrastructure.Extensions;
 /// </summary>
 public static class InfrastructureServiceCollectionExtensions
 {
+    /// <remarks>
+    /// El orden importa: AddDuckDb registra el servicio que crea el esquema y AddDatasetSeed el que
+    /// lo llena; el host los arranca en ese orden.
+    /// </remarks>
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
         return services
             .AddDuckDb(configuration)
             .AddNasaEarthData(configuration)
             .AddGridNormalization(configuration)
-            .AddParquetImport(configuration);
+            .AddParquetImport(configuration)
+            .AddDatasetSeed(configuration);
     }
 
     /// <summary>
@@ -45,6 +50,8 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddSingleton<IDuckDbSchemaInitializer, DuckDbSchemaInitializer>();
         services.AddHostedService<DuckDbSchemaHostedService>();
         services.AddScoped<NasaTrendDetective.Application.Interfaces.ITrendObservationRepository, TrendObservationRepository>();
+        services.AddScoped<NasaTrendDetective.Application.Interfaces.IGridTrendRepository, GridTrendRepository>();
+        services.AddScoped<NasaTrendDetective.Application.Interfaces.IDatasetCatalogRepository, DatasetCatalogRepository>();
         return services;
     }
 }

@@ -1,5 +1,6 @@
 import type { ClimateObservation, ClimateVariable } from './climate.types';
 import type { ObservationLayerMode } from './observationLayer.types';
+import type { Teleconnection } from './teleconnection.types';
 
 /**
  * Tipos e interfaces de la escena 3D del globo terráqueo (Globe.gl & Three.js).
@@ -26,6 +27,8 @@ export interface GlobeSceneApi {
   setRadarRipplesVisible?(visible: boolean): void;
   setSatellitesVisible?(visible: boolean): void;
   setOceanFlowVisible?(visible: boolean): void;
+  /** Arcos de teleconexión y anillos en sus extremos. */
+  setTeleconnections?(connections: Teleconnection[]): void;
   /** Maniobra cinemática "Ojo de Dios" hacia un punto específico de observación. */
   flyToGodsEye?(lat: number, lng: number, altitude?: number, durationMs?: number): void;
   setLocationSelectHandler(handler: ((location: GlobeLocation) => void) | null): void;

@@ -70,6 +70,33 @@ CREATE TABLE IF NOT EXISTS fact_climate_observations (
     CHECK (month BETWEEN 1 AND 12)
 );
 
+-- Procedencia del dataset cargado por variable (una fila por variable). Sin fila = sin datos
+-- reales: la API declara la variable como "synthetic" en vez de inventar observaciones.
+-- parquet_sha256 identifica el archivo importado: si no cambia, el arranque no reimporta nada;
+-- si cambia (nueva fuente o nueva descarga), se reemplazan los hechos de esa variable.
+CREATE TABLE IF NOT EXISTS dataset_provenance (
+    variable_id        TINYINT     PRIMARY KEY REFERENCES dim_variable (variable_id),
+    provider           VARCHAR     NOT NULL,
+    product            VARCHAR     NOT NULL,
+    unit               VARCHAR     NOT NULL,
+    trend_unit         VARCHAR     NOT NULL,
+    baseline           VARCHAR,
+    resolution_degrees DOUBLE      NOT NULL,
+    source_url         VARCHAR     NOT NULL,
+    source_file        VARCHAR     NOT NULL,
+    source_sha256      VARCHAR     NOT NULL,
+    retrieved_at       TIMESTAMP   NOT NULL, -- UTC
+    coverage_start     SMALLINT    NOT NULL,
+    coverage_end       SMALLINT    NOT NULL,
+    last_month         VARCHAR     NOT NULL,
+    interim            BOOLEAN     NOT NULL,
+    citation           VARCHAR     NOT NULL,
+    parquet_file       VARCHAR     NOT NULL,
+    parquet_sha256     VARCHAR     NOT NULL,
+    row_count          BIGINT      NOT NULL,
+    loaded_at          TIMESTAMP   NOT NULL  -- UTC
+);
+
 -- Seed de dim_variable (idempotente).
 INSERT OR IGNORE INTO dim_variable (variable_id, variable_code, variable_name, unit, mission) VALUES
     (1, 'Gistemp',   'Anomalia de temperatura superficial global', 'degC',  'NASA GISS GISTEMP v4'),
