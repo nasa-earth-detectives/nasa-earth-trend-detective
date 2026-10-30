@@ -37,6 +37,8 @@ export interface GlobeSceneApi {
   setTeleconnections?(connections: Teleconnection[]): void;
   /** Maniobra cinemática "Ojo de Dios" hacia un punto específico de observación. */
   flyToGodsEye?(lat: number, lng: number, altitude?: number, durationMs?: number): void;
+  /** Marcador 3D de ubicación en tiempo real del usuario en la superficie terrestre. */
+  setUserLocation?(coords: GlobeLocation | null): void;
   setLocationSelectHandler(handler: ((location: GlobeLocation) => void) | null): void;
   inspectCenter(): void;
   /** Devuelve la cámara al encuadre inicial con una transición suave. */
@@ -56,4 +58,3 @@ export interface ScenePreferences {
   satellitesVisible?: boolean;
   oceanFlowVisible?: boolean;
 }
-

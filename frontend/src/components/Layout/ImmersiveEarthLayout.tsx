@@ -7,6 +7,7 @@ import { applyScienceAccent } from '../../config/scienceTheme';
 import { useImmersiveUi, type SelectedLocation } from '../../hooks/useImmersiveUi';
 import { useSceneControls } from '../../hooks/useSceneControls';
 import { useIdleUi } from '../../hooks/useIdleUi';
+import { useUserGeolocation } from '../../hooks/useUserGeolocation';
 import { findNearbyObservation } from '../../utils/observationLookup';
 import { useVisibleObservations } from '../../hooks/useVisibleObservations';
 import { useHexData } from '../../hooks/useHexData';
@@ -51,6 +52,7 @@ export function ImmersiveEarthLayout({
   const sceneApiRef = useRef<GlobeSceneApi | null>(null);
   const ui = useImmersiveUi(initialLocation);
   const scene = useSceneControls(sceneApiRef);
+  const geo = useUserGeolocation();
   useTeleconnections(sceneApiRef);
   const [isPlaying, setIsPlaying] = useState(false);
   const [tourRunning, setTourRunning] = useState(false);
@@ -102,6 +104,9 @@ export function ImmersiveEarthLayout({
     return () => sceneApiRef.current?.setLocationSelectHandler(null);
   }, [ui.selectLocation]);
   useEffect(() => {
+    if (initialLocation) sceneApiRef.current?.setUserLocation?.(initialLocation);
+  }, [initialLocation]);
+  useEffect(() => {
     const updateOffset = () => {
       const offset = panelOpen && window.innerWidth >= 1024 ? -Math.min(210, Math.max(110, window.innerWidth * 0.1)) : 0;
       const verticalOffset = panelOpen && window.innerWidth < 1024 && window.innerHeight > window.innerWidth
@@ -119,9 +124,17 @@ export function ImmersiveEarthLayout({
     requestAnimationFrame(() => document.querySelector<HTMLButtonElement>('[data-mode-trigger="inspection"]')?.focus());
   }, [ui.observe]);
 
+  const handleLocateUser = useCallback(async () => {
+    const coords = await geo.requestLocation();
+    if (coords) {
+      sceneApiRef.current?.setUserLocation?.(coords);
+      sceneApiRef.current?.flyToGodsEye?.(coords.lat, coords.lng, 0.45, 1800);
+      ui.selectLocation({ lat: coords.lat, lng: coords.lng });
+    }
+  }, [geo.requestLocation, ui.selectLocation]);
+
   const handleStartTour = () => guidedTourService.startMissionTour({
-    onResetView: ui.observe,
-    onOpenTime: () => ui.openMode('time'),
+    onResetView: ui.observe, onOpenTime: () => ui.openMode('time'),
     onOpenInspector: () => {
       if (ui.location) ui.selectLocation(ui.location);
       else sceneApiRef.current?.inspectCenter();
@@ -147,7 +160,8 @@ export function ImmersiveEarthLayout({
       </div>
       <div className="intent-position quiet-instrument">
         <ModeNavigator mode={ui.mode} variable={filter.variable} year={filter.endYear}
-          onModeChange={ui.toggleMode} onRecenter={scene.resetCamera} onInspectCenter={() => sceneApiRef.current?.inspectCenter()} />
+          onModeChange={ui.toggleMode} onRecenter={scene.resetCamera} onInspectCenter={() => sceneApiRef.current?.inspectCenter()}
+          onLocateUser={handleLocateUser} locating={geo.status === 'locating'} />
       </div>
       <div id="tour-time-navigator" className="time-position quiet-instrument" data-expanded={ui.mode === 'time'}
         inert={panelOpen || ui.mode === 'inspection'}>
@@ -166,8 +180,7 @@ export function ImmersiveEarthLayout({
         selectedVariable={filter.variable} onVariableSelect={onVariableChange}
         autoRotate={scene.preferences.autoRotate} starsVisible={scene.preferences.starsVisible}
         gridVisible={scene.preferences.gridVisible} atmosphereVisible={scene.preferences.atmosphereVisible}
-        oceanFlowVisible={scene.preferences.oceanFlowVisible}
-        teleconnectionsVisible={scene.preferences.teleconnectionArcsVisible}
+        oceanFlowVisible={scene.preferences.oceanFlowVisible} teleconnectionsVisible={scene.preferences.teleconnectionArcsVisible}
         radarRipplesVisible={scene.preferences.radarRipplesVisible} satellitesVisible={scene.preferences.satellitesVisible}
         observationMode={observationMode} onObservationModeChange={setObservationMode}
         reading={reading} onReadingChange={setReading} coverage={coverage} onCoverageChange={setCoverage}

@@ -1,4 +1,4 @@
-import { Crosshair, History, Orbit, Scan } from 'lucide-react';
+import { Crosshair, History, MapPin, Orbit, Scan } from 'lucide-react';
 import type { InstrumentMode } from '../../hooks/useImmersiveUi';
 import type { ClimateVariable } from '../../types/climate.types';
 import { OBSERVATION_LENSES } from '../../config/observationLenses';
@@ -10,16 +10,28 @@ interface ModeNavigatorProps {
   onModeChange: (mode: InstrumentMode) => void;
   onRecenter: () => void;
   onInspectCenter: () => void;
+  onLocateUser?: () => void;
+  locating?: boolean;
 }
 
 /** Instrumentos persistentes; cada acceso conserva la lectura del contexto que abre. */
-export function ModeNavigator({ mode, variable, year, onModeChange, onRecenter, onInspectCenter }: ModeNavigatorProps) {
+export function ModeNavigator({
+  mode,
+  variable,
+  year,
+  onModeChange,
+  onRecenter,
+  onInspectCenter,
+  onLocateUser,
+  locating = false,
+}: ModeNavigatorProps) {
   const lens = OBSERVATION_LENSES[variable];
   const instruments = [
     { mode: 'layers', label: 'Variables', detail: lens.domain, panel: 'layer-panel', symbol: lens.symbol },
     { mode: 'time', label: 'Tiempo', detail: `Año seleccionado · ${year}`, panel: 'mission-time-navigator', symbol: <History size={19} /> },
     { mode: 'view', label: 'Escena', detail: 'Órbita y referencias', panel: 'layer-panel', symbol: <Orbit size={19} /> },
   ] as const;
+
   return (
     <nav id="tour-mode-navigator" className="mode-navigator" aria-label="Explorar la Tierra" data-ui-control>
       <p className="mode-index-label">Instrumentos de observación</p>
@@ -34,6 +46,20 @@ export function ModeNavigator({ mode, variable, year, onModeChange, onRecenter, 
         </button>
       ))}
       <div className="scene-utilities">
+        {onLocateUser && (
+          <button
+            type="button"
+            className="recenter-control focus-ring"
+            onClick={onLocateUser}
+            disabled={locating}
+            data-mode-trigger="locate"
+            aria-label="Ubicar mi posición en la Tierra"
+            title="Ubicar mi posición en la Tierra"
+          >
+            <MapPin size={16} aria-hidden="true" />
+            <span>{locating ? 'Ubicando…' : 'Mi ubicación'}</span>
+          </button>
+        )}
         <button type="button" className="recenter-control focus-ring" onClick={onInspectCenter}
           data-mode-trigger="inspection" aria-label="Inspeccionar centro de la Tierra" title="Inspeccionar centro de la Tierra">
           <Scan size={16} aria-hidden="true" /><span>Inspeccionar ubicación</span>
