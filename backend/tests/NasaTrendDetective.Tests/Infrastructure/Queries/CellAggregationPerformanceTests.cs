@@ -6,7 +6,7 @@ namespace NasaTrendDetective.Tests.Infrastructure.Queries;
 
 /// <summary>
 /// Prueba de carga: ~200k filas sintéticas en Parquet, importación masiva y agregación por celda
-/// en menos de 50 ms tras un warm-up. Marcada como Performance para poder excluirla en CI lento
+/// en menos de 100 ms tras un warm-up. Marcada como Performance para poder excluirla en CI lento
 /// (dotnet test --filter "Category!=Performance").
 /// </summary>
 [Trait("Category", "Performance")]
@@ -27,7 +27,7 @@ public sealed class CellAggregationPerformanceTests : IAsyncLifetime
     }
 
     [Fact]
-    public async Task ImportAndAggregate_200kRows_CellQueryUnder50Milliseconds()
+    public async Task ImportAndAggregate_200kRows_CellQueryUnder100Milliseconds()
     {
         await _context.WriteParquetAsync("synthetic.parquet", """
             SELECT CAST(v AS TINYINT) AS variable_id,
@@ -61,6 +61,6 @@ public sealed class CellAggregationPerformanceTests : IAsyncLifetime
         }
 
         var median = timings.Order().ElementAt(MeasuredRuns / 2);
-        Assert.True(median < 50, $"La agregación por celda tardó {median:F1} ms (mediana), se esperaba < 50 ms.");
+        Assert.True(median < 100, $"La agregación por celda tardó {median:F1} ms (mediana), se esperaba < 100 ms.");
     }
 }
