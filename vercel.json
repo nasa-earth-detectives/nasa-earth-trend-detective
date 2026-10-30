@@ -7,7 +7,7 @@
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "https://nasa-trend-detective-api.onrender.com/api/$1"
+      "destination": "https://nasa-trend-detective-api-72rq.onrender.com/api/$1"
     },
     {
       "source": "/(.*)",
