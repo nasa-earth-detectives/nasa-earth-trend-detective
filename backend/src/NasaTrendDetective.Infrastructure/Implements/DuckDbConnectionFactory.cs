@@ -1,3 +1,4 @@
+using System.Threading;
 using DuckDB.NET.Data;
 using Microsoft.Extensions.Options;
 using NasaTrendDetective.Infrastructure.Interfaces;
@@ -13,6 +14,7 @@ public sealed class DuckDbConnectionFactory : IDuckDbConnectionFactory, IDisposa
 {
     private readonly DuckDBConnection? _memoryAnchor;
     private readonly string? _settingsSql;
+    private int _limitsApplied;
     private bool _disposed;
 
     public DuckDbConnectionFactory(IOptions<DuckDbOptions> options)
@@ -109,19 +111,26 @@ public sealed class DuckDbConnectionFactory : IDuckDbConnectionFactory, IDisposa
     }
 
     /// <summary>
-    /// SET memory_limit/threads son globales de la instancia; repetirlos al abrir cada conexión
-    /// cuesta microsegundos y garantiza que se aplican antes de la primera consulta pesada.
+    /// SET memory_limit/temp_directory/threads son a nivel de instancia DuckDB.
+    /// Solo deben ejecutarse en la primera conexión para evitar errores de 'Cannot switch temporary directory'.
     /// </summary>
     private async Task ApplyResourceLimitsAsync(DuckDBConnection connection, CancellationToken cancellationToken)
     {
-        if (_settingsSql is null)
+        if (_settingsSql is null || Interlocked.Exchange(ref _limitsApplied, 1) != 0)
         {
             return;
         }
 
-        await using var command = connection.CreateCommand();
-        command.CommandText = _settingsSql;
-        await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
+        try
+        {
+            await using var command = connection.CreateCommand();
+            command.CommandText = _settingsSql;
+            await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
+        }
+        catch (DuckDBException ex) when (ex.Message.Contains("temporary directory", StringComparison.OrdinalIgnoreCase))
+        {
+            // Ignorar si el directorio temporal ya había sido inicializado previamente por otra conexión/instancia.
+        }
     }
 
     public void Dispose()
