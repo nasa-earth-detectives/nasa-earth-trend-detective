@@ -39,11 +39,12 @@ interface ImmersiveEarthLayoutProps {
   filter: TrendFilterParams;
   onVariableChange: (variable: ClimateVariable) => void;
   onYearChange: (year: number) => void;
+  onOpenWizard?: () => void;
 }
 
 /** Un único espacio WebGL; cada intención reorganiza los instrumentos DOM. */
 export function ImmersiveEarthLayout({ observations, loading, observationError, source, provenance, filter,
-  onVariableChange, onYearChange }: ImmersiveEarthLayoutProps) {
+  onVariableChange, onYearChange, onOpenWizard }: ImmersiveEarthLayoutProps) {
   const sceneApiRef = useRef<GlobeSceneApi | null>(null);
   const ui = useImmersiveUi();
   const scene = useSceneControls(sceneApiRef);
@@ -143,7 +144,7 @@ export function ImmersiveEarthLayout({ observations, loading, observationError, 
         <ObservationContext variable={filter.variable} />
       </div>
       <div className="mission-position quiet-instrument">
-        <MissionHeader onStartTour={handleStartTour} />
+        <MissionHeader onStartTour={handleStartTour} onOpenWizard={onOpenWizard} />
       </div>
       <div className="system-position quiet-instrument" data-hex-active={true}>
         {trendReading ? (
