@@ -10,6 +10,7 @@ export interface CellTrend {
   sensSlope: number;
   pValue: number;
   isSignificant: boolean;
+  zScore: number;
   direction: string;
 }
 
@@ -32,7 +33,8 @@ export function adaptCellTrend(payload: unknown): CellTrend {
     return { year: finite(point.year, 'year'), value: finite(value, 'value') };
   });
   return { series, sensSlope: finite(row.sensSlope, 'sensSlope'), pValue: finite(row.pValue, 'pValue'),
-    isSignificant: row.isSignificant === true, direction: typeof row.direction === 'string' ? row.direction : 'Stable' };
+    isSignificant: row.isSignificant === true, zScore: finite(row.mannKendallZ, 'mannKendallZ'),
+    direction: typeof row.direction === 'string' ? row.direction : 'Stable' };
 }
 
 /** Solo consulta con una celda de la API seleccionada; con la demo devuelve null sin pedir nada. */

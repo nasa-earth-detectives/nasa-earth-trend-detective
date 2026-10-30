@@ -13,6 +13,7 @@
 .inspection-chart__cursor { stroke: var(--edge-highlight); stroke-dasharray: 2 3; }
 .inspection-chart__point { fill: var(--chart-accent); stroke: var(--surface-deep-instrument); stroke-width: 1.5; }
 .inspection-chart__hit { fill: transparent; cursor: crosshair; }
+.inspection-chart__trend { stroke: var(--text-tertiary); stroke-width: 1; stroke-dasharray: 5 3; }
 
 .inspection-chart__range {
   position: absolute;

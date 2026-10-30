@@ -8,6 +8,8 @@ interface TimeSeriesChartProps {
   selectedYear?: number;
   onYearSelect?: (year: number) => void;
   accentColor?: string;
+  /** Pendiente mediana de Sen (°C/año). Si llega, se dibuja la recta de tendencia. */
+  senSlope?: number;
 }
 
 /** Serie SVG ligera; el control nativo conserva teclado, tacto y lectura accesible. */
@@ -17,6 +19,7 @@ export function TimeSeriesChart({
   selectedYear,
   onYearSelect,
   accentColor = 'var(--active-accent)',
+  senSlope,
 }: TimeSeriesChartProps) {
   const [hoveredYear, setHoveredYear] = useState<number | null>(null);
   const [localYear, setLocalYear] = useState<number | null>(null);
@@ -39,6 +42,16 @@ export function TimeSeriesChart({
     ? (plot.top + plot.bottom) / 2
     : plot.bottom - ((value - minValue) / (maxValue - minValue)) * (plot.bottom - plot.top);
   const points = observations.map(point => `${getX(point.year)},${getY(point.value)}`).join(' ');
+  const clampY = (value: number) => Math.min(plot.bottom, Math.max(plot.top, value));
+  // La recta de Sen se ancla en la mediana de la serie para no inventar un intercepto.
+  const medianValue = [...values].sort((a, b) => a - b)[Math.floor(values.length / 2)];
+  const medianYear = observations[Math.floor(observations.length / 2)].year;
+  const trendLine = senSlope !== undefined && Number.isFinite(senSlope) && observations.length > 1
+    ? {
+      x1: getX(minYear), y1: clampY(getY(medianValue + senSlope * (minYear - medianYear))),
+      x2: getX(maxYear), y2: clampY(getY(medianValue + senSlope * (maxYear - medianYear))),
+    }
+    : null;
   const requestedYear = selectedYear ?? localYear ?? maxYear;
   const selectedIndex = observations.reduce((nearest, point, index) =>
     Math.abs(point.year - requestedYear) < Math.abs(observations[nearest].year - requestedYear) ? index : nearest, 0);
@@ -62,6 +75,10 @@ export function TimeSeriesChart({
             </g>
           ))}
           <polyline className="inspection-chart__line" points={points} vectorEffect="non-scaling-stroke" />
+          {trendLine && (
+            <line className="inspection-chart__trend" x1={trendLine.x1} y1={trendLine.y1}
+              x2={trendLine.x2} y2={trendLine.y2} vectorEffect="non-scaling-stroke" />
+          )}
           <line className="inspection-chart__cursor" x1={getX(activePoint.year)} y1={plot.top} x2={getX(activePoint.year)} y2={plot.bottom + 5} />
           <circle className="inspection-chart__point" cx={getX(activePoint.year)} cy={getY(activePoint.value)} r="3.5" />
           {observations.map((point, index) => {
