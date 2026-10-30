@@ -9,7 +9,8 @@ import { useCallback, useRef, useState, type RefObject } from 'react';
 import type { GlobeSceneApi, ScenePreferences } from '../components/Globe/useGlobeScene';
 
 const DEFAULT_PREFERENCES: ScenePreferences = {
-  autoRotate: true,
+  // Desactivada por defecto para permitir análisis quieto de celdas; se activa en Escena si se desea.
+  autoRotate: false,
   starsVisible: true,
   gridVisible: false,
   atmosphereVisible: true,

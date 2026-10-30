@@ -85,7 +85,7 @@ export function useGlobeScene(
       if (initialPreferences.oceanFlowVisible !== undefined) liveSystem.setOceanFlowVisible(initialPreferences.oceanFlowVisible);
     }
 
-    let autoRotatePreferred = initialPreferences ? initialPreferences.autoRotate : true;
+    let autoRotatePreferred = initialPreferences ? initialPreferences.autoRotate : false;
     let interacting = false;
     let idleTimer: ReturnType<typeof setTimeout> | undefined;
     const syncAutoRotate = (): void => { controls.autoRotate = autoRotatePreferred && !interacting; };
