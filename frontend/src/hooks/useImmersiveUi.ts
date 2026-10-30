@@ -5,9 +5,9 @@ export type LayerTab = 'data' | 'view';
 export interface SelectedLocation { lat: number; lng: number }
 
 /** La intención cambia la composición; el estado científico permanece independiente. */
-export function useImmersiveUi() {
-  const [mode, setMode] = useState<InstrumentMode>('observation');
-  const [location, setLocation] = useState<SelectedLocation | null>(null);
+export function useImmersiveUi(initialLocation: SelectedLocation | null = null) {
+  const [mode, setMode] = useState<InstrumentMode>(initialLocation ? 'inspection' : 'observation');
+  const [location, setLocation] = useState<SelectedLocation | null>(initialLocation);
   const observe = useCallback(() => setMode('observation'), []);
   const openMode = useCallback((next: InstrumentMode) => setMode(next), []);
   const toggleMode = useCallback((next: InstrumentMode) => {

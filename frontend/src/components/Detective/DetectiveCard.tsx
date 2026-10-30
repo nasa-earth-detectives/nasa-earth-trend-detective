@@ -11,6 +11,7 @@ import { CLIMATE_VARIABLES, SATELLITE_TIMELINE } from '../../config/climateLayer
 import { formatCoordinate } from '../../utils/detectiveAnalysis';
 import { TrendSignificanceBadge } from './TrendSignificanceBadge';
 import { TimeSeriesChart } from './TimeSeriesChart';
+import { DetectiveExportActions } from './DetectiveExportActions';
 import { sampleDemoObservation } from '../../services/demo/observationDemoData';
 import { getObservationValue, OBSERVATION_SCALES } from '../../utils/colorScales';
 import '../../styles/inspection.css';
@@ -105,6 +106,15 @@ export function DetectiveCard({ open, location, variable, year, source, provenan
         <TimeSeriesChart data={seriesData} unit={OBSERVATION_SCALES[variable].unit}
           selectedYear={year} onYearSelect={onYearChange}
           senSlope={source === 'demo' || !observation || !trend.data ? undefined : trend.data.sensSlope} />}
+
+      <DetectiveExportActions
+        seriesData={seriesData}
+        variable={variable}
+        location={location}
+        year={year}
+        unit={OBSERVATION_SCALES[variable].unit}
+        isObserved={source === 'api' && !!observation}
+      />
 
       <footer className="inspection-provenance">
         {!loading && !observation && <p>No hay muestras de esta variable a menos de {supportRadiusDegrees}° dentro de la cobertura activa.</p>}

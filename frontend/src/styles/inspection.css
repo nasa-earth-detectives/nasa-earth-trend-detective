@@ -28,6 +28,31 @@
   gap: 12px; margin: 18px 0 6px; }
 .inspection-series-heading h3 { color: var(--text-secondary); font-size: 12px; font-weight: 500; }
 .inspection-series-heading > span { font: 11px var(--font-readout); color: var(--text-tertiary); }
+
+/* Acciones de exportación y enlace compartido */
+.inspection-actions {
+  display: flex; gap: 8px; margin-top: 12px; padding-top: 10px;
+  border-top: 1px dashed var(--edge-subtle);
+}
+.inspection-action-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  flex: 1; padding: 7px 10px; font-size: 11px; font-weight: 500;
+  letter-spacing: .02em; color: var(--text-secondary);
+  background: var(--surface-raised, rgba(255, 255, 255, .05));
+  border: 1px solid var(--edge-subtle); border-radius: 2px;
+  cursor: pointer; transition: all var(--motion-fast) var(--ease-soft);
+}
+.inspection-action-btn:hover:not(:disabled) {
+  color: var(--text-primary); border-color: var(--active-accent);
+  background: rgba(255, 255, 255, .09);
+}
+.inspection-action-btn:disabled {
+  opacity: .4; cursor: not-allowed;
+}
+.inspection-action-btn.is-copied {
+  color: #34d399; border-color: #059669; background: rgba(5, 150, 105, .15);
+}
+
 .inspection-provenance { margin-top: 14px; padding-top: 11px; border-top: 1px solid var(--edge-subtle);
   color: var(--text-tertiary); font-size: 11px; line-height: 1.5; }
 .inspection-provenance > p + p { display: flex; justify-content: space-between; gap: 12px; margin-top: 5px; }
