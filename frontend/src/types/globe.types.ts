@@ -1,5 +1,6 @@
 import type { ClimateObservation, ClimateVariable } from './climate.types';
-import type { ObservationLayerMode } from './observationLayer.types';
+import type { HexCell, HexDataset } from './hex.types';
+import type { GlobeReading, ObservationLayerMode } from './observationLayer.types';
 import type { Teleconnection } from './teleconnection.types';
 
 /**
@@ -18,6 +19,11 @@ export interface GlobeSceneApi {
   setObservationMode(mode: ObservationLayerMode): void;
   setObservationSelection(id: string | null): void;
   setObservationSelectHandler(handler: ((observation: ClimateObservation | null) => void) | null): void;
+  /** Cambia la pregunta del globo: valor del año o ritmo de cambio del periodo. */
+  setReadingMode?(mode: GlobeReading): void;
+  /** Celdas de tendencia (Sen). Sólo tiene efecto en lectura `trend`. */
+  setTrendData?(dataset: HexDataset | null): void;
+  setTrendCellSelectHandler?(handler: ((cell: HexCell | null) => void) | null): void;
   /** Preferencia del usuario sobre la rotación en reposo. */
   setAutoRotateEnabled(enabled: boolean): void;
   setStarsVisible(visible: boolean): void;

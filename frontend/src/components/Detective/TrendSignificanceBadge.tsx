@@ -1,71 +1,50 @@
-/**
- * TrendSignificanceBadge.tsx
- * Componente visual para badges de significancia estadística (Mann-Kendall |Z| >= 1.96).
- * Cumple con S2-T5.2 del Sprint 2.
- */
-
-import { useState } from 'react';
-import { AlertCircle, CheckCircle2, TrendingDown, TrendingUp } from 'lucide-react';
+import { useId, useState } from 'react';
+import { CircleHelp, TrendingDown, TrendingUp } from 'lucide-react';
 import type { ClimateVariable } from '../../types/climate.types';
-import type { MannKendallResult } from '../../types/detective.types';
-import { classifyTrend, getTrendBadgePresentation } from '../../utils/detectiveAnalysis';
+import { describeSignificance, type SignificanceInput } from '../../utils/detectiveAnalysis';
+import '../../styles/significance-badge.css';
 
 interface TrendSignificanceBadgeProps {
-  result: MannKendallResult;
+  result: SignificanceInput;
   variable: ClimateVariable;
   unit?: string;
 }
 
-export function TrendSignificanceBadge({ result, variable, unit = '' }: TrendSignificanceBadgeProps) {
-  const [showTooltip, setShowTooltip] = useState(false);
-  const classification = classifyTrend(variable, result);
-  const info = getTrendBadgePresentation(classification, result.zScore, result.pValue);
+const frequency = new Intl.NumberFormat('es', { maximumSignificantDigits: 2 });
+const slope = new Intl.NumberFormat('es', { maximumFractionDigits: 3, signDisplay: 'exceptZero' });
 
-  const getTrendIcon = () => {
-    if (!result.isSignificant) return <AlertCircle size={13} className="text-slate-400" />;
-    return result.trendDirection === 'increasing'
-      ? <TrendingUp size={13} className="text-red-400" />
-      : <TrendingDown size={13} className="text-cyan-400" />;
-  };
+/**
+ * Semáforo del veredicto estadístico. Distingue "aumento sostenido" de
+ * "sin cambio concluyente": el backend marca `Stable` cuando no hay significancia,
+ * aunque la pendiente sea positiva, y eso se lee mal en un aula.
+ */
+export function TrendSignificanceBadge({ result, variable, unit = '' }: TrendSignificanceBadgeProps) {
+  const [open, setOpen] = useState(false);
+  const tooltipId = useId();
+  const info = describeSignificance(variable, result);
+  const Icon = info.tone === 'increase' ? TrendingUp : info.tone === 'decrease' ? TrendingDown : CircleHelp;
 
   return (
-    <div className="relative inline-block">
-      <button
-        type="button"
-        onMouseEnter={() => setShowTooltip(true)}
-        onMouseLeave={() => setShowTooltip(false)}
-        onFocus={() => setShowTooltip(true)}
-        onBlur={() => setShowTooltip(false)}
-        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium border transition-all duration-300 cursor-help ${info.badgeClass}`}
-        aria-label={`Estado estadístico: ${info.label}`}
-      >
-        {getTrendIcon()}
+    <span className="significance-badge" data-tone={info.tone}>
+      <button type="button" className="significance-badge__trigger focus-ring"
+        aria-expanded={open} aria-controls={tooltipId} aria-label={`Veredicto estadístico: ${info.label}. Ver detalle`}
+        onMouseEnter={() => setOpen(true)} onMouseLeave={() => setOpen(false)}
+        onFocus={() => setOpen(true)} onBlur={() => setOpen(false)}
+        onClick={() => setOpen(value => !value)}>
+        <Icon size={13} strokeWidth={1.75} aria-hidden="true" />
         <span>{info.label}</span>
       </button>
-
-      {showTooltip && (
-        <div
-          role="tooltip"
-          className="absolute z-50 bottom-full left-0 mb-2 w-64 p-3 rounded-lg bg-slate-900/95 border border-slate-700/60 shadow-2xl backdrop-blur-md text-[11px] text-slate-200 pointer-events-none animate-in fade-in zoom-in-95 duration-150"
-        >
-          <p className="font-semibold text-slate-100 mb-1 flex items-center gap-1">
-            <CheckCircle2 size={12} className="text-emerald-400" />
-            Test de Mann-Kendall
-          </p>
-          <p className="text-slate-400 leading-relaxed mb-2">{info.description}</p>
-          <div className="grid grid-cols-2 gap-1.5 pt-1.5 border-t border-slate-800 text-[10px] font-mono text-slate-300">
-            <div>
-              <span className="text-slate-500">Z-Score:</span> {result.zScore > 0 ? '+' : ''}{result.zScore.toFixed(2)}
-            </div>
-            <div>
-              <span className="text-slate-500">p-value:</span> {result.pValue < 0.001 ? '< 0.001' : result.pValue.toFixed(3)}
-            </div>
-            <div className="col-span-2">
-              <span className="text-slate-500">Pendiente Sen (Q):</span> {result.senSlope > 0 ? '+' : ''}{result.senSlope.toFixed(4)} {unit}/año
-            </div>
-          </div>
-        </div>
+      {open && (
+        <span role="tooltip" id={tooltipId} className="significance-badge__tooltip">
+          <strong>{info.claim}</strong>
+          <span>{info.caveat}</span>
+          <span className="significance-badge__figures">
+            {result.zScore !== undefined && <span>Z = {result.zScore >= 0 ? '+' : ''}{frequency.format(result.zScore)}</span>}
+            <span>p = {result.pValue < 0.001 ? '< 0,001' : frequency.format(result.pValue)}</span>
+            <span>Sen = {slope.format(result.sensSlope)} {unit}</span>
+          </span>
+        </span>
       )}
-    </div>
+    </span>
   );
 }

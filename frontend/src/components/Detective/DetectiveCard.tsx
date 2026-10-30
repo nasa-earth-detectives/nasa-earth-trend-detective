@@ -9,6 +9,7 @@ import { useCellTrend } from '../../hooks/useCellTrend';
 import { provenanceLabel } from '../../services/datasetCatalog';
 import { CLIMATE_VARIABLES, SATELLITE_TIMELINE } from '../../config/climateLayers';
 import { formatCoordinate } from '../../utils/detectiveAnalysis';
+import { TrendSignificanceBadge } from './TrendSignificanceBadge';
 import { TimeSeriesChart } from './TimeSeriesChart';
 import { sampleDemoObservation } from '../../services/demo/observationDemoData';
 import { getObservationValue, OBSERVATION_SCALES } from '../../utils/colorScales';
@@ -112,7 +113,14 @@ export function DetectiveCard({ open, location, variable, year, source, provenan
         <p>{variable === 'Gistemp'
           ? 'Rojo: más cálido · azul: más frío respecto al promedio de referencia. No es temperatura absoluta.'
           : `${OBSERVATION_SCALES[variable].label}.`}</p>
-        <p>Mann–Kendall / Sen <span>{source === 'demo' || !observation ? 'Sin calcular' : trend.loading ? 'Calculando…'
+        <p>Mann–Kendall / Sen {trend.data && (
+          <TrendSignificanceBadge result={{
+            isSignificant: trend.data.isSignificant,
+            pValue: trend.data.pValue,
+            sensSlope: trend.data.sensSlope,
+            zScore: trend.data.zScore,
+          }} variable={variable} unit={unit} />
+        )} <span>{source === 'demo' || !observation ? 'Sin calcular' : trend.loading ? 'Calculando…'
           : trend.error ? 'No disponible' : trend.data ? `${trend.data.sensSlope >= 0 ? '+' : ''}${trend.data.sensSlope.toLocaleString('es',
             { maximumFractionDigits: 3 })} ${unit} · p = ${trend.data.pValue.toLocaleString('es', { maximumSignificantDigits: 2 })}${
             trend.data.isSignificant ? ' · significativa' : ' · no significativa'}` : 'Sin calcular'}</span></p>

@@ -9,13 +9,16 @@ import { useSceneControls } from '../../hooks/useSceneControls';
 import { useIdleUi } from '../../hooks/useIdleUi';
 import { findNearbyObservation } from '../../utils/observationLookup';
 import { useVisibleObservations } from '../../hooks/useVisibleObservations';
+import { useHexData } from '../../hooks/useHexData';
 import { useTeleconnections } from '../../hooks/useTeleconnections';
-import type { ObservationCoverage, ObservationLayerMode, ObservationSource } from '../../types/observationLayer.types';
+import type { GlobeReading, ObservationCoverage, ObservationLayerMode, ObservationSource } from '../../types/observationLayer.types';
+import type { HexCell } from '../../types/hex.types';
 import { GlobeViewer } from '../Globe/GlobeViewer';
 import { EARTH_HEAT_CONFIG } from '../Globe/earthHeatRaster';
 import type { GlobeSceneApi } from '../Globe/useGlobeScene';
 import { MissionHeader } from '../Mission/MissionHeader';
 import { ObservationReadout } from '../Mission/ObservationReadout';
+import { HexReadout } from '../Mission/HexReadout';
 import { ObservationContext } from '../Mission/ObservationContext';
 import { ModeNavigator } from '../Rail/ModeNavigator';
 import { LayerPanel } from '../Layers/LayerPanel';
@@ -48,8 +51,13 @@ export function ImmersiveEarthLayout({ observations, loading, observationError, 
   const [isPlaying, setIsPlaying] = useState(false);
   const [tourRunning, setTourRunning] = useState(false);
   const [observationMode, setObservationMode] = useState<ObservationLayerMode>('hex');
+  const [reading, setReading] = useState<GlobeReading>('annual');
   const [coverage, setCoverage] = useState<ObservationCoverage>('land');
   const [selectedObservation, setSelectedObservation] = useState<ClimateObservation | null>(null);
+  const [selectedTrendCell, setSelectedTrendCell] = useState<HexCell | null>(null);
+  const trendReading = reading === 'trend';
+  // Sólo se consulta la grilla de Sen cuando esa lectura está activa.
+  const hexData = useHexData(filter, trendReading);
   const visibleObservations = useVisibleObservations(observations, source, coverage, provenance);
   const inspectionMatch = useMemo(() => loading || observationError ? null : findNearbyObservation(
     visibleObservations, ui.location, filter.variable, EARTH_HEAT_CONFIG.radiusDegrees,
@@ -72,6 +80,21 @@ export function ImmersiveEarthLayout({ observations, loading, observationError, 
     sceneApiRef.current?.setObservationMode(observationMode);
     if (observationMode !== 'hex') setSelectedObservation(null);
   }, [observationMode]);
+  useEffect(() => {
+    sceneApiRef.current?.setReadingMode?.(reading);
+    setSelectedTrendCell(null);
+    if (reading === 'trend') setSelectedObservation(null);
+  }, [reading]);
+  useEffect(() => {
+    const api = sceneApiRef.current;
+    api?.setTrendCellSelectHandler?.(setSelectedTrendCell);
+    return () => api?.setTrendCellSelectHandler?.(null);
+  }, []);
+  useEffect(() => {
+    if (!trendReading) return;
+    sceneApiRef.current?.setTrendData?.(hexData.data);
+    setSelectedTrendCell(null);
+  }, [trendReading, hexData.data]);
   useEffect(() => {
     sceneApiRef.current?.setLocationSelectHandler(ui.selectLocation);
     return () => sceneApiRef.current?.setLocationSelectHandler(null);
@@ -114,7 +137,7 @@ export function ImmersiveEarthLayout({ observations, loading, observationError, 
 
   return (
     <main className="earth-workspace" data-mode={ui.mode} data-idle={isIdle}
-      data-hex-visible={layerVisible} data-hex-selected={selectedObservation !== null} data-observation-layer={observationMode}>
+      data-hex-visible={layerVisible} data-hex-selected={selectedObservation !== null} data-observation-layer={observationMode} data-reading={reading}>
       <GlobeViewer apiRef={sceneApiRef} preferencesRef={scene.preferencesRef} />
       <div className="observation-position quiet-instrument">
         <ObservationContext variable={filter.variable} />
@@ -123,9 +146,15 @@ export function ImmersiveEarthLayout({ observations, loading, observationError, 
         <MissionHeader onStartTour={handleStartTour} />
       </div>
       <div className="system-position quiet-instrument" data-hex-active={true}>
-        <ObservationReadout observations={visibleObservations} variable={filter.variable} year={filter.endYear}
-          source={source} provenance={provenance} mode={observationMode} coverage={coverage} loading={loading} error={observationError}
-          selected={selectedObservation} onSelect={id => sceneApiRef.current?.setObservationSelection(id)} />
+        {trendReading ? (
+          <HexReadout data={hexData.data} loading={hexData.loading} error={hexData.error}
+            selectedCell={selectedTrendCell}
+            onSelectCell={id => sceneApiRef.current?.setObservationSelection(id)} />
+        ) : (
+          <ObservationReadout observations={visibleObservations} variable={filter.variable} year={filter.endYear}
+            source={source} provenance={provenance} mode={observationMode} coverage={coverage} loading={loading} error={observationError}
+            selected={selectedObservation} onSelect={id => sceneApiRef.current?.setObservationSelection(id)} />
+        )}
       </div>
       <div className="intent-position quiet-instrument">
         <ModeNavigator mode={ui.mode} variable={filter.variable} year={filter.endYear}
@@ -142,7 +171,9 @@ export function ImmersiveEarthLayout({ observations, loading, observationError, 
       <p className="scene-guidance quiet-instrument">
         <span className="guidance-desktop">Arrastra para orbitar · Desplaza para acercar</span>
         <span className="guidance-touch">Arrastra para orbitar · Pellizca para acercar</span>
-        <span>{observationMode === 'hex' ? 'Selecciona una columna para inspeccionar su observación' : 'Selecciona la superficie para inspeccionar'}</span>
+        <span>{trendReading ? 'Cada columna es el ritmo de cambio de una celda; selecciónala para leerla'
+          : observationMode === 'hex' ? 'Selecciona una columna para inspeccionar su observación'
+          : 'Selecciona la superficie para inspeccionar'}</span>
       </p>
       <LayerPanel id="layer-panel" open={panelOpen} onClose={ui.observe}
         activeTab={ui.mode === 'view' ? 'view' : 'data'} onTabChange={ui.setLayerTab}
@@ -154,6 +185,7 @@ export function ImmersiveEarthLayout({ observations, loading, observationError, 
         radarRipplesVisible={scene.preferences.radarRipplesVisible}
         satellitesVisible={scene.preferences.satellitesVisible}
         observationMode={observationMode} onObservationModeChange={setObservationMode}
+        reading={reading} onReadingChange={setReading}
         coverage={coverage} onCoverageChange={setCoverage}
         onAutoRotateChange={scene.setAutoRotate} onStarsChange={scene.setStarsVisible}
         onGridChange={scene.setGridVisible} onAtmosphereChange={scene.setAtmosphereVisible}

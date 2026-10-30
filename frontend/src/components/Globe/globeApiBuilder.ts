@@ -8,6 +8,9 @@ export interface GlobeSceneContext {
   analysis: {
     updateData: any;
     setMode: any;
+    setReading: any;
+    setTrendData: any;
+    setOnCellSelect: any;
     select: any;
     setOnObservationSelect: any;
   };
@@ -36,6 +39,9 @@ export function buildGlobeSceneApi(ctx: GlobeSceneContext): GlobeSceneApi {
     setObservationMode: ctx.analysis.setMode,
     setObservationSelection: ctx.analysis.select,
     setObservationSelectHandler: ctx.analysis.setOnObservationSelect,
+    setReadingMode: ctx.analysis.setReading,
+    setTrendData: ctx.analysis.setTrendData,
+    setTrendCellSelectHandler: ctx.analysis.setOnCellSelect,
     setAutoRotateEnabled: (enabled) => {
       ctx.setAutoRotatePreferred(enabled);
       ctx.syncAutoRotate();

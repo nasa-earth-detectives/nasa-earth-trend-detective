@@ -1,79 +1,60 @@
-/**
+﻿/**
  * detectiveAnalysis.ts
- * Utilidades científicas para el formateo de coordenadas y clasificación de tendencias.
+ * Utilidades cientÃ­ficas para el formateo de coordenadas y la lectura del veredicto
+ * Mann-Kendall / Sen en lenguaje llano, sin prometer mÃ¡s de lo que prueba el test.
  */
 
 import type { ClimateVariable } from '../types/climate.types';
-import type { MannKendallResult, TrendClassification } from '../types/detective.types';
+import { HEX_PRESENTATION } from '../config/hexPresentation';
 
 export function formatCoordinate(val: number, posChar: string, negChar: string): string {
   const dir = val >= 0 ? posChar : negChar;
-  return `${Math.abs(val).toFixed(2)}° ${dir}`;
+  return `${Math.abs(val).toFixed(2)}Â° ${dir}`;
 }
 
-export function classifyTrend(variable: ClimateVariable, mk: MannKendallResult): TrendClassification {
-  if (!mk.isSignificant) return 'neutral_trend';
+/** Tres estados posibles. "Sin cambio concluyente" no equivale a "no cambia". */
+export type SignificanceTone = 'increase' | 'decrease' | 'inconclusive';
 
-  switch (variable) {
-    case 'Gistemp':
-      return mk.trendDirection === 'increasing' ? 'accelerated_warming' : 'critical_cooling';
-    case 'ModisNdvi':
-      return mk.trendDirection === 'increasing' ? 'significant_greening' : 'severe_browning';
-    case 'GraceMass':
-      return mk.trendDirection === 'decreasing' ? 'accelerated_ice_loss' : 'neutral_trend';
-    case 'Oco2':
-      return mk.trendDirection === 'increasing' ? 'accelerated_warming' : 'neutral_trend';
-    default:
-      return 'neutral_trend';
-  }
-}
-
-export interface BadgePresentation {
+export interface SignificancePresentation {
+  tone: SignificanceTone;
   label: string;
-  badgeClass: string;
-  description: string;
+  /** QuÃ© se puede afirmar con estos datos. */
+  claim: string;
+  /** QuÃ© no se puede afirmar y por quÃ©. */
+  caveat: string;
 }
 
-export function getTrendBadgePresentation(classification: TrendClassification, zScore: number, pValue: number): BadgePresentation {
-  const pFormatted = pValue < 0.001 ? '< 0.001' : `= ${pValue.toFixed(3)}`;
-  const zFormatted = `Z = ${zScore > 0 ? '+' : ''}${zScore.toFixed(2)}`;
+/** Lo mÃ­nimo que necesita la lectura: sirve para la tarjeta y para una celda de la grilla. */
+export interface SignificanceInput {
+  isSignificant: boolean;
+  pValue: number;
+  sensSlope: number;
+  /** PuntuaciÃ³n Z de Mann-Kendall; se muestra si la fuente la entrega. */
+  zScore?: number;
+}
 
-  switch (classification) {
-    case 'accelerated_warming':
-      return {
-        label: 'Calentamiento Acelerado',
-        badgeClass: 'bg-red-500/15 text-red-400 border-red-500/30 shadow-[0_0_12px_rgba(239,68,68,0.25)]',
-        description: `Tendencia ascendente estadísticamente significativa (${zFormatted}, p ${pFormatted}). Confianza > 99%.`,
-      };
-    case 'critical_cooling':
-      return {
-        label: 'Enfriamiento Anómalo',
-        badgeClass: 'bg-cyan-500/15 text-cyan-400 border-cyan-500/30 shadow-[0_0_12px_rgba(6,182,212,0.25)]',
-        description: `Tendencia descendente estadísticamente significativa (${zFormatted}, p ${pFormatted}).`,
-      };
-    case 'significant_greening':
-      return {
-        label: 'Enverdecimiento Acelerado',
-        badgeClass: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30 shadow-[0_0_12px_rgba(16,185,129,0.25)]',
-        description: `Aumento vigoroso de biomasa vegetal NDVI (${zFormatted}, p ${pFormatted}).`,
-      };
-    case 'severe_browning':
-      return {
-        label: 'Pérdida Crítica de Biomasa',
-        badgeClass: 'bg-amber-500/15 text-amber-400 border-amber-500/30 shadow-[0_0_12px_rgba(245,158,11,0.25)]',
-        description: `Deforestación o degradación vegetal severa (${zFormatted}, p ${pFormatted}).`,
-      };
-    case 'accelerated_ice_loss':
-      return {
-        label: 'Pérdida Acelerada de Masa',
-        badgeClass: 'bg-blue-500/15 text-blue-400 border-blue-500/30 shadow-[0_0_12px_rgba(59,130,246,0.25)]',
-        description: `Déficit gravimétrico continuo detectado por satélites GRACE (${zFormatted}, p ${pFormatted}).`,
-      };
-    default:
-      return {
-        label: 'Sin Tendencia Significativa',
-        badgeClass: 'bg-slate-700/30 text-slate-300 border-slate-600/30',
-        description: `Variación dentro del rango estocástico natural (|Z| < 1.96, p ${pFormatted}).`,
-      };
+const frequency = new Intl.NumberFormat('es', { maximumSignificantDigits: 2 });
+
+export function describeSignificance(variable: ClimateVariable, mk: SignificanceInput): SignificancePresentation {
+  const subject = HEX_PRESENTATION[variable];
+  const p = mk.pValue < 0.001 ? '< 0,001' : `= ${frequency.format(mk.pValue)}`;
+
+  if (!mk.isSignificant) {
+    return {
+      tone: 'inconclusive',
+      label: 'Sin cambio concluyente',
+      claim: `El signo de la pendiente es ${mk.sensSlope > 0 ? 'positivo' : mk.sensSlope < 0 ? 'negativo' : 'cero'}, `
+        + 'pero el test no lo distingue del azar con 95 % de confianza.',
+      caveat: `Un p-valor ${p} mayor que 0,05 no prueba que no haya cambio: prueba que esta serie no basta para afirmarlo. `
+        + 'Con mÃ¡s aÃ±os o menos ruido el veredicto podrÃ­a cambiar.',
+    };
   }
+
+  const increase = mk.sensSlope > 0;
+  return {
+    tone: increase ? 'increase' : 'decrease',
+    label: increase ? 'Aumento sostenido' : 'Descenso sostenido',
+    claim: `${increase ? subject.increase : subject.decrease} durante el periodo (p ${p}).`,
+    caveat: 'Mannâ€“Kendall detecta una tendencia monÃ³tona. No mide aceleraciÃ³n ni demuestra la causa del cambio.',
+  };
 }

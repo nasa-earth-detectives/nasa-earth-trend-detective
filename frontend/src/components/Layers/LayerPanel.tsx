@@ -7,8 +7,8 @@ import { VariableLayerList } from './VariableLayerList';
 import { ViewOptionsList } from './ViewOptionsList';
 import { StatusRowList } from './StatusRowList';
 import { LiveSystemSwitches } from './LiveSystemSwitches';
-import { InstrumentSwitch } from '../UI/InstrumentSwitch';
-import type { ObservationCoverage, ObservationLayerMode } from '../../types/observationLayer.types';
+import { ReadingModeControl } from './ReadingModeControl';
+import type { GlobeReading, ObservationCoverage, ObservationLayerMode } from '../../types/observationLayer.types';
 import '../../styles/layers.css';
 
 interface LayerPanelProps {
@@ -29,6 +29,8 @@ interface LayerPanelProps {
   satellitesVisible?: boolean;
   observationMode: ObservationLayerMode;
   onObservationModeChange: (value: ObservationLayerMode) => void;
+  reading: GlobeReading;
+  onReadingChange: (value: GlobeReading) => void;
   coverage: ObservationCoverage;
   onCoverageChange: (value: ObservationCoverage) => void;
   onAutoRotateChange: (value: boolean) => void;
@@ -52,6 +54,7 @@ export function LayerPanel({
   autoRotate, starsVisible, gridVisible, atmosphereVisible,
   oceanFlowVisible = true, teleconnectionsVisible = true, radarRipplesVisible = true, satellitesVisible = true,
   observationMode, onObservationModeChange,
+  reading, onReadingChange,
   coverage, onCoverageChange,
   onAutoRotateChange, onStarsChange, onGridChange, onAtmosphereChange,
   onOceanFlowChange = () => {}, onTeleconnectionsChange = () => {},
@@ -114,26 +117,10 @@ export function LayerPanel({
       <div className="earth-instrument__body scrollbar-instrument">
         <div id={id + '-content-data'} role="tabpanel" aria-labelledby={id + '-tab-data'}
           hidden={activeTab !== 'data'} className="instrument-tab-content">
-          <div className="hex-layer-control">
-            <h3 className="instrument-kicker">Representación</h3>
-            <div className="observation-mode-control" role="radiogroup" aria-label="Representación de observaciones">
-              {([{ id: 'hex', label: 'Hexágonos 3D' }, { id: 'heat', label: 'Mapa de calor' },
-                { id: 'none', label: 'Sin capa' }] as const).map((item, index, options) =>
-                <button key={item.id} type="button" role="radio" className="focus-ring"
-                  aria-checked={observationMode === item.id} tabIndex={observationMode === item.id ? 0 : -1}
-                  onClick={() => onObservationModeChange(item.id)} onKeyDown={event => {
-                    if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
-                    event.preventDefault();
-                    const next = event.key === 'Home' ? 0 : event.key === 'End' ? options.length - 1
-                      : (index + (event.key === 'ArrowRight' ? 1 : -1) + options.length) % options.length;
-                    onObservationModeChange(options[next].id);
-                    event.currentTarget.parentElement?.querySelectorAll<HTMLButtonElement>('button')[next].focus();
-                  }}>{item.label}</button>)}
-            </div>
-            {(selectedVariable === 'Gistemp' || selectedVariable === 'Oco2') &&
-              <InstrumentSwitch label="Incluir océanos" description="La vista inicial muestra tierra firme"
-                checked={coverage === 'global'} onChange={enabled => onCoverageChange(enabled ? 'global' : 'land')} />}
-          </div>
+          <ReadingModeControl reading={reading} onReadingChange={onReadingChange}
+            observationMode={observationMode} onObservationModeChange={onObservationModeChange}
+            coverage={coverage} onCoverageChange={onCoverageChange}
+            showCoverage={selectedVariable === 'Gistemp' || selectedVariable === 'Oco2'} />
           <VariableLayerList selected={selectedVariable} onSelect={onVariableSelect} />
 
           <div className="instrument-live-section" style={{ marginTop: '1.25rem', paddingTop: '1rem', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
