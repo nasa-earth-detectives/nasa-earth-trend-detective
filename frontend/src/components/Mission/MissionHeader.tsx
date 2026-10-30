@@ -25,18 +25,18 @@ export function MissionHeader({
         <p className="mission-edition">{edition}</p>
       </div>
 
-      <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap' }}>
+      <nav className="mission-actions" aria-label="Acciones del proyecto">
         {onOpenMissions && (
           <button
             type="button"
             onClick={onOpenMissions}
-            className="mission-tour-trigger-btn focus-ring"
+            className="mission-action-btn focus-ring"
             data-ui-control
-            aria-label="Abrir misiones de demostración"
-            title="Casos de estudio preconfigurados"
+            aria-label="Casos de demostración preconfigurados"
+            title="Casos de demostración (NASA Space Apps)"
           >
-            <Sparkles size={14} strokeWidth={1.5} aria-hidden="true" />
-            <span>Casos</span>
+            <Sparkles size={14} strokeWidth={1.8} aria-hidden="true" />
+            <span className="mission-btn-text">Casos</span>
           </button>
         )}
 
@@ -44,13 +44,13 @@ export function MissionHeader({
           <button
             type="button"
             onClick={onOpenGlossary}
-            className="mission-tour-trigger-btn focus-ring"
+            className="mission-action-btn focus-ring"
             data-ui-control
-            aria-label="Abrir glosario escolar"
-            title="Glosario para estudiantes y público general"
+            aria-label="Glosario escolar"
+            title="Glosario para estudiantes y evaluadores"
           >
-            <BookOpen size={14} strokeWidth={1.5} aria-hidden="true" />
-            <span>Glosario</span>
+            <BookOpen size={14} strokeWidth={1.8} aria-hidden="true" />
+            <span className="mission-btn-text">Glosario</span>
           </button>
         )}
 
@@ -58,13 +58,13 @@ export function MissionHeader({
           <button
             type="button"
             onClick={onOpenWizard}
-            className="mission-tour-trigger-btn focus-ring wizard-reopen-btn"
+            className="mission-action-btn focus-ring wizard-reopen-btn"
             data-ui-control
-            aria-label="Abrir asistente de investigación"
-            title="Detective: volver al asistente"
+            aria-label="Asistente de investigación"
+            title="Detective: abrir asistente guiado"
           >
-            <Search size={14} strokeWidth={1.5} aria-hidden="true" />
-            <span>Investigar</span>
+            <Search size={14} strokeWidth={1.8} aria-hidden="true" />
+            <span className="mission-btn-text">Investigar</span>
           </button>
         )}
 
@@ -73,15 +73,16 @@ export function MissionHeader({
             id="tour-launch-button"
             type="button"
             onClick={onStartTour}
-            className="mission-tour-trigger-btn focus-ring"
+            className="mission-action-btn focus-ring"
             data-ui-control
             aria-label="Iniciar guía de misión"
+            title="Guía interactiva"
           >
-            <Compass size={16} strokeWidth={1.5} aria-hidden="true" />
-            <span>Guía<span className="mission-tour-detail"> de misión</span></span>
+            <Compass size={14} strokeWidth={1.8} aria-hidden="true" />
+            <span className="mission-btn-text">Guía</span>
           </button>
         )}
-      </div>
+      </nav>
     </header>
   );
 }

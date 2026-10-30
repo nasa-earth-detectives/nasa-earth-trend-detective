@@ -92,7 +92,7 @@
   padding-top: 10px; border-top: 1px solid var(--edge-subtle); color: var(--text-tertiary); font-size: 11px; }
 .time-range-context strong { padding-left: 7px; font: 500 11px var(--font-readout); color: var(--text-secondary); white-space: nowrap; }
 .time-navigator[data-collapsed='true'] { display: block; width: max-content; padding: 0; }
-[data-collapsed='true'] .time-year { font-size: 64px; }
+[data-collapsed='true'] .time-year { font-size: clamp(32px, 3.8vw, 52px); }
 [data-collapsed='true'] .time-detail { display: none; }
 @keyframes time-readout-arrive { from { opacity: .5; transform: translateY(3px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes time-mode-arrive { from { opacity: 0; transform: translateY(7px); } to { opacity: 1; transform: translateY(0); } }
@@ -115,9 +115,10 @@
   .time-mark-labels > span { font-size: 9px; }
   .time-mission { gap: 5px; }
   .time-mission > span > span { padding: 0 4px; }
-  [data-collapsed='true'] .time-observed { display: flex; gap: 5px; }
-  [data-collapsed='true'] .time-year { font-size: 44px; }
-  [data-collapsed='true'] .time-explore { gap: 6px; }
+  [data-collapsed='true'] .time-observed { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; padding-left: 6px; }
+  [data-collapsed='true'] .time-eyebrow { display: none; }
+  [data-collapsed='true'] .time-year { font-size: 26px !important; line-height: 1 !important; }
+  [data-collapsed='true'] .time-explore { font-size: 10px; min-height: 24px; gap: 4px; }
   .time-range-context { gap: 10px; margin-top: 12px; }
   .time-range-context > span { display: grid; gap: 4px; }
   .time-range-context strong { padding-left: 0; }

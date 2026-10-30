@@ -22,6 +22,49 @@
 .context-reference dt { color: var(--text-tertiary); }
 .context-reference dd { margin: 0; color: var(--text-secondary); }
 .context-reference .context-unit { color: var(--active-accent); font-family: var(--font-readout); }
+
+.mission-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(10, 15, 29, 0.75);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  padding: 3px 6px;
+  border: 1px solid var(--edge-subtle);
+  border-radius: 9999px;
+  white-space: nowrap;
+}
+.mission-action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  height: 30px;
+  padding: 0 10px;
+  background: transparent;
+  border: 0;
+  border-radius: 9999px;
+  color: var(--text-secondary);
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--motion-fast) var(--ease-soft);
+  white-space: nowrap;
+}
+.mission-action-btn svg {
+  color: var(--active-accent);
+  flex-shrink: 0;
+}
+.mission-action-btn:hover,
+.mission-action-btn:focus-visible {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.08);
+}
+.mission-action-btn:active {
+  transform: translateY(1px);
+}
+
 .mission-signature {
   display: inline-flex;
   align-items: center;
@@ -98,24 +141,30 @@
   [data-mode]:not([data-mode='observation']) .mode-navigator { display: flex; flex-direction: column; }
 }
 @media (max-width: 600px) {
-  .mission-signature { gap: 22px; }
-  .mission-signature h1 { font-size: 22px; margin-bottom: 0; }
-  .mission-edition, .mission-tour-detail { display: none; }
-  .mission-tour-trigger-btn { min-width: 60px; }
-  .observation-context { width: 224px; }
-  .context-kicker { font-size: 11px; gap: 7px; margin-bottom: 11px; }
-  .context-kicker > span { display: none; }
-  .context-symbol { min-width: 48px; font-size: 21px; } .context-measure { gap: 8px; }
-  .context-domain { font-size: 11px; } .observation-context h2 { font-size: 16px; }
-  .context-section { display: none; } .context-reference { font-size: 11px; margin-top: 12px; gap: 5px; }
-  .context-reference > div:first-child { display: none; } .context-reference > div { grid-template-columns: 40px 1fr; gap: 5px; }
+  .mission-signature { gap: 8px; align-items: center; }
+  .mission-signature h1 { font-size: 15px; margin: 0; line-height: 1.1; }
+  .mission-identity { padding-left: 8px; }
+  .mission-domain, .mission-edition, .mission-tour-detail { display: none; }
+  .mission-actions { padding: 2px 4px; gap: 2px; }
+  .mission-action-btn { height: 26px; padding: 0 6px; gap: 3px; font-size: 10px; }
+  .observation-context { width: auto; max-width: 200px; }
+  .context-kicker { display: none; }
+  .context-measure { gap: 6px; }
+  .context-symbol { min-width: 32px; font-size: 17px; }
+  .context-domain { font-size: 10px; margin-bottom: 0; }
+  .observation-context h2 { font-size: 13px; margin: 0; }
+  .context-section { display: none; }
+  .context-reference { display: none; }
   .system-readout { width: min(100%, 346px); padding-top: 7px; border-top-width: 1px; }
-  .query-heading { display: none; } .readout-values { margin: 0 0 5px; gap: 11px; }
-  .readout-values > strong { font-size: 22px; min-width: 23px; } .readout-values p > span { font-size: 11px; }
+  .query-heading { display: none; }
+  .readout-values { margin: 0 0 5px; gap: 11px; }
+  .readout-values > strong { font-size: 22px; min-width: 23px; }
+  .readout-values p > span { font-size: 11px; display: inline; }
   .readout-values small { display: inline; margin-left: 8px; font-size: 11px; }
-  .readout-values p > span { display: inline; } .connection-state { font-size: 11px; }
+  .connection-state { font-size: 11px; }
   .mode-navigator { gap: 0 10px; grid-template-columns: 1.15fr 1fr .95fr; }
-  .mode-label > span { font-size: 14px; } .mode-label small { display: none; }
+  .mode-label > span { font-size: 14px; }
+  .mode-label small { display: none; }
   .mode-number { width: 29px; font-size: 10px; }
   .mode-entry, .mode-entry[data-mode-trigger='layers'] { min-height: 56px; gap: 5px; }
   .mode-entry::before { left: 0; height: 2px; width: 24px; top: 0; transform: scaleX(0); }
@@ -128,4 +177,9 @@
   .observation-section { width: 180px; height: 54px; }
   .context-section > span { display: none; }
   .context-reference { grid-column: 2; grid-row: 1 / 3; align-content: center; font-size: 11px; }
+}
+
+@media (max-width: 440px) {
+  .mission-btn-text { display: none; }
+  .mission-action-btn { width: 28px; padding: 0; }
 }

@@ -2,14 +2,14 @@
 .earth-workspace { position: fixed; inset: 0; overflow: hidden; --gutter: clamp(28px, 3.5vw, 88px); }
 .observation-position, .mission-position, .system-position, .intent-position, .time-position,
 .scene-guidance { position: absolute; z-index: 10; }
-.observation-position { top: clamp(160px, 20vh, 260px); left: var(--gutter); pointer-events: none; }
-.mission-position { top: 35px; left: var(--gutter); pointer-events: none; }
+.observation-position { top: clamp(130px, 16vh, 200px); left: var(--gutter); pointer-events: none; }
+.mission-position { top: 24px; left: var(--gutter); pointer-events: none; }
 .system-position { bottom: 38px; left: var(--gutter); pointer-events: none; }
 .intent-position { right: var(--gutter); top: 40%; width: 236px; z-index: 40;
   transition: width var(--motion-panel) var(--ease-panel), right var(--motion-panel) var(--ease-panel); }
-.time-position { top: clamp(36px, 6vh, 86px); right: var(--gutter); }
+.time-position { top: 24px; right: var(--gutter); }
 .time-position[data-expanded='true'] { top: auto; bottom: 160px; left: var(--gutter); right: 130px; }
-.scene-guidance { bottom: 40px; left: 50%; transform: translateX(-50%); margin: 0;
+.scene-guidance { bottom: 84px; left: 50%; transform: translateX(-50%); margin: 0;
   text-align: center; font-size: 10px; line-height: 1.8; color: var(--text-tertiary); pointer-events: none; }
 .scene-guidance > span { display: block; }
 .scene-guidance .guidance-touch { display: none; }
@@ -79,9 +79,11 @@
 }
 /* Tableta: instrumentos a la derecha y hoja inferior; reserva superior para el planeta. */
 @media (max-width: 1023px) {
-  .earth-workspace { --gutter: 30px; }
-  .observation-position { top: 145px; }
-  .time-position { top: 36px; }
+  .earth-workspace { --gutter: 20px; }
+  .mission-position { top: 16px; left: var(--gutter); }
+  .time-position { top: 16px; right: var(--gutter); }
+  .observation-position { top: 76px; left: var(--gutter); }
+  .scene-guidance { display: none; }
   .intent-position { top: auto; bottom: 162px; left: 40px; right: 40px; width: auto; }
   .scene-guidance { bottom: 46px; right: 30px; left: auto; transform: none; text-align: right; }
   [data-mode]:not([data-mode='observation']) .intent-position { left: auto; right: 24px; top: 230px; bottom: auto; }
@@ -93,10 +95,11 @@
 }
 /* Teléfono: contexto superior, globo central, índice horizontal abierto bajo la órbita. */
 @media (max-width: 600px) {
-  .earth-workspace { --gutter: 22px; }
-  .observation-position { top: 109px; right: 125px; }
-  .time-position { top: 109px; right: 20px; }
-  .mission-position { top: max(25px, env(safe-area-inset-top)); bottom: auto; }
+  .earth-workspace { --gutter: 14px; }
+  .mission-position { top: max(12px, env(safe-area-inset-top)); left: var(--gutter); }
+  .time-position { top: max(12px, env(safe-area-inset-top)); right: var(--gutter); }
+  .observation-position { top: 62px; left: var(--gutter); right: auto; max-width: calc(100vw - 28px); }
+  .scene-guidance { display: none; }
   .system-position { bottom: max(23px, env(safe-area-inset-bottom)); right: 22px; }
   .intent-position { left: 22px; right: 22px; bottom: 152px; width: auto; }
   .scene-guidance { bottom: 108px; left: 0; right: 0; font-size: 10px; text-align: center; }
