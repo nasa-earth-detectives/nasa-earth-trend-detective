@@ -12,9 +12,10 @@
 | 🌐 **Frontend Producción** | `production` | [nasa-earth-trend-detective.vercel.app](https://nasa-earth-trend-detective.vercel.app/) | 🟢 **200 OK (En Vivo Oficial)** |
 | 🧪 **Frontend Staging (QA)** | `qa` | [nasa-earth-trend-detective-qa.vercel.app](https://nasa-earth-trend-detective-qa.vercel.app/) | 🟢 **200 OK (En Vivo Fijo)** |
 | 🛠️ **Frontend Development** | `development` | [nasa-earth-trend-detective-dev.vercel.app](https://nasa-earth-trend-detective-dev.vercel.app/) | 🟢 **200 OK (En Vivo Fijo)** |
-| 📡 **Backend REST API** | `production` | [nasa-trend-detective-api.onrender.com/health](https://nasa-trend-detective-api.onrender.com/health) | 🟡 **Suspendido (sin datos NASA)** |
+| 📡 **Backend REST API** | `production` | [nasa-trend-detective-api-72rq.onrender.com/health](https://nasa-trend-detective-api-72rq.onrender.com/health) | 🟢 **200 OK (Activo en Render)** |
 
-> ⚠️ **Estado honesto del backend:** el servicio en Render está suspendido a propósito mientras se esperan los datos oficiales de NASA; `/api/*` responde `503`. El frontend lo detecta y muestra el escenario simulado rotulado como tal, nunca como observación real. Todos los entornos publicados sirven hoy el catálogo en modo `demo`.
+> 📌 **Estado del Backend:** Servicio .NET 10 activo en Render con DuckDB columnar embebido. Sirve GISTEMP v4 observado y catálogo en /api/datasets con rotulado transparente entre datos observados y demo.
+
 | 📋 **Tablero Kanban** | GitHub Projects | [NASA Trend Detective Projects #1](https://github.com/orgs/nasa-earth-detectives/projects/1) | 📌 **Gestión de Tareas** |
 | 👥 **Matriz de Roles** | Monorrepo | [TEAM.md](TEAM.md) | 📄 **Responsabilidades** |
 | 🤝 **Guía de Contribución** | Protocolo Git | [CONTRIBUTING.md](CONTRIBUTING.md) | 🛡️ **Flujo de Pull & PRs** |
@@ -32,6 +33,7 @@
 | **July** | **Lead Backend & Arquitectura** | C# .NET 10, Clean Architecture, APIs REST, Middlewares | `backend/src/NasaTrendDetective.Api/` |
 | **Fabriany Medina (Reving)** | **Data & ETL Engineer** | Extracción Satelital NASA, Normalización Espacial, DuckDB OLAP | `backend/src/NasaTrendDetective.Infrastructure/`, `data/` |
 | **Johan Sebastian Olaya Reyes** | **Data Scientist & Matemáticas** | Test de Mann-Kendall, Estimador de Sen, Opposing Trends Engine | `backend/src/NasaTrendDetective.Application/` |
+| **Especialista en Física (Pendiente Correo)** | **Física & Dinámica Climática** | Teleconexiones (ENSO, NAO), Forzamiento Radiativo, GRACE EWH | `docs/obsidian/34-*`, `backend/src/.../Physics/` |
 
 ### 🎨 Subequipo Frontend & Visualización 3D ([@nasa-earth-detectives/frontend-team](https://github.com/orgs/nasa-earth-detectives/teams/frontend-team))
 | Integrante | Rol Oficial | Especialidad Técnica | Responsabilidad Monorrepo |

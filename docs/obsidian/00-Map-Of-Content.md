@@ -2,7 +2,7 @@
 
 > **NASA International Space Apps Challenge 2026**  
 > **Categoría:** Ciencias de la Tierra (*Earth Science*)  
-> **Equipo:** July, Fabriany Medina (Reving), Johan Sebastian Olaya, Diego Arias, Brayan Stid Cortés (bscl).
+> **Equipo:** July, Fabriany Medina (Reving), Johan Sebastian Olaya, Especialista en Física (Pendiente Correo), Diego Arias, Brayan Stid Cortés (bscl).
 
 ---
 
@@ -13,7 +13,7 @@
 | **Producción Oficial** | `production` | [nasa-earth-trend-detective.vercel.app](https://nasa-earth-trend-detective.vercel.app/) | 🟢 **En Vivo Oficial** |
 | **Staging / QA (Pruebas)** | `qa` | [nasa-earth-trend-detective-qa.vercel.app](https://nasa-earth-trend-detective-qa.vercel.app/) | 🟢 **Fijo Permanente** |
 | **Desarrollo Activo (Dev)** | `development` | [nasa-earth-trend-detective-dev.vercel.app](https://nasa-earth-trend-detective-dev.vercel.app/) | 🟢 **Fijo Permanente** |
-| **Backend REST API** | `production` | [nasa-trend-detective-api.onrender.com/health](https://nasa-trend-detective-api.onrender.com/health) | 🟢 **En Vivo** |
+| **Backend REST API** | `production` | [nasa-trend-detective-api-72rq.onrender.com/health](https://nasa-trend-detective-api-72rq.onrender.com/health) | 🟢 **En Vivo (Render)** |
 
 ---
 
@@ -32,7 +32,7 @@ Bienvenido a la bóveda central de documentación y diseño de ingeniería de nu
 - [[33-Satelites-NASA-Luna-y-Esri-Global]]: modelos 3D oficiales de la NASA, Luna con posición real, año en curso, Esri también de noche y líneas limpias.
 - [[earth-assets/README|Fuentes de assets terrestres]]: Procedencia, transformación, hashes y créditos de las imágenes científicas.
 - [[02-Estrategia-Git-3-Ramas]]: Protocolo estricto de ramas (`development` ➔ `qa` ➔ `production`).
-- [[03-Roles-y-Equipo]]: Perfiles técnicos y asignación de responsabilidades de los 5 participantes.
+- [[03-Roles-y-Equipo]]: Perfiles técnicos y asignación de responsabilidades de los 6 participantes.
 - [[08-Contenedores-Docker]]: Guía de ejecución unificada con Docker Compose en local y staging.
 - [[09-Gobernanza-GitHub-Org-y-Projects]]: Organización de GitHub, CODEOWNERS, rulesets de ramas y tablero Kanban en Projects.
 - [[16-Manual-de-Uso-Frontend-y-UI]]: Manual de uso, componentes espaciales (Glassmorphism), DetectiveCard y accesibilidad.
@@ -40,8 +40,9 @@ Bienvenido a la bóveda central de documentación y diseño de ingeniería de nu
 - [[28-Corrientes-Oceanicas-Gods-Eye-View-y-Capas-Vivas]]: Corrientes oceánicas 3D fluidas (NASA ECCO/OSCAR) y activación de controles interactivos en tiempo real.
 - [[29-Integracion-Skills-TypeUI-para-Diseno-y-UX]]: Habilidades TypeUI importadas (16 skills en .agents/skills) para diseño espacial, glassmorphism, bento y accesibilidad WCAG AA.
 
-### 🔬 Rigor Científico & Datos NASA
+### 🔬 Rigor Científico, Física & Datos NASA
 - [[05-Rigor-Cientifico-MannKendall]]: Fórmulas matemáticas del Test de Mann-Kendall, Pendiente de Sen y Motor de Tendencias Opuestas.
+- [[34-Trazabilidad-ClickUp-Fisica-y-Dinamica-Climatica]]: Tareas de física climática, teleconexiones (ENSO/NAO), GRACE-FO EWH, radiación $CO_2$ y pre-whitening.
 - [[24-Implementacion-Motor-Cientifico-y-Api]]: Implementación de C# .NET 10 del motor estadístico, motor de tendencias opuestas, endpoints REST, caching y pruebas [S2-T1, S2-T3, S3-T1, S3-T3, S4-T1, S4-T3].
 - [[23-Pipeline-ETL-Datasets-NASA]]: Cliente NASA EarthData, normalizador de grilla WGS84, limpieza e imputación y exportación a Parquet SNAPPY [S1-T2].
 - [[22-Almacen-Columnar-DuckDB]]: Almacén OLAP DuckDB embebido en .NET, esquema estrella, importador Parquet y agregación por celda <50ms [S2-T2].

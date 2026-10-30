@@ -9,7 +9,7 @@
 
 ## 🏛️ Estructura de Subequipos Técnicos
 
-Para maximizar la especialización técnica, velocidad de desarrollo y revisión rigurosa de código, el equipo de 5 participantes está organizado en **2 divisiones de ingeniería**:
+Para maximizar la especialización técnica, velocidad de desarrollo y revisión rigurosa de código, el equipo multidisciplinario de 6 integrantes está organizado en **2 divisiones de ingeniería**:
 
 ```text
                         [ Organización GitHub: nasa-earth-detectives ]
@@ -17,12 +17,12 @@ Para maximizar la especialización técnica, velocidad de desarrollo y revisión
                       ┌───────────────────────┴───────────────────────┐
                       ▼                                               ▼
          [ 🖥️ Backend & Scientific Core ]               [ 🎨 Frontend & 3D Visualization ]
-             @backend-team (3 Miembros)                     @frontend-team (2 Miembros)
+             @backend-team (4 Miembros)                     @frontend-team (2 Miembros)
                       │                                               │
-        ┌─────────────┼─────────────┐                         ┌───────┴───────┐
-        ▼             ▼             ▼                         ▼               ▼
-     [ July ]     [ Reving ]    [ Johan ]                 [ Brayan ]      [ Diego ]
-     Lead Back     Data/ETL    Data Science              Lead Front/UI   WebGL/3D
+        ┌─────────────┼─────────────┬─────────────┐           ┌───────┴───────┐
+        ▼             ▼             ▼             ▼           ▼               ▼
+     [ July ]     [ Reving ]    [ Johan ]     [ Física ]   [ Brayan ]      [ Diego ]
+     Lead Back     Data/ETL    Data Science   Geofísica   Lead Front/UI   WebGL/3D
 ```
 
 ---
@@ -37,6 +37,7 @@ Para maximizar la especialización técnica, velocidad de desarrollo y revisión
 | **July** | **Lead Backend & Arquitectura** | `backend/src/NasaTrendDetective.Api/`<br>`backend/src/NasaTrendDetective.Domain/` | C# .NET 10, Clean Architecture, APIs REST, Rate Limiting, Seguridad Anti-Bots |
 | **Fabriany Medina (Reving)** | **Data & ETL Engineer** | `backend/src/NasaTrendDetective.Infrastructure/`<br>`data/` | Ingesta Satelital NASA (GISTEMP, MODIS, GRACE-FO, OCO-2), DuckDB OLAP, Parquet |
 | **Johan Sebastian Olaya Reyes** | **Data Scientist & Modelado Estadístico** | `backend/src/NasaTrendDetective.Application/`<br>`backend/src/NasaTrendDetective.Domain/` | Test de Mann-Kendall ($S$, $\text{Var}(S)$, $Z$, $p < 0.05$), Pendiente de Sen, Opposing Trends Engine |
+| **Especialista en Física (Pendiente Correo)** | **Física & Dinámica Climática** | `backend/src/NasaTrendDetective.Application/Physics/`<br>`docs/obsidian/34-*` | Teleconexiones (ENSO, NAO, IOD), Forzamiento Radiativo ($W/m^2$), GRACE EWH, Pre-whitening Mann-Kendall |
 
 ---
 
