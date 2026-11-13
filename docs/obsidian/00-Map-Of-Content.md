@@ -63,6 +63,8 @@ Bienvenido a la bóveda central de documentación y diseño de ingeniería de nu
 - [[20-Auditoria-React-Doctor]]: Auditoría estática de arquitectura y rendimiento React con Oxlint en Pull Requests.
 - [[21-Release-v1.1.0-Produccion-NASA]]: Registro oficial del Release v1.1.0 a producción y enlaces en vivo.
 - [[26-Release-v1.2.0-Produccion-NASA]]: Registro oficial del Release v1.2.0 a producción (Motor Científico, 3D Satelital y Copilot).
+- [[34-Trazabilidad-ClickUp-Fisica-y-Dinamica-Climatica]]: Tareas especializadas y trazabilidad de ClickUp para la especialista en física y dinámica climática.
+- [[35-NASA-Space-Apps-Official-Submission-En]]: Dossier oficial de postulación en inglés (resumen, arquitectura, datasets NASA, declaración IA y guion del demo).
 
 ---
 
