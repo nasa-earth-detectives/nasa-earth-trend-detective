@@ -14,7 +14,7 @@ Volver al [[00-Map-Of-Content]]
 | **July** | **Lead Backend & Arquitectura** | C# .NET 10, Clean Architecture, APIs, Middlewares | **25h** |
 | **Fabriany Medina (Reving)** | **Data & ETL Engineer** | Datasets NASA, DuckDB OLAP, Parquet, Pipelines | **26h** |
 | **Johan Sebastian Olaya** | **Data Scientist** | Mann-Kendall, Sen's Slope, Opposing Trends Engine | **28h** |
-| **Especialista en Física (Pendiente Correo)** | **Física & Dinámica Climática** | Teleconexiones (ENSO/NAO), Forzamiento Radiativo, GRACE EWH | **25h** |
+| **Emilse Cabrera** (`emilse.cabrera.c@gmail.com`) | **Física, Dinámica Climática & QA Científico** | Teleconexiones (ENSO/NAO), Forzamiento Radiativo, GRACE EWH, Testing Físico | **38h** |
 
 ### 🎨 Subequipo Frontend & Visualización 3D
 👉 **Team GitHub:** [teams/frontend-team](https://github.com/orgs/nasa-earth-detectives/teams/frontend-team)
@@ -54,12 +54,12 @@ Volver al [[00-Map-Of-Content]]
 - Time-Slider interactivo (2000 - 2026) con reproducción automática.
 - Narrativa, Storytelling del Pitch y preparación de la postulación oficial de la NASA.
 
-#### 6. Nueva Integrante (Especialista en Física - Pendiente Correo)
-- Validación física de teleconexiones climáticas (ENSO, NAO, IOD) y consistencia física de arcos en el globo 3D.
-- Modelado de balance de masa y anomalía gravitacional de GRACE/GRACE-FO (equivalente en cm de agua líquida vs. deshielo polar).
-- Forzamiento radiativo y absorción espectral de CO2 (OCO-2) correlacionado con anomalías térmicas GISTEMP.
-- Pre-blanqueamiento (*pre-whitening*) de autocorrelación serial en Mann-Kendall para series geofísicas.
-- Trazabilidad y detalle de tareas en [[34-Trazabilidad-ClickUp-Fisica-y-Dinamica-Climatica]].
+#### 6. Emilse Cabrera (`emilse.cabrera.c@gmail.com` — Física & Testing Científico | ClickUp ID: `252219659`)
+- Testear y validar la consistencia física de teleconexiones climáticas (ENSO, NAO, IOD) y arcos en el globo 3D.
+- Validar el modelado de balance de masa y anomalía gravitacional de GRACE/GRACE-FO (equivalente en cm de agua líquida vs. deshielo polar).
+- Probar y auditar forzamiento radiativo y absorción espectral de CO2 (OCO-2) correlacionado con anomalías térmicas GISTEMP.
+- Testear pre-blanqueamiento (*pre-whitening*) de autocorrelación serial en Mann-Kendall para series geofísicas y consistencia de unidades en UI.
+- Trazabilidad y detalle de tareas asignadas en ClickUp en [[34-Trazabilidad-ClickUp-Fisica-y-Dinamica-Climatica]].
 
 ---
 

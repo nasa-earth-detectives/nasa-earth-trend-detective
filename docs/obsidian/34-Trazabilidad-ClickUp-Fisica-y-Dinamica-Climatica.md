@@ -2,8 +2,8 @@
 
 - **Espacio en ClickUp:** `NASA Space Apps 2026` (ID: `90177646254`)
 - **Carpeta:** `NASA Earth System Trend Detective` (ID: `901711444394`)
-- **Lista:** `Física Climatica, Dinamica Atmosferica y Teleconexiones` (Pendiente creación / importación)
-- **Asignada:** `Por Asignar (Nueva Integrante - Especialista en Física | Pendiente confirmación de correo)`
+- **Lista:** `Física Climática, Dinámica Atmosférica y Teleconexiones` (ID: `1600500000000664`)
+- **Asignada:** `Emilse Cabrera` (`emilse.cabrera.c@gmail.com` | ClickUp ID: `252219659`) — Especialista en Física Climática y Testing Científico
 - **Supervisión & Vinculación:** Johan Sebastian Olaya (Data Science) & Brayan Stid Cortés (Frontend Lead)
 - **Relacionado:** [[00-Map-Of-Content]], [[03-Roles-y-Equipo]], [[05-Rigor-Cientifico-MannKendall]], [[24-Implementacion-Motor-Cientifico-y-Api]]
 
@@ -17,13 +17,13 @@ Proporcionar solidez y validación biofísica irrefutable a las tendencias detec
 
 ## 📊 Matriz General de Tareas en ClickUp para la Especialista en Física
 
-| Código | Tarea Principal | Estimación | Prioridad | Estado | Enfoque Físico |
-| :--- | :--- | :---: | :---: | :---: | :--- |
-| **[PHYS-T1]** | Validación física de teleconexiones climáticas y arcos 3D | 8h | Alta (2) 🟠 | `to do` ⚪ | Consistencia de correlaciones remotas ENSO, NAO, IOD y dipolo del Océano Índico. |
-| **[PHYS-T2]** | Modelado de masa de agua equivalente y gravedad (GRACE/GRACE-FO) | 10h | Alta (2) 🟠 | `to do` ⚪ | Conversión geofísica de coeficientes armónicos esféricos a espesor equivalente de agua (EWH en cm). |
-| **[PHYS-T3]** | Forzamiento radiativo y balance térmico ($CO_2$ OCO-2 vs. GISTEMP) | 8h | Normal (3) 🔵 | `to do` ⚪ | Cálculo del forzamiento radiativo instantáneo $\Delta F = 5.35 \ln(C/C_0) \text{ W/m}^2$. |
-| **[PHYS-T4]** | Pre-blanqueamiento físico de autocorrelación lag-1 en Mann-Kendall | 6h | Alta (2) 🟠 | `to do` ⚪ | Mitigación del falso positivo en series temporales geofísicas con persistencia roja (método Yue-Pilon). |
-| **[PHYS-T5]** | Auditoría y ficha técnica de consistencia termodinámica global | 6h | Normal (3) 🔵 | `to do` ⚪ | Documento de rigor físico para el jurado NASA validando conservación de energía superficial. |
+| Código | Tarea Principal | Estimación | Prioridad | Estado | ClickUp Task | Enfoque Físico & Testing |
+| :--- | :--- | :---: | :---: | :---: | :---: | :--- |
+| **[PHYS-T1]** | Validación y testing físico de teleconexiones climáticas y arcos 3D | 8h | Alta (2) 🟠 | `to do` ⚪ | [`1dfmnrzd7ug`](https://app.clickup.com/t/1dfmnrzd7ug) | Consistencia y pruebas de correlaciones remotas ENSO, NAO, IOD y PDO. |
+| **[PHYS-T2]** | Testing de modelado de masa de agua equivalente y gravedad (GRACE/GRACE-FO) | 10h | Alta (2) 🟠 | `to do` ⚪ | [`1dfmnrzd7um`](https://app.clickup.com/t/1dfmnrzd7um) | Verificación geofísica de armónicos esféricos a altura equivalente de agua (EWH en cm). |
+| **[PHYS-T3]** | Testing de forzamiento radiativo y balance térmico ($CO_2$ OCO-2 vs. GISTEMP) | 8h | Normal (3) 🔵 | `to do` ⚪ | [`1dfmnrzd7ur`](https://app.clickup.com/t/1dfmnrzd7ur) | Pruebas del forzamiento radiativo instantáneo $\Delta F = 5.35 \ln(C/C_0) \text{ W/m}^2$. |
+| **[PHYS-T4]** | Testing de pre-blanqueamiento físico de autocorrelación lag-1 en Mann-Kendall | 6h | Alta (2) 🟠 | `to do` ⚪ | [`1dfmnrzd7uw`](https://app.clickup.com/t/1dfmnrzd7uw) | Pruebas de mitigación de falsos positivos en series geofísicas con persistencia roja (Yue-Pilon). |
+| **[PHYS-T5]** | Auditoría integral y testing de consistencia termodinámica y unidades en UI | 6h | Normal (3) 🔵 | `to do` ⚪ | [`1dfmnrzd7v0`](https://app.clickup.com/t/1dfmnrzd7v0) | Validación en producción de casos guiados, unidades físicas y rigor para el jurado NASA. |
 
 ---
 
