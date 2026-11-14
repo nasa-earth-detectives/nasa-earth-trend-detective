@@ -64,7 +64,8 @@ Bienvenido a la bóveda central de documentación y diseño de ingeniería de nu
 - [[21-Release-v1.1.0-Produccion-NASA]]: Registro oficial del Release v1.1.0 a producción y enlaces en vivo.
 - [[26-Release-v1.2.0-Produccion-NASA]]: Registro oficial del Release v1.2.0 a producción (Motor Científico, 3D Satelital y Copilot).
 - [[34-Trazabilidad-ClickUp-Fisica-y-Dinamica-Climatica]]: Tareas especializadas y trazabilidad de ClickUp para la especialista en física y dinámica climática.
-- [[35-NASA-Space-Apps-Official-Submission-En]]: Dossier oficial de postulación en inglés (resumen, arquitectura, datasets NASA, declaración IA y guion del demo).
+- [[35-NASA-Space-Apps-Official-Submission-En]]: Dossier oficial de postulación en inglés (resumen, arquitectura, datasets NASA, declaración IA y estructura de presentación).
+- [[36-Plan-Hackathon-Neiva-Nuevas-Fuentes-NASA-CSA]]: Plan operativo Hackathon Neiva (14–15 nov 2026), Google Doc maestro, delegación de ajustes en ClickUp y mapa de fuentes NASA/CSA/KNMI.
 
 ---
 

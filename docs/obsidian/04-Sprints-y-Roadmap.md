@@ -98,24 +98,25 @@ Lun 21 Sep 17:00 - Mar 22 Sep 22:00   Mié 23 Sep 17:00 - Vie 25 Sep 21:00   Sá
 
 ---
 
-### 🔹 Sprint 4: Rigor Científico, Seeders, Video Pitch y Cierre NASA
-*Ventana: Miércoles 30 Sep 17:00 al Domingo 04 Oct 20:00 (Postulación Oficial)*
+### 🔹 Sprint 4: Rigor Científico, Ajustes Hackathon Neiva, Seeders y Cierre NASA
+*Ventana de ejecución extendida: Hackathon Neiva — Sábado 14 y Domingo 15 de noviembre de 2026 (Cierre oficial: Dom 15 Nov 11:59 p. m.)*
 
-- **[S4-T1] Pruebas de Integración API y Swagger** (5h) ➔ **July (Daniela)**
+- **[S4-T1] Pruebas de Integración API y Swagger** (5h) ➔ **July (Daniela)** `[complete 🟢]`
   - Subtareas: S4-T1.1 (WebApplicationFactory), S4-T1.2 (Swagger schemas), S4-T1.3 (Contratos HTTP)
-  - Horario: Mié 30 Sep 17:00 ➔ Jue 01 Oct 21:00
-- **[S4-T2] Seeders DuckDB para Demo Offline** (4h) ➔ **Fabriany (Reving)**
-  - Subtareas: S4-T2.1 (DuckDB precompilada), S4-T2.2 (Script arranque), S4-T2.3 (Test modo offline)
-  - Horario: Mié 30 Sep 17:00 ➔ Jue 01 Oct 21:00
-- **[S4-T3] Validación Estadística Cruzada vs NASA** (6h) ➔ **Johan**
+- **[S4-T2] Integración de datos reales abiertos (AppEEARS, Giovanni, Hydrology, NOAA CDO, CSA SWOT) y Seeders DuckDB** (6h) ➔ **Fabriany (Reving)** `[to do ⚪]`
+  - Subtareas: S4-T2.1 (Muestras reales AppEEARS/Giovanni/Hydrology/SWOT), S4-T2.2 (DuckDB offline), S4-T2.3 (Test sin conexión)
+- **[S4-T3] Validación Estadística Cruzada vs NASA** (6h) ➔ **Johan** `[complete 🟢]`
   - Subtareas: S4-T3.1 (Validación Ártico GISTEMP), S4-T3.2 (Masa hielo GRACE-FO), S4-T3.3 (Anexo jurado)
-  - Horario: Mié 30 Sep 17:00 ➔ Vie 02 Oct 21:00
-- **[S4-T4] Optimización WebGL para 60 FPS Estables** (5h) ➔ **Diego**
-  - Subtareas: S4-T4.1 (Buffers Three.js), S4-T4.2 (Anti-leaks capas), S4-T4.3 (Benchmark navegadores)
-  - Horario: Jue 01 Oct 17:00 ➔ Sáb 03 Oct 18:00
-- **[S4-T5] Storytelling, Video Demo Pitch y Postulación NASA** (8h) ➔ **Brayan**
-  - Subtareas: S4-T5.1 (Guion narrativo), S4-T5.2 (Video demo 30s), S4-T5.3 (Despliegue y postulación final)
-  - Horario: Jue 01 Oct 17:00 ➔ Dom 04 Oct 20:00
+- **[S4-T4] Ajustes UI Frontend (fuentes NASA/CSA, responsivo), WebGL 60 FPS y capturas demo** (6h) ➔ **Diego** `[desarrollando 🟡]`
+  - Subtareas: S4-T4.1 (Ajustes responsivos/fuentes `[desarrollando]`), S4-T4.2 (Anti-leaks y 60 FPS), S4-T4.3 (Capturas 1080p para 7 slides)
+- **[S4-T5] Guion, Presentación Oficial (máx. 7 diapositivas EN — Opción A) y Envío NASA** (8h) ➔ **Brayan** `[to do ⚪]`
+  - Subtareas: S4-T5.1 (Textos EN + equipo de 6), S4-T5.2 (Presentación 7 slides en inglés + enlace público), S4-T5.3 (Submit for Judging)
+- **[S4-T6] Validación Cruzada KNMI Climate Explorer y Metodología SeaWiFS (NTRS 20090042747)** (4h) ➔ **Johan** `[to do ⚪]`
+  - Subtareas: S4-T6.1 (Contraste KNMI), S4-T6.2 (Ficha SeaWiFS), S4-T6.3 (Pre-blanqueamiento lag-1 con Emilse)
+- **[S4-T7] Exposición de Metadatos NASA/CSA/KNMI y Ajuste de Catálogo en API .NET 10** (4h) ➔ **July (Daniela)** `[to do ⚪]`
+  - Subtareas: S4-T7.1 (`NasaDatasetCatalog` + DTOs), S4-T7.2 (Compatibilidad DuckDB/Render 256 MB), S4-T7.3 (Smoke tests Render/Swagger)
+- **[PHYS-T1..T5] Módulo Paralelo de Física Climática y QA Científico (38h)** ➔ **Emilse Cabrera** `[to do ⚪ — Revisión activa de fuentes]`
+  - Ver detalle en [[34-Trazabilidad-ClickUp-Fisica-y-Dinamica-Climatica]] y cronograma hora a hora en [[36-Plan-Hackathon-Neiva-Nuevas-Fuentes-NASA-CSA]].
 
 ---
 
@@ -123,3 +124,6 @@ Lun 21 Sep 17:00 - Mar 22 Sep 22:00   Mié 23 Sep 17:00 - Vie 25 Sep 21:00   Sá
 - [[05-Rigor-Cientifico-MannKendall]]
 - [[06-Pipeline-CI-CD]]
 - [[17-Time-Slider-Interactivo-y-Control-Multivelocidad]]
+- [[19-Trazabilidad-ClickUp-Sprint-4]]
+- [[34-Trazabilidad-ClickUp-Fisica-y-Dinamica-Climatica]]
+- [[36-Plan-Hackathon-Neiva-Nuevas-Fuentes-NASA-CSA]]
