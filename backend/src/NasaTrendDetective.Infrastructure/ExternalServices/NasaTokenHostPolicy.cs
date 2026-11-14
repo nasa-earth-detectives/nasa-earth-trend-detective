@@ -1,9 +1,9 @@
 namespace NasaTrendDetective.Infrastructure.ExternalServices;
 
 /// <summary>
-/// Decide a qué hosts se puede enviar el token Bearer de Earthdata Login: solo HTTPS y solo
-/// dominios de NASA Earthdata (o los añadidos en configuración). Evita filtrar el token a
-/// enlaces de granules o URLs arbitrarias.
+/// Determines which hosts may receive the Earthdata Login Bearer token: HTTPS only, and strictly
+/// NASA Earthdata domains (or those added via configuration). Prevents token leakage to
+/// external granule links or arbitrary URLs.
 /// </summary>
 public static class NasaTokenHostPolicy
 {

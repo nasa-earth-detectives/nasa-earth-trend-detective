@@ -3,8 +3,8 @@ using NasaTrendDetective.Domain.Entities;
 namespace NasaTrendDetective.Application.Statistics;
 
 /// <summary>
-/// Motor analítico unificado para calcular el veredicto estadístico completo
-/// combinando Mann-Kendall y Sen's Slope para una serie temporal dada.
+/// Unified analytical engine to compute the complete statistical verdict
+/// combining Mann-Kendall and Sen's Slope for a given time series.
 /// </summary>
 public static class TrendStatisticsEngine
 {

@@ -4,8 +4,8 @@ using NasaTrendDetective.Domain.Enums;
 namespace NasaTrendDetective.Application.Interfaces;
 
 /// <summary>
-/// Contrato de acceso a datos climáticos observados para la capa de aplicación.
-/// Permite desacoplar los casos de uso analíticos del motor de almacenamiento (DuckDB).
+/// Data access contract for observed climate data in the application layer.
+/// Decouples analytical use cases from the storage engine (DuckDB).
 /// </summary>
 public interface ITrendObservationRepository
 {

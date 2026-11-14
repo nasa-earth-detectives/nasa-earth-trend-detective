@@ -129,7 +129,7 @@
 }
 
 /* ==========================================================================
-   SPRINT 3: Extensiones del Time-Slider (Hitos, Velocidades y Bucle)
+   SPRINT 3: Time-Slider Extensions (Milestones, Speeds, and Loop)
    ========================================================================== */
 
 .time-control.time-speed {
@@ -207,7 +207,7 @@
   100% { transform: scale(2.2); opacity: 0; }
 }
 
-/* Tooltip de hito climático */
+/* Climate milestone tooltip */
 .milestone-tooltip-container {
   margin-top: 12px;
   animation: tooltip-appear 0.25s cubic-bezier(0.16, 1, 0.3, 1);

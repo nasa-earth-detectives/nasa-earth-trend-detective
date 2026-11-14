@@ -6,9 +6,9 @@ import { createHexColumns } from './hexColumns';
 type TrendCellHandler = (cell: HexCell | null) => void;
 
 /**
- * Lectura de tendencia: altura y color codifican la pendiente de Sen por año,
- * nunca el valor anual de la variable. Es excluyente con la capa anual para que
- * un mismo globo no mezcle dos preguntas científicas distintas.
+ * Trend reading: height and color encode Sen's slope per year,
+ * never the annual variable value. Mutually exclusive with the annual layer
+ * so the globe never conflates two distinct scientific questions.
  */
 export function createEarthTrendLayer(
   globe: GlobeInstance,
@@ -23,9 +23,9 @@ export function createEarthTrendLayer(
   }, {
     transitionMs: 600,
     transitionColors: true,
-    // Paleta divergente fija: azul desciende, neutro sin cambio, rojo aumenta.
+    // Fixed diverging palette: blue decreases, neutral unchanged, red increases.
     color: (cell, data, target) => sampleHexColor(cell.slope, data.heightDomain, target),
-    // El dominio vertical del dataset es fijo, así dos periodos se comparan en igualdad.
+    // The dataset vertical domain is fixed, so two periods are compared on equal terms.
     magnitude: (cell, data) => Math.min(1, Math.abs(cell.slope) / data.heightDomain),
   });
 
@@ -36,7 +36,7 @@ export function createEarthTrendLayer(
   return {
     setDataset(next: HexDataset | null): void {
       if (disposed) return;
-      // null significa consulta pendiente; una lista vacía también oculta la lectura anterior.
+      // null means pending query; an empty list also hides previous readout.
       columns.setDataset(next && next.cells.length ? next : null);
     },
     setVisible(visible: boolean): void {

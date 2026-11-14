@@ -4,13 +4,13 @@ using NasaTrendDetective.Domain.Enums;
 namespace NasaTrendDetective.Application.Interfaces;
 
 /// <summary>
-/// Series anuales por celda de la grilla, solo con datos observados (sin relleno sintético).
+/// Annual time series per grid cell, sourced exclusively from observed data (without synthetic filling).
 /// </summary>
 public interface IGridTrendRepository
 {
     /// <param name="minMonthsPerYear">
-    /// Un año entra en la serie de una celda solo si tiene al menos estos meses válidos; así un año
-    /// en curso (p.ej. enero-agosto) no se compara de igual a igual con años completos.
+    /// A year is included in a cell's series only if it contains at least this many valid months; this prevents
+    /// an incomplete current year (e.g. Jan-Aug) from being evaluated against full years.
     /// </param>
     Task<IReadOnlyList<CellAnnualSeries>> GetCellAnnualSeriesAsync(
         ClimateVariable variable,

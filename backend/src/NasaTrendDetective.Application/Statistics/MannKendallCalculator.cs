@@ -3,8 +3,8 @@ using NasaTrendDetective.Domain.Enums;
 namespace NasaTrendDetective.Application.Statistics;
 
 /// <summary>
-/// Motor de cálculo del Test no paramétrico de Tendencia de Mann-Kendall con corrección por empates.
-/// Sigue las especificaciones del documento 05-Rigor-Cientifico-MannKendall.md de la NASA.
+/// Computational engine for the non-parametric Mann-Kendall trend test with tie correction.
+/// Adheres to NASA scientific rigor specifications.
 /// </summary>
 public static class MannKendallCalculator
 {
@@ -28,7 +28,7 @@ public static class MannKendallCalculator
             return new MannKendallOutput(0, 0, 0, 1.0, TrendDirection.Stable, TrendSignificance.NonSignificant);
         }
 
-        // 1. Estadístico de Tendencia S
+        // 1. Trend Statistic S
         double s = 0;
         for (var k = 0; k < n - 1; k++)
         {
@@ -40,7 +40,7 @@ public static class MannKendallCalculator
             }
         }
 
-        // 2. Varianza Var(S) con corrección por empates (ties)
+        // 2. Variance Var(S) with tie correction
         var tieSum = CalculateTieCorrection(values);
         var varS = (n * (n - 1.0) * (2.0 * n + 5.0) - tieSum) / 18.0;
 
@@ -49,14 +49,14 @@ public static class MannKendallCalculator
             return new MannKendallOutput(s, 0, 0, 1.0, TrendDirection.Stable, TrendSignificance.NonSignificant);
         }
 
-        // 3. Puntaje Z estandarizado
+        // 3. Standardized Z-score
         var stdDev = Math.Sqrt(varS);
         double z;
         if (s > 0) z = (s - 1.0) / stdDev;
         else if (s < 0) z = (s + 1.0) / stdDev;
         else z = 0.0;
 
-        // 4. Valor p y Veredicto Científico al 95% de confianza (|Z| > 1.96)
+        // 4. P-value and scientific verdict at 95% confidence (|Z| > 1.96)
         var pValue = NormalDistribution.CalculateTwoTailedPValue(z);
         var isSignificant = Math.Abs(z) > ZCritical95;
 

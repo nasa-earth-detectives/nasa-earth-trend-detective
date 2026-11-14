@@ -1,6 +1,6 @@
 namespace NasaTrendDetective.Infrastructure.ExternalServices.Models;
 
 /// <summary>
-/// Resultado de una descarga: ruta local del archivo y si se sirvió desde la caché en disco.
+/// Download result: local file path and whether it was served from on-disk cache.
 /// </summary>
 public sealed record NasaDownloadResult(string FilePath, long SizeBytes, bool FromCache);

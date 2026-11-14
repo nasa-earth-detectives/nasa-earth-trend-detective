@@ -1,8 +1,8 @@
 namespace NasaTrendDetective.Infrastructure.Queries.Models;
 
 /// <summary>
-/// Promedio anual de una variable en una celda (lat/lng redondeados). Los promedios ignoran los NULL
-/// analíticos y son NULL si la celda no tiene ningún valor válido ese año.
+/// Annual average of a variable in a grid cell (rounded lat/lng). Averages ignore analytical
+/// NULLs and evaluate to NULL if the cell has no valid values for that year.
 /// </summary>
 public sealed record CellAggregate(
     byte VariableId,

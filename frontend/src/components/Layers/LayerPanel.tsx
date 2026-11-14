@@ -44,11 +44,11 @@ interface LayerPanelProps {
 }
 
 const TABS: { id: LayerTab; label: string }[] = [
-  { id: 'data', label: 'Datos' },
-  { id: 'view', label: 'Vista' },
+  { id: 'data', label: 'Data' },
+  { id: 'view', label: 'View' },
 ];
 
-/** El instrumento abre junto a la navegación; nunca altera la escena WebGL. */
+/** The instrument opens next to navigation; it never alters the WebGL scene. */
 export function LayerPanel({
   id, open, onClose, activeTab, onTabChange, selectedVariable, onVariableSelect,
   autoRotate, starsVisible, gridVisible, atmosphereVisible,
@@ -96,14 +96,14 @@ export function LayerPanel({
       <span className="earth-instrument__handle" aria-hidden="true" />
       <header className="earth-instrument__header">
         <div>
-          <p className="instrument-kicker">{activeTab === 'data' ? 'Catálogo de observación' : 'Referencias de escena'}</p>
-          <h2 id={id + '-title'}>{activeTab === 'data' ? 'Lentes terrestres' : 'Órbita y visibilidad'}</h2>
+          <p className="instrument-kicker">{activeTab === 'data' ? 'Observation catalog' : 'Scene references'}</p>
+          <h2 id={id + '-title'}>{activeTab === 'data' ? 'Earth lenses' : 'Orbit & visibility'}</h2>
         </div>
-        <button type="button" onClick={onClose} aria-label="Cerrar instrumento"
+        <button type="button" onClick={onClose} aria-label="Close instrument"
           className="instrument-close focus-ring"><X size={18} aria-hidden="true" /></button>
       </header>
 
-      <div className="instrument-tabs" role="tablist" aria-label="Secciones del instrumento"
+      <div className="instrument-tabs" role="tablist" aria-label="Instrument sections"
         onKeyDown={moveTab} data-active={activeIndex}>
         {TABS.map((tab) => (
           <button type="button" key={tab.id} id={id + '-tab-' + tab.id} role="tab"
@@ -124,7 +124,7 @@ export function LayerPanel({
           <VariableLayerList selected={selectedVariable} onSelect={onVariableSelect} />
 
           <div className="instrument-live-section" style={{ marginTop: '1.25rem', paddingTop: '1rem', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
-            <h3 className="instrument-kicker" style={{ marginBottom: '0.6rem' }}>Sistemas Vivos & Dinámicas 3D</h3>
+            <h3 className="instrument-kicker" style={{ marginBottom: '0.6rem' }}>Live Systems & 3D Dynamics</h3>
             <LiveSystemSwitches
               oceanFlowVisible={oceanFlowVisible}
               teleconnectionsVisible={teleconnectionsVisible}
@@ -138,8 +138,8 @@ export function LayerPanel({
           </div>
 
           <details className="instrument-future" style={{ marginTop: '0.85rem' }}>
-            <summary className="focus-ring">Matriz de capacidades analíticas <span aria-hidden="true">+</span></summary>
-            <StatusRowList title="Análisis espacial y capas" rows={SCIENTIFIC_OVERLAYS} />
+            <summary className="focus-ring">Analytical capabilities matrix <span aria-hidden="true">+</span></summary>
+            <StatusRowList title="Spatial analysis and layers" rows={SCIENTIFIC_OVERLAYS} />
           </details>
         </div>
         <div id={id + '-content-view'} role="tabpanel" aria-labelledby={id + '-tab-view'}

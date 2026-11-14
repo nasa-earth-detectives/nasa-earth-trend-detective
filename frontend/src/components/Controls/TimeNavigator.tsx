@@ -17,8 +17,8 @@ interface TimeNavigatorProps {
 }
 
 /**
- * Navegador temporal espacial interactivo (Sprint 3 [S3-T5]).
- * Orquesta la barra de tiempo 2000-2026, control multivelocidad e hitos climáticos.
+ * Interactive spatial time navigator (Sprint 3 [S3-T5]).
+ * Orchestrates the 2000-2026 time bar, multi-speed controls, and climate milestones.
  */
 export function TimeNavigator({
   startYear,
@@ -73,16 +73,16 @@ export function TimeNavigator({
     <section
       id="mission-time-navigator"
       className="time-navigator"
-      aria-label="Navegador temporal de la misión"
+      aria-label="Mission time navigator"
       data-playing={playback.isPlaying}
       data-collapsed={collapsed}
       data-ui-control
       style={{ '--timeline-progress': `${progress}%` } as CSSProperties}
     >
-      {/* Campo de año observado siempre visible */}
+      {/* Always visible observed year field */}
       <div ref={observedField} className="time-observed">
-        <span className="time-eyebrow">Año de consulta</span>
-        <span className="time-year" aria-label={`Año seleccionado: ${currentYear}`}>
+        <span className="time-eyebrow">Query year</span>
+        <span className="time-year" aria-label={`Selected year: ${currentYear}`}>
           <span key={currentYear}>{currentYear}</span>
         </span>
         {collapsed ? (
@@ -94,19 +94,19 @@ export function TimeNavigator({
             aria-expanded={false}
             aria-controls={scaleId}
           >
-            <CalendarRange size={14} aria-hidden="true" /> Ajustar año
+            <CalendarRange size={14} aria-hidden="true" /> Adjust year
           </button>
         ) : (
-          <span className="time-state">{playback.isPlaying ? `Recorrido (${playback.speed}x)` : 'Año seleccionado'}</span>
+          <span className="time-state">{playback.isPlaying ? `Playing (${playback.speed}x)` : 'Selected year'}</span>
         )}
       </div>
 
-      {/* Escala detallada flotante */}
+      {/* Floating detailed scale */}
       <div id={scaleId} className="time-detail" inert={collapsed} aria-hidden={collapsed}>
         <div className="time-detail-inner">
           <div className="time-heading">
             <div className="time-mission">
-              <span className="time-source-label">Producto seleccionado</span>
+              <span className="time-source-label">Selected product</span>
               <span key={missionLabel} className="time-source">{missionLabel}</span>
             </div>
 
@@ -138,8 +138,8 @@ export function TimeNavigator({
           />
 
           <div className="time-range-context">
-            <span>Rango de exploración <strong>{startYear}—{endYear}</strong></span>
-            <span>Velocidad actual <strong>{playback.speed}x ({1200 / playback.speed}ms/año)</strong></span>
+            <span>Exploration range <strong>{startYear}—{endYear}</strong></span>
+            <span>Current speed <strong>{playback.speed}x ({1200 / playback.speed}ms/yr)</strong></span>
           </div>
         </div>
       </div>

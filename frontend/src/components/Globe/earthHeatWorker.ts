@@ -17,6 +17,6 @@ scope.onmessage = ({ data }): void => {
     const pixels = rasterizeEarthHeat(data.observations, data.variable).pixels;
     scope.postMessage({ id: data.id, pixels }, [pixels.buffer]);
   } catch {
-    scope.postMessage({ id: data.id, error: 'No fue posible calcular el mapa de observaciones.' }, []);
+    scope.postMessage({ id: data.id, error: 'Failed to compute observation map.' }, []);
   }
 };

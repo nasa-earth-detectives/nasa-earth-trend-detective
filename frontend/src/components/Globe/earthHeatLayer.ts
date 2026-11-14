@@ -8,13 +8,13 @@ import { acquireEarthAnalysisRoot } from './earthAnalysisRoot';
 import { EARTH_HEAT_CONFIG, rasterizeEarthHeat } from './earthHeatRaster';
 import type { HeatWorkerResponse } from './earthHeatWorker';
 
-/** Mapa de valores, no KDE de densidad: Globe.gl suma pesos y aplica abs al color. */
+/** Value map, not density KDE: Globe.gl sums weights and applies abs to color. */
 export function createEarthHeatLayer(globe: GlobeInstance) {
   const root = acquireEarthAnalysisRoot(globe);
   const { width, height, transitionMs, opacity } = EARTH_HEAT_CONFIG;
   const createTexture = (pixels: Uint8Array): DataTexture => {
     const texture = new DataTexture(pixels, width, height);
-    texture.colorSpace = NoColorSpace; // El raster almacena RGB ya lineal.
+    texture.colorSpace = NoColorSpace; // Raster already stores linear RGB.
     texture.wrapS = RepeatWrapping;
     texture.wrapT = ClampToEdgeWrapping;
     texture.minFilter = texture.magFilter = LinearFilter;
@@ -46,21 +46,21 @@ export function createEarthHeatLayer(globe: GlobeInstance) {
       void main() {
         vec4 field = mix(texture2D(previousMap, surfaceUv), texture2D(currentMap, surfaceUv), progress);
         if (field.a < 0.004) discard;
-        // Filtrar colores premultiplicados evita bordes negros en zonas sin muestras.
+        // Filtering premultiplied colors avoids dark borders in unsampled areas.
         gl_FragColor = vec4(field.rgb / max(field.a, 0.004), field.a * opacity);
         #include <colorspace_fragment>
       }
     `,
     transparent: true, depthWrite: false, depthTest: true, toneMapped: false,
   });
-  // Misma teselación y orientación que la Tierra; debajo de la esfera de nubes.
+  // Same tessellation and orientation as Earth; beneath the cloud sphere.
   const geometry = new SphereGeometry(globe.getGlobeRadius() * 1.0006, 90, 45);
   const mesh = new Mesh(geometry, material);
   mesh.name = 'earth-observation-heat';
   mesh.rotation.y = -Math.PI / 2;
   mesh.renderOrder = 0.5;
   mesh.visible = false;
-  mesh.raycast = () => {}; // Conserva la selección de ubicación en la superficie.
+  mesh.raycast = () => {}; // Preserves surface location picking.
   root.group.add(mesh);
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
   let disposed = false;

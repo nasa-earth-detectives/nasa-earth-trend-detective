@@ -5,7 +5,7 @@ using NasaTrendDetective.Infrastructure.ExternalServices.Models;
 namespace NasaTrendDetective.Infrastructure.ExternalServices;
 
 /// <summary>
-/// Convierte la respuesta JSON de CMR (feed.entry[]) en <see cref="CmrGranule"/>.
+/// Converts the CMR JSON response (feed.entry[]) into <see cref="CmrGranule"/> objects.
 /// </summary>
 internal static class CmrGranuleParser
 {

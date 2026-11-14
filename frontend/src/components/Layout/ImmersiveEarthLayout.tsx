@@ -46,7 +46,7 @@ interface ImmersiveEarthLayoutProps {
   onOpenWizard?: () => void;
 }
 
-/** Un único espacio WebGL; cada intención reorganiza los instrumentos DOM. */
+/** A single WebGL viewport; each intent reorganizes DOM instruments. */
 export function ImmersiveEarthLayout({
   observations, loading, observationError, source, provenance, filter,
   initialLocation = null, onVariableChange, onYearChange, onOpenWizard,
@@ -181,10 +181,10 @@ export function ImmersiveEarthLayout({
           collapsed={ui.mode !== 'time'} onToggleCollapsed={() => ui.toggleMode('time')} onPlaybackChange={setIsPlaying} />
       </div>
       <p className="scene-guidance quiet-instrument">
-        <span className="guidance-desktop">Arrastra para orbitar · Desplaza para acercar</span>
-        <span className="guidance-touch">Arrastra para orbitar · Pellizca para acercar</span>
-        <span>{trendReading ? 'Cada columna es el ritmo de cambio de una celda; selecciónala para leerla'
-          : observationMode === 'hex' ? 'Selecciona una columna para inspeccionar su observación' : 'Selecciona la superficie para inspeccionar'}</span>
+        <span className="guidance-desktop">Drag to orbit · Scroll to zoom</span>
+        <span className="guidance-touch">Drag to orbit · Pinch to zoom</span>
+        <span>{trendReading ? 'Each column shows a cell’s rate of change; select one to read it'
+          : observationMode === 'hex' ? 'Select a column to inspect its observation' : 'Select the surface to inspect'}</span>
       </p>
       <LayerPanel id="layer-panel" open={panelOpen} onClose={ui.observe}
         activeTab={ui.mode === 'view' ? 'view' : 'data'} onTabChange={ui.setLayerTab}

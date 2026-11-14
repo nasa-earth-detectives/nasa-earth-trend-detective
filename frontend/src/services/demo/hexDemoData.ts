@@ -4,12 +4,12 @@ import type { TrendFilterParams } from '../../types/trend.types';
 import { DEMO_LAND_CELL_IDS } from './hexDemoCoverage';
 import { HEX_GLOBAL_COVERAGE, HEX_GLOBAL_FLAGS } from './hexGlobalCoverage';
 
-/** Escalas de presentación del escenario ficticio, no umbrales científicos. */
+/** Presentation scales for mock scenario, not scientific thresholds. */
 export const HEX_VARIABLE_PROFILES: Record<ClimateVariable, { unit: string; heightDomain: number }> = {
-  Gistemp: { unit: '°C / año', heightDomain: 0.08 },
-  ModisNdvi: { unit: 'NDVI / año', heightDomain: 0.015 },
-  GraceMass: { unit: 'cm H₂O eq. / año', heightDomain: 3 },
-  Oco2: { unit: 'ppm / año', heightDomain: 4 },
+  Gistemp: { unit: '°C / year', heightDomain: 0.08 },
+  ModisNdvi: { unit: 'NDVI / year', heightDomain: 0.015 },
+  GraceMass: { unit: 'cm H₂O eq. / year', heightDomain: 3 },
+  Oco2: { unit: 'ppm / year', heightDomain: 4 },
 };
 
 export const DEMO_HEX_RESOLUTION_DEGREES = 2.2;
@@ -29,10 +29,10 @@ const VARIABLES: ClimateVariable[] = ['Gistemp', 'ModisNdvi', 'GraceMass', 'Oco2
 const landCellIds = new Set<string>(DEMO_LAND_CELL_IDS);
 export type HexDemoProfile = 'global' | 'regional' | 'stress';
 
-/** Ensayo reproducible: las 6.211 celdas están en el hemisferio del encuadre inicial. */
+/** Reproducible benchmark: all 6,211 cells reside in the hemisphere of the initial frame. */
 export const HEX_STRESS_PROFILE = { radius: 45, resolutionDegrees: 0.75, latitude: 18, longitude: -12 } as const;
 
-/** Proyección geodésica del plano tangente: mantiene el espaciado incluso cerca de Groenlandia. */
+/** Tangent plane geodesic projection: preserves spacing even near Greenland. */
 function projectCenter(latitude: number, longitude: number, east: number, north: number) {
   const distance = Math.hypot(east, north) * RADIANS;
   if (distance === 0) return { latitude, longitude };
@@ -57,8 +57,8 @@ interface DemoLocation {
   readonly envelope: number;
 }
 
-// Dos geometrías base. Se conservan centros y factores espaciales,
-// nunca los objetos mutables que se entregan al consumidor de cada consulta.
+// Two base geometries. Centers and spatial factors are retained,
+// never mutable objects returned to consumers of each query.
 const locationCache = new Map<HexDemoProfile, readonly DemoLocation[]>();
 
 interface GlobalLocation {
@@ -72,7 +72,7 @@ interface GlobalLocation {
 }
 let globalLocations: readonly GlobalLocation[] | null = null;
 
-/** Muestreo de área casi uniforme: no acumula miles de columnas en los polos. */
+/** Near-uniform area sampling: avoids clustering thousands of columns at poles. */
 function getGlobalLocations(): readonly GlobalLocation[] {
   if (globalLocations) return globalLocations;
   globalLocations = Array.from({ length: HEX_GLOBAL_COVERAGE.count }, (_, index) => {
@@ -94,7 +94,7 @@ function createGlobalDataset(filter: TrendFilterParams): HexDataset {
   const locations = getGlobalLocations().filter(location => filter.variable === 'ModisNdvi'
     ? location.flags === 3 : filter.variable === 'GraceMass' ? (location.flags & 1) !== 0 : true);
   const cells = locations.map(({ id, latitude, longitude, x, y, z }) => {
-    // Campo sintético continuo sobre la esfera, sin saltos en ±180° ni fronteras políticas.
+    // Continuous synthetic field over sphere, without jumps at ±180° or political borders.
     const field = 0.62 * Math.sin(3 * x + 2 * y + phase) * Math.cos(2 * z - phase * 0.3)
       + 0.38 * Math.sin(4 * z - y + phase * 0.7);
     return { id, latitude, longitude, slope: Number((field * 0.55 * profile.heightDomain).toFixed(7)) };
@@ -118,7 +118,7 @@ function getLocations(demoProfile: HexDemoProfile): readonly DemoLocation[] {
         if (Math.abs(q + r) > patchRadius) continue;
         const east = resolutionDegrees * (q + r / 2);
         const north = resolutionDegrees * Math.sqrt(3) / 2 * r;
-        // El ensayo denso limita la altura para evitar que columnas delanteras oculten a las demás.
+        // Dense stress test limits height to prevent foreground columns from obscuring others.
         const envelope = stress ? 0.3 : 0.38 + 0.52 * Math.exp(-(q * q + r * r + q * r) / 28);
         patch.push({
           id: `demo:${region.id}:${q}:${r}`,
@@ -136,7 +136,7 @@ function getLocations(demoProfile: HexDemoProfile): readonly DemoLocation[] {
   return locations;
 }
 
-/** Global por defecto; regional conserva la comparación y stress sirve sólo para medir carga. */
+/** Global by default; regional preserves comparison and stress is purely for benchmarking. */
 export function createDemoHexDataset(filter: TrendFilterParams, demoProfile: HexDemoProfile = 'global'): HexDataset {
   if (demoProfile === 'global') return createGlobalDataset(filter);
   const profile = HEX_VARIABLE_PROFILES[filter.variable];

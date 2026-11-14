@@ -41,8 +41,8 @@ public class TrendsController : ControllerBase
         {
             return BadRequest(new ProblemDetails
             {
-                Title = "Parámetros temporales inválidos",
-                Detail = $"StartYear ({query.StartYear}) no puede ser mayor que EndYear ({query.EndYear}).",
+                Title = "Invalid temporal parameters",
+                Detail = $"StartYear ({query.StartYear}) cannot be greater than EndYear ({query.EndYear}).",
                 Status = StatusCodes.Status400BadRequest
             });
         }
@@ -59,8 +59,8 @@ public class TrendsController : ControllerBase
     }
 
     /// <summary>
-    /// Mann-Kendall / Sen en cada celda observada de la variable. 404 si no hay dataset real cargado:
-    /// el cliente debe usar su escenario de demostración y decirlo, no recibir una grilla inventada.
+    /// Mann-Kendall / Sen on each observed cell for the variable. Returns 404 if no real dataset is loaded:
+    /// the client must use its demonstration scenario and indicate it, rather than receiving an invented grid.
     /// </summary>
     [HttpGet("grid")]
     [EnableRateLimiting("HeavyAnalysis")]
@@ -73,8 +73,8 @@ public class TrendsController : ControllerBase
         {
             return BadRequest(new ProblemDetails
             {
-                Title = "Parámetros temporales inválidos",
-                Detail = $"Periodo {query.StartYear}-{query.EndYear} inválido.",
+                Title = "Invalid temporal parameters",
+                Detail = $"Period {query.StartYear}-{query.EndYear} is invalid.",
                 Status = StatusCodes.Status400BadRequest
             });
         }
@@ -90,8 +90,8 @@ public class TrendsController : ControllerBase
         {
             return NotFound(new ProblemDetails
             {
-                Title = "Sin datos observados",
-                Detail = $"La variable {query.Variable} no tiene un dataset real cargado.",
+                Title = "No observed data",
+                Detail = $"Variable {query.Variable} does not have a real dataset loaded.",
                 Status = StatusCodes.Status404NotFound
             });
         }
@@ -151,8 +151,8 @@ public class TrendsController : ControllerBase
         {
             return NotFound(new ProblemDetails
             {
-                Title = "Caso de tendencia opuesta no encontrado",
-                Detail = $"No se encontró un par teleconectado con el identificador '{pairId}'.",
+                Title = "Opposing trend case not found",
+                Detail = $"No teleconnected pair was found with identifier '{pairId}'.",
                 Status = StatusCodes.Status404NotFound
             });
         }

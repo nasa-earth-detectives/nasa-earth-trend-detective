@@ -1,16 +1,16 @@
 /**
  * DetectiveWizard.tsx
  *
- * Modal de bienvenida "Detective de Tendencias".
- * Guía al usuario en 3 pasos simples:
- *   1. ¿Qué quieres estudiar? (variable)
- *   2. ¿En qué región del mundo?
- *   3. ¿En qué período?
+ * "Trend Detective" welcome wizard modal.
+ * Guides the user through 3 simple steps:
+ *   1. What do you want to study? (variable)
+ *   2. In which region of the world?
+ *   3. In what time period?
  *
- * Al finalizar emite onComplete con la selección lista para
- * configurar el globo directamente.
+ * Upon completion, fires onComplete with the selection ready to
+ * configure the globe directly.
  *
- * Audiencia objetivo: estudiantes de secundaria y público general
+ * Target audience: secondary school students and general public
  * (NASA Space Apps 2026 — "Be An Earth System Trend Detective!").
  */
 
@@ -38,7 +38,7 @@ interface DetectiveWizardProps {
   onSkip: () => void;
 }
 
-const STEPS = ['Variable', 'Región', 'Período'] as const;
+const STEPS = ['Variable', 'Region', 'Period'] as const;
 type Step = 0 | 1 | 2;
 
 export function DetectiveWizard({ onComplete, onSkip }: DetectiveWizardProps) {
@@ -49,12 +49,12 @@ export function DetectiveWizard({ onComplete, onSkip }: DetectiveWizardProps) {
   const dialogRef = useRef<HTMLDivElement>(null);
   const headingId = useId();
 
-  // Foco inicial al montar (accesibilidad)
+  // Initial focus on mount (accessibility)
   useEffect(() => {
     dialogRef.current?.focus();
   }, []);
 
-  // Tecla Escape → saltar
+  // Escape key → skip
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') { e.preventDefault(); onSkip(); }
@@ -70,7 +70,7 @@ export function DetectiveWizard({ onComplete, onSkip }: DetectiveWizardProps) {
       setStep((s) => (s + 1) as Step);
       return;
     }
-    // Paso 3 completado → emitir resultado
+    // Step 3 completed → emit result
     onComplete({ variable, region, startYear: period.startYear, endYear: period.endYear });
   };
 
@@ -83,21 +83,21 @@ export function DetectiveWizard({ onComplete, onSkip }: DetectiveWizardProps) {
       ref={dialogRef} tabIndex={-1}>
       <div className="wizard-panel">
 
-        {/* Cabecera */}
+        {/* Header */}
         <header className="wizard-header">
           <span className="wizard-badge">
             <span aria-hidden="true">🔍</span>
             NASA Space Apps 2026
           </span>
-          <h1 id={headingId} className="wizard-title">Detective de Tendencias</h1>
+          <h1 id={headingId} className="wizard-title">Trend Detective</h1>
           <p className="wizard-subtitle">
-            Elige qué investigar y el sistema analizará si hay un cambio estadísticamente
-            significativo en los datos de la NASA.
+            Choose what to investigate and the system will analyze whether there is a statistically
+            significant change in NASA data.
           </p>
         </header>
 
-        {/* Indicador de pasos */}
-        <div className="wizard-steps" role="list" aria-label="Pasos del asistente">
+        {/* Step indicator */}
+        <div className="wizard-steps" role="list" aria-label="Wizard steps">
           {STEPS.map((label, i) => (
             <span key={label} role="listitem">
               <span
@@ -109,14 +109,14 @@ export function DetectiveWizard({ onComplete, onSkip }: DetectiveWizardProps) {
               />
             </span>
           ))}
-          <span className="wizard-step-label">Paso {step + 1} de {STEPS.length} — {STEPS[step]}</span>
+          <span className="wizard-step-label">Step {step + 1} of {STEPS.length} — {STEPS[step]}</span>
         </div>
 
-        {/* ── Paso 1: Variable ── */}
+        {/* ── Step 1: Variable ── */}
         {step === 0 && (
           <section className="wizard-body">
-            <p className="wizard-step-title">¿Qué quieres estudiar?</p>
-            <div className="wizard-variables" role="radiogroup" aria-label="Variable científica">
+            <p className="wizard-step-title">What do you want to study?</p>
+            <div className="wizard-variables" role="radiogroup" aria-label="Scientific variable">
               {CLIMATE_VARIABLES.map((meta) => {
                 const entry = VARIABLE_GLOSSARY[meta.id];
                 return (
@@ -137,21 +137,21 @@ export function DetectiveWizard({ onComplete, onSkip }: DetectiveWizardProps) {
               })}
             </div>
 
-            {/* Descripción expandida de la variable seleccionada */}
+            {/* Expanded description of selected variable */}
             <div className="wizard-var-detail" aria-live="polite" aria-atomic="true">
               <p><strong>{currentEntry.emoji} {currentEntry.tagline}</strong></p>
               <p>{currentEntry.plain}</p>
               <p>💡 <em>{currentEntry.askAbout}</em></p>
-              <p>Unidad: {currentEntry.unit}</p>
+              <p>Unit: {currentEntry.unit}</p>
             </div>
           </section>
         )}
 
-        {/* ── Paso 2: Región ── */}
+        {/* ── Step 2: Region ── */}
         {step === 1 && (
           <section className="wizard-body">
-            <p className="wizard-step-title">¿En qué región del mundo?</p>
-            <div className="wizard-regions" role="radiogroup" aria-label="Región de estudio">
+            <p className="wizard-step-title">Which region of the world?</p>
+            <div className="wizard-regions" role="radiogroup" aria-label="Study region">
               {WIZARD_REGIONS.map((r) => (
                 <button
                   key={r.id}
@@ -168,33 +168,33 @@ export function DetectiveWizard({ onComplete, onSkip }: DetectiveWizardProps) {
               ))}
             </div>
 
-            {/* Nota: si elige "custom" se le indica cómo hacer clic */}
+            {/* Note: if "custom" is selected, explains how to click */}
             {region.id === 'custom' && (
               <p className="wizard-science-note">
-                <strong>💡 Modo libre:</strong> Al entrar al globo podrás tocar cualquier punto
-                de la Tierra para seleccionar la región que quieras investigar.
+                <strong>💡 Free mode:</strong> Once on the globe, you can tap any point on Earth
+                to select the region you want to investigate.
               </p>
             )}
 
-            {/* Sugerencia de variable para la región */}
+            {/* Suggested variable for the region */}
             {region.id !== 'custom' && !region.suggestedVariables.includes(variable) && (
               <p className="wizard-science-note">
-                <strong>Sugerencia:</strong> Para {region.label}, la variable más informativa
-                suele ser{' '}
+                <strong>Tip:</strong> For {region.label}, the most informative variable
+                is usually{' '}
                 {region.suggestedVariables.map((v) =>
                   CLIMATE_VARIABLES.find((m) => m.id === v)?.name
-                ).join(' o ')}.
-                Puedes cambiarla en el siguiente paso si lo prefieres.
+                ).join(' or ')}.
+                You can switch it in the Variables panel if you prefer.
               </p>
             )}
           </section>
         )}
 
-        {/* ── Paso 3: Período ── */}
+        {/* ── Step 3: Period ── */}
         {step === 2 && (
           <section className="wizard-body">
-            <p className="wizard-step-title">¿Cuántos años de datos analizar?</p>
-            <div className="wizard-periods" role="radiogroup" aria-label="Período de análisis">
+            <p className="wizard-step-title">How many years of data to analyze?</p>
+            <div className="wizard-periods" role="radiogroup" aria-label="Analysis period">
               {WIZARD_PERIODS.map((p) => (
                 <button
                   key={p.id}
@@ -212,11 +212,11 @@ export function DetectiveWizard({ onComplete, onSkip }: DetectiveWizardProps) {
             </div>
 
             <p className="wizard-science-note">
-              <strong>¿Por qué importa el período?</strong>{' '}
-              El test estadístico de Mann-Kendall necesita suficientes puntos de datos para
-              distinguir una tendencia real del ruido aleatorio. Cuanto más largo el período,
-              más confiable es el resultado. Los datos disponibles van desde{' '}
-              {SATELLITE_TIMELINE.startYear} hasta hoy.
+              <strong>Why does the period matter?</strong>{' '}
+              The Mann-Kendall statistical test needs enough data points to
+              distinguish a real trend from random noise. The longer the period,
+              the more reliable the result. Available data spans from{' '}
+              {SATELLITE_TIMELINE.startYear} to today.
             </p>
           </section>
         )}
@@ -225,11 +225,11 @@ export function DetectiveWizard({ onComplete, onSkip }: DetectiveWizardProps) {
         <footer className="wizard-footer">
           {step === 0 ? (
             <button type="button" className="wizard-btn-skip" onClick={onSkip}>
-              Saltar y explorar libremente
+              Skip and explore freely
             </button>
           ) : (
             <button type="button" className="wizard-btn-back" onClick={handleBack}>
-              ← Atrás
+              ← Back
             </button>
           )}
           <button
@@ -237,7 +237,7 @@ export function DetectiveWizard({ onComplete, onSkip }: DetectiveWizardProps) {
             className="wizard-btn-next focus-ring"
             onClick={handleNext}
           >
-            {step < 2 ? 'Siguiente →' : '🔍 Iniciar investigación'}
+            {step < 2 ? 'Next →' : '🔍 Start investigation'}
           </button>
         </footer>
 

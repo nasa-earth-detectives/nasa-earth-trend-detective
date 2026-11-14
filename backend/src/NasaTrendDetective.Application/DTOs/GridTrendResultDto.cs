@@ -3,8 +3,8 @@ using NasaTrendDetective.Domain.Enums;
 namespace NasaTrendDetective.Application.DTOs;
 
 /// <summary>
-/// Tendencia por celda de toda la grilla observada para un periodo. Solo existe con datos reales:
-/// sin dataset cargado la API responde 404 en lugar de inventar una grilla.
+/// Per-cell trend of the entire observed grid for a given period. Only exists with real data:
+/// without a loaded dataset, the API returns 404 rather than inventing a grid.
 /// </summary>
 public class GridTrendResultDto
 {
@@ -12,7 +12,7 @@ public class GridTrendResultDto
     public int StartYear { get; set; }
     public int EndYear { get; set; }
 
-    /// <summary>Unidad de <see cref="GridTrendCellDto.SensSlope"/> (p.ej. "°C / año").</summary>
+    /// <summary>Unit of <see cref="GridTrendCellDto.SensSlope"/> (e.g., "°C / year").</summary>
     public string Unit { get; set; } = string.Empty;
 
     public double ResolutionDegrees { get; set; }
@@ -20,7 +20,7 @@ public class GridTrendResultDto
     public string Product { get; set; } = string.Empty;
     public bool Interim { get; set; }
 
-    /// <summary>Reglas de inclusión aplicadas, para que el cliente pueda explicarlas.</summary>
+    /// <summary>Inclusion rules applied, so the client can explain them.</summary>
     public int MinMonthsPerYear { get; set; }
     public int MinYearsPerCell { get; set; }
 

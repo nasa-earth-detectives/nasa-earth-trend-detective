@@ -1,4 +1,4 @@
-/* Instrumento regional: una superficie mineral y lecturas abiertas. */
+/* Regional instrument: mineral surface and open readouts. */
 .inspection-instrument {
   position: absolute; z-index: 30; left: var(--gutter); bottom: 156px;
   width: 380px; max-width: calc(100vw - 44px); max-height: calc(100dvh - 200px);
@@ -29,7 +29,7 @@
 .inspection-series-heading h3 { color: var(--text-secondary); font-size: 12px; font-weight: 500; }
 .inspection-series-heading > span { font: 11px var(--font-readout); color: var(--text-tertiary); }
 
-/* Acciones de exportación y enlace compartido */
+/* Export actions and shareable link */
 .inspection-actions {
   display: flex; gap: 8px; margin-top: 12px; padding-top: 10px;
   border-top: 1px dashed var(--edge-subtle);

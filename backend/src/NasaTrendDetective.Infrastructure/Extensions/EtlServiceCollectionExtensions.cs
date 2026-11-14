@@ -7,13 +7,13 @@ using NasaTrendDetective.Infrastructure.Interfaces;
 namespace NasaTrendDetective.Infrastructure.Extensions;
 
 /// <summary>
-/// Registro del pipeline ETL: normalización de grilla espacial e importación masiva de Parquet.
+/// Registration of the ETL pipeline: spatial grid normalization and bulk Parquet import.
 /// </summary>
 public static class EtlServiceCollectionExtensions
 {
     /// <summary>
-    /// Registra <see cref="ISpatialGridNormalizer"/> y los lectores crudos disponibles
-    /// (hoy solo CSV). Configuración en la sección "GridNormalization".
+    /// Registers <see cref="ISpatialGridNormalizer"/> and available raw readers
+    /// (currently CSV). Configuration in the "GridNormalization" section.
     /// </summary>
     public static IServiceCollection AddGridNormalization(this IServiceCollection services, IConfiguration configuration)
     {
@@ -29,8 +29,8 @@ public static class EtlServiceCollectionExtensions
     }
 
     /// <summary>
-    /// Registra <see cref="IParquetImporter"/> (carga masiva a fact_climate_observations).
-    /// Configuración en la sección "ParquetImport" (SourceGlob).
+    /// Registers <see cref="IParquetImporter"/> (bulk import into fact_climate_observations).
+    /// Configuration in the "ParquetImport" section (SourceGlob).
     /// </summary>
     public static IServiceCollection AddParquetImport(this IServiceCollection services, IConfiguration configuration)
     {
@@ -46,8 +46,8 @@ public static class EtlServiceCollectionExtensions
     }
 
     /// <summary>
-    /// Registra el sembrado de datasets (Parquet + manifiesto) y su servicio de arranque.
-    /// Configuración en la sección "DatasetSeed"; DATASET_SEED_DIRECTORY tiene prioridad.
+    /// Registers dataset seeding (Parquet + manifest) and its startup hosted service.
+    /// Configuration in the "DatasetSeed" section; DATASET_SEED_DIRECTORY takes precedence.
     /// </summary>
     public static IServiceCollection AddDatasetSeed(this IServiceCollection services, IConfiguration configuration)
     {

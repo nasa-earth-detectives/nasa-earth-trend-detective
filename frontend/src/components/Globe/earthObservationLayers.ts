@@ -7,8 +7,8 @@ import { createEarthHeatLayer } from './earthHeatLayer';
 import { createEarthTrendLayer } from './earthTrendLayer';
 
 /**
- * Dos lecturas excluyentes (valor anual · tendencia) y, dentro del valor anual,
- * dos representaciones. El raster sólo se calcula cuando se necesita.
+ * Two mutually exclusive readings (annual value · trend) and, within annual value,
+ * two representations. The raster is only computed when needed.
  */
 export function createEarthObservationLayers(globe: GlobeInstance,
   onSelectLocation: (location: { lat: number; lng: number }) => void) {

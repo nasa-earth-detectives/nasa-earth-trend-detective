@@ -4,9 +4,9 @@ using NasaTrendDetective.Infrastructure.Etl.Models;
 namespace NasaTrendDetective.Infrastructure.Etl;
 
 /// <summary>
-/// Carga masiva de Parquet canónicos a fact_climate_observations sobre una conexión abierta:
-/// comprueba el glob, valida el esquema con DESCRIBE y ejecuta el INSERT ... SELECT en una transacción
-/// (hechos + celdas de dim_location), con rollback completo si algo falla.
+/// Bulk ingest of canonical Parquet files into fact_climate_observations over an open connection:
+/// validates glob, verifies schema using DESCRIBE, and executes INSERT ... SELECT inside a transaction
+/// (facts + dim_location cells), with full rollback on failure.
 /// </summary>
 internal static class ParquetIngestion
 {
@@ -23,7 +23,7 @@ internal static class ParquetIngestion
             .ConfigureAwait(false);
         if (files == 0)
         {
-            throw new ParquetImportException($"No se encontraron archivos Parquet para el patrón '{glob}'.");
+            throw new ParquetImportException($"No Parquet files found for pattern '{glob}'.");
         }
 
         CanonicalParquetSchema.Validate(await DescribeAsync(connection, glob, ct).ConfigureAwait(false), glob);

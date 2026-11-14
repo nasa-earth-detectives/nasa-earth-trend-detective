@@ -11,9 +11,9 @@ import '../styles/detective-wizard.css';
 const VALID_VARIABLES: ClimateVariable[] = ['Gistemp', 'ModisNdvi', 'GraceMass', 'Oco2'];
 
 /**
- * Punto de entrada de la experiencia.
- * Soporta enlace compartido por URL (?variable=...&lat=...&lng=...&year=...)
- * y Wizard de bienvenida "Detective de Tendencias" para guiar a estudiantes.
+ * Experience entry point.
+ * Supports URL share links (?variable=...&lat=...&lng=...&year=...)
+ * and "Trend Detective" welcome wizard to guide students.
  */
 export function DashboardPage() {
   const queryConfig = useMemo(() => {
@@ -47,7 +47,7 @@ export function DashboardPage() {
     wizard.dismiss();
   }, [setVariable, setYearRange, wizard.dismiss]);
 
-  // Si el usuario ingresó por un enlace compartido con ubicación específica, no mostramos el wizard encima
+  // If the user arrived via a share link with a specific location, do not show the wizard on top
   const showWizard = wizard.open && !queryConfig.location;
 
   return (

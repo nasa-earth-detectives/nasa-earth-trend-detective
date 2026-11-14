@@ -3,14 +3,14 @@ using NasaTrendDetective.Domain.Enums;
 namespace NasaTrendDetective.Domain.Entities;
 
 /// <summary>
-/// Procedencia del dataset cargado para una variable: de dónde sale cada número que muestra la API.
-/// Cambiar de fuente (p.ej. cuando el reto entregue la oficial) es cargar otro manifiesto y otro
-/// Parquet; ni los contratos de la API ni el frontend dependen de la fuente concreta.
+/// Provenance of the loaded dataset for a variable: indicates where each value returned by the API originates.
+/// Changing data source (e.g., when an official dataset is delivered) involves loading a different manifest
+/// and Parquet file; neither API contracts nor the frontend depend on a specific data source.
 /// </summary>
-/// <param name="Unit">Unidad de las observaciones (p.ej. "°C Anomaly").</param>
-/// <param name="TrendUnit">Unidad de la pendiente de Sen por año (p.ej. "°C / año").</param>
-/// <param name="Interim">Fuente provisional, a reemplazar cuando llegue la fuente oficial.</param>
-/// <param name="RowCount">Hechos cargados en DuckDB para la variable.</param>
+/// <param name="Unit">Measurement unit of observations (e.g., "°C Anomaly").</param>
+/// <param name="TrendUnit">Unit of Sen's slope per year (e.g., "°C / year").</param>
+/// <param name="Interim">Provisional source, to be replaced when an official source arrives.</param>
+/// <param name="RowCount">Total facts loaded into DuckDB for this variable.</param>
 public sealed record DatasetProvenance(
     ClimateVariable Variable,
     string Provider,

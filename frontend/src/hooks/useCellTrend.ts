@@ -4,7 +4,7 @@ import type { DatasetProvenance } from '../types/dataset.types';
 import type { TimeSeriesDataPoint } from '../types/detective.types';
 import { trendService } from '../services/trendService';
 
-/** Veredicto Mann-Kendall / Sen calculado por el backend para una celda observada. */
+/** Mann-Kendall / Sen's slope verdict computed by the backend for an observed cell. */
 export interface CellTrend {
   series: TimeSeriesDataPoint[];
   sensSlope: number;
@@ -17,16 +17,16 @@ export interface CellTrend {
 interface CellTrendState { key: string | null; data: CellTrend | null; loading: boolean; error: string | null }
 
 function finite(value: unknown, field: string): number {
-  if (typeof value !== 'number' || !Number.isFinite(value)) throw new Error(`La API devolvió ${field} no válido.`);
+  if (typeof value !== 'number' || !Number.isFinite(value)) throw new Error(`API returned invalid ${field}.`);
   return value;
 }
 
-/** Frontera del TrendResultDto. Exige Source = "observed": una serie sintética no se pinta como real. */
+/** Boundary of TrendResultDto. Requires Source = "observed": a synthetic series is never rendered as real. */
 export function adaptCellTrend(payload: unknown): CellTrend {
-  if (!payload || typeof payload !== 'object') throw new Error('Respuesta de tendencia inválida.');
+  if (!payload || typeof payload !== 'object') throw new Error('Invalid trend response.');
   const row = payload as Record<string, unknown>;
-  if (row.source !== 'observed') throw new Error('La API no tiene observaciones reales para esta celda.');
-  if (!Array.isArray(row.observations)) throw new Error('La tendencia no incluye la serie anual.');
+  if (row.source !== 'observed') throw new Error('The API has no real observations for this cell.');
+  if (!Array.isArray(row.observations)) throw new Error('The trend response does not include the annual series.');
   const series = row.observations.map((entry: unknown) => {
     const point = (entry ?? {}) as Record<string, unknown>;
     const value = point.anomaly ?? point.value;
@@ -37,7 +37,7 @@ export function adaptCellTrend(payload: unknown): CellTrend {
     direction: typeof row.direction === 'string' ? row.direction : 'Stable' };
 }
 
-/** Solo consulta con una celda de la API seleccionada; con la demo devuelve null sin pedir nada. */
+/** Only queries when an API cell is selected; returns null without fetching for demo data. */
 export function useCellTrend(variable: ClimateVariable, provenance: DatasetProvenance | null,
   cell: { latitude: number; longitude: number } | null) {
   const latitude = cell?.latitude ?? null;
@@ -57,7 +57,7 @@ export function useCellTrend(variable: ClimateVariable, provenance: DatasetProve
       .catch((error: unknown) => {
         if (controller.signal.aborted) return;
         setState({ key, data: null, loading: false,
-          error: error instanceof Error ? error.message : 'No se pudo calcular la tendencia.' });
+          error: error instanceof Error ? error.message : 'Could not compute the trend.' });
       });
     return () => controller.abort();
   }, [key, provenance, variable, latitude, longitude]);

@@ -3,8 +3,8 @@ using NasaTrendDetective.Infrastructure.Etl.Models;
 namespace NasaTrendDetective.Infrastructure.Interfaces;
 
 /// <summary>
-/// Normaliza grillas nativas heterogéneas (MODIS 0.05°, GRACE 3°, GISTEMP 2°) a tuplas canónicas
-/// WGS84 (variable_id, latitude, longitude, timestamp, value, anomaly) exportadas a Parquet SNAPPY.
+/// Normalizes heterogeneous native grids (MODIS 0.05°, GRACE 3°, GISTEMP 2°) into canonical WGS84
+/// tuples (variable_id, latitude, longitude, timestamp, value, anomaly) exported to SNAPPY Parquet.
 /// </summary>
 public interface ISpatialGridNormalizer
 {

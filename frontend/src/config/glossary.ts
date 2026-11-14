@@ -1,17 +1,17 @@
 /**
  * glossary.ts
  *
- * Glosario de variables climáticas en lenguaje accesible para estudiantes
- * de secundaria y público general (audiencia objetivo NASA Space Apps 2026).
+ * Climate variable glossary in accessible language for high school students
+ * and the general public (target audience NASA Space Apps 2026).
  *
- * Cada entrada define:
- *  - `emoji`      : ícono visual de la variable
- *  - `tagline`    : frase corta de gancho (≤ 8 palabras)
- *  - `plain`      : definición en lenguaje cotidiano (1-2 oraciones)
- *  - `whyMatters` : por qué importa detectar esta tendencia
- *  - `askAbout`   : pregunta que inspira al "detective" a investigar
- *  - `exampleRegion` : región emblemática con tendencia conocida
- *  - `unit`       : unidad en lenguaje cotidiano
+ * Each entry defines:
+ *  - `emoji`      : visual icon of the variable
+ *  - `tagline`    : short hook sentence (≤ 8 words)
+ *  - `plain`      : everyday language definition (1-2 sentences)
+ *  - `whyMatters` : why detecting this trend matters
+ *  - `askAbout`   : question inspiring the "detective" to investigate
+ *  - `exampleRegion` : emblematic region with known trend
+ *  - `unit`       : everyday language unit
  */
 
 import type { ClimateVariable } from '../types/climate.types';
@@ -29,57 +29,57 @@ export interface GlossaryEntry {
 export const VARIABLE_GLOSSARY: Record<ClimateVariable, GlossaryEntry> = {
   Gistemp: {
     emoji: '🌡️',
-    tagline: '¿Está la Tierra más caliente que antes?',
+    tagline: 'Is Earth warmer than before?',
     plain:
-      'No es la temperatura del día de hoy. Es qué tan diferente está el planeta comparado con el promedio del siglo XX. Un valor positivo significa más calor; negativo, más frío.',
+      'It is not today’s weather temperature. It measures how different the planet is compared to the 20th-century average. A positive value means warmer; negative means cooler.',
     whyMatters:
-      'Cuando la temperatura sube de forma constante año tras año, eso afecta los glaciares, el nivel del mar, las cosechas y los patrones climáticos. Detectar dónde ocurre más rápido ayuda a entender qué zonas del planeta cambian más.',
+      'When temperature rises steadily year after year, it affects glaciers, sea level, crops, and weather patterns. Detecting where it happens fastest helps understand which regions of the planet are changing most.',
     askAbout:
-      '¿Está calentando el Ártico más rápido que el resto del planeta?',
-    exampleRegion: { label: 'Ártico (Svalbard)', lat: 78, lng: 15 },
-    unit: 'grados Celsius de diferencia respecto al siglo pasado',
+      'Is the Arctic warming faster than the rest of the planet?',
+    exampleRegion: { label: 'Arctic (Svalbard)', lat: 78, lng: 15 },
+    unit: 'degrees Celsius difference from the last century',
   },
   ModisNdvi: {
     emoji: '🌿',
-    tagline: '¿Están los bosques creciendo o desapareciendo?',
+    tagline: 'Are forests growing or disappearing?',
     plain:
-      'El NDVI mide qué tan verde está una zona. Va de -1 (sin vida) a +1 (selva densa). Los satélites Terra y Aqua capturan este dato mirando cómo las plantas reflejan la luz.',
+      'NDVI measures how green an area is. It ranges from -1 (lifeless) to +1 (dense rainforest). Terra and Aqua satellites capture this by observing how plants reflect light.',
     whyMatters:
-      'Los bosques absorben CO₂ y regulan el agua. Cuando el NDVI baja en una región, puede significar deforestación, sequía o incendios. Cuando sube, puede indicar reforestación o más lluvia.',
+      'Forests absorb CO₂ and regulate water. When NDVI drops in a region, it can mean deforestation, drought, or wildfires. When it rises, it can indicate reforestation or increased rainfall.',
     askAbout:
-      '¿Está la Amazonía perdiendo vegetación año tras año?',
-    exampleRegion: { label: 'Amazonía central', lat: -5, lng: -60 },
-    unit: 'índice sin unidad (de -1 a +1, mayor = más vegetación)',
+      'Is the Amazon losing vegetation year after year?',
+    exampleRegion: { label: 'Central Amazon', lat: -5, lng: -60 },
+    unit: 'unitless index (from -1 to +1, higher = more vegetation)',
   },
   GraceMass: {
     emoji: '🧊',
-    tagline: '¿Cuánta agua y hielo está desapareciendo?',
+    tagline: 'How much water and ice is disappearing?',
     plain:
-      'Los satélites GRACE y GRACE-FO detectan cambios en la gravedad de la Tierra para medir si hay más o menos agua o hielo bajo tierra o en los glaciares. Es como una balanza gigante en el espacio.',
+      'GRACE and GRACE-FO satellites detect changes in Earth’s gravity to measure whether there is more or less water or ice underground or in glaciers. It works like a giant scale in space.',
     whyMatters:
-      'Groenlandia y la Antártida están perdiendo hielo. Esa agua llega al mar y sube el nivel de los océanos. También detecta sequías profundas cuando los acuíferos se agotan.',
+      'Greenland and Antarctica are losing ice. That water flows into the sea and raises ocean levels. It also detects deep droughts when aquifers are depleted.',
     askAbout:
-      '¿Groenlandia está perdiendo hielo cada año?',
-    exampleRegion: { label: 'Groenlandia central', lat: 72, lng: -40 },
-    unit: 'centímetros equivalentes de agua (más negativo = menos masa)',
+      'Is Greenland losing ice every year?',
+    exampleRegion: { label: 'Central Greenland', lat: 72, lng: -40 },
+    unit: 'centimeters of water equivalent (more negative = less mass)',
   },
   Oco2: {
     emoji: '💨',
-    tagline: '¿Hay más CO₂ en el aire que antes?',
+    tagline: 'Is there more CO₂ in the air than before?',
     plain:
-      'El satélite OCO-2 mide cuánto dióxido de carbono hay en una columna de aire sobre cada punto de la Tierra. Es el gas que más contribuye al efecto invernadero.',
+      'The OCO-2 satellite measures how much carbon dioxide is in an air column above every point on Earth. It is the gas that contributes most to the greenhouse effect.',
     whyMatters:
-      'Las fábricas, los autos y la deforestación emiten CO₂. Detectar dónde aumenta más rápido ayuda a identificar zonas de alta emisión o zonas donde los bosques ya no absorben suficiente.',
+      'Factories, vehicles, and deforestation emit CO₂. Detecting where it rises fastest helps identify high-emission zones or areas where forests no longer absorb enough.',
     askAbout:
-      '¿El CO₂ sobre las grandes ciudades industriales aumenta año a año?',
-    exampleRegion: { label: 'Cuenca industrial norte de China', lat: 39, lng: 116 },
-    unit: 'partes por millón en el aire (ppm)',
+      'Is CO₂ over major industrial cities rising year after year?',
+    exampleRegion: { label: 'North China industrial basin', lat: 39, lng: 116 },
+    unit: 'parts per million in the air (ppm)',
   },
 };
 
 /**
- * Regiones de demostración predefinidas para el wizard.
- * El jurado puede elegir una región sin tener que hacer clic en el globo.
+ * Predefined demo regions for the wizard.
+ * The jury can choose a region without having to click on the globe.
  */
 export interface WizardRegion {
   id: string;
@@ -93,16 +93,16 @@ export interface WizardRegion {
 export const WIZARD_REGIONS: WizardRegion[] = [
   {
     id: 'arctic',
-    label: '🏔️ Ártico',
-    description: 'Zona de calentamiento más rápido del planeta',
+    label: '🏔️ Arctic',
+    description: 'Fastest-warming zone on the planet',
     lat: 78,
     lng: 15,
     suggestedVariables: ['Gistemp', 'GraceMass'],
   },
   {
     id: 'amazon',
-    label: '🌳 Amazonía',
-    description: 'El pulmón verde más grande de la Tierra',
+    label: '🌳 Amazon',
+    description: 'Earth’s largest green lung',
     lat: -5,
     lng: -60,
     suggestedVariables: ['ModisNdvi', 'Gistemp'],
@@ -110,38 +110,38 @@ export const WIZARD_REGIONS: WizardRegion[] = [
   {
     id: 'sahara',
     label: '🏜️ Sahara',
-    description: 'Desierto en expansión desde hace décadas',
+    description: 'Desert expanding for decades',
     lat: 23,
     lng: 15,
     suggestedVariables: ['Gistemp', 'ModisNdvi'],
   },
   {
     id: 'greenland',
-    label: '🧊 Groenlandia',
-    description: 'El mayor reservorio de hielo del hemisferio norte',
+    label: '🧊 Greenland',
+    description: 'Largest ice reservoir in the Northern Hemisphere',
     lat: 72,
     lng: -40,
     suggestedVariables: ['GraceMass', 'Gistemp'],
   },
   {
     id: 'southasia',
-    label: '🌾 Asia del Sur',
-    description: 'Región agrícola bajo estrés hídrico creciente',
+    label: '🌾 South Asia',
+    description: 'Agricultural region under growing water stress',
     lat: 25,
     lng: 80,
     suggestedVariables: ['GraceMass', 'ModisNdvi'],
   },
   {
     id: 'custom',
-    label: '📍 Elegir en el mapa',
-    description: 'Toca cualquier punto del globo para seleccionarlo',
+    label: '📍 Pick on the map',
+    description: 'Tap any point on the globe to select it',
     lat: 0,
     lng: 0,
     suggestedVariables: ['Gistemp'],
   },
 ];
 
-/** Períodos representativos para el wizard. */
+/** Representative time periods for the wizard. */
 export interface WizardPeriod {
   id: string;
   label: string;
@@ -153,22 +153,22 @@ export interface WizardPeriod {
 export const WIZARD_PERIODS: WizardPeriod[] = [
   {
     id: '25y',
-    label: '25 años',
-    description: '2000 → hoy · Suficiente para detectar tendencias claras',
+    label: '25 years',
+    description: '2000 → today · Long enough to detect clear trends',
     startYear: 2000,
     endYear: new Date().getUTCFullYear(),
   },
   {
     id: '15y',
-    label: '15 años',
-    description: '2010 → hoy · Tendencias recientes con buena cobertura',
+    label: '15 years',
+    description: '2010 → today · Recent trends with good coverage',
     startYear: 2010,
     endYear: new Date().getUTCFullYear(),
   },
   {
     id: '10y',
-    label: '10 años',
-    description: '2015 → hoy · Cambios de la última década',
+    label: '10 years',
+    description: '2015 → today · Changes over the last decade',
     startYear: 2015,
     endYear: new Date().getUTCFullYear(),
   },

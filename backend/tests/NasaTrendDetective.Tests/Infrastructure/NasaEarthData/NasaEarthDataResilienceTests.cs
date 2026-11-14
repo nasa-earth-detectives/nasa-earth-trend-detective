@@ -7,7 +7,7 @@ using static NasaTrendDetective.Tests.Infrastructure.NasaEarthData.NasaEarthData
 namespace NasaTrendDetective.Tests.Infrastructure.NasaEarthData;
 
 /// <summary>
-/// Verifica el cliente resuelto por DI con su pipeline de resiliencia real (Polly).
+/// Verifies the DI-resolved client with its real resilience pipeline (Polly).
 /// </summary>
 public sealed class NasaEarthDataResilienceTests : IDisposable
 {

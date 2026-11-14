@@ -1,12 +1,12 @@
 /**
  * detective-wizard.css
  *
- * Estilos del wizard de bienvenida "Detective de Tendencias".
- * Usa las variables CSS del sistema de diseño (index.css).
- * NO usa Tailwind — consistente con el resto de instrumentos.
+ * "Trend Detective" welcome wizard styles.
+ * Uses design system CSS variables (index.css).
+ * Does NOT use Tailwind — consistent with remaining instruments.
  */
 
-/* ── Overlay de fondo ──────────────────────────────────────── */
+/* ── Background overlay ──────────────────────────────────────── */
 .wizard-overlay {
   position: fixed;
   inset: 0;
@@ -25,7 +25,7 @@
   to   { opacity: 1; }
 }
 
-/* ── Panel principal ───────────────────────────────────────── */
+/* ── Main panel ───────────────────────────────────────── */
 .wizard-panel {
   position: relative;
   width: 100%;
@@ -44,7 +44,7 @@
   to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 
-/* ── Cabecera ──────────────────────────────────────────────── */
+/* ── Header ──────────────────────────────────────────────── */
 .wizard-header {
   padding: 28px 28px 0;
   display: flex;
@@ -79,7 +79,7 @@
   margin: 4px 0 0;
 }
 
-/* ── Indicador de pasos ────────────────────────────────────── */
+/* ── Step indicator ────────────────────────────────────── */
 .wizard-steps {
   display: flex;
   align-items: center;
@@ -112,7 +112,7 @@
   letter-spacing: 0.08em;
 }
 
-/* ── Cuerpo del paso ───────────────────────────────────────── */
+/* ── Step body ───────────────────────────────────────── */
 .wizard-body {
   padding: 24px 28px;
 }
@@ -126,7 +126,7 @@
   margin: 0 0 16px;
 }
 
-/* ── Tarjetas de variable ──────────────────────────────────── */
+/* ── Variable cards ──────────────────────────────────── */
 .wizard-variables {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -178,7 +178,7 @@
   display: block;
 }
 
-/* ── Descripción expandida de variable ─────────────────────── */
+/* ── Expanded variable description ─────────────────────── */
 .wizard-var-detail {
   margin-top: 16px;
   padding: 14px 16px;
@@ -203,7 +203,7 @@
   font-weight: 600;
 }
 
-/* ── Tarjetas de región ────────────────────────────────────── */
+/* ── Region cards ────────────────────────────────────── */
 .wizard-regions {
   display: flex;
   flex-direction: column;
@@ -248,7 +248,7 @@
   color: var(--text-secondary);
 }
 
-/* ── Tarjetas de período ───────────────────────────────────── */
+/* ── Period cards ───────────────────────────────────── */
 .wizard-periods {
   display: flex;
   flex-direction: column;
@@ -294,7 +294,7 @@
   line-height: 1.5;
 }
 
-/* ── Nota científica ───────────────────────────────────────── */
+/* ── Scientific note ───────────────────────────────────────── */
 .wizard-science-note {
   margin-top: 14px;
   padding: 10px 14px;
@@ -310,7 +310,7 @@
   color: var(--active-accent);
 }
 
-/* ── Footer / botones ──────────────────────────────────────── */
+/* ── Footer / buttons ──────────────────────────────────────── */
 .wizard-footer {
   display: flex;
   align-items: center;
@@ -363,7 +363,7 @@
 .wizard-btn-next:active { transform: translateY(0); }
 .wizard-btn-next:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
 
-/* ── Botón de reapertura del wizard (en la UI principal) ───── */
+/* ── Wizard reopen button (in main UI) ───── */
 .wizard-reopen-btn {
   display: inline-flex;
   align-items: center;
@@ -383,7 +383,7 @@
   border-color: var(--edge-highlight);
 }
 
-/* ── Responsive: pantallas pequeñas ───────────────────────── */
+/* ── Responsive: small screens ───────────────────────── */
 @media (max-width: 480px) {
   .wizard-header { padding: 20px 20px 0; }
   .wizard-body   { padding: 20px; }

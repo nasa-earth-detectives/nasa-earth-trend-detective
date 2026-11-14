@@ -6,10 +6,10 @@ import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment
 import { createSatelliteGltfLoader } from './satelliteGltf';
 
 /**
- * Satélite genérico de observación: cuerpo con lámina dorada (MLI), radiador, bloque de
- * instrumentos hacia el nadir, brazos y dos alas solares con celdas, y antena de alta ganancia.
- * Ejes del modelo: +Y lejos de la Tierra, -Y nadir (instrumentos), +Z avance, X alas.
- * Geometrías y materiales se comparten entre satélites; sólo la baliza lleva el color de misión.
+ * Generic Earth observation satellite: MLI gold foil body, radiator,
+ * nadir instrument package, struts and two solar wings with cells, and high-gain dish antenna.
+ * Model axes: +Y away from Earth, -Y nadir (instruments), +Z forward velocity, X wings.
+ * Geometries and materials are shared across satellites; only beacon carries mission color.
  */
 function canvasTexture(size: number, draw: (context: CanvasRenderingContext2D) => void): CanvasTexture {
   const canvas = document.createElement('canvas');
@@ -21,7 +21,7 @@ function canvasTexture(size: number, draw: (context: CanvasRenderingContext2D) =
   return texture;
 }
 
-/** Lámina arrugada: parches de brillo irregular sobre dorado. */
+/** Wrinkled foil: irregular specularity patches over gold base. */
 function foilTexture(): CanvasTexture {
   return canvasTexture(128, (context) => {
     context.fillStyle = '#c9982e';
@@ -39,7 +39,7 @@ function foilTexture(): CanvasTexture {
   });
 }
 
-/** Celdas fotovoltaicas: azul profundo con rejilla plateada. */
+/** Photovoltaic solar cells: deep blue with silver grid. */
 function solarTexture(): CanvasTexture {
   return canvasTexture(256, (context) => {
     context.fillStyle = '#0c1d47';
@@ -62,7 +62,7 @@ function solarTexture(): CanvasTexture {
 }
 
 export function createSatelliteKit(renderer: WebGLRenderer) {
-  // Reflejos para el metal: sin mapa de entorno, el oro metálico se ve negro fuera del brillo especular.
+  // Reflections for metallic materials: without an envMap, metal gold looks pitch black outside specular highlight.
   const pmrem = new PMREMGenerator(renderer);
   const environment = pmrem.fromScene(new RoomEnvironment(), 0.04);
   pmrem.dispose();
@@ -94,7 +94,7 @@ export function createSatelliteKit(renderer: WebGLRenderer) {
   };
   const ownMaterials: Material[] = [];
 
-  /** Procedural al instante; el modelo NASA lo sustituye en cuanto llega. */
+  /** Instant procedural mesh; replaced by official NASA 3D model once loaded. */
   const build = (accent: string, model3d: string, proceduralScale: number, gltfSize: number): Group => {
     const holder = new Group();
     const procedural = buildProcedural(accent);

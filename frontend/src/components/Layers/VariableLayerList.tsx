@@ -8,7 +8,7 @@ interface VariableLayerListProps {
   onSelect: (variable: ClimateVariable) => void;
 }
 
-/** Filas de altura estable: el marcador recorre el índice sin medir el DOM. */
+/** Stable height rows: marker navigates index without querying the DOM. */
 export function VariableLayerList({ selected, onSelect }: VariableLayerListProps) {
   const selectedIndex = CLIMATE_VARIABLES.findIndex((variable) => variable.id === selected);
   const moveSelection = (event: KeyboardEvent<HTMLDivElement>) => {
@@ -25,7 +25,7 @@ export function VariableLayerList({ selected, onSelect }: VariableLayerListProps
 
   return (
     <div className="variable-instrument">
-      <div className="variable-index" role="radiogroup" aria-label="Variable científica principal"
+      <div className="variable-index" role="radiogroup" aria-label="Primary scientific variable"
         onKeyDown={moveSelection} style={{ '--variable-index': selectedIndex } as CSSProperties}>
         <span className="variable-index__marker" aria-hidden="true" />
         {CLIMATE_VARIABLES.map((variable) => (
@@ -61,7 +61,7 @@ export function VariableLayerList({ selected, onSelect }: VariableLayerListProps
             aria-hidden={variable.id !== selected}>
             <p className="variable-readout__domain">{OBSERVATION_LENSES[variable.id].domain}</p>
             <p className="variable-readout__focus">{OBSERVATION_LENSES[variable.id].focus}</p>
-            <p className="variable-readout__unit"><span>Magnitud</span>{variable.unit}</p>
+            <p className="variable-readout__unit"><span>Magnitude</span>{variable.unit}</p>
             <p className="variable-readout__description">{variable.description}</p>
           </div>
         ))}

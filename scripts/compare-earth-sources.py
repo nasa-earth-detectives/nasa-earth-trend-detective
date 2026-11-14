@@ -1,7 +1,7 @@
-"""Prepara candidatos NASA BMNG para A/B; nunca modifica assets de producción.
+"""Prepares NASA BMNG candidates for A/B testing; never modifies production assets.
 
-Uso: python scripts/compare-earth-sources.py
-Requiere Pillow. Originales, derivados y manifiesto quedan en output/earth-candidates.
+Usage: python scripts/compare-earth-sources.py
+Requires Pillow. Originals, derivatives, and manifest remain in output/earth-candidates.
 """
 from __future__ import annotations
 
@@ -44,12 +44,12 @@ def main() -> None:
             with urllib.request.urlopen(request, timeout=90) as response:
                 source_path.write_bytes(response.read())
         if digest(source_path) != spec["sha256"]:
-            raise ValueError(f"Fuente modificada; revisar antes de continuar: {source_path}")
+            raise ValueError(f"Modified source; review before proceeding: {source_path}")
 
         derivative_path = DESTINATION / f"blue-marble-{name}-4k.jpg"
         with Image.open(source_path) as source:
             if source.size != (5400, 2700):
-                raise ValueError(f"Dimensiones NASA inesperadas: {source_path}: {source.size}")
+                raise ValueError(f"Unexpected NASA dimensions: {source_path}: {source.size}")
             source.convert("RGB").resize((4096, 2048), Image.Resampling.LANCZOS).save(
                 derivative_path, quality=92, subsampling=0, optimize=True, progressive=True
             )

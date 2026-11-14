@@ -64,7 +64,7 @@ function load(file) {
     assert(scales.observationColorCss(variable, max, 0.5).endsWith(', 0.5)'));
   }
   const foreign = { ...demo.createDemoObservations('Gistemp', 2024)[0] };
-  // El contraste no debe invertir el signo, perder la referencia ni alterar alturas.
+  // Contrast must not invert the sign, lose reference, or alter heights.
   let previousBlue = -1, previousRed = -1;
   for (const magnitude of [0.05, 0.25, 0.5, 1, 2]) {
     const cold = scales.sampleObservationColor('Gistemp', -magnitude).getRGB({}, three.SRGBColorSpace);

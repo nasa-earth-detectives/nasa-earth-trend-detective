@@ -1,6 +1,6 @@
 /**
- * Utilidad de contexto biofísico y regional para el inspector de detective.
- * Cumple con el criterio de la NASA de contextualizar tendencias regionales según el bioma.
+ * Biophysical and regional context utility for the Detective Inspector.
+ * Fulfills NASA criteria for contextualizing regional trends by biome.
  */
 export interface RegionalBiomeInfo {
   biome: string;
@@ -10,73 +10,73 @@ export interface RegionalBiomeInfo {
 export function getRegionalBiomeContext(lat: number, lng: number): RegionalBiomeInfo {
   const absLat = Math.abs(lat);
 
-  // Zonas Polares
+  // Polar Zones
   if (absLat >= 66.5) {
     return lat > 0
       ? {
-          biome: 'Tundra Ártica y Hielo Marino',
-          contextNote: 'Zona de amplificación polar y permafrost vulnerable a retroalimentación albedo-hielo.',
+          biome: 'Arctic Tundra & Sea Ice',
+          contextNote: 'Polar amplification zone and permafrost vulnerable to ice-albedo feedback.',
         }
       : {
-          biome: 'Casquete Glaciar Antártico',
-          contextNote: 'Reserva primaria de agua dulce del planeta con dinámicas de balance de masa críticas.',
+          biome: 'Antarctic Ice Sheet',
+          contextNote: 'Planet’s primary freshwater reservoir with critical mass-balance dynamics.',
         };
   }
 
-  // Zonas Tropicales y Ecuatoriales (-23.5° a 23.5°)
+  // Tropical and Equatorial Zones (-23.5° to 23.5°)
   if (absLat <= 23.5) {
-    // Amazonía
+    // Amazon Basin
     if (lat >= -18 && lat <= 8 && lng >= -78 && lng <= -45) {
       return {
-        biome: 'Selva Húmeda Tropical Amazónica',
-        contextNote: 'Mayor sumidero terrestre de carbono y regulador de la humedad atmosférica intercontinental.',
+        biome: 'Amazon Tropical Rainforest',
+        contextNote: 'Largest terrestrial carbon sink and regulator of intercontinental atmospheric moisture.',
       };
     }
-    // Cuenca del Congo
+    // Congo Basin
     if (lat >= -10 && lat <= 8 && lng >= 10 && lng <= 32) {
       return {
-        biome: 'Selva Ecuatorial del Congo',
-        contextNote: 'Segundo pulmón forestal del planeta con alta densidad de biomasa y resiliencia térmica.',
+        biome: 'Congo Equatorial Rainforest',
+        contextNote: 'Earth’s second forest lung with high biomass density and thermal resilience.',
       };
     }
-    // Sahel / Norte de África
+    // Sahel / North Africa
     if (lat >= 10 && lat <= 20 && lng >= -18 && lng <= 38) {
       return {
-        biome: 'Franja Ecotonal del Sahel',
-        contextNote: 'Zona de transición semiárida sensible al desplazamiento meridional del monzón africano.',
+        biome: 'Sahel Ecotone Belt',
+        contextNote: 'Semi-arid transition zone sensitive to the meridional shift of the African monsoon.',
       };
     }
-    // Sudeste Asiático / Archipiélago Indo-Pacífico
+    // Southeast Asia / Indo-Pacific Archipelago
     if (lat >= -10 && lat <= 15 && lng >= 95 && lng <= 145) {
       return {
-        biome: 'Bosques Tropicales Indo-Malayos',
-        contextNote: 'Intersección marítimo-continental altamente modulada por las oscilaciones de El Niño (ENSO).',
+        biome: 'Indo-Malayan Tropical Forests',
+        contextNote: 'Maritime-continental intersection strongly modulated by El Niño (ENSO) oscillations.',
       };
     }
-    // Sahara / Península Arábiga
+    // Sahara / Arabian Peninsula
     if (lat >= 18 && lat <= 30 && lng >= -15 && lng <= 55) {
       return {
-        biome: 'Desierto Cálido Hiperárido',
-        contextNote: 'Región de balance radiativo neto positivo con transporte eólico de aerosoles y polvo mineral.',
+        biome: 'Hyper-Arid Warm Desert',
+        contextNote: 'Region of positive net radiative balance with wind-driven transport of aerosols and mineral dust.',
       };
     }
 
     return {
-      biome: 'Zona Tropical / Aguas Cálidas',
-      contextNote: 'Región de alta insolación superficial y convección atmosférica de la celda de Hadley.',
+      biome: 'Tropical Zone / Warm Waters',
+      contextNote: 'Region of high surface insolation and Hadley cell atmospheric convection.',
     };
   }
 
-  // Zonas Templadas y Boreales
+  // Temperate and Boreal Zones
   if (lat > 50 && lat < 66.5) {
     return {
-      biome: 'Taiga y Bosque Boreal',
-      contextNote: 'Franja de almacenamiento masivo de carbono edáfico en suelos boreales y turberas.',
+      biome: 'Taiga & Boreal Forest',
+      contextNote: 'Belt of massive soil carbon storage in boreal soils and peatlands.',
     };
   }
 
   return {
-    biome: 'Zona Templada Continental / Marítima',
-    contextNote: 'Zona de fuerte variabilidad estacional modulada por frentes polares y masas de aire marítimas.',
+    biome: 'Continental / Maritime Temperate Zone',
+    contextNote: 'Zone of strong seasonal variability modulated by polar fronts and maritime air masses.',
   };
 }

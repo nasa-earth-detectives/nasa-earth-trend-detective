@@ -18,25 +18,25 @@ export function MissionHeader({
   onOpenGlossary,
 }: MissionHeaderProps) {
   return (
-    <header id="tour-mission-header" className="mission-signature" aria-label="Identidad del proyecto">
+    <header id="tour-mission-header" className="mission-signature" aria-label="Project identity">
       <div className="mission-identity">
         <p className="mission-domain">Earth System</p>
         <h1>{projectName}</h1>
         <p className="mission-edition">{edition}</p>
       </div>
 
-      <nav className="mission-actions" aria-label="Acciones del proyecto">
+      <nav className="mission-actions" aria-label="Project actions">
         {onOpenMissions && (
           <button
             type="button"
             onClick={onOpenMissions}
             className="mission-action-btn focus-ring"
             data-ui-control
-            aria-label="Casos de demostración preconfigurados"
-            title="Casos de demostración (NASA Space Apps)"
+            aria-label="Preconfigured demo cases"
+            title="Demo cases (NASA Space Apps)"
           >
             <Sparkles size={14} strokeWidth={1.8} aria-hidden="true" />
-            <span className="mission-btn-text">Casos</span>
+            <span className="mission-btn-text">Cases</span>
           </button>
         )}
 
@@ -46,11 +46,11 @@ export function MissionHeader({
             onClick={onOpenGlossary}
             className="mission-action-btn focus-ring"
             data-ui-control
-            aria-label="Glosario escolar"
-            title="Glosario para estudiantes y evaluadores"
+            aria-label="Science glossary"
+            title="Glossary for students and reviewers"
           >
             <BookOpen size={14} strokeWidth={1.8} aria-hidden="true" />
-            <span className="mission-btn-text">Glosario</span>
+            <span className="mission-btn-text">Glossary</span>
           </button>
         )}
 
@@ -60,11 +60,11 @@ export function MissionHeader({
             onClick={onOpenWizard}
             className="mission-action-btn focus-ring wizard-reopen-btn"
             data-ui-control
-            aria-label="Asistente de investigación"
-            title="Detective: abrir asistente guiado"
+            aria-label="Investigation wizard"
+            title="Detective: open guided wizard"
           >
             <Search size={14} strokeWidth={1.8} aria-hidden="true" />
-            <span className="mission-btn-text">Investigar</span>
+            <span className="mission-btn-text">Investigate</span>
           </button>
         )}
 
@@ -75,11 +75,11 @@ export function MissionHeader({
             onClick={onStartTour}
             className="mission-action-btn focus-ring"
             data-ui-control
-            aria-label="Iniciar guía de misión"
-            title="Guía interactiva"
+            aria-label="Start mission guide"
+            title="Interactive guide"
           >
             <Compass size={14} strokeWidth={1.8} aria-hidden="true" />
-            <span className="mission-btn-text">Guía</span>
+            <span className="mission-btn-text">Guide</span>
           </button>
         )}
       </nav>

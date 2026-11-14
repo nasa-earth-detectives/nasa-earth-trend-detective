@@ -1,7 +1,7 @@
 /**
  * detective.types.ts
- * Tipos de datos para el Inspector de Detective y análisis estadístico Mann-Kendall.
- * Cumple con estándares científicos no paramétricos de la NASA.
+ * Data types for Detective Inspector and Mann-Kendall statistical analysis.
+ * Complies with NASA non-parametric scientific standards.
  */
 
 import type { ClimateVariable } from './climate.types';
@@ -15,15 +15,15 @@ export type TrendClassification =
   | 'neutral_trend';
 
 export interface MannKendallResult {
-  /** Puntuación Z estandarizada: |Z| >= 1.96 indica significancia al 95% de confianza (p < 0.05). */
+  /** Standardized Z-score: |Z| >= 1.96 indicates significance at 95% confidence (p < 0.05). */
   zScore: number;
-  /** Nivel de significancia p-value bilateral. */
+  /** Two-tailed p-value significance level. */
   pValue: number;
-  /** Pendiente mediana de Sen (Q): tasa anual no paramétrica de cambio. */
+  /** Sen's median slope (Q): non-parametric annual rate of change. */
   senSlope: number;
-  /** Coeficiente de correlación de rango Tau de Kendall (-1 a 1). */
+  /** Kendall's tau rank correlation coefficient (-1 to 1). */
   tau: number;
-  /** Booleano indicador de confianza estadística. */
+  /** Boolean indicator of statistical significance. */
   isSignificant: boolean;
   trendDirection: 'increasing' | 'decreasing' | 'stable';
 }
@@ -31,7 +31,7 @@ export interface MannKendallResult {
 export interface TimeSeriesDataPoint {
   year: number;
   value: number;
-  /** Valor proyectado según la recta mediana de la Pendiente de Sen. */
+  /** Projected value based on the Sen's slope median trendline. */
   fittedValue?: number;
 }
 

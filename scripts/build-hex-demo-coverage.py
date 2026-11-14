@@ -1,9 +1,9 @@
-"""Clasifica offline huellas del demo regional; usa Pillow ya empleado por assets Earth.
+"""Classifies regional demo footprints offline; uses Pillow already used by Earth assets.
 
 python scripts/build-hex-demo-coverage.py
 python scripts/build-hex-demo-coverage.py --check
 
-No descarga datos ni transforma la máscara: produce IDs del escenario sintético.
+Does not download data or transform mask: outputs synthetic scenario IDs.
 """
 from __future__ import annotations
 
@@ -26,7 +26,7 @@ FOOTPRINT_RADIUS_FACTOR = 0.34
 COASTAL_BUFFER_DEGREES = 0.30
 MAX_INLAND_WATER_FRACTION = 0.08
 
-# Puntos interiores conocidos. Aseguran norte arriba, signo de longitud y semántica.
+# Known interior points. Verify north-is-up, longitude sign, and semantics.
 LANDMARKS = [
     ("South America", -13, -62, 0), ("Sahara", 25, 15, 0),
     ("Australia", -25, 130, 0), ("India", 23, 79, 0),
@@ -50,17 +50,17 @@ def project(latitude: float, longitude: float, east: float, north: float) -> tup
 
 
 def regional_locations() -> tuple[list[dict], float]:
-    """Lee constantes del generador real; falla si cambia su estructura en lugar de inferirlas."""
+    """Reads constants from the actual generator; fails if structure changes instead of guessing."""
     source = DEMO.read_text(encoding="utf-8")
     resolution_match = re.search(r"DEMO_HEX_RESOLUTION_DEGREES = ([\d.]+);", source)
     radius_match = re.search(r"PATCH_RADIUS = (\d+);", source)
     regions_match = re.search(r"const REGIONS = \[(.*?)\] as const;", source, re.S)
     if not resolution_match or not radius_match or not regions_match:
-        raise ValueError("Cambió la estructura del generador demo; revisar lector de geometría")
+        raise ValueError("Demo generator structure changed; review geometry reader")
     resolution, radius = float(resolution_match[1]), int(radius_match[1])
     regions = re.findall(r"\{ id: '([^']+)', latitude: (-?[\d.]+), longitude: (-?[\d.]+) \}", regions_match[1])
     if len(regions) != 8:
-        raise ValueError("Se esperaban ocho regiones demostrativas; revisar la cobertura")
+        raise ValueError("Expected eight demo regions; review coverage")
     locations = []
     for region, latitude, longitude in regions:
         for q in range(-radius, radius + 1):
@@ -81,22 +81,22 @@ def water_at(image: Image.Image, latitude: float, longitude: float) -> int:
 
 
 def ocean_reference(image: Image.Image) -> Image.Image:
-    """Separa mar conectado de ríos/lagos pequeños; sólo es una guarda visual del demo."""
+    """Separates connected ocean from small rivers/lakes; purely a demo visual guard."""
     connected = image.point(lambda value: 255 if value >= 128 else 0)
     for lng in (-140, -30, 80):
         seed = (math.floor((lng + 180) / 360 * image.width), image.height // 2)
         if connected.getpixel(seed) == 255:
             ImageDraw.floodfill(connected, seed, 128)
-    # Extiende un píxel: incluye bordes costeros de cobertura parcial del promedio BOX.
+    # Expands by one pixel: includes coastal edges with partial coverage from BOX averaging.
     return connected.point(lambda value: 255 if value == 128 else 0).filter(ImageFilter.MaxFilter(3))
 
 
 def footprint_has_water(image: Image.Image, ocean: Image.Image, location: dict, radius: float) -> bool:
-    """Examina todo píxel que puede intersectar el círculo circunscrito y su margen."""
+    """Examines every pixel that can intersect the circumscribed circle and its margin."""
     lat, lng = location["latitude"], location["longitude"]
     if water_at(image, lat, lng) > 0:
         return True
-    # Semidiagonal máxima de píxel: sobredimensionada hacia polos, conservadora.
+    # Maximum pixel half-diagonal: exaggerated towards poles, conservative.
     pixel_guard = math.hypot(360 / image.width, 180 / image.height) / 2
     checked_radius = radius + pixel_guard
     max_lat = min(89.9, abs(lat) + checked_radius)
@@ -126,28 +126,28 @@ def footprint_has_water(image: Image.Image, ocean: Image.Image, location: dict, 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--check", action="store_true", help="Verifica el archivo existente sin escribirlo")
+    parser.add_argument("--check", action="store_true", help="Verifies existing file without writing")
     args = parser.parse_args()
     digest = hashlib.sha256(MASK.read_bytes()).hexdigest()
     expected = json.loads(MANIFEST.read_text(encoding="utf-8"))["outputs"]["masks/modis-water-2k.png"]["sha256"]
     if digest != expected:
-        raise ValueError("La máscara cambió respecto al manifiesto NASA local; revisar antes de generar")
+        raise ValueError("Mask changed relative to local NASA manifest; review before generating")
     locations, resolution = regional_locations()
     footprint_radius = resolution * FOOTPRINT_RADIUS_FACTOR
     with Image.open(MASK) as image:
         if image.mode != "L" or image.size != (2048, 1024):
-            raise ValueError("Máscara local inesperada: se requiere L 2048×1024")
+            raise ValueError("Unexpected local mask: requires L 2048x1024")
         for name, lat, lng, expected_value in LANDMARKS:
             actual = water_at(image, lat, lng)
             if actual != expected_value:
-                raise ValueError(f"Orientación/semántica incompatible en {name}: {actual} != {expected_value}")
+                raise ValueError(f"Incompatible orientation/semantics at {name}: {actual} != {expected_value}")
         ocean = ocean_reference(image)
         for name, lat, lng, expected_value in LANDMARKS:
             if water_at(ocean, lat, lng) != expected_value:
-                raise ValueError(f"La guarda oceánica perdió su referencia en {name}")
+                raise ValueError(f"Ocean guard lost its reference at {name}")
         accepted = [cell for cell in locations if not footprint_has_water(
             image, ocean, cell, footprint_radius + COASTAL_BUFFER_DEGREES)]
-    # El hash verifica que Python y el generador JS conservan exactamente los mismos centros.
+    # Hash verifies that Python and the JS generator retain exactly identical centers.
     layout = "\n".join(f'{cell["id"]},{cell["latitude"]:.8f},{cell["longitude"]:.8f}' for cell in locations)
     metadata = {
         "maskSha256": digest,
@@ -161,8 +161,8 @@ def main() -> None:
         "maxInlandWaterFraction": MAX_INLAND_WATER_FRACTION,
     }
     content = (
-        "// Generado por scripts/build-hex-demo-coverage.py; no editar manualmente.\n"
-        "// Filtro visual del escenario ficticio. 0 en la máscara también puede ser ausencia de datos.\n"
+        "// Generated by scripts/build-hex-demo-coverage.py; do not edit manually.\n"
+        "// Visual filter for the mock scenario. 0 in the mask may also represent missing data.\n"
         "export const HEX_DEMO_COVERAGE = " + json.dumps(metadata, indent=2) + " as const;\n\n"
         "export const DEMO_LAND_CELL_IDS = [\n"
         + "".join("  " + ", ".join(f"'{cell['id']}'" for cell in accepted[index:index + 3]) + ",\n"
@@ -171,7 +171,7 @@ def main() -> None:
     )
     if args.check:
         if not OUTPUT.exists() or OUTPUT.read_text(encoding="utf-8") != content:
-            raise ValueError("Cobertura desactualizada; ejecutar build-hex-demo-coverage.py")
+            raise ValueError("Coverage outdated; run build-hex-demo-coverage.py")
     else:
         OUTPUT.write_text(content, encoding="utf-8", newline="\n")
     print(json.dumps({"result": "PASS", "mode": "check" if args.check else "generate", **metadata,

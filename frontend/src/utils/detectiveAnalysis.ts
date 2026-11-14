@@ -1,7 +1,7 @@
-﻿/**
+/**
  * detectiveAnalysis.ts
- * Utilidades cientÃ­ficas para el formateo de coordenadas y la lectura del veredicto
- * Mann-Kendall / Sen en lenguaje llano, sin prometer mÃ¡s de lo que prueba el test.
+ * Scientific utilities for coordinate formatting and plain-language interpretation of
+ * the Mann-Kendall / Sen verdict, without overpromising beyond what the test proves.
  */
 
 import type { ClimateVariable } from '../types/climate.types';
@@ -9,52 +9,52 @@ import { HEX_PRESENTATION } from '../config/hexPresentation';
 
 export function formatCoordinate(val: number, posChar: string, negChar: string): string {
   const dir = val >= 0 ? posChar : negChar;
-  return `${Math.abs(val).toFixed(2)}Â° ${dir}`;
+  return `${Math.abs(val).toFixed(2)}° ${dir}`;
 }
 
-/** Tres estados posibles. "Sin cambio concluyente" no equivale a "no cambia". */
+/** Three possible states. "No conclusive change" does not mean "no change". */
 export type SignificanceTone = 'increase' | 'decrease' | 'inconclusive';
 
 export interface SignificancePresentation {
   tone: SignificanceTone;
   label: string;
-  /** QuÃ© se puede afirmar con estos datos. */
+  /** What can be stated from these data. */
   claim: string;
-  /** QuÃ© no se puede afirmar y por quÃ©. */
+  /** What cannot be stated and why. */
   caveat: string;
 }
 
-/** Lo mÃ­nimo que necesita la lectura: sirve para la tarjeta y para una celda de la grilla. */
+/** Minimum fields required for reading: works for the card and for a grid cell. */
 export interface SignificanceInput {
   isSignificant: boolean;
   pValue: number;
   sensSlope: number;
-  /** PuntuaciÃ³n Z de Mann-Kendall; se muestra si la fuente la entrega. */
+  /** Mann-Kendall Z-score; shown if provided by the source. */
   zScore?: number;
 }
 
-const frequency = new Intl.NumberFormat('es', { maximumSignificantDigits: 2 });
+const frequency = new Intl.NumberFormat('en', { maximumSignificantDigits: 2 });
 
 export function describeSignificance(variable: ClimateVariable, mk: SignificanceInput): SignificancePresentation {
   const subject = HEX_PRESENTATION[variable];
-  const p = mk.pValue < 0.001 ? '< 0,001' : `= ${frequency.format(mk.pValue)}`;
+  const p = mk.pValue < 0.001 ? '< 0.001' : `= ${frequency.format(mk.pValue)}`;
 
   if (!mk.isSignificant) {
     return {
       tone: 'inconclusive',
-      label: 'Sin cambio concluyente',
-      claim: `El signo de la pendiente es ${mk.sensSlope > 0 ? 'positivo' : mk.sensSlope < 0 ? 'negativo' : 'cero'}, `
-        + 'pero el test no lo distingue del azar con 95 % de confianza.',
-      caveat: `Un p-valor ${p} mayor que 0,05 no prueba que no haya cambio: prueba que esta serie no basta para afirmarlo. `
-        + 'Con mÃ¡s aÃ±os o menos ruido el veredicto podrÃ­a cambiar.',
+      label: 'No conclusive change',
+      claim: `The slope sign is ${mk.sensSlope > 0 ? 'positive' : mk.sensSlope < 0 ? 'negative' : 'zero'}, `
+        + 'but the test cannot distinguish it from chance at 95% confidence.',
+      caveat: `A p-value ${p} greater than 0.05 does not prove there is no change: it proves this series is not enough to confirm it. `
+        + 'With more years or less noise, the verdict could change.',
     };
   }
 
   const increase = mk.sensSlope > 0;
   return {
     tone: increase ? 'increase' : 'decrease',
-    label: increase ? 'Aumento sostenido' : 'Descenso sostenido',
-    claim: `${increase ? subject.increase : subject.decrease} durante el periodo (p ${p}).`,
-    caveat: 'Mannâ€“Kendall detecta una tendencia monÃ³tona. No mide aceleraciÃ³n ni demuestra la causa del cambio.',
+    label: increase ? 'Sustained increase' : 'Sustained decrease',
+    claim: `${increase ? subject.increase : subject.decrease} over the period (p ${p}).`,
+    caveat: 'Mann–Kendall detects a monotonic trend. It does not measure acceleration or prove the cause of change.',
   };
 }

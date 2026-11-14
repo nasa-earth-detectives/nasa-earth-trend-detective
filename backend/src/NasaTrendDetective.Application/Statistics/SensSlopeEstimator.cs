@@ -1,8 +1,8 @@
 namespace NasaTrendDetective.Application.Statistics;
 
 /// <summary>
-/// Estimador no paramétrico de Pendiente de Sen (Sen's Slope).
-/// Calcula la mediana de las tasas de cambio de todos los pares temporales e intervalos de confianza.
+/// Non-parametric Sen's Slope estimator.
+/// Calculates the median rate of change across all pairwise time intervals and confidence bounds.
 /// </summary>
 public static class SensSlopeEstimator
 {
@@ -59,7 +59,7 @@ public static class SensSlopeEstimator
             medianSlope = (slopes[(total / 2) - 1] + slopes[total / 2]) / 2.0;
         }
 
-        // Intervalo de Confianza al 95% usando Var(S)
+        // 95% Confidence Interval using Var(S)
         (double Lower, double Upper) ci = (medianSlope, medianSlope);
         if (varianceS > 0)
         {

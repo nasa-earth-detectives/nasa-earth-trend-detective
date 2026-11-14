@@ -5,9 +5,9 @@ using NasaTrendDetective.Infrastructure.Queries.Models;
 namespace NasaTrendDetective.Infrastructure.Queries;
 
 /// <summary>
-/// Consulta de agregación global por celda espacial sobre fact_climate_observations: promedio por
-/// variable y año con lat/lng redondeados. Los filtros se enlazan como parámetros ($variable, $from,
-/// $to); los decimales de celda se validan e interpolan como entero.
+/// Global aggregation query per spatial cell over fact_climate_observations: average per
+/// variable and year with rounded lat/lng. Filters are bound as parameters ($variable, $from,
+/// $to); cell decimals are validated and interpolated as an integer literal.
 /// </summary>
 internal static class CellAggregationSql
 {

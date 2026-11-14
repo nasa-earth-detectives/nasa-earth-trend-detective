@@ -1,11 +1,11 @@
-/** Reposo de la instrumentación, sin mover controles ni actualizar por frame. */
+/** Instrumentation idle state, without moving controls or updating per frame. */
 import { useEffect, useRef, useState } from 'react';
 
 const IDLE_DELAY_MS = 5000;
 const CONTROL_SELECTOR = '[data-ui-control]';
 
 interface IdleUiOptions {
-  /** Panel abierto, reproducción temporal o foco dentro de la instrumentación. */
+  /** Drawer/panel open, timeline playing, or focus within instrumentation. */
   disabled: boolean;
 }
 

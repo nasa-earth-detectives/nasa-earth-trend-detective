@@ -5,8 +5,8 @@ using NasaTrendDetective.Application.Interfaces;
 namespace NasaTrendDetective.Api.Controllers;
 
 /// <summary>
-/// Qué variables tienen datos reales y de dónde salen. El frontend lo consulta para decidir, por
-/// variable, si pide datos a la API o usa su escenario de demostración (y para rotular la fuente).
+/// Indicates which variables have real data and their source provenance. The frontend queries this to decide,
+/// per variable, whether to request data from the API or use its demonstration scenario (and to label the data source).
 /// </summary>
 [ApiController]
 [Route("api/[controller]")]
@@ -23,7 +23,7 @@ public class DatasetsController : ControllerBase
     [ProducesResponseType(typeof(IReadOnlyList<DatasetStatusDto>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetDatasets(CancellationToken cancellationToken)
     {
-        // Sin caché: es una consulta de una tabla de 4 filas y debe reflejar el sembrado en cuanto termina.
+        // No caching: query of a 4-row table that must reflect seeding as soon as it finishes.
         return Ok(await _catalogService.GetCatalogAsync(cancellationToken));
     }
 }

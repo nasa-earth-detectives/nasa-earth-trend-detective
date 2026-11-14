@@ -17,7 +17,7 @@ internal static class NasaEarthDataTestHelpers
         Path.Combine(Path.GetTempPath(), "nasa-earthdata-tests", Guid.NewGuid().ToString("N"));
 
     /// <summary>
-    /// Cliente construido a mano (sin pipeline de resiliencia) para aislar el token del entorno.
+    /// Manually constructed client (without resilience pipeline) to isolate the token from the environment.
     /// </summary>
     public static NasaEarthDataClient CreateClient(FakeHttpMessageHandler handler, string cacheDirectory, string? token)
     {
@@ -32,7 +32,7 @@ internal static class NasaEarthDataTestHelpers
     }
 
     /// <summary>
-    /// Proveedor DI real (HttpClient tipado + resiliencia) con el handler simulado como primario.
+    /// Real DI provider (typed HttpClient + resilience) with the mocked handler as primary.
     /// </summary>
     public static ServiceProvider BuildProvider(
         FakeHttpMessageHandler handler,

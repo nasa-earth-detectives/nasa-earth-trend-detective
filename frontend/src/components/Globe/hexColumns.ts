@@ -12,20 +12,20 @@ import type { HexColumnAppearance, HexColumnResources } from './hexColumnState';
 export { HEX_COLUMN_CONFIG } from './hexColumnState';
 export type { HexColumnAppearance, HexColumnDataset } from './hexColumnState';
 
-/** Columnas tangentes al planeta, con una geometría y una llamada de dibujo compartidas. */
+/** Globe-tangent columns with shared geometry and single draw call. */
 export function createHexColumns(globe: GlobeInstance, onSelect: (cell: HexCell | null) => void, appearance: HexColumnAppearance = {}) {
   const radius = globe.getGlobeRadius();
   const baseRadius = radius * HEX_COLUMN_CONFIG.baseRatio;
   const maxHeight = radius * HEX_COLUMN_CONFIG.maxHeightRatio;
   const layer = new Group();
   layer.name = 'earth-analysis-layer';
-  // Hexágonos y mapa de calor comparten la transformación de entrada del planeta.
+  // Hexagons and heatmap share the planet input transform.
   const sharedRoot = acquireEarthAnalysisRoot(globe);
   sharedRoot.group.add(layer);
   const geometry = new CylinderGeometry(1, 1, 1, 6, 1, false);
   const normals = geometry.getAttribute('normal');
   const faceColors = new Float32Array(normals.count * 3);
-  // Caras legibles también de noche: esta es una capa analítica, no otro material terrestre.
+  // Faces readable at night too: this is an analytical layer, not another terrestrial material.
   for (let i = 0; i < normals.count; i++) {
     const shade = normals.getY(i) > 0.5 ? 0.86 : 0.28 + 0.12 * (normals.getX(i) + 1);
     faceColors.set([shade, shade, shade], i * 3);
@@ -84,7 +84,7 @@ export function createHexColumns(globe: GlobeInstance, onSelect: (cell: HexCell 
   };
   canvas.addEventListener('pointermove', onMove, { passive: true });
   canvas.addEventListener('pointerleave', clearHover);
-  // Reutiliza el frame de la escena y actualiza matrices antes de subir buffers a GPU.
+  // Reuses scene frame and updates matrices before uploading buffers to GPU.
   const scene = globe.scene();
   const previousBeforeRender = scene.onBeforeRender;
   const beforeRender: typeof scene.onBeforeRender = (renderer, currentScene, camera, geometry, renderedMaterial, group) => {

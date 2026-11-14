@@ -7,7 +7,7 @@ export const EARTH_HEAT_CONFIG = {
 } as const;
 
 export interface HeatRaster {
-  /** Filas sur→norte, longitud -180..180. RGB lineal premultiplicado por alfa visual. */
+  /** South→north rows, longitude -180..180. Linear RGB premultiplied by visual alpha. */
   pixels: Uint8Array;
   values: Float32Array;
   coverage: Float32Array;
@@ -15,14 +15,14 @@ export interface HeatRaster {
   height: number;
 }
 
-/** Hace visible la superficie cerca de la referencia; no expresa confianza ni densidad. */
+/** Makes the surface visible near the baseline; does not reflect confidence or density. */
 export function observationHeatStrength(variable: ClimateVariable, value: number): number {
   const [minimum, maximum] = OBSERVATION_SCALES[variable].domain;
-  if (minimum >= 0) return 1; // NDVI y CO₂ no tienen una referencia cero divergente.
+  if (minimum >= 0) return 1; // NDVI and CO₂ do not have a diverging zero baseline.
   return 0.15 + 0.85 * Math.min(1, Math.abs(value) / Math.max(Math.abs(minimum), maximum));
 }
 
-/** Media espacial firmada: la cantidad de muestras no representa temperatura o biomasa. */
+/** Signed spatial average: sample count does not represent temperature or biomass. */
 export function rasterizeEarthHeat(
   observations: ClimateObservation[], variable: ClimateVariable,
   width = EARTH_HEAT_CONFIG.width, height = EARTH_HEAT_CONFIG.height,
@@ -46,7 +46,7 @@ export function rasterizeEarthHeat(
     cosLatitudes[row] = Math.cos(latitude);
   }
 
-  // Igualar ubicaciones repetidas impide que duplicar registros cambie su peso espacial.
+  // Merging coincident locations prevents duplicate records from skewing spatial weighting.
   const locations = new Map<string, { lat: number; lng: number; sum: number; count: number }>();
   for (const observation of observations) {
     const { latitude: lat, longitude: lng } = observation;

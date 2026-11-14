@@ -12,13 +12,13 @@ export interface OceanCurrentPath {
 }
 
 /**
- * Catálogo científico de corrientes oceánicas mayores de la Tierra.
- * Basado en datos oceanográficos de la NASA (ECCO v4 y OSCAR).
+ * Scientific catalog of Earth's major ocean currents.
+ * Based on NASA oceanographic datasets (ECCO v4 and OSCAR).
  */
 export const OCEAN_CURRENTS: OceanCurrentPath[] = [
   {
     id: 'gulf-stream',
-    name: 'Corriente del Golfo & Deriva Noratlántica',
+    name: 'Gulf Stream & North Atlantic Drift',
     temperature: 'warm',
     coords: [
       [24.0, -80.0], [28.0, -79.0], [32.0, -76.0], [36.0, -72.0],
@@ -30,11 +30,11 @@ export const OCEAN_CURRENTS: OceanCurrentPath[] = [
     dashLength: 0.18,
     dashGap: 0.04,
     animateTime: 2800,
-    description: 'Bomba térmica meridional que transporta calor hacia el Atlántico Norte.',
+    description: 'Meridional heat pump transporting thermal energy into the North Atlantic.',
   },
   {
     id: 'kuroshio',
-    name: 'Corriente de Kuroshio (Japón)',
+    name: 'Kuroshio Current (Japan)',
     temperature: 'warm',
     coords: [
       [18.0, 122.0], [24.0, 125.0], [30.0, 131.0], [35.0, 141.0],
@@ -45,11 +45,11 @@ export const OCEAN_CURRENTS: OceanCurrentPath[] = [
     dashLength: 0.2,
     dashGap: 0.04,
     animateTime: 2600,
-    description: 'Giro subtropical del Pacífico Occidental que calienta la costa asiática.',
+    description: 'Western Pacific subtropical gyre warming the Asian coast.',
   },
   {
     id: 'antarctic-circumpolar-1',
-    name: 'Corriente Circumpolar Antártica (Sector Atlántico-Índico)',
+    name: 'Antarctic Circumpolar Current (Atlantic-Indian Sector)',
     temperature: 'cold',
     coords: [
       [-56.0, -65.0], [-53.0, -40.0], [-51.0, -15.0], [-52.0, 10.0],
@@ -60,11 +60,11 @@ export const OCEAN_CURRENTS: OceanCurrentPath[] = [
     dashLength: 0.16,
     dashGap: 0.04,
     animateTime: 3200,
-    description: 'El mayor flujo hídrico del planeta, aislando la criosfera antártica.',
+    description: "The planet's largest water flow, thermally isolating the Antarctic cryosphere.",
   },
   {
     id: 'antarctic-circumpolar-2',
-    name: 'Corriente Circumpolar Antártica (Sector Pacífico)',
+    name: 'Antarctic Circumpolar Current (Pacific Sector)',
     temperature: 'cold',
     coords: [
       [-54.0, 120.0], [-55.0, 145.0], [-56.0, 175.0], [-57.0, -155.0],
@@ -75,11 +75,11 @@ export const OCEAN_CURRENTS: OceanCurrentPath[] = [
     dashLength: 0.16,
     dashGap: 0.04,
     animateTime: 3200,
-    description: 'Circulación circumpolar ininterrumpida de oeste a este.',
+    description: 'Unbroken west-to-east circumpolar circulation.',
   },
   {
     id: 'humboldt-peru',
-    name: 'Corriente de Humboldt / Perú',
+    name: 'Humboldt / Peru Current',
     temperature: 'cold',
     coords: [
       [-45.0, -76.0], [-35.0, -74.0], [-25.0, -72.0], [-15.0, -76.0],
@@ -90,11 +90,11 @@ export const OCEAN_CURRENTS: OceanCurrentPath[] = [
     dashLength: 0.22,
     dashGap: 0.05,
     animateTime: 2900,
-    description: 'Surgencia marina fría rica en nutrientes; modulador clave de ENSO.',
+    description: 'Cold nutrient-rich marine upwelling; key modulator of ENSO.',
   },
   {
     id: 'agulhas-current',
-    name: 'Corriente de las Agujas (Agulhas)',
+    name: 'Agulhas Current',
     temperature: 'warm',
     coords: [
       [-15.0, 42.0], [-24.0, 36.0], [-30.0, 32.0], [-34.0, 26.0],
@@ -105,11 +105,11 @@ export const OCEAN_CURRENTS: OceanCurrentPath[] = [
     dashLength: 0.22,
     dashGap: 0.05,
     animateTime: 2400,
-    description: 'Corriente rápida del océano Índico que inyecta anillos salinos al Atlántico.',
+    description: 'Fast Indian Ocean current injecting salty eddies into the Atlantic.',
   },
   {
     id: 'california-current',
-    name: 'Corriente de California',
+    name: 'California Current',
     temperature: 'cold',
     coords: [
       [48.0, -128.0], [40.0, -126.0], [33.0, -122.0], [25.0, -117.0],
@@ -120,11 +120,11 @@ export const OCEAN_CURRENTS: OceanCurrentPath[] = [
     dashLength: 0.25,
     dashGap: 0.05,
     animateTime: 3000,
-    description: 'Flujo frío hacia el ecuador en la cuenca del Pacífico Nororiental.',
+    description: 'Equatorward cold flow along the Northeast Pacific basin.',
   },
   {
     id: 'benguela-current',
-    name: 'Corriente de Benguela',
+    name: 'Benguela Current',
     temperature: 'cold',
     coords: [
       [-35.0, 18.0], [-28.0, 14.0], [-20.0, 11.0], [-12.0, 8.0],
@@ -135,11 +135,11 @@ export const OCEAN_CURRENTS: OceanCurrentPath[] = [
     dashLength: 0.25,
     dashGap: 0.05,
     animateTime: 3000,
-    description: 'Surgencia costera fría del Atlántico Suroriental frente a Namibia y Sudáfrica.',
+    description: 'Cold coastal upwelling in the Southeast Atlantic off Namibia and South Africa.',
   },
   {
     id: 'north-equatorial-pac',
-    name: 'Corriente Ecuatorial del Norte (Pacífico)',
+    name: 'North Equatorial Current (Pacific)',
     temperature: 'warm',
     coords: [
       [12.0, -110.0], [13.0, -135.0], [14.0, -160.0], [14.0, 175.0],
@@ -150,6 +150,6 @@ export const OCEAN_CURRENTS: OceanCurrentPath[] = [
     dashLength: 0.2,
     dashGap: 0.04,
     animateTime: 3400,
-    description: 'Arrastre eólico constante de los vientos alisios del noreste.',
+    description: 'Persistent wind-driven flow driven by northeast trade winds.',
   },
 ];

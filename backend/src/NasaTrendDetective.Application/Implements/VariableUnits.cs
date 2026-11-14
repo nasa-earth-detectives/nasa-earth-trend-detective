@@ -3,8 +3,8 @@ using NasaTrendDetective.Domain.Enums;
 namespace NasaTrendDetective.Application.Implements;
 
 /// <summary>
-/// Unidad de las observaciones por variable. Los textos coinciden con los que valida el frontend
-/// (observationDataSource.ts); cambiarlos rompe esa validación.
+/// Observation unit per variable. The string values match those validated by the frontend
+/// (observationDataSource.ts); changing them would break that validation.
 /// </summary>
 public static class VariableUnits
 {

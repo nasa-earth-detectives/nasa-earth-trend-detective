@@ -3,10 +3,10 @@ import type { ClimateObservation } from '../types/climate.types';
 const RADIANS = Math.PI / 180;
 
 /**
- * Aclara una grilla regular lat/lon para dibujarla con área aproximadamente uniforme. En una grilla
- * de 2° los 180 centros de una fila polar caben en una circunferencia diminuta y las columnas se
- * apilan unas sobre otras. Por fila se conserva una de cada round(1/cos φ) celdas. No interpola ni
- * mueve nada: cada celda que queda es una observación recibida, con su valor exacto.
+ * Thins a regular lat/lon grid for rendering with approximately uniform area. In a 2° grid,
+ * the 180 centers of a polar row fit in a tiny circle and columns pile on top of each other.
+ * Along each row, one in every round(1/cos φ) cells is preserved. Does not interpolate or
+ * move anything: every retained cell is an actual observation, with its exact value.
  */
 export function thinRegularGrid(observations: ClimateObservation[]): ClimateObservation[] {
   const rows = new Map<number, ClimateObservation[]>();

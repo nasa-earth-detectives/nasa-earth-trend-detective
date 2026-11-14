@@ -1,7 +1,7 @@
 import type { Teleconnection, TeleconnectionEndpoint } from '../types/teleconnection.types';
 import { getJson } from './apiClient';
 
-/** Paleta de la escena: un color por variable del par y dos para procesos físicos. */
+/** Scene palette: one color per variable in the pair and two for physical processes. */
 const VARIABLE_COLORS: Record<number | string, string> = {
   1: '#fb923c', Gistemp: '#fb923c',
   2: '#4ade80', ModisNdvi: '#4ade80',
@@ -10,27 +10,27 @@ const VARIABLE_COLORS: Record<number | string, string> = {
 };
 
 /**
- * Procesos físicos que no son pares de la API: se dibujan como contexto y se marcan 'local'.
- * Las coordenadas son representativas de cada región, no un cálculo.
+ * Physical processes that are not API pairs: drawn as context and marked 'local'.
+ * Coordinates represent each region rather than a calculated point.
  */
 const PHYSICAL: Teleconnection[] = [
-  { id: 'enso-walker', name: 'ENSO · circulación de Walker del Pacífico', color: '#22d3ee', altitude: 0.32, source: 'local',
-    from: { label: 'Pacífico occidental', lat: 2, lng: 150 }, to: { label: 'Pacífico oriental', lat: -2, lng: -95 } },
-  { id: 'sahara-amazon', name: 'Polvo del Sahara que fertiliza la Amazonía', color: '#fbbf24', altitude: 0.26, source: 'local',
-    from: { label: 'Depresión de Bodélé (Chad)', lat: 17, lng: 18 }, to: { label: 'Cuenca amazónica', lat: -3.5, lng: -62 } },
+  { id: 'enso-walker', name: 'ENSO · Pacific Walker Circulation', color: '#22d3ee', altitude: 0.32, source: 'local',
+    from: { label: 'Western Pacific', lat: 2, lng: 150 }, to: { label: 'Eastern Pacific', lat: -2, lng: -95 } },
+  { id: 'sahara-amazon', name: 'Saharan Dust Fertilizing the Amazon', color: '#fbbf24', altitude: 0.26, source: 'local',
+    from: { label: 'Bodélé Depression (Chad)', lat: 17, lng: 18 }, to: { label: 'Amazon Basin', lat: -3.5, lng: -62 } },
 ];
 
-/** Copia de las regiones de OpposingTrendsService para cuando la API no responde. */
+/** Copy of OpposingTrendsService regions for when the API does not respond. */
 const FALLBACK_PAIRS: Teleconnection[] = [
-  { id: 'arctic-atlantic-thermal', name: 'Amplificación ártica vs. Atlántico Norte subpolar', color: VARIABLE_COLORS.Gistemp,
+  { id: 'arctic-atlantic-thermal', name: 'Arctic Amplification vs. Subpolar North Atlantic', color: VARIABLE_COLORS.Gistemp,
     altitude: 0.22, source: 'local',
-    from: { label: 'Atlántico Norte Subpolar', lat: 55, lng: -30 }, to: { label: 'Ártico (Svalbard)', lat: 78.22, lng: 15.63 } },
-  { id: 'amazon-china-ndvi', name: 'Reverdecimiento en China vs. estrés en la Amazonía', color: VARIABLE_COLORS.ModisNdvi,
+    from: { label: 'Subpolar North Atlantic', lat: 55, lng: -30 }, to: { label: 'Arctic (Svalbard)', lat: 78.22, lng: 15.63 } },
+  { id: 'amazon-china-ndvi', name: 'Greening in China vs. Stress in the Amazon', color: VARIABLE_COLORS.ModisNdvi,
     altitude: 0.42, source: 'local',
-    from: { label: 'Cuenca Amazónica', lat: -3.46, lng: -62.21 }, to: { label: 'Sur de China', lat: 25, lng: 115 } },
-  { id: 'polar-ice-divergence', name: 'Masa de hielo: Groenlandia vs. Antártida oriental', color: VARIABLE_COLORS.GraceMass,
+    from: { label: 'Amazon Basin', lat: -3.46, lng: -62.21 }, to: { label: 'Southern China', lat: 25, lng: 115 } },
+  { id: 'polar-ice-divergence', name: 'Ice Mass: Greenland vs. East Antarctica', color: VARIABLE_COLORS.GraceMass,
     altitude: 0.5, source: 'local',
-    from: { label: 'Manto de Groenlandia', lat: 72, lng: -40 }, to: { label: 'Meseta Antártica Oriental', lat: -75, lng: 100 } },
+    from: { label: 'Greenland Ice Sheet', lat: 72, lng: -40 }, to: { label: 'East Antarctic Plateau', lat: -75, lng: 100 } },
 ];
 
 function endpoint(region: unknown): TeleconnectionEndpoint | null {
@@ -38,10 +38,10 @@ function endpoint(region: unknown): TeleconnectionEndpoint | null {
   const r = region as Record<string, unknown>;
   const lat = r.latitude; const lng = r.longitude;
   if (typeof lat !== 'number' || typeof lng !== 'number' || Math.abs(lat) > 90 || Math.abs(lng) > 180) return null;
-  return { label: typeof r.regionName === 'string' ? r.regionName : 'Región', lat, lng };
+  return { label: typeof r.regionName === 'string' ? r.regionName : 'Region', lat, lng };
 }
 
-/** Frontera del DTO OpposingTrendPair: descarta pares incompletos en vez de dibujar coordenadas basura. */
+/** Boundary of OpposingTrendPair DTO: discards incomplete pairs instead of rendering bogus coordinates. */
 export function adaptOpposingPairs(payload: unknown): Teleconnection[] {
   if (!Array.isArray(payload)) return [];
   return payload.flatMap((entry: unknown): Teleconnection[] => {
@@ -59,7 +59,7 @@ export function adaptOpposingPairs(payload: unknown): Teleconnection[] {
 
 let cached: Promise<Teleconnection[]> | null = null;
 
-/** Pares de la API + procesos físicos. Nunca rechaza: sin API usa la copia local de las regiones. */
+/** API pairs + physical processes. Never rejects: without API, uses local fallback regions. */
 export function getTeleconnections(): Promise<Teleconnection[]> {
   cached ??= getJson<unknown>('/trends/opposing')
     .then(adaptOpposingPairs)

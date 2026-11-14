@@ -13,28 +13,28 @@ interface ViewOptionsListProps {
   onAtmosphereChange: (value: boolean) => void;
 }
 
-/** Cada interruptor expuesto controla una capacidad presente de la escena. */
+/** Each exposed switch controls an active scene capability. */
 export function ViewOptionsList({
   autoRotate, starsVisible, gridVisible, atmosphereVisible,
   onAutoRotateChange, onStarsChange, onGridChange, onAtmosphereChange,
 }: ViewOptionsListProps) {
   return (
     <div className="scene-instrument">
-      <h3 className="instrument-kicker">Movimiento y referencias</h3>
-      <InstrumentSwitch label="Rotación automática" description="Giro de cámara en reposo"
+      <h3 className="instrument-kicker">Motion & references</h3>
+      <InstrumentSwitch label="Auto-rotate" description="Idle camera rotation"
         checked={autoRotate} onChange={onAutoRotateChange} />
-      <InstrumentSwitch label="Campo estelar" description="Referencia del espacio exterior"
+      <InstrumentSwitch label="Star field" description="Deep-space reference"
         checked={starsVisible} onChange={onStarsChange} />
-      <InstrumentSwitch label="Retícula geográfica" description="Meridianos y paralelos"
+      <InstrumentSwitch label="Geographic grid" description="Meridians and parallels"
         checked={gridVisible} onChange={onGridChange} />
-      <h3 className="instrument-kicker scene-instrument__section">Visibilidad del planeta</h3>
-      <InstrumentSwitch label="Atmósfera" description="Contorno atmosférico"
+      <h3 className="instrument-kicker scene-instrument__section">Planet visibility</h3>
+      <InstrumentSwitch label="Atmosphere" description="Atmospheric rim"
         checked={atmosphereVisible} onChange={onAtmosphereChange} />
       <details className="instrument-future">
-        <summary className="focus-ring" title="Capacidades incluidas en la escena. Integrado no indica el estado de carga de sus mapas.">
-          Sistema visual integrado <span aria-hidden="true">+</span>
+        <summary className="focus-ring" title="Capabilities included in the scene. Integrated does not indicate asset loading state.">
+          Integrated visual system <span aria-hidden="true">+</span>
         </summary>
-        <StatusRowList title="Capacidades integradas del planeta" rows={VISUAL_SYSTEM_ROWS.filter((row) => row.id !== 'atmosphere')} />
+        <StatusRowList title="Integrated planet capabilities" rows={VISUAL_SYSTEM_ROWS.filter((row) => row.id !== 'atmosphere')} />
       </details>
     </div>
   );

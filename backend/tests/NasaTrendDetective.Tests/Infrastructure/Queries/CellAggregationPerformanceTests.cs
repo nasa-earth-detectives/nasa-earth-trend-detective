@@ -5,14 +5,14 @@ using NasaTrendDetective.Tests.Infrastructure.Etl;
 namespace NasaTrendDetective.Tests.Infrastructure.Queries;
 
 /// <summary>
-/// Prueba de carga: ~200k filas sintéticas en Parquet, importación masiva y agregación por celda
-/// en menos de 100 ms tras un warm-up. Marcada como Performance para poder excluirla en CI lento
+/// Load test: ~200k synthetic rows in Parquet, bulk import and cell aggregation
+/// in under 100 ms after a warm-up. Marked as Performance so it can be excluded in slow CI
 /// (dotnet test --filter "Category!=Performance").
 /// </summary>
 [Trait("Category", "Performance")]
 public sealed class CellAggregationPerformanceTests : IAsyncLifetime
 {
-    // 2 variables x 10 anios x 12 meses x (25 x 34) celdas de 0.25 grados = 204.000 filas.
+    // 2 variables x 10 years x 12 months x (25 x 34) cells of 0.25 degrees = 204,000 rows.
     private const long ExpectedRows = 2L * 10 * 12 * 25 * 34;
     private const int MeasuredRuns = 5;
 
@@ -61,6 +61,6 @@ public sealed class CellAggregationPerformanceTests : IAsyncLifetime
         }
 
         var median = timings.Order().ElementAt(MeasuredRuns / 2);
-        Assert.True(median < 100, $"La agregación por celda tardó {median:F1} ms (mediana), se esperaba < 100 ms.");
+        Assert.True(median < 100, $"Cell aggregation took {median:F1} ms (median), expected < 100 ms.");
     }
 }

@@ -1,85 +1,85 @@
 /**
- * Catálogo único de capas científicas de la plataforma.
+ * Unified scientific layers catalog for the platform.
  *
- * Fuente de verdad compartida por el Layer Drawer y cualquier futura capa 3D.
- * Evita duplicar la metadatos de variables en varios componentes.
+ * Single source of truth shared by the Layer Drawer and any future 3D layers.
+ * Prevents duplicating variable metadata across multiple components.
  */
 import { VariableMetadata } from '../types/climate.types';
 
 /**
- * Rango de navegación: desde 2000 hasta el año en curso (UTC), siempre el actual. El año en
- * curso es parcial: la interfaz muestra hasta qué mes llegan los datos (DatasetProvenance.lastMonth).
+ * Navigation range: from 2000 to the current UTC year. The current year
+ * is partial: the UI shows which month data extends to (DatasetProvenance.lastMonth).
  */
 export const SATELLITE_TIMELINE = { startYear: 2000, endYear: new Date().getUTCFullYear() } as const;
 
-/** Variables soportadas hoy de extremo a extremo (tipo `ClimateVariable`). */
+/** End-to-end supported variables today (`ClimateVariable` type). */
 export const CLIMATE_VARIABLES: VariableMetadata[] = [
   {
     id: 'Gistemp',
-    name: 'Temperatura superficial',
+    name: 'Surface Temperature',
     satelliteMission: 'NASA GISTEMP v4',
-    unit: '°C anomalía',
-    description: 'Anomalías de temperatura combinadas tierra-océano.',
+    unit: '°C anomaly',
+    description: 'Combined land-ocean temperature anomalies.',
     colorScheme: 'Thermal',
   },
   {
     id: 'ModisNdvi',
-    name: 'Vegetación · NDVI',
+    name: 'Vegetation · NDVI',
     satelliteMission: 'Terra/Aqua MODIS',
-    unit: 'NDVI −1 a 1',
-    description: 'Vigor fotosintético y cobertura de biomasa vegetal.',
+    unit: 'NDVI −1 to 1',
+    description: 'Photosynthetic vigor and plant biomass cover.',
     colorScheme: 'Vegetation',
   },
   {
     id: 'GraceMass',
-    name: 'Masa de agua y hielo',
+    name: 'Water & Ice Mass',
     satelliteMission: 'GRACE / GRACE-FO',
     unit: 'cm H₂O eq.',
-    description: 'Anomalías gravitatorias de reservas de agua y hielo.',
+    description: 'Gravitational anomalies of water and ice reserves.',
     colorScheme: 'Hydrology',
   },
   {
     id: 'Oco2',
-    name: 'Dióxido de carbono',
+    name: 'Carbon Dioxide',
     satelliteMission: 'OCO-2 / OCO-3',
     unit: 'ppm XCO₂',
-    description: 'Fracción molar de CO₂ en columna atmosférica total.',
+    description: 'Total atmospheric column CO₂ mole fraction.',
     colorScheme: 'Atmospheric',
   },
 ];
 
-/** Fila de estado del instrumento: capacidad presente o anunciada. */
+/** Instrument status row: present or announced capability. */
 export interface StatusRow {
   id: string;
   name: string;
   detail?: string;
-  /** Marcador corto de disponibilidad. */
+  /** Short availability badge/label. */
   status: string;
-  /** Capacidad implementada; no representa el estado de carga de sus assets. */
+  /** Implemented capability; does not represent asset loading state. */
   active?: boolean;
 }
 
 /**
- * Nivel del Mar figura en el roadmap, pero `ClimateVariable` y la API .NET
- * todavía no lo contemplan. Se declara desactivado en vez de simular soporte.
+ * Sea Level is on the roadmap, but `ClimateVariable` and the .NET API
+ * do not support it yet. It is declared disabled instead of simulating support.
  */
 export const UPCOMING_VARIABLES: StatusRow[] = [
-  { id: 'sentinel6', name: 'Nivel del mar', detail: 'Sentinel-6 / ECCO', status: 'Altimetría', active: true },
+  { id: 'sentinel6', name: 'Sea Level', detail: 'Sentinel-6 / ECCO', status: 'Altimetry', active: true },
 ];
 
-/** Capas de análisis y dinámicas globales del planeta operativas. */
+/** Operational planetary dynamic and analysis overlay layers. */
 export const SCIENTIFIC_OVERLAYS: StatusRow[] = [
-  { id: 'ocean-flow', name: 'Corrientes marinas 3D (ECCO/OSCAR)', status: 'Operativo', active: true },
-  { id: 'teleconnections', name: 'Teleconexiones climáticas (ENSO/AMOC)', status: 'Operativo', active: true },
-  { id: 'hotspots', name: 'Ondas radar en hotspots extremos', status: 'Operativo', active: true },
-  { id: 'opposing', name: 'Motor de tendencias opuestas', status: 'Algoritmo', active: true },
-  { id: 'satellites', name: 'Constelación satelital orbital', status: 'Operativo', active: true },
+  { id: 'ocean-flow', name: '3D Ocean Currents (ECCO/OSCAR)', status: 'Operational', active: true },
+  { id: 'teleconnections', name: 'Climate Teleconnections (ENSO/AMOC)', status: 'Operational', active: true },
+  { id: 'hotspots', name: 'Radar Ripples on Extreme Hotspots', status: 'Operational', active: true },
+  { id: 'opposing', name: 'Opposing Trends Engine', status: 'Algorithm', active: true },
+  { id: 'satellites', name: 'Orbital Satellite Constellation', status: 'Operational', active: true },
 ];
 
-/** Capacidades integradas en earthSurface; los interruptores se muestran sólo si existe API real. */
+/** Visual system capabilities integrated into earthSurface; switches are shown only if a real API exists. */
 export const VISUAL_SYSTEM_ROWS: StatusRow[] = [
-  { id: 'atmosphere', name: 'Atmósfera', status: 'Integrado', active: true },
-  { id: 'clouds', name: 'Capa de nubes', status: 'Integrado', active: true },
-  { id: 'night-lights', name: 'Luces nocturnas', status: 'Integrado', active: true },
-  { id: 'terminator', name: 'Terminador día/noche', status: 'Hora actual', active: true },
+  { id: 'atmosphere', name: 'Atmosphere', status: 'Integrated', active: true },
+  { id: 'clouds', name: 'Cloud Layer', status: 'Integrated', active: true },
+  { id: 'night-lights', name: 'Night Lights', status: 'Integrated', active: true },
+  { id: 'terminator', name: 'Day/Night Terminator', status: 'Live UTC', active: true },
 ];

@@ -5,12 +5,12 @@ import { createDemoHexDataset, HEX_VARIABLE_PROFILES } from './demo/hexDemoData'
 import { readDataSourceMode, resolveVariableSource } from './datasetCatalog';
 import { trendService } from './trendService';
 
-/** Correspondencia explícita con backend/.../Enums/ClimateVariable.cs, sin suponer strings JSON. */
+/** Explicit correspondence with backend/.../Enums/ClimateVariable.cs, without assuming JSON strings. */
 const API_VARIABLE_IDS: Record<ClimateVariable, number> = { Gistemp: 1, ModisNdvi: 2, GraceMass: 3, Oco2: 4 };
 
 /**
- * Escala de la API: /trends/grid devuelve la pendiente de Sen por año, la misma unidad que el perfil
- * demo (p. ej. °C / año), así que la altura comparte dominio y ambos escenarios se leen igual.
+ * API scaling: /trends/grid returns Sen's slope per year, the same unit as the demo
+ * profile (e.g. °C / year), so the height shares domain and both scenarios read identically.
  */
 export const HEX_API_PRESENTATION: Record<ClimateVariable, { heightDomain: number; resolutionDegrees: number }> = {
   Gistemp: { heightDomain: HEX_VARIABLE_PROFILES.Gistemp.heightDomain, resolutionDegrees: 2 },
@@ -20,10 +20,10 @@ export const HEX_API_PRESENTATION: Record<ClimateVariable, { heightDomain: numbe
 };
 
 function abortError() {
-  return new DOMException('Consulta de hexágonos cancelada', 'AbortError');
+  return new DOMException('Hex query aborted', 'AbortError');
 }
 
-/** Cancela la entrega aunque el servicio HTTP existente todavía no reciba AbortSignal. */
+/** Cancels delivery even if the underlying HTTP service does not yet accept AbortSignal. */
 function withAbort<T>(request: Promise<T>, signal?: AbortSignal): Promise<T> {
   if (!signal) return request;
   if (signal.aborted) return Promise.reject(abortError());
@@ -46,18 +46,18 @@ function withAbort<T>(request: Promise<T>, signal?: AbortSignal): Promise<T> {
 
 function finiteNumber(value: unknown, name: string, index: number): number {
   if (typeof value !== 'number' || !Number.isFinite(value)) {
-    throw new Error(`API de tendencias: ${name} inválido en la celda ${index + 1}.`);
+    throw new Error(`Trends API: invalid ${name} at cell ${index + 1}.`);
   }
   return value;
 }
 
 function assertMatchingContext(row: Record<string, unknown>, filter: TrendFilterParams) {
   if (row.variable !== undefined && row.variable !== filter.variable && row.variable !== API_VARIABLE_IDS[filter.variable]) {
-    throw new Error('La respuesta de tendencias no coincide con variable.');
+    throw new Error('Trends response does not match variable.');
   }
   for (const field of ['startYear', 'endYear'] as const) {
     if (row[field] !== undefined && row[field] !== filter[field]) {
-      throw new Error(`La respuesta de tendencias no coincide con ${field}.`);
+      throw new Error(`Trends response does not match ${field}.`);
     }
   }
 }
@@ -65,7 +65,7 @@ function assertMatchingContext(row: Record<string, unknown>, filter: TrendFilter
 function readUnit(value: unknown): string | undefined {
   if (value === undefined) return undefined;
   if (typeof value !== 'string' || !value.trim() || value.length > 80) {
-    throw new Error('La API devolvió una unidad de tendencia inválida.');
+    throw new Error('API returned an invalid trend unit.');
   }
   return value.trim();
 }
@@ -73,16 +73,16 @@ function readUnit(value: unknown): string | undefined {
 function readResolution(value: unknown): number | undefined {
   if (value === undefined) return undefined;
   const resolution = finiteNumber(value, 'resolutionDegrees', 0);
-  if (resolution <= 0 || resolution > 10) throw new Error('La resolución de celdas debe estar entre 0 y 10 grados.');
+  if (resolution <= 0 || resolution > 10) throw new Error('Cell resolution must be between 0 and 10 degrees.');
   return resolution;
 }
 
-/** Acepta el DTO actual sin exigir confidenceInterval95; rechaza datos corruptos o de otro filtro. */
+/** Accepts current DTO without requiring confidenceInterval95; rejects corrupt data or mismatched filter data. */
 export function adaptApiHexDataset(payload: unknown, filter: TrendFilterParams): HexDataset {
   const metadata: Record<string, unknown> = payload && typeof payload === 'object' && !Array.isArray(payload)
     ? payload as Record<string, unknown> : {};
   const rows: unknown = Array.isArray(payload) ? payload : metadata.cells;
-  if (!Array.isArray(rows)) throw new Error('La API de tendencias debe devolver una lista de celdas o un objeto con cells.');
+  if (!Array.isArray(rows)) throw new Error('Trends API must return a list of cells or an object with cells.');
   assertMatchingContext(metadata, filter);
   const seen = new Set<string>();
   const envelopeUnit = readUnit(metadata.unit);
@@ -92,50 +92,50 @@ export function adaptApiHexDataset(payload: unknown, filter: TrendFilterParams):
   let unitCount = 0;
   let resolutionCount = 0;
   const cells: HexCell[] = rows.map((entry: unknown, index) => {
-    if (!entry || typeof entry !== 'object') throw new Error(`Celda ${index + 1} inválida en la API.`);
+    if (!entry || typeof entry !== 'object') throw new Error(`Invalid cell ${index + 1} in API.`);
     const row = entry as Record<string, unknown>;
     const latitude = finiteNumber(row.latitude, 'latitude', index);
     const longitude = finiteNumber(row.longitude, 'longitude', index);
     const slope = finiteNumber(row.sensSlope, 'sensSlope', index);
     if (latitude < -90 || latitude > 90 || longitude < -180 || longitude > 180) {
-      throw new Error(`Coordenadas fuera de rango en la celda ${index + 1}.`);
+      throw new Error(`Coordinates out of range at cell ${index + 1}.`);
     }
     assertMatchingContext(row, filter);
     const nextUnit = readUnit(row.unit);
     if (nextUnit !== undefined) {
       unitCount += 1;
-      if (unit !== undefined && unit !== nextUnit) throw new Error('La API mezcla unidades de tendencia.');
+      if (unit !== undefined && unit !== nextUnit) throw new Error('API mixes trend units.');
       unit = nextUnit;
     }
     const nextResolution = readResolution(row.resolutionDegrees);
     if (nextResolution !== undefined) {
       resolutionCount += 1;
-      if (resolution !== undefined && resolution !== nextResolution) throw new Error('La API mezcla resoluciones de celdas.');
+      if (resolution !== undefined && resolution !== nextResolution) throw new Error('API mixes cell resolutions.');
       resolution = nextResolution;
     }
     const normalizedLng = longitude === 180 ? -180 : longitude;
     const id = `api:${latitude.toFixed(7)}:${normalizedLng.toFixed(7)}`;
-    if (seen.has(id)) throw new Error('La API devolvió dos tendencias para la misma ubicación.');
+    if (seen.has(id)) throw new Error('API returned duplicate trends for the same location.');
     seen.add(id);
     return { id, latitude, longitude: normalizedLng, slope };
   });
   if (envelopeUnit === undefined && unitCount > 0 && unitCount !== cells.length) {
-    throw new Error('La API debe declarar la unidad para todas las celdas o en el objeto que las contiene.');
+    throw new Error('API must declare unit for all cells or on the containing envelope object.');
   }
   if (envelopeResolution === undefined && resolutionCount > 0 && resolutionCount !== cells.length) {
-    throw new Error('La API debe declarar la resolución para todas las celdas o en el objeto que las contiene.');
+    throw new Error('API must declare resolution for all cells or on the containing envelope object.');
   }
   const heightDomain = metadata.heightDomain === undefined
     ? HEX_API_PRESENTATION[filter.variable].heightDomain : finiteNumber(metadata.heightDomain, 'heightDomain', 0);
-  if (heightDomain <= 0) throw new Error('El dominio vertical debe ser mayor que cero.');
+  if (heightDomain <= 0) throw new Error('Height domain must be greater than zero.');
   return {
     cells,
     variable: filter.variable,
     startYear: filter.startYear,
     endYear: filter.endYear,
     source: 'api',
-    // La API actual no declara la base temporal de sensSlope: no inferir una unidad científica.
-    unit: unit ?? 'pendiente · unidad no declarada',
+    // The current API does not declare the time base for sensSlope: do not infer a scientific unit.
+    unit: unit ?? 'slope · undeclared unit',
     heightDomain,
     resolutionDegrees: resolution ?? HEX_API_PRESENTATION[filter.variable].resolutionDegrees,
   };
@@ -146,13 +146,13 @@ export async function getHexDataset(filter: TrendFilterParams, signal?: AbortSig
   if (!Number.isInteger(filter.startYear) || !Number.isInteger(filter.endYear)
     || filter.startYear < 1 || filter.endYear > 9999 || filter.startYear > filter.endYear
     || !Object.hasOwn(HEX_VARIABLE_PROFILES, filter.variable)) {
-    throw new Error('El periodo o la variable de observación no son válidos.');
+    throw new Error('The observation period or variable is invalid.');
   }
   const mode = readDataSourceMode(import.meta.env.VITE_HEX_DATA_SOURCE, 'VITE_HEX_DATA_SOURCE');
   const resolved = await withAbort(resolveVariableSource(mode, filter.variable), signal);
   if (resolved.source === 'demo') {
     const profile: unknown = import.meta.env.VITE_HEX_DEMO_PROFILE ?? 'global';
-    if (profile !== 'global' && profile !== 'regional' && profile !== 'stress') throw new Error('VITE_HEX_DEMO_PROFILE debe ser global, regional o stress.');
+    if (profile !== 'global' && profile !== 'regional' && profile !== 'stress') throw new Error('VITE_HEX_DEMO_PROFILE must be global, regional, or stress.');
     return withAbort(Promise.resolve().then(() => createDemoHexDataset(filter, profile)), signal);
   }
   const payload: unknown = await trendService.getGridTrends(filter, signal);

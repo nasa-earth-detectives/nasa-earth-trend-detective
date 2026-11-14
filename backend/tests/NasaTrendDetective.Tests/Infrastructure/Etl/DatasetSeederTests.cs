@@ -10,7 +10,7 @@ namespace NasaTrendDetective.Tests.Infrastructure.Etl;
 
 public sealed class DatasetSeederTests : IAsyncLifetime
 {
-    /// <summary>2 celdas x 12 meses de 2020 y 2021 para Gistemp = 48 filas.</summary>
+    /// <summary>2 cells x 12 months in 2020 and 2021 for Gistemp = 48 rows.</summary>
     private const string GistempSql = """
         SELECT CAST(1 AS TINYINT) AS variable_id,
                CAST(lat AS DECIMAL(5,2)) AS latitude,
@@ -58,7 +58,7 @@ public sealed class DatasetSeederTests : IAsyncLifetime
 
         var provenance = await new DatasetCatalogRepository(_context.Repository).GetAsync(ClimateVariable.Gistemp);
         Assert.NotNull(provenance);
-        Assert.Equal("°C / año", provenance.TrendUnit);
+        Assert.Equal("°C / year", provenance.TrendUnit);
         Assert.True(provenance.Interim);
         Assert.Equal(48L, provenance.RowCount);
     }
@@ -70,7 +70,7 @@ public sealed class DatasetSeederTests : IAsyncLifetime
         await WriteManifestAsync("gistemp", "Gistemp");
         await _seeder.SeedAsync();
 
-        // Nueva fuente con menos celdas: los hechos viejos de Gistemp no deben quedar mezclados.
+        // New source with fewer cells: old Gistemp facts must not remain mixed.
         File.Delete(Path.Combine(_context.WorkDirectory, "gistemp.parquet"));
         await _context.WriteParquetAsync("gistemp.parquet", GistempSql.Replace("(VALUES (79.00), (-1.00))", "(VALUES (79.00))"));
 
@@ -126,21 +126,21 @@ public sealed class DatasetSeederTests : IAsyncLifetime
         var manifest = new
         {
             variable,
-            provider = "prueba",
-            product = "Producto de prueba",
+            provider = "test",
+            product = "Test product",
             baseline = "1951-1980",
             unit = "°C Anomaly",
-            trendUnit = "°C / año",
+            trendUnit = "°C / year",
             interim = true,
             resolutionDegrees = 2.0,
-            sourceUrl = "https://example.invalid/fuente.nc",
-            sourceFile = "fuente.nc",
+            sourceUrl = "https://example.invalid/source.nc",
+            sourceFile = "source.nc",
             sourceSha256 = new string('a', 64),
             retrievedAt = "2026-10-05T04:09:47+00:00",
             coverageStart = 2020,
             coverageEnd = 2021,
             lastMonth = "2021-12",
-            citation = "Cita de prueba"
+            citation = "Test citation"
         };
         return File.WriteAllTextAsync(
             Path.Combine(_context.WorkDirectory, stem + DatasetManifest.FileSuffix), JsonSerializer.Serialize(manifest));

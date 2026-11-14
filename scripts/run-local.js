@@ -6,10 +6,10 @@ const dotnetCmd = isWindows ? 'dotnet.exe' : 'dotnet';
 
 console.log('\x1b[36m%s\x1b[0m', '=====================================================');
 console.log('\x1b[36m%s\x1b[0m', '  NASA Earth System Trend Detective - Dev Runner     ');
-console.log('\x1b[36m%s\x1b[0m', '  Ejecutando Backend (.NET 10) + Frontend (React 19) ');
+console.log('\x1b[36m%s\x1b[0m', '  Running Backend (.NET 10) + Frontend (React 19)    ');
 console.log('\x1b[36m%s\x1b[0m', '=====================================================');
 
-// 1. Iniciar API .NET 10
+// 1. Start .NET 10 API
 const backend = spawn(dotnetCmd, ['run', '--project', 'backend/src/NasaTrendDetective.Api'], {
   stdio: 'pipe',
   shell: true,
@@ -24,7 +24,7 @@ backend.stderr.on('data', (data) => {
   process.stderr.write(`\x1b[31m[API ERR]\x1b[0m ${data}`);
 });
 
-// 2. Iniciar Frontend Vite
+// 2. Start Vite Frontend
 const frontend = spawn(npmCmd, ['run', 'dev', '--workspace=frontend'], {
   stdio: 'pipe',
   shell: true,
@@ -40,7 +40,7 @@ frontend.stderr.on('data', (data) => {
 });
 
 const cleanup = () => {
-  console.log('\n\x1b[33m%s\x1b[0m', 'Deteniendo servicios locales...');
+  console.log('\n\x1b[33m%s\x1b[0m', 'Stopping local services...');
   backend.kill();
   frontend.kill();
   process.exit(0);

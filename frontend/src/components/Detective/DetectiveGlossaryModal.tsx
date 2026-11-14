@@ -11,37 +11,37 @@ const GLOSSARY_ITEMS = [
   {
     icon: Activity,
     accent: '#ff5533',
-    term: '¿Qué es una Anomalía Climática?',
-    definition: 'No es la temperatura absoluta del termómetro, sino qué tan más caliente o frío estuvo un año respecto al promedio normal histórico (período base 1951-1980 de la NASA). Un valor de +1.5 °C significa que estuvo 1.5 grados por encima de lo usual.',
-    studentTip: 'Ejemplo: Si tu promedio normal de notas es 80 y hoy sacas 90, tu "anomalía positiva" es +10.',
+    term: 'What is a Climate Anomaly?',
+    definition: 'It is not the absolute thermometer temperature, but how much warmer or cooler a year was compared to the historical normal average (NASA 1951–1980 baseline period). A value of +1.5 °C means it was 1.5 degrees above normal.',
+    studentTip: 'Example: If your usual grade average is 80 and today you score 90, your "positive anomaly" is +10.',
   },
   {
     icon: BarChart2,
     accent: '#00d2ff',
-    term: '¿Qué es la Pendiente de Sen (Sen\'s Slope)?',
-    definition: 'Es el ritmo de cambio real por año o por década. A diferencia de una línea recta promedio común, la pendiente de Sen calcula la mediana de todas las diferencias, por lo que un solo año atípico o tormenta extrema no altera el cálculo.',
-    studentTip: 'Mide la velocidad a la que el clima sube o baja sin dejarse engañar por picos aislados.',
+    term: 'What is Sen’s Slope?',
+    definition: 'It is the true rate of change per year or per decade. Unlike a standard average straight line, Sen’s slope computes the median of all pairwise differences, so a single outlier year or extreme storm does not skew the result.',
+    studentTip: 'It measures how fast the climate is rising or falling without being fooled by isolated spikes.',
   },
   {
     icon: CheckCircle2,
     accent: '#10b981',
-    term: '¿Qué es el Test de Mann-Kendall y el valor p?',
-    definition: 'Es la prueba del detective para descartar coincidencias. Evalúa si la serie sube o baja de forma persistente. Si el valor p es menor a 0.05 (p < 0.05), significa que hay más del 95% de certeza de que el cambio es real y no simple casualidad.',
-    studentTip: 'Si p < 0.05, el cambio está matemáticamente comprobado.',
+    term: 'What are the Mann-Kendall Test and p-value?',
+    definition: 'It is the detective’s test to rule out coincidence. It evaluates whether the series rises or falls persistently. If the p-value is less than 0.05 (p < 0.05), there is over 95% confidence that the change is real and not random chance.',
+    studentTip: 'If p < 0.05, the change is mathematically verified.',
   },
   {
     icon: BookOpen,
     accent: '#10b981',
-    term: '¿Qué es el NDVI (Índice de Vegetación)?',
-    definition: 'Mide qué tan verde y vivo está un territorio. Las plantas sanas absorben luz roja para hacer fotosíntesis y reflejan fuertemente la luz infrarroja. Valores cercanos a 1 indican selvas densas; valores cercanos a 0 indican desiertos o sequía.',
-    studentTip: 'A mayor NDVI, más hojas verdes y bosques saludables.',
+    term: 'What is NDVI (Vegetation Index)?',
+    definition: 'It measures how green and alive a territory is. Healthy plants absorb red light for photosynthesis and strongly reflect infrared light. Values near 1 indicate dense rainforests; values near 0 indicate deserts or drought.',
+    studentTip: 'Higher NDVI means greener leaves and healthier forests.',
   },
   {
     icon: HelpCircle,
     accent: '#ec4899',
-    term: '¿Qué es la masa equivalente de GRACE-FO?',
-    definition: 'Los satélites gemelos de la NASA vuelan en tándem y miden microvariaciones en la atracción gravitatoria de la Tierra. Cuando un glaciar se derrite o un acuífero se seca, la gravedad disminuye en esa región exacta.',
-    studentTip: 'Es como "pesar" el hielo y el agua subterránea de todo el planeta desde la órbita.',
+    term: 'What is GRACE-FO Equivalent Water Mass?',
+    definition: 'NASA’s twin satellites fly in tandem and measure tiny variations in Earth’s gravitational pull. When a glacier melts or an aquifer dries up, gravity decreases in that exact region.',
+    studentTip: 'It is like "weighing" ice and groundwater across the entire planet from orbit.',
   },
 ];
 
@@ -64,13 +64,13 @@ export function DetectiveGlossaryModal({ open, onClose }: DetectiveGlossaryModal
       <div className="detective-modal-card" onClick={e => e.stopPropagation()} ref={modalRef}>
         <header className="detective-modal-header">
           <div>
-            <span className="detective-modal-eyebrow">Guía de Conceptos para Estudiantes y Evaluadores</span>
-            <h2 id="glossary-title">Glosario del Detective Climático</h2>
+            <span className="detective-modal-eyebrow">Concept Guide for Students & Reviewers</span>
+            <h2 id="glossary-title">Climate Detective Glossary</h2>
             <p className="detective-modal-desc">
-              Conceptos estadísticos y biofísicos explicados en lenguaje accesible según los lineamientos de la NASA.
+              Statistical and biophysical concepts explained in accessible language following NASA guidelines.
             </p>
           </div>
-          <button type="button" onClick={onClose} className="detective-modal-close focus-ring" aria-label="Cerrar ventana">
+          <button type="button" onClick={onClose} className="detective-modal-close focus-ring" aria-label="Close modal">
             <X size={20} strokeWidth={1.5} />
           </button>
         </header>
@@ -88,7 +88,7 @@ export function DetectiveGlossaryModal({ open, onClose }: DetectiveGlossaryModal
                 </div>
                 <p className="detective-glossary-def">{item.definition}</p>
                 <div className="detective-glossary-tip">
-                  <strong>💡 En palabras sencillas:</strong> {item.studentTip}
+                  <strong>💡 In plain words:</strong> {item.studentTip}
                 </div>
               </div>
             );

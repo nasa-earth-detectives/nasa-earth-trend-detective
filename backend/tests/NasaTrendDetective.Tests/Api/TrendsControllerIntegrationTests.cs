@@ -40,7 +40,7 @@ public class TrendsControllerIntegrationTests : IClassFixture<WebApplicationFact
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         var content = await response.Content.ReadAsStringAsync();
-        Assert.Contains("Parámetros temporales inválidos", content);
+        Assert.Contains("Invalid temporal parameters", content);
     }
 
     [Fact]

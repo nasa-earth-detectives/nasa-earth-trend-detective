@@ -3,8 +3,8 @@ using NasaTrendDetective.Infrastructure.Interfaces;
 namespace NasaTrendDetective.Infrastructure.Implements;
 
 /// <summary>
-/// Ejecuta init_schema.sql sobre una conexión de la fábrica DuckDB. El script es idempotente,
-/// por lo que puede invocarse en cada arranque sin efectos secundarios.
+/// Executes init_schema.sql against a connection from the DuckDB factory. The script is idempotent
+/// and can be invoked on each startup without side effects.
 /// </summary>
 public sealed class DuckDbSchemaInitializer : IDuckDbSchemaInitializer
 {

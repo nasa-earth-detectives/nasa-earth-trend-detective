@@ -18,16 +18,16 @@ interface ObservationReadoutProps {
   selected: ClimateObservation | null;
   onSelect: (id: string | null) => void;
 }
-const number = (value: number) => value.toLocaleString('es-CO', { maximumFractionDigits: 3 });
-const coordinates = (item: ClimateObservation) => `${Math.abs(item.latitude).toFixed(2)}° ${item.latitude < 0 ? 'S' : 'N'} · ${Math.abs(item.longitude).toFixed(2)}° ${item.longitude < 0 ? 'O' : 'E'}`;
+const number = (value: number) => value.toLocaleString('en-US', { maximumFractionDigits: 3 });
+const coordinates = (item: ClimateObservation) => `${Math.abs(item.latitude).toFixed(2)}° ${item.latitude < 0 ? 'S' : 'N'} · ${Math.abs(item.longitude).toFixed(2)}° ${item.longitude < 0 ? 'W' : 'E'}`;
 const descriptions: Record<ClimateVariable, [string, string, string]> = {
-  Gistemp: ['Más fría', 'Referencia', 'Más cálida'],
-  ModisNdvi: ['Bajo NDVI', '', 'Alto NDVI'],
-  GraceMass: ['Déficit', 'Referencia', 'Acumulación'],
-  Oco2: ['Menor CO₂', '', 'Mayor CO₂'],
+  Gistemp: ['Cooler', 'Baseline', 'Warmer'],
+  ModisNdvi: ['Low NDVI', '', 'High NDVI'],
+  GraceMass: ['Deficit', 'Baseline', 'Gain'],
+  Oco2: ['Lower CO₂', '', 'Higher CO₂'],
 };
 
-/** Alternativa de teclado paginada: nunca monta miles de opciones. */
+/** Paginated keyboard alternative: never renders thousands of option elements. */
 function ObservationPicker({ observations, selected, onSelect }: Pick<ObservationReadoutProps, 'observations' | 'selected' | 'onSelect'>) {
   const [open, setOpen] = useState(false);
   const [requestedPage, setPage] = useState(0);
@@ -45,9 +45,9 @@ function ObservationPicker({ observations, selected, onSelect }: Pick<Observatio
       close(event.currentTarget);
       event.currentTarget.querySelector('summary')?.focus();
     }}>
-    <summary className="focus-ring">{selected ? 'Otra celda' : 'Elegir celda'}<span aria-hidden="true">↗</span></summary>
+    <summary className="focus-ring">{selected ? 'Other cell' : 'Select cell'}<span aria-hidden="true">↗</span></summary>
     {open && <div className="hex-cell-picker__controls">
-      <select className="focus-ring" aria-label="Celda de observación por coordenadas" value={selected?.id ?? ''}
+      <select className="focus-ring" aria-label="Observation cell by coordinates" value={selected?.id ?? ''}
         onChange={event => {
           const id = event.target.value || null;
           const details = event.currentTarget.closest<HTMLDetailsElement>('details');
@@ -57,20 +57,20 @@ function ObservationPicker({ observations, selected, onSelect }: Pick<Observatio
           }
           onSelect(id);
         }}>
-        <option value="">Selecciona una celda</option>
+        <option value="">Select a cell</option>
         {selected && !items.some(item => item.id === selected.id) && <option value={selected.id}>{coordinates(selected)}</option>}
         {items.map(item => <option key={item.id} value={item.id}>{coordinates(item)} · {number(getObservationValue(item))} {OBSERVATION_SCALES[item.variable].unit}</option>)}
       </select>
       <div className="hex-cell-picker__pagination">
-        <button className="focus-ring" type="button" aria-label="Página anterior de celdas" disabled={page === 0} onClick={() => setPage(page - 1)}>←</button>
-        <output aria-live="polite">{number(start + 1)}–{number(start + items.length)}<span> de {number(observations.length)}</span></output>
-        <button className="focus-ring" type="button" aria-label="Página siguiente de celdas" disabled={start + items.length >= observations.length} onClick={() => setPage(page + 1)}>→</button>
+        <button className="focus-ring" type="button" aria-label="Previous page of cells" disabled={page === 0} onClick={() => setPage(page - 1)}>←</button>
+        <output aria-live="polite">{number(start + 1)}–{number(start + items.length)}<span> of {number(observations.length)}</span></output>
+        <button className="focus-ring" type="button" aria-label="Next page of cells" disabled={start + items.length >= observations.length} onClick={() => setPage(page + 1)}>→</button>
       </div>
     </div>}
   </details>;
 }
 
-/** Valores anuales, distintos de una pendiente temporal. Hexágonos y calor comparten escala. */
+/** Annual values, distinct from a temporal slope. Hexagons and heatmap share the scale. */
 export function ObservationReadout({ observations, variable, year, source, provenance = null, mode, coverage, loading, error,
   selected, onSelect }: ObservationReadoutProps) {
   const scale = OBSERVATION_SCALES[variable];
@@ -81,21 +81,21 @@ export function ObservationReadout({ observations, variable, year, source, prove
   const value = cell ? getObservationValue(cell) : null;
   const ramp = Array.from({ length: 9 }, (_, i) => observationColorCss(variable, min + (max - min) * i / 8)).join(', ');
   const labels = descriptions[variable];
-  const scope = coverage === 'land' || variable === 'ModisNdvi' || variable === 'GraceMass' ? 'Superficie terrestre' : 'Tierra + océano';
-  return <section className="hex-readout observation-readout" aria-label="Lectura de observaciones"
+  const scope = coverage === 'land' || variable === 'ModisNdvi' || variable === 'GraceMass' ? 'Land surface' : 'Land + ocean';
+  return <section className="hex-readout observation-readout" aria-label="Observation readout"
     data-state={loading ? 'loading' : error ? 'error' : observations.length ? 'ready' : 'empty'}>
-    <div className="hex-readout__heading"><span>{mode === 'heat' ? 'Mapa de calor' : mode === 'hex' ? 'Hexágonos 3D' : 'Observaciones'} · {scope}</span><span title={partialYearNote(provenance, year) ? 'Año en curso: media de los meses publicados' : undefined}>{year}{partialYearNote(provenance, year) ? ` · ${partialYearNote(provenance, year)}` : ''}</span></div>
+    <div className="hex-readout__heading"><span>{mode === 'heat' ? 'Heatmap' : mode === 'hex' ? '3D Hexagons' : 'Observations'} · {scope}</span><span title={partialYearNote(provenance, year) ? 'Current year: average of published months' : undefined}>{year}{partialYearNote(provenance, year) ? ` · ${partialYearNote(provenance, year)}` : ''}</span></div>
     <div className="hex-readout__body" role="status" aria-live="polite" aria-atomic="true">
       {cell && value !== null ? <>
         <p className="hex-readout__coordinates">{coordinates(cell)}</p>
-        <p className="hex-readout__measurement"><strong style={{ color: observationColorCss(variable, value) }} title={`Valor recibido: ${value}`}>{number(value)}</strong><span>{scale.unit}</span></p>
+        <p className="hex-readout__measurement"><strong style={{ color: observationColorCss(variable, value) }} title={`Received value: ${value}`}>{number(value)}</strong><span>{scale.unit}</span></p>
         <p className="hex-readout__direction">{scale.label}</p>
       </> : <div className="hex-readout__count"><strong>{ready ? number(observations.length) : '—'}</strong>
-        <span>{loading ? 'Preparando…' : error ? 'Sin respuesta' : observations.length ? 'muestras anuales' : 'Sin observaciones'}</span></div>}
+        <span>{loading ? 'Preparing…' : error ? 'No response' : observations.length ? 'annual samples' : 'No observations'}</span></div>}
       {error && <p className="hex-readout__error">{error}</p>}
     </div>
     {ready && observations.length > 0 && mode !== 'none' && <>
-      <div className="hex-color-key" role="group" aria-label={`${scale.label}. Escala fija de ${number(min)} a ${number(max)} ${scale.unit}.`}>
+      <div className="hex-color-key" role="group" aria-label={`${scale.label}. Fixed scale from ${number(min)} to ${number(max)} ${scale.unit}.`}>
         <p className="hex-color-key__context">{scale.label}<span>{scale.unit}</span></p>
         <div className="hex-color-key__ramp" style={{ background: `linear-gradient(90deg, ${ramp})` }} aria-hidden="true">
           {min < 0 && <span className="hex-color-key__zero" />}
@@ -103,12 +103,12 @@ export function ObservationReadout({ observations, variable, year, source, prove
         </div>
         <div className="hex-color-key__scale" aria-hidden="true"><span>{number(min)}</span><span>{number((min + max) / 2)}</span><span>{number(max)}</span></div>
         <div className="hex-color-key__labels" aria-hidden="true">{labels.map((label, i) => <span key={i}>{label}</span>)}</div>
-        {variable === 'Gistemp' && <p className="hex-color-key__reference">Respecto al promedio de referencia</p>}
+        {variable === 'Gistemp' && <p className="hex-color-key__reference">Relative to baseline average</p>}
       </div>
-      <p className="observation-readout__method">{mode === 'heat' ? 'Media espacial suavizada · radio de 4°' : 'Altura normalizada · escala fija por variable'}</p>
+      <p className="observation-readout__method">{mode === 'heat' ? 'Smoothed spatial mean · 4° radius' : 'Normalized height · fixed scale per variable'}</p>
     </>}
     <p className="hex-readout__source" title={provenance?.citation}><span aria-hidden="true" />{source === 'demo'
-      ? 'Datos simulados · no son observaciones NASA' : provenanceLabel(provenance)}</p>
+      ? 'Simulated data · not NASA observations' : provenanceLabel(provenance)}</p>
     {ready && observations.length > 0 && mode === 'hex' && <ObservationPicker key={variable} observations={observations} selected={cell} onSelect={onSelect} />}
   </section>;
 }

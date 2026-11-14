@@ -4,8 +4,8 @@ using NasaTrendDetective.Infrastructure.Interfaces;
 namespace NasaTrendDetective.Infrastructure.Etl;
 
 /// <summary>
-/// Lector CSV basado en read_csv de DuckDB. Lee todo como VARCHAR para que la validación y
-/// el tipado los haga el normalizador de forma uniforme (valores basura => fila descartada).
+/// CSV reader based on DuckDB read_csv. Reads all columns as VARCHAR so validation and
+/// typing are handled uniformly by the normalizer (garbage values => discarded row).
 /// </summary>
 public sealed class CsvRawDatasetReader : IRawDatasetReader
 {

@@ -3,13 +3,13 @@ using NasaTrendDetective.Infrastructure.Etl.Models;
 namespace NasaTrendDetective.Infrastructure.Etl;
 
 /// <summary>
-/// Opciones de la etapa de limpieza (sección "GridNormalization:Cleaning"). Las reglas se indexan
-/// por nombre del enum ClimateVariable (p.ej. "ModisNdvi").
+/// Cleaning stage configuration options ("GridNormalization:Cleaning" section). Rules are indexed
+/// by ClimateVariable enum name (e.g. "ModisNdvi").
 /// </summary>
 public sealed class DataCleaningOptions
 {
     /// <summary>
-    /// Banderas de dato faltante habituales en productos NASA; siempre se tratan como NULL.
+    /// Common missing-value flags in NASA products; always treated as NULL.
     /// </summary>
     public static readonly IReadOnlyList<double> StandardFillValues = [-9999, 9999];
 
@@ -29,7 +29,7 @@ public sealed class DataCleaningOptions
         if (rule?.MinValidValue > rule?.MaxValidValue)
         {
             throw new InvalidOperationException(
-                $"Rango válido inconsistente para '{variableName}': "
+                $"Inconsistent valid range for '{variableName}': "
                 + $"MinValidValue ({rule!.MinValidValue}) > MaxValidValue ({rule.MaxValidValue}).");
         }
 

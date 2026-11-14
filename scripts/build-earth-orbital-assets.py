@@ -1,8 +1,8 @@
-"""Genera luces NASA Black Marble y una máscara de nubes separada.
+"""Generates NASA Black Marble lights and a separate cloud mask.
 
-Uso: python scripts/build-earth-orbital-assets.py
-Requiere Pillow. Originales en output/earth-source; sólo derivados en public/earth.
-No modifica la base diurna, elevación, máscara de agua ni código de render.
+Usage: python scripts/build-earth-orbital-assets.py
+Requires Pillow. Originals stored in output/earth-source; only derived assets in public/earth.
+Does not modify daytime base, elevation, water mask, or render code.
 """
 from __future__ import annotations
 
@@ -34,7 +34,7 @@ SOURCES = {
     },
     "cloud_combined_2048.jpg": {
         "url": "https://eoimages.gsfc.nasa.gov/images/imagerecords/57000/57747/cloud_combined_2048.jpg",
-        "product": "NASA Blue Marble: Clouds, publicación de 2002",
+        "product": "NASA Blue Marble: Clouds, 2002 release",
         "organization": "NASA Goddard Space Flight Center; Reto Stöckli, Robert Simmon; Terra / MODIS",
         "dimensions": [2048, 1024],
         "mode": "RGB",
@@ -57,10 +57,10 @@ def fetch_sources() -> dict:
             with urllib.request.urlopen(request, timeout=120) as response:
                 path.write_bytes(response.read())
         if digest(path) != spec["sha256"]:
-            raise ValueError(f"La fuente cambió; revisar antes de continuar: {path}")
+            raise ValueError(f"Source has changed; review before proceeding: {path}")
         with Image.open(path) as source:
             if list(source.size) != spec["dimensions"] or source.mode != spec["mode"]:
-                raise ValueError(f"Formato o dimensiones inesperadas: {path}")
+                raise ValueError(f"Unexpected format or dimensions: {path}")
         records[name] = {**spec, "bytes": path.stat().st_size}
     return records
 
@@ -72,8 +72,8 @@ def main() -> None:
     DOCUMENTATION.mkdir(parents=True, exist_ok=True)
 
     with Image.open(CACHE / "black-marble-2016-lights-source.png") as source:
-        # NASA entrega luces con transparencia: se compone sobre negro ANTES
-        # de reducir, sin extraer luces mediante umbrales de una imagen terrestre.
+        # NASA provides lights with transparency: composited over black BEFORE
+        # downscaling, without thresholding lights out of an Earth image.
         black = Image.new("RGBA", source.size, (0, 0, 0, 255))
         black.alpha_composite(source)
         lights = black.convert("RGB")
@@ -84,8 +84,8 @@ def main() -> None:
             )
 
     with Image.open(CACHE / "cloud_combined_2048.jpg") as source:
-        # El brillo del mapa gris se utiliza como cobertura visual, no albedo.
-        # Sin gamma, umbral, contraste, nubes generadas ni terreno incorporado.
+        # Grayscale map brightness is used as visual coverage, not albedo.
+        # No gamma, thresholding, contrast adjustments, procedural clouds, or baked terrain.
         mask = source.convert("L")
         for width in (2048, 1024):
             output = mask if width == mask.width else mask.resize(

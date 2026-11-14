@@ -12,8 +12,8 @@ export interface LiveSystemSwitchesProps {
 }
 
 /**
- * Controles interactivos para las dinámicas vivas del planeta y capas avanzadas.
- * Sustituye marcadores estáticos por controles operativos en tiempo real.
+ * Interactive controls for live planetary dynamics and advanced layers.
+ * Replaces static placeholders with real-time operational toggles.
  */
 export function LiveSystemSwitches({
   oceanFlowVisible,
@@ -28,26 +28,26 @@ export function LiveSystemSwitches({
   return (
     <div className="live-systems-switches space-y-2">
       <InstrumentSwitch
-        label="Corrientes oceánicas"
-        description="Flujos marinos animados en 3D (NASA ECCO/OSCAR)"
+        label="Ocean currents"
+        description="Animated 3D marine flows (NASA ECCO/OSCAR)"
         checked={oceanFlowVisible}
         onChange={onOceanFlowChange}
       />
       <InstrumentSwitch
-        label="Teleconexiones 3D"
-        description="Arcos orbitales de transporte (ENSO, AMOC, Sahara)"
+        label="3D Teleconnections"
+        description="Orbital transport arcs (ENSO, AMOC, Sahara)"
         checked={teleconnectionsVisible}
         onChange={onTeleconnectionsChange}
       />
       <InstrumentSwitch
-        label="Ondas radar en hotspots"
-        description="Pulsos expansivos sobre anomalías climáticas extremas"
+        label="Hotspot radar ripples"
+        description="Expanding pulses over extreme climate anomalies"
         checked={radarRipplesVisible}
         onChange={onRadarRipplesChange}
       />
       <InstrumentSwitch
-        label="Constelación satelital"
-        description="Órbitas reales de Terra, Aqua, GRACE-FO y OCO-2"
+        label="Satellite constellation"
+        description="Real-time orbits of Terra, Aqua, GRACE-FO, and OCO-2"
         checked={satellitesVisible}
         onChange={onSatellitesChange}
       />

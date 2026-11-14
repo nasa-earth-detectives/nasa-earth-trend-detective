@@ -1,6 +1,6 @@
 import type { ClimateVariable } from '../types/climate.types';
 
-/** Lenguaje de presentación; no añade datos ni modifica los contratos científicos. */
+/** Presentation layer language; adds no data and does not modify scientific contracts. */
 interface ObservationLens {
   symbol: string;
   domain: string;
@@ -10,12 +10,12 @@ interface ObservationLens {
 }
 
 export const OBSERVATION_LENSES: Record<ClimateVariable, ObservationLens> = {
-  Gistemp: { symbol: 'T°', domain: 'Tierra + océano', medium: 'Temperatura superficial',
-    focus: 'Anomalía térmica', band: 'surface' },
-  ModisNdvi: { symbol: 'NDVI', domain: 'Biosfera', medium: 'Vegetación',
-    focus: 'Actividad fotosintética', band: 'biosphere' },
-  GraceMass: { symbol: 'H₂O', domain: 'Agua + hielo', medium: 'Reservas de agua',
-    focus: 'Variación de masa', band: 'water' },
-  Oco2: { symbol: 'XCO₂', domain: 'Atmósfera', medium: 'Columna atmosférica',
-    focus: 'Concentración de CO₂', band: 'atmosphere' },
+  Gistemp: { symbol: 'T°', domain: 'Land + ocean', medium: 'Surface temperature',
+    focus: 'Thermal anomaly', band: 'surface' },
+  ModisNdvi: { symbol: 'NDVI', domain: 'Biosphere', medium: 'Vegetation',
+    focus: 'Photosynthetic activity', band: 'biosphere' },
+  GraceMass: { symbol: 'H₂O', domain: 'Water + ice', medium: 'Water reserves',
+    focus: 'Mass variation', band: 'water' },
+  Oco2: { symbol: 'XCO₂', domain: 'Atmosphere', medium: 'Atmospheric column',
+    focus: 'CO₂ concentration', band: 'atmosphere' },
 };

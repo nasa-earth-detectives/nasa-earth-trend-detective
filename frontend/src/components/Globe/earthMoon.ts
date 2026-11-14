@@ -6,12 +6,12 @@ import { GLOBE_RADIUS } from './globeConfig';
 import { lunarDirection } from './lunarPosition';
 
 /**
- * La Luna en su dirección real de este instante, con la textura y el relieve del LRO (CGI Moon Kit,
- * NASA SVS). La fase no se calcula: sale sola porque la ilumina la misma luz solar que a la Tierra.
+ * The Moon in its real direction at this instant, textured and bumped with LRO data (CGI Moon Kit,
+ * NASA SVS). The lunar phase is not manually calculated: it emerges naturally lit by the same sun as Earth.
  *
- * Ilustrativo: la distancia se comprime a 14 radios terrestres (la real es ~60) para que quepa
- * dentro del cielo de la escena; el tamaño es el real (0,273 R), así que se ve unas 4 veces mayor
- * que desde la Tierra. Siempre muestra la misma cara a la Tierra (acoplamiento de marea).
+ * Illustrative: distance is compressed to 14 Earth radii (real distance is ~60) so it fits
+ * within the scene sky; radius is true scale (0.273 R), appearing about 4 times larger
+ * than seen from Earth. It always tidally locks the same face toward Earth.
  */
 export const EARTH_MOON_CONFIG = {
   radius: GLOBE_RADIUS * (1737.4 / 6371),
@@ -23,17 +23,17 @@ const base = import.meta.env.BASE_URL;
 export function createEarthMoon(scene: Scene) {
   const loader = new TextureLoader();
   const material = new MeshStandardMaterial({ roughness: 1, metalness: 0 });
-  // Si una textura no llega, el material se queda sin ella (Luna gris lisa) en vez de muestrear una
-  // imagen vacía: así se ve algo razonable y el fallo queda en la consola.
+  // If a texture fails to load, material stays without it (plain gray Moon) rather than sampling
+  // an empty image: keeps rendering reasonable while logging the failure to console.
   const color = loader.load(`${base}earth/moon/lroc-color-2k.jpg`, undefined, undefined, (error) => {
-    console.warn('Textura de la Luna no disponible; se usa gris liso.', error);
+    console.warn('Moon texture unavailable; using fallback gray.', error);
     material.map = null;
     material.color.setScalar(0.55);
     material.needsUpdate = true;
   });
   color.colorSpace = SRGBColorSpace;
   const normal = loader.load(`${base}earth/moon/ldem-normal-1k.jpg`, undefined, undefined, (error) => {
-    console.warn('Relieve de la Luna no disponible; se dibuja sin él.', error);
+    console.warn('Moon normal map unavailable; rendering without relief.', error);
     material.normalMap = null;
     material.needsUpdate = true;
   });
@@ -53,14 +53,14 @@ export function createEarthMoon(scene: Scene) {
   const place = (): void => {
     lunarDirection(Date.now(), direction);
     moon.position.copy(direction).multiplyScalar(EARTH_MOON_CONFIG.distance);
-    // En SphereGeometry la longitud 0 del mapa (u = 0,5) queda en +X: ese eje mira a la Tierra.
+    // In SphereGeometry, map longitude 0 (u = 0.5) lies along +X: that axis faces Earth.
     toEarth.copy(direction).negate();
     north.set(0, 1, 0).addScaledVector(toEarth, -toEarth.y).normalize();
     east.crossVectors(toEarth, north);
     moon.quaternion.setFromRotationMatrix(basis.makeBasis(toEarth, north, east));
   };
   place();
-  // Se mueve ~0,25° por minuto respecto a la Tierra: basta recolocarla cuando se dibuja.
+  // Moves ~0.25° per minute relative to Earth: repositioning on render is sufficient.
   moon.onBeforeRender = place;
   scene.add(moon);
 

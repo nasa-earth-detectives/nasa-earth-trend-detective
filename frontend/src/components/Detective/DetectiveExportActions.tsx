@@ -13,7 +13,7 @@ interface DetectiveExportActionsProps {
   isObserved: boolean;
 }
 
-/** Acciones de exportación de datos (CSV) y enlace compartible regional. */
+/** Data export actions (CSV) and regional shareable link. */
 export function DetectiveExportActions({
   seriesData,
   variable,
@@ -53,8 +53,8 @@ export function DetectiveExportActions({
       setCopied(true);
       setTimeout(() => setCopied(false), 2500);
     }).catch(() => {
-      // Fallback si clipboard API no tiene permisos
-      prompt('Copia este enlace de análisis:', url.toString());
+      // Fallback if Clipboard API lacks permissions
+      prompt('Copy this analysis link:', url.toString());
     });
   }, [variable, location, year]);
 
@@ -65,29 +65,29 @@ export function DetectiveExportActions({
         className="inspection-action-btn focus-ring"
         onClick={handleDownloadCsv}
         disabled={!seriesData.length}
-        title="Descargar serie temporal en formato CSV"
-        aria-label="Descargar serie temporal en formato CSV"
+        title="Download time series as CSV"
+        aria-label="Download time series as CSV"
       >
         <Download size={14} strokeWidth={2} aria-hidden="true" />
-        <span>Descargar CSV</span>
+        <span>Download CSV</span>
       </button>
 
       <button
         type="button"
         className={`inspection-action-btn focus-ring ${copied ? 'is-copied' : ''}`}
         onClick={handleShareUrl}
-        title="Copiar enlace compartible con esta región y variable"
-        aria-label={copied ? 'Enlace copiado al portapapeles' : 'Copiar enlace compartible'}
+        title="Copy shareable link for this region and variable"
+        aria-label={copied ? 'Link copied to clipboard' : 'Copy shareable link'}
       >
         {copied ? (
           <>
             <Check size={14} strokeWidth={2} aria-hidden="true" />
-            <span aria-live="polite">¡Copiado!</span>
+            <span aria-live="polite">Copied!</span>
           </>
         ) : (
           <>
             <Share2 size={14} strokeWidth={2} aria-hidden="true" />
-            <span>Compartir</span>
+            <span>Share</span>
           </>
         )}
       </button>

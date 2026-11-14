@@ -21,6 +21,6 @@ public class TrendResultDto
     public double[] ConfidenceInterval95 { get; set; } = Array.Empty<double>();
     public IReadOnlyList<AnnualObservation>? Observations { get; set; }
 
-    /// <summary>"observed" (DuckDB) o "synthetic" (serie de demostración: la variable no tiene dataset).</summary>
+    /// <summary>"observed" (DuckDB) or "synthetic" (demonstration series: the variable has no loaded dataset).</summary>
     public string Source { get; set; } = DatasetStatusDto.Synthetic;
 }

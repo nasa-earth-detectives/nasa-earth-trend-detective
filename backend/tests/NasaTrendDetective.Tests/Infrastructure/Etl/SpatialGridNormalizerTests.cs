@@ -68,7 +68,7 @@ public class SpatialGridNormalizerTests
         var result = await context.Normalizer.NormalizeAsync(new(csv, ClimateVariable.Gistemp));
         var coords = await context.ReadCoordinatesAsync(result.OutputPath);
 
-        // La fila sin valor no se descarta: queda como NULL analítico (etapa de limpieza S1-T2.3).
+        // The row without a value is not discarded: it remains as an analytical NULL (cleaning stage S1-T2.3).
         Assert.Equal(11, result.SourceRows);
         Assert.Equal(3, result.RowsWritten);
         Assert.Equal(8, result.RowsDiscarded);

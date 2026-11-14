@@ -1,6 +1,6 @@
 import type { ClimateVariable } from './climate.types';
 
-/** Una columna representa una tendencia en una ubicación, nunca elevación del terreno. */
+/** A column represents a trend at a location, never terrain elevation. */
 export interface HexCell {
   id: string;
   latitude: number;
@@ -8,7 +8,7 @@ export interface HexCell {
   slope: number;
 }
 
-/** Frontera entre la fuente de datos y la escena. No contiene objetos de Three.js. */
+/** Boundary between data source and scene. Contains no Three.js objects. */
 export interface HexDataset {
   cells: HexCell[];
   variable: ClimateVariable;
@@ -16,8 +16,8 @@ export interface HexDataset {
   endYear: number;
   unit: string;
   source: 'demo' | 'api';
-  /** Magnitud que llena la escala vertical; permanece fija al cambiar las fechas. */
+  /** Magnitude that fills the vertical scale; remains fixed when dates change. */
   heightDomain: number;
-  /** Separación nominal de centros; la huella visual no implica una cobertura NASA. */
+  /** Nominal center spacing; visual footprint does not imply NASA coverage. */
   resolutionDegrees: number;
 }

@@ -1,7 +1,7 @@
 namespace NasaTrendDetective.Infrastructure.ExternalServices;
 
 /// <summary>
-/// Error de comunicación o de integridad al consultar/descargar datos de NASA EarthData.
+/// Communication or data integrity error when querying or downloading from NASA EarthData.
 /// </summary>
 public class NasaEarthDataException : Exception
 {
@@ -17,13 +17,13 @@ public class NasaEarthDataException : Exception
 }
 
 /// <summary>
-/// Se lanza cuando una operación requiere token de Earthdata Login y no hay uno configurado.
+/// Thrown when an operation requires an Earthdata Login token and none is configured.
 /// </summary>
 public sealed class NasaEarthDataAuthenticationException : NasaEarthDataException
 {
     public NasaEarthDataAuthenticationException()
-        : base($"La operación requiere un token de Earthdata Login. Define la variable de entorno " +
-               $"{NasaEarthDataOptions.TokenEnvironmentVariable} o la clave " +
+        : base($"The operation requires an Earthdata Login token. Set the environment variable " +
+               $"{NasaEarthDataOptions.TokenEnvironmentVariable} or configuration key " +
                $"{NasaEarthDataOptions.SectionName}:Token (https://urs.earthdata.nasa.gov/profile).")
     {
     }

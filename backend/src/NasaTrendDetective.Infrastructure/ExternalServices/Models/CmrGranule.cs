@@ -1,7 +1,7 @@
 namespace NasaTrendDetective.Infrastructure.ExternalServices.Models;
 
 /// <summary>
-/// Metadatos mínimos de un granule devuelto por la búsqueda CMR.
+/// Minimal metadata for a granule returned by a CMR search.
 /// </summary>
 public sealed record CmrGranule(
     string Id,

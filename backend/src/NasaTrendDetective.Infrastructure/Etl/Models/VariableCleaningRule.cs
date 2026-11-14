@@ -1,23 +1,23 @@
 namespace NasaTrendDetective.Infrastructure.Etl.Models;
 
 /// <summary>
-/// Regla de limpieza configurable para una variable: fill values propios y rango físico válido.
-/// Los valores fuera de rango o marcados como relleno pasan a NULL analítico (no se descartan filas).
+/// Configurable cleaning rule for a variable: variable-specific fill values and valid physical range.
+/// Out-of-range or fill values are converted to analytical NULL (rows are not dropped).
 /// </summary>
 public sealed class VariableCleaningRule
 {
     /// <summary>
-    /// Valores de bandera adicionales a los estándar (-9999, 9999) y a NaN/Infinito.
+    /// Additional flag values beyond standards (-9999, 9999) and NaN/Infinity.
     /// </summary>
     public List<double> FillValues { get; set; } = [];
 
     /// <summary>
-    /// Límite inferior físicamente posible (inclusive), p.ej. -1 para NDVI. Null = sin límite.
+    /// Physically plausible lower bound (inclusive), e.g. -1 for NDVI. Null = unbounded.
     /// </summary>
     public double? MinValidValue { get; set; }
 
     /// <summary>
-    /// Límite superior físicamente posible (inclusive), p.ej. 1 para NDVI. Null = sin límite.
+    /// Physically plausible upper bound (inclusive), e.g. 1 for NDVI. Null = unbounded.
     /// </summary>
     public double? MaxValidValue { get; set; }
 }

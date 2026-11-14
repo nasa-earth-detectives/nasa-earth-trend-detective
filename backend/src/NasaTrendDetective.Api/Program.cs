@@ -9,14 +9,14 @@ using NasaTrendDetective.Infrastructure.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Soporte dinámico para puerto en entornos Cloud (Render, Docker, Kubernetes)
+// Dynamic port support for cloud environments (Render, Docker, Kubernetes)
 var renderPort = Environment.GetEnvironmentVariable("PORT");
 if (!string.IsNullOrWhiteSpace(renderPort))
 {
     builder.WebHost.UseUrls($"http://*:{renderPort}");
 }
 
-// 1. Inyección de Dependencias (Servicios, Repositorios y Caché)
+// 1. Dependency Injection (Services, Repositories, and Cache)
 builder.Services.AddControllers();
 builder.Services.AddMemoryCache();
 builder.Services.AddScoped<ITrendAnalysisService, TrendAnalysisService>();
@@ -25,8 +25,8 @@ builder.Services.AddScoped<IGridTrendService, GridTrendService>();
 builder.Services.AddScoped<IDatasetCatalogService, DatasetCatalogService>();
 builder.Services.AddInfrastructure(builder.Configuration);
 
-// La grilla de tendencias y las observaciones anuales son JSON de varios MB y muy repetitivos.
-// Solo viajan datos públicos (ni sesiones ni secretos), así que comprimir sobre HTTPS no expone nada.
+// The trend grid and annual observations are multi-megabyte, highly repetitive JSON payloads.
+// Only public data is transmitted (no sessions or secrets), so HTTPS compression poses no security risk.
 builder.Services.AddResponseCompression(options =>
 {
     options.EnableForHttps = true;
@@ -36,7 +36,7 @@ builder.Services.AddResponseCompression(options =>
 builder.Services.Configure<BrotliCompressionProviderOptions>(options => options.Level = CompressionLevel.Fastest);
 builder.Services.Configure<GzipCompressionProviderOptions>(options => options.Level = CompressionLevel.Fastest);
 
-// 2. Parámetros Dinámicos de Rate Limiting (Regla 6 y Regla 8)
+// 2. Dynamic Rate Limiting Parameters
 var globalLimit = builder.Configuration.GetValue<int>("RateLimiting:GlobalPermitLimit", 300);
 var heavyLimit = builder.Configuration.GetValue<int>("RateLimiting:HeavyAnalysisPermitLimit", 60);
 var windowSeconds = builder.Configuration.GetValue<int>("RateLimiting:WindowSeconds", 60);
@@ -52,7 +52,7 @@ builder.Services.AddRateLimiter(options =>
             token);
     };
 
-    // Límite Global particionado por IP
+    // Global limit partitioned by IP
     options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(context =>
     {
         var clientIp = context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
@@ -64,7 +64,7 @@ builder.Services.AddRateLimiter(options =>
         });
     });
 
-    // Política Estricta para consultas analíticas pesadas (Mann-Kendall / Sen)
+    // Strict policy for heavy analytical queries (Mann-Kendall / Sen)
     options.AddPolicy("HeavyAnalysis", context =>
     {
         var clientIp = context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
@@ -77,7 +77,7 @@ builder.Services.AddRateLimiter(options =>
     });
 });
 
-// 3. Configuración de CORS
+// 3. CORS Configuration
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
@@ -90,7 +90,7 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-// 4. Pipeline HTTP y Middlewares
+// 4. HTTP Pipeline and Middlewares
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseResponseCompression();
 app.UseCors("AllowFrontend");
@@ -101,5 +101,5 @@ app.MapControllers();
 
 app.Run();
 
-// Requerido para pruebas de integración con WebApplicationFactory<Program>
+// Required for integration testing with WebApplicationFactory<Program>
 public partial class Program { }

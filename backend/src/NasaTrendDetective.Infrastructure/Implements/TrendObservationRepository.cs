@@ -9,12 +9,12 @@ using NasaTrendDetective.Infrastructure.Interfaces;
 namespace NasaTrendDetective.Infrastructure.Implements;
 
 /// <summary>
-/// Lecturas de observaciones reales en DuckDB. No rellena con datos sintéticos: si no hay filas
-/// devuelve una lista vacía y es el servicio, que conoce el catálogo, quien decide qué mostrar.
+/// Real observation queries from DuckDB. Does not fill with synthetic data: if no rows exist,
+/// it returns an empty list, and the service (which knows the catalog) decides what to display.
 /// </summary>
 public class TrendObservationRepository : ITrendObservationRepository
 {
-    /// <summary>Misma regla que el análisis por celda: un año incompleto no entra en la serie.</summary>
+    /// <summary>Same rule as cell-level analysis: an incomplete year is not included in the series.</summary>
     private const int MinMonthsPerYear = GridTrendService.MinMonthsPerYear;
 
     private readonly IDuckDbRepository _repository;
@@ -51,8 +51,8 @@ public class TrendObservationRepository : ITrendObservationRepository
             parameters["maxLng"] = longitude.Value + toleranceDegrees;
         }
 
-        // count(DISTINCT month): la ventana puede abarcar varias celdas, y lo que importa es cuántos
-        // meses del año están representados, no cuántas filas hay.
+        // count(DISTINCT month): the spatial window may span multiple cells; what matters is how many
+        // months of the year are represented, not the total row count.
         var sql = $"""
             SELECT
                 CAST(year AS INTEGER) AS obs_year,
@@ -80,8 +80,8 @@ public class TrendObservationRepository : ITrendObservationRepository
             ["year"] = year
         };
 
-        // Una fila por celda (media de los meses disponibles). Antes se devolvía una fila por mes con
-        // LIMIT 5000: la misma celda aparecía hasta 12 veces y la grilla quedaba recortada al azar.
+        // One row per cell (average across available months). Previously returned one row per month with
+        // LIMIT 5000: the same cell appeared up to 12 times and the grid was arbitrarily truncated.
         const string sql = """
             SELECT
                 CAST(latitude AS DOUBLE) AS lat,
@@ -112,7 +112,7 @@ public class TrendObservationRepository : ITrendObservationRepository
         var anomaly = record.IsDBNull(3) ? (double?)null : record.GetDouble(3);
         return new TrendObservation
         {
-            // Determinista y único por celda: el frontend rechaza identificadores repetidos.
+            // Deterministic and unique per cell: frontend rejects duplicate identifiers.
             Id = string.Create(CultureInfo.InvariantCulture, $"{variable}:{year}:{latitude:F3}:{longitude:F3}"),
             Variable = variable,
             Latitude = latitude,

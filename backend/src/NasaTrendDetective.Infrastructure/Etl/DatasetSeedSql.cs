@@ -1,8 +1,8 @@
 namespace NasaTrendDetective.Infrastructure.Etl;
 
 /// <summary>
-/// SQL del sembrado. Las rutas van como literal escapado porque read_parquet no acepta parámetros
-/// preparados para la ruta; todo lo demás se enlaza por nombre.
+/// Seeding SQL statements. File paths are escaped literals because read_parquet does not
+/// accept prepared parameters for the path; everything else is bound by parameter name.
 /// </summary>
 internal static class DatasetSeedSql
 {
@@ -27,8 +27,8 @@ internal static class DatasetSeedSql
         """;
 
     /// <summary>
-    /// Variables presentes en el Parquet: debe contener solo la del manifiesto, o reemplazar una
-    /// variable borraría o mezclaría hechos de otra.
+    /// Distinct variables present in the Parquet: must contain only the variable declared in the manifest;
+    /// otherwise replacing one variable could delete or corrupt facts from another.
     /// </summary>
     public static string DistinctVariables(string parquetPath) =>
         $"SELECT DISTINCT CAST(variable_id AS INTEGER) FROM read_parquet({DuckDbSqlText.Literal(parquetPath)})";

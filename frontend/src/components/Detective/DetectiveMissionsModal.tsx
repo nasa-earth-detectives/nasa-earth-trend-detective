@@ -21,55 +21,55 @@ export interface MissionPreset {
 export const DEMO_MISSIONS: MissionPreset[] = [
   {
     id: 'arctic-amplification',
-    title: 'Amplificación Ártica',
-    tag: 'Datos Reales GISTEMP',
+    title: 'Arctic Amplification',
+    tag: 'Real GISTEMP Data',
     icon: Flame,
     accent: '#ff5533',
     variable: 'Gistemp',
     location: { lat: 73.0, lng: -40.0 },
     year: 2024,
-    highlightText: '+0.72 °C / década (p < 0.001)',
-    description: 'El calentamiento polar supera por 4x el promedio global debido a la pérdida de reflectividad albedo en el hielo marino.',
-    scientificContext: 'GISTEMP v4 · Observación Real de la NASA',
+    highlightText: '+0.72 °C / decade (p < 0.001)',
+    description: 'Polar warming exceeds the global average by 4x due to sea ice albedo reflectivity loss.',
+    scientificContext: 'GISTEMP v4 · Real NASA Observation',
   },
   {
     id: 'greenland-ice-melt',
-    title: 'Deshielo en Groenlandia',
-    tag: 'Masa Satelital GRACE',
+    title: 'Greenland Ice Melt',
+    tag: 'GRACE Satellite Mass',
     icon: Snowflake,
     accent: '#00d2ff',
     variable: 'GraceMass',
     location: { lat: 71.0, lng: -42.5 },
     year: 2023,
-    highlightText: '-262 Gt / año de pérdida',
-    description: 'Micro-anomalías del campo gravitatorio terrestre confirman el desprendimiento sostenido de los casquetes glaciares.',
-    scientificContext: 'GRACE / GRACE-FO · Misión de Gravedad NASA/GFZ',
+    highlightText: '-262 Gt / year loss',
+    description: 'Micro-anomalies in Earth’s gravitational field confirm sustained ice-sheet mass loss.',
+    scientificContext: 'GRACE / GRACE-FO · NASA/GFZ Gravity Mission',
   },
   {
     id: 'sahel-greening',
-    title: 'Reverdecimiento del Sahel',
-    tag: 'Vegetación MODIS',
+    title: 'Sahel Greening',
+    tag: 'MODIS Vegetation',
     icon: Trees,
     accent: '#10b981',
     variable: 'ModisNdvi',
     location: { lat: 14.5, lng: 1.5 },
     year: 2022,
-    highlightText: '+0.015 NDVI / década',
-    description: 'Aumento de vigor foliar en el borde sur del Sahara por variaciones meridionales en el cinturón de lluvias monzónicas.',
-    scientificContext: 'MODIS Terra/Aqua · Índice de Vegetación NDVI',
+    highlightText: '+0.015 NDVI / decade',
+    description: 'Increased leaf vigor on the southern edge of the Sahara driven by meridional shifts in the monsoon rain belt.',
+    scientificContext: 'MODIS Terra/Aqua · NDVI Vegetation Index',
   },
   {
     id: 'mauna-loa-co2',
-    title: 'Forzamiento por CO₂ en Mauna Loa',
-    tag: 'Espectrometría OCO-2',
+    title: 'CO₂ Forcing at Mauna Loa',
+    tag: 'OCO-2 Spectrometry',
     icon: Factory,
     accent: '#ec4899',
     variable: 'Oco2',
     location: { lat: 19.5, lng: -155.5 },
     year: 2024,
-    highlightText: '> 422 ppm en columna',
-    description: 'Fracción molar media de dióxido de carbono troposférico con tendencia monotónica creciente sin precedentes.',
-    scientificContext: 'OCO-2 / OCO-3 · Espectrómetro de Rejilla NASA',
+    highlightText: '> 422 ppm column average',
+    description: 'Mean tropospheric carbon dioxide mole fraction showing an unprecedented monotonic upward trend.',
+    scientificContext: 'OCO-2 / OCO-3 · NASA Grating Spectrometer',
   },
 ];
 
@@ -98,13 +98,13 @@ export function DetectiveMissionsModal({ open, onClose, onSelectMission }: Detec
       <div className="detective-modal-card" onClick={e => e.stopPropagation()} ref={modalRef}>
         <header className="detective-modal-header">
           <div>
-            <span className="detective-modal-eyebrow">NASA Space Apps 2026 · Demostración Oficial</span>
-            <h2 id="missions-title">Misiones de Detective Preconfiguradas</h2>
+            <span className="detective-modal-eyebrow">NASA Space Apps 2026 · Official Demo</span>
+            <h2 id="missions-title">Preconfigured Detective Missions</h2>
             <p className="detective-modal-desc">
-              Selecciona un caso de estudio para volar inmediatamente la cámara a la coordenada exacta y analizar la evidencia.
+              Select a case study to fly the camera directly to the exact coordinates and analyze the evidence.
             </p>
           </div>
-          <button type="button" onClick={onClose} className="detective-modal-close focus-ring" aria-label="Cerrar ventana">
+          <button type="button" onClick={onClose} className="detective-modal-close focus-ring" aria-label="Close modal">
             <X size={20} strokeWidth={1.5} />
           </button>
         </header>
@@ -119,7 +119,7 @@ export function DetectiveMissionsModal({ open, onClose, onSelectMission }: Detec
                     <Icon size={14} />
                     <span>{mission.tag}</span>
                   </div>
-                  <span className="detective-mission-year">Año {mission.year}</span>
+                  <span className="detective-mission-year">Year {mission.year}</span>
                 </div>
 
                 <h3>{mission.title}</h3>
@@ -135,7 +135,7 @@ export function DetectiveMissionsModal({ open, onClose, onSelectMission }: Detec
                     onClose();
                   }}
                 >
-                  <span>Investigar caso</span>
+                  <span>Investigate case</span>
                   <ChevronRight size={16} />
                 </button>
               </article>

@@ -1,5 +1,5 @@
 /* ==============================================================================
-   Ventanas Modales de Detective: Misiones Preconfiguradas y Glosario Escolar
+   Detective Modal Dialogs: Preconfigured Missions and Educational Glossary
    ============================================================================== */
 
 .detective-modal-backdrop {
@@ -93,7 +93,7 @@
   color: #f8fafc;
 }
 
-/* Grilla de Misiones */
+/* Missions Grid */
 .detective-missions-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
@@ -198,7 +198,7 @@
   color: #030712;
 }
 
-/* Glosario */
+/* Glossary */
 .detective-glossary-list {
   display: flex;
   flex-direction: column;

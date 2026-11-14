@@ -1,12 +1,12 @@
 /**
- * Orquesta el detalle satelital según la altitud de la cámara.
+ * Orchestrates satellite detail levels based on camera altitude.
  *
- * En órbita manda la superficie calibrada (día/noche, nubes, atmósfera). Al acercar:
- * Blue Marble por mosaicos (≤611 m/px), después Landsat WELD (≤38 m/px), luces de VIIRS
- * en la cara nocturna, las nubes 2K se retiran y el plano cercano baja.
+ * In orbit the calibrated surface rules (day/night, clouds, atmosphere). Upon zoom:
+ * tiled Blue Marble (≤611 m/px), followed by Landsat WELD (≤38 m/px), VIIRS night lights
+ * on the night side, 2K clouds fade out, and near clipping plane contracts.
  *
- * Coste acotado: las opacidades se ajustan como mucho una vez por frame y sólo si la
- * cámara cambió; la búsqueda de mosaicos, como mucho cada `REFRESH_INTERVAL_MS`.
+ * Bounded performance cost: opacities update at most once per frame and only when the
+ * camera moved; tile lookups run at most every `REFRESH_INTERVAL_MS`.
  */
 import { Mesh, PerspectiveCamera, Vector3 } from 'three';
 import type { GlobeInstance } from 'globe.gl';
@@ -20,10 +20,10 @@ interface DetailSurface {
   setCloudFade(fade: number): void;
 }
 
-/** Buscar mosaicos en cada frame de un giro no aporta nada: llegan por red igualmente. */
+/** Querying tiles on every frame of a spin adds nothing: network latency bounds loading anyway. */
 const REFRESH_INTERVAL_MS = 120;
 
-/** 0 por encima de `start`, 1 por debajo de `end`, con transición suave. */
+/** 0 above `start`, 1 below `end`, with smooth hermite interpolation. */
 function fadeBelow(altitude: number, start: number, end: number): number {
   const t = Math.min(1, Math.max(0, (start - altitude) / (start - end)));
   return t * t * (3 - 2 * t);
@@ -43,26 +43,26 @@ export function createEarthDetailTiles(globe: GlobeInstance, container: HTMLElem
       shared: { fade: { value: 0 }, sunDirection, exaggeration },
     });
   const blueMarble = layer(EARTH_TILE_SOURCES.blueMarble, config.blueMarbleRadius, config.renderOrder.blueMarble);
-  // Con Esri visible de noche, las luces de VIIRS se dibujan encima y sólo como luces (fondo
-  // transparente): se ven sobre la imagen oscurecida en lugar de quedar tapadas por ella.
+  // With Esri visible at night, VIIRS lights render on top and strictly as lights (transparent
+  // background): visible over the darkened image rather than obscured by it.
   const esriNight = EARTH_HIGH_RES.source.allSides === true;
   const nightLights = layer({ ...EARTH_TILE_SOURCES.nightLights, lightsOnly: esriNight }, config.nightLightsRadius,
     esriNight ? config.renderOrder.landsat + 0.05 : config.renderOrder.nightLights);
-  // Landsat (NASA) o Esri World Imagery si hay clave: misma franja de altitud y mismo fundido.
+  // Landsat (NASA) or Esri World Imagery if key present: identical altitude band and fade.
   const highRes = layer(EARTH_HIGH_RES.source, config.landsatRadius, config.renderOrder.landsat);
   const layers = [blueMarble, nightLights, highRes];
-  // Con Esri la cámara puede bajar a ~250 m para que lleguen los mosaicos de 0,3 m/px. Se aplica
-  // en cada frame de cambio porque useGlobeScene fija su mínimo después de crear esta capa.
+  // With Esri, camera can descend to ~250 m to reach 0.3 m/px tiles. Applied on every
+  // change frame because useGlobeScene sets its minimum after creating this layer.
   const minDistance = EARTH_HIGH_RES.minAltitudeKm === null ? null
     : GLOBE_RADIUS * (1 + EARTH_HIGH_RES.minAltitudeKm / 6371);
 
-  // three-slippy-map-globe construye los mosaicos con caras de 5°: entre vértices se hunden hasta
-  // R·(1 − cos 2,5°) ≈ 606 m bajo la esfera, más que los 13-255 m a los que flotan las capas. Los
-  // vértices de la esfera base (rejilla de 4°) asomaban entonces por encima y dibujaban rombos en
-  // cuadrícula. Hundir la esfera base un 0,15 % (9,6 km) la deja siempre debajo; en órbita es
-  // menos de un píxel y, de cerca, la tapan los mosaicos.
-  // La malla del globo no está aún en la escena al crear esta capa (Globe.gl la monta después):
-  // se busca en cada ajuste hasta encontrarla. Comprobado: buscándola aquí la escala seguía en 1.
+  // three-slippy-map-globe builds tiles with 5° facets: between vertices they sag up to
+  // R·(1 − cos 2.5°) ≈ 606 m under the sphere, deeper than the 13-255 m layer elevations. The
+  // base sphere vertices (4° grid) previously peeked through in a visible diamond grid pattern.
+  // Sinking the base sphere by 0.15% (9.6 km) keeps it strictly underneath; in orbit this is
+  // sub-pixel and close up it is covered by tiles.
+  // Globe mesh is not yet in the scene when this layer mounts (Globe.gl mounts it afterward):
+  // traversed on each adjustment until located. Checked: searching here earlier found scale still at 1.
   const BASE_GLOBE_SINK = 0.9985;
   let baseGlobe: Mesh | null = null;
   const sinkBaseGlobe = (): void => {
@@ -95,7 +95,7 @@ export function createEarthDetailTiles(globe: GlobeInstance, container: HTMLElem
     const distanceToSurface = camera.position.length() - GLOBE_RADIUS;
     const altitude = distanceToSurface / GLOBE_RADIUS;
 
-    // En órbita el plano cercano grande da precisión a las nubes; cerca debe encogerse.
+    // In orbit a wide near plane gives precision to clouds; close up it must shrink.
     if (camera instanceof PerspectiveCamera) {
       const near = Math.min(GLOBE_CONFIG.nearPlane,
         Math.max(EARTH_HIGH_RES.nearPlaneMin, distanceToSurface * config.nearPlane.fraction));
@@ -105,7 +105,7 @@ export function createEarthDetailTiles(globe: GlobeInstance, container: HTMLElem
       }
     }
 
-    // Sólo se dibuja la cara del terminador que de verdad entra en el horizonte visible.
+    // Only render whichever terminator hemisphere actually enters the visible horizon.
     cameraDirection.copy(camera.position).normalize();
     const sides = visibleTerminatorSides(cameraDirection, surface.sunDirection, altitude);
     const regionalFade = fadeBelow(altitude, config.blueMarble.fadeStart, config.blueMarble.fadeEnd);
@@ -120,7 +120,7 @@ export function createEarthDetailTiles(globe: GlobeInstance, container: HTMLElem
       container.dataset.earthTiles = active ? 'active' : 'idle';
     }
 
-    // Inmediato si hace tiempo del último; si no, una llamada diferida recoge la posición final.
+    // Immediate if interval elapsed; otherwise a deferred call captures final camera settling.
     const wait = REFRESH_INTERVAL_MS - (performance.now() - lastRefresh);
     if (wait <= 0) refresh();
     else if (refreshTimer === undefined) refreshTimer = setTimeout(refresh, wait);

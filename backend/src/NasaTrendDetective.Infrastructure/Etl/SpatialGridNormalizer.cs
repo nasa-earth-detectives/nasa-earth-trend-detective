@@ -6,9 +6,9 @@ using NasaTrendDetective.Infrastructure.Interfaces;
 namespace NasaTrendDetective.Infrastructure.Etl;
 
 /// <summary>
-/// Pipeline normalizador de grilla espacial: lee el archivo crudo con el <see cref="IRawDatasetReader"/>
-/// adecuado, aplica la normalización WGS84 canónica y la limpieza/imputación en SQL DuckDB y exporta con
-/// COPY ... TO '*.parquet' (FORMAT PARQUET, COMPRESSION SNAPPY) para el importador de hechos.
+/// Spatial grid normalizer pipeline: reads the raw file with the appropriate <see cref="IRawDatasetReader"/>,
+/// applies canonical WGS84 normalization and cleaning/imputation in DuckDB SQL, and exports via
+/// COPY ... TO '*.parquet' (FORMAT PARQUET, COMPRESSION SNAPPY) for the fact importer.
 /// </summary>
 public sealed class SpatialGridNormalizer : ISpatialGridNormalizer
 {
@@ -40,7 +40,7 @@ public sealed class SpatialGridNormalizer : ISpatialGridNormalizer
         ArgumentException.ThrowIfNullOrWhiteSpace(request.SourcePath);
         if (!File.Exists(request.SourcePath))
         {
-            throw new FileNotFoundException("No existe el archivo crudo a normalizar.", request.SourcePath);
+            throw new FileNotFoundException("Raw file to normalize was not found.", request.SourcePath);
         }
 
         var reader = ResolveReader(request.SourcePath);
@@ -96,8 +96,8 @@ public sealed class SpatialGridNormalizer : ISpatialGridNormalizer
 
     private void LogQuality(DataQualityMetrics quality) =>
         _logger.LogInformation(
-            "Calidad {Variable}: {ValidBefore}% válidos antes de imputar, {ValidAfter}% después "
-            + "({Imputed} imputados, {Nulls} NULL de {Total} observaciones)",
+            "Quality {Variable}: {ValidBefore}% valid before imputation, {ValidAfter}% after "
+            + "({Imputed} imputed, {Nulls} NULL of {Total} observations)",
             quality.Variable,
             quality.ValidPercentBeforeImputation,
             quality.ValidPercentAfterImputation,
@@ -108,8 +108,8 @@ public sealed class SpatialGridNormalizer : ISpatialGridNormalizer
     private IRawDatasetReader ResolveReader(string sourcePath) =>
         _readers.FirstOrDefault(reader => reader.CanRead(sourcePath))
         ?? throw new NotSupportedException(
-            $"Formato no soportado para '{Path.GetFileName(sourcePath)}'. Hoy solo hay lector CSV; "
-            + "NetCDF/HDF5/GeoTIFF son un punto de extensión (registrar otro IRawDatasetReader).");
+            $"Unsupported format for '{Path.GetFileName(sourcePath)}'. Currently only CSV reader is available; "
+            + "NetCDF/HDF5/GeoTIFF are extension points (register another IRawDatasetReader).");
 
     private string ResolveOutputPath(GridNormalizationRequest request)
     {
@@ -117,7 +117,7 @@ public sealed class SpatialGridNormalizer : ISpatialGridNormalizer
             ?? $"{request.Variable}_{Path.GetFileNameWithoutExtension(request.SourcePath)}.parquet";
         if (fileName != Path.GetFileName(fileName) || fileName.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0)
         {
-            throw new ArgumentException($"Nombre de archivo de salida inválido: '{fileName}'.", nameof(request));
+            throw new ArgumentException($"Invalid output filename: '{fileName}'.", nameof(request));
         }
 
         if (!fileName.EndsWith(".parquet", StringComparison.OrdinalIgnoreCase))

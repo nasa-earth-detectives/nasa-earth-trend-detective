@@ -7,13 +7,13 @@ namespace NasaTrendDetective.Application.Implements;
 public class GridTrendService : IGridTrendService
 {
     /// <summary>
-    /// 9 de 12 meses (75 %): deja fuera un año en curso incompleto sin descartar celdas polares
-    /// con algún mes sin dato. Es una regla del proyecto, no una norma citada.
+    /// 9 out of 12 months (75%): excludes an incomplete current year without discarding polar cells
+    /// that might have a missing month. This is a project heuristic, not a cited standard.
     /// </summary>
     public const int MinMonthsPerYear = 9;
 
     /// <summary>
-    /// Por debajo de ~10 años la aproximación normal de Mann-Kendall deja de ser fiable.
+    /// Below ~10 years the normal approximation of Mann-Kendall loses reliability.
     /// </summary>
     public const int MinYearsPerCell = 10;
 

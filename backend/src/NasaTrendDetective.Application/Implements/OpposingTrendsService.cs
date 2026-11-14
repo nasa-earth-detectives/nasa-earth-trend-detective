@@ -63,18 +63,18 @@ public class OpposingTrendsService : IOpposingTrendsService
         var arcticStats = TrendStatisticsEngine.Analyze(arcticObs);
         var atlanticStats = TrendStatisticsEngine.Analyze(atlanticObs);
 
-        var arctic = new RegionalTrendSummary("arctic-polar", "Ártico (Svalbard)", 78.22, 15.63, ClimateVariable.Gistemp, 2000, 2024, arcticObs, arcticStats);
-        var atlantic = new RegionalTrendSummary("subpolar-gyre", "Atlántico Norte Subpolar", 55.0, -30.0, ClimateVariable.Gistemp, 2000, 2024, atlanticObs, atlanticStats);
+        var arctic = new RegionalTrendSummary("arctic-polar", "Arctic (Svalbard)", 78.22, 15.63, ClimateVariable.Gistemp, 2000, 2024, arcticObs, arcticStats);
+        var atlantic = new RegionalTrendSummary("subpolar-gyre", "Subpolar North Atlantic", 55.0, -30.0, ClimateVariable.Gistemp, 2000, 2024, atlanticObs, atlanticStats);
 
         var divergence = Math.Round(Math.Abs(arcticStats.ZScore - atlanticStats.ZScore), 3);
 
         return new OpposingTrendPair(
             "arctic-atlantic-thermal",
-            "Desaceleración de la AMOC y Amplificación Térmica Ártica",
+            "AMOC Slowdown and Arctic Amplification",
             arctic,
             atlantic,
             divergence,
-            "Calentamiento polar acelerado (+0.7°C/década) en contraste con la 'burbuja de enfriamiento' del Atlántico Norte debida a la desaceleración del transporte meridional de calor.");
+            "Accelerated polar warming (+0.7°C/decade) in contrast with the North Atlantic 'warming hole' caused by weakening meridional heat transport.");
     }
 
     private static OpposingTrendPair BuildAmazonChinaPair()
@@ -86,18 +86,18 @@ public class OpposingTrendsService : IOpposingTrendsService
         var chinaStats = TrendStatisticsEngine.Analyze(chinaObs);
         var amazonStats = TrendStatisticsEngine.Analyze(amazonObs);
 
-        var china = new RegionalTrendSummary("south-china", "Sur de China", 25.0, 115.0, ClimateVariable.ModisNdvi, 2000, 2024, chinaObs, chinaStats);
-        var amazon = new RegionalTrendSummary("amazon-basin", "Cuenca Amazónica", -3.46, -62.21, ClimateVariable.ModisNdvi, 2000, 2024, amazonObs, amazonStats);
+        var china = new RegionalTrendSummary("south-china", "Southern China", 25.0, 115.0, ClimateVariable.ModisNdvi, 2000, 2024, chinaObs, chinaStats);
+        var amazon = new RegionalTrendSummary("amazon-basin", "Amazon Basin", -3.46, -62.21, ClimateVariable.ModisNdvi, 2000, 2024, amazonObs, amazonStats);
 
         var divergence = Math.Round(Math.Abs(chinaStats.ZScore - amazonStats.ZScore), 3);
 
         return new OpposingTrendPair(
             "amazon-china-ndvi",
-            "Reforestación Antropogénica vs Estrés y Fragmentación Tropical",
+            "Anthropogenic Afforestation vs. Tropical Stress and Fragmentation",
             china,
             amazon,
             divergence,
-            "Reverdecimiento sostenido en el sur de China impulsado por programas de forestación frente a la reducción del dosel vegetal y sequías recurrentes en la Amazonía.");
+            "Sustained greening in southern China driven by afforestation programs versus canopy reduction and recurrent droughts in the Amazon.");
     }
 
     private static OpposingTrendPair BuildGreenlandAntarcticaPair()
@@ -109,17 +109,17 @@ public class OpposingTrendsService : IOpposingTrendsService
         var greenlandStats = TrendStatisticsEngine.Analyze(greenlandObs);
         var antarcticaStats = TrendStatisticsEngine.Analyze(antarcticaObs);
 
-        var greenland = new RegionalTrendSummary("greenland-ice", "Manto de Hielo de Groenlandia", 72.0, -40.0, ClimateVariable.GraceMass, 2002, 2024, greenlandObs, greenlandStats);
-        var antarctica = new RegionalTrendSummary("east-antarctica", "Meseta Antártica Oriental", -75.0, 100.0, ClimateVariable.GraceMass, 2002, 2024, antarcticaObs, antarcticaStats);
+        var greenland = new RegionalTrendSummary("greenland-ice", "Greenland Ice Sheet", 72.0, -40.0, ClimateVariable.GraceMass, 2002, 2024, greenlandObs, greenlandStats);
+        var antarctica = new RegionalTrendSummary("east-antarctica", "East Antarctic Plateau", -75.0, 100.0, ClimateVariable.GraceMass, 2002, 2024, antarcticaObs, antarcticaStats);
 
         var divergence = Math.Round(Math.Abs(antarcticaStats.ZScore - greenlandStats.ZScore), 3);
 
         return new OpposingTrendPair(
             "polar-ice-divergence",
-            "Divergencia de Masa Glaciar Polar (GRACE / GRACE-FO)",
+            "Polar Ice Sheet Mass Divergence (GRACE / GRACE-FO)",
             antarctica,
             greenland,
             divergence,
-            "Groenlandia registra una pérdida acelerada de masa de ~260 Gt/año por fusión estival y flujo glaciar, en marcado contraste con la estabilidad de la meseta antártica oriental.");
+            "Greenland records accelerated mass loss of ~260 Gt/year due to summer melt and glacial discharge, in stark contrast with the relative stability of the East Antarctic plateau.");
     }
 }

@@ -34,7 +34,7 @@ export interface GlobeSceneContext {
   setLocationSelectHandler: (handler: ((location: GlobeLocation) => void) | null) => void;
 }
 
-/** Construye la interfaz imperativa externa de la escena 3D. */
+/** Builds external imperative interface for the 3D scene. */
 export function buildGlobeSceneApi(ctx: GlobeSceneContext): GlobeSceneApi {
   return {
     setObservationData: ctx.analysis.updateData,

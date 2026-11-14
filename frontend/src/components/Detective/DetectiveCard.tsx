@@ -32,13 +32,13 @@ interface DetectiveCardProps {
   onYearChange?: (year: number) => void;
 }
 
-/** Con la API: serie anual real de la celda y su veredicto Mann-Kendall / Sen. Con la demo: escenario rotulado. */
+/** With API: real cell annual series and its Mann-Kendall / Sen verdict. With demo: labeled scenario. */
 export function DetectiveCard({ open, location, variable, year, source, provenance = null, observation,
   observationDistanceDegrees, supportRadiusDegrees, loading, onClose, onYearChange }: DetectiveCardProps) {
   const closeRef = useRef<HTMLButtonElement>(null);
   const metadata = CLIMATE_VARIABLES.find(item => item.id === variable);
   const trend = useCellTrend(variable, open && source === 'api' ? provenance : null, observation);
-  const unit = provenance?.trendUnit ?? `${OBSERVATION_SCALES[variable].unit} / año`;
+  const unit = provenance?.trendUnit ?? `${OBSERVATION_SCALES[variable].unit} / year`;
   const biomeInfo = location ? getRegionalBiomeContext(location.lat, location.lng) : null;
 
   useEffect(() => {
@@ -53,7 +53,7 @@ export function DetectiveCard({ open, location, variable, year, source, provenan
 
   const seriesData = useMemo<TimeSeriesDataPoint[]>(() => {
     if (!observation || loading) return [];
-    // Sin la serie del backend no se inventa una regional: solo el valor anual recibido.
+    // Without backend series, no regional series is synthesized: only the received annual value.
     if (source === 'api') return trend.data?.series ?? [{ year, value: getObservationValue(observation) }];
     return Array.from({ length: SATELLITE_TIMELINE.endYear - SATELLITE_TIMELINE.startYear + 1 }, (_, index) => {
       const sampleYear = SATELLITE_TIMELINE.startYear + index;
@@ -72,18 +72,18 @@ export function DetectiveCard({ open, location, variable, year, source, provenan
       aria-labelledby="inspection-title" data-ui-control>
       <header className="inspection-header">
         <div>
-          <p>{observation && !nearby ? 'Centro de la celda seleccionada' : 'Ubicación seleccionada'}</p>
-          <h2 id="inspection-title">Inspección regional</h2>
+          <p>{observation && !nearby ? 'Center of selected cell' : 'Selected location'}</p>
+          <h2 id="inspection-title">Regional inspection</h2>
         </div>
         <button ref={closeRef} type="button" onClick={onClose} className="inspection-close focus-ring"
-          aria-label="Cerrar inspector">
+          aria-label="Close inspector">
           <X size={18} strokeWidth={1.5} aria-hidden="true" />
         </button>
       </header>
 
       <dl className="inspection-coordinates">
-        <div><dt>Latitud</dt><dd title={String(location.lat)}>{formatCoordinate(location.lat, 'N', 'S')}</dd></div>
-        <div><dt>Longitud</dt><dd title={String(location.lng)}>{formatCoordinate(location.lng, 'E', 'O')}</dd></div>
+        <div><dt>Latitude</dt><dd title={String(location.lat)}>{formatCoordinate(location.lat, 'N', 'S')}</dd></div>
+        <div><dt>Longitude</dt><dd title={String(location.lng)}>{formatCoordinate(location.lng, 'E', 'W')}</dd></div>
       </dl>
 
       {biomeInfo && (
@@ -94,24 +94,24 @@ export function DetectiveCard({ open, location, variable, year, source, provenan
       )}
 
       {nearby && observation && <div className="inspection-provenance">
-        <p>Muestra más cercana · {observationDistanceDegrees?.toLocaleString('es', { maximumFractionDigits: 2 })}° del punto elegido</p>
+        <p>Nearest sample · {observationDistanceDegrees?.toLocaleString('en-US', { maximumFractionDigits: 2 })}° from selected point</p>
         <p title={`${observation.latitude}, ${observation.longitude}`}>
-          {formatCoordinate(observation.latitude, 'N', 'S')} · {formatCoordinate(observation.longitude, 'E', 'O')}
+          {formatCoordinate(observation.latitude, 'N', 'S')} · {formatCoordinate(observation.longitude, 'E', 'W')}
         </p>
-        <p>La lectura corresponde a esta muestra, no al punto seleccionado.</p>
+        <p>This reading corresponds to the sample above, not the exact clicked point.</p>
       </div>}
 
       <div className="inspection-variable">
         <p>{metadata?.name}</p>
-        <p><span>Producto de referencia</span><strong>{metadata?.satelliteMission}</strong></p>
+        <p><span>Reference product</span><strong>{metadata?.satelliteMission}</strong></p>
       </div>
 
       <div className="inspection-series-heading">
-        <h3>{loading ? 'Consultando observaciones' : !observation ? 'Sin muestra cercana' : source === 'demo' ? 'Serie del escenario simulado'
-          : trend.data ? 'Serie anual observada' : 'Observación disponible'}</h3>
+        <h3>{loading ? 'Querying observations' : !observation ? 'No nearby sample' : source === 'demo' ? 'Simulated scenario series'
+          : trend.data ? 'Observed annual series' : 'Available observation'}</h3>
         <span>{observation && source === 'demo' ? `${SATELLITE_TIMELINE.startYear}—${SATELLITE_TIMELINE.endYear}` : seriesYears}</span>
       </div>
-      {loading ? <p className="inspection-chart__empty">Consultando el año seleccionado…</p> :
+      {loading ? <p className="inspection-chart__empty">Querying selected year…</p> :
         <TimeSeriesChart data={seriesData} unit={OBSERVATION_SCALES[variable].unit}
           selectedYear={year} onYearSelect={onYearChange}
           senSlope={source === 'demo' || !observation || !trend.data ? undefined : trend.data.sensSlope} />}
@@ -126,11 +126,11 @@ export function DetectiveCard({ open, location, variable, year, source, provenan
       />
 
       <footer className="inspection-provenance">
-        {!loading && !observation && <p>No hay muestras de esta variable a menos de {supportRadiusDegrees}° dentro de la cobertura activa.</p>}
-        <p>{source === 'demo' ? 'Datos sintéticos · no son observaciones NASA.' :
-          observation ? provenanceLabel(provenance) : 'Sin muestra recibida para esta ubicación.'}</p>
+        {!loading && !observation && <p>No samples of this variable within {supportRadiusDegrees}° in the active coverage.</p>}
+        <p>{source === 'demo' ? 'Synthetic data · not NASA observations.' :
+          observation ? provenanceLabel(provenance) : 'No sample received for this location.'}</p>
         <p>{variable === 'Gistemp'
-          ? 'Rojo: más cálido · azul: más frío respecto al promedio de referencia. No es temperatura absoluta.'
+          ? 'Red: warmer · blue: cooler relative to baseline average. Not absolute temperature.'
           : `${OBSERVATION_SCALES[variable].label}.`}</p>
         <p>Mann–Kendall / Sen {trend.data && (
           <TrendSignificanceBadge result={{
@@ -139,10 +139,10 @@ export function DetectiveCard({ open, location, variable, year, source, provenan
             sensSlope: trend.data.sensSlope,
             zScore: trend.data.zScore,
           }} variable={variable} unit={unit} />
-        )} <span>{source === 'demo' || !observation ? 'Sin calcular' : trend.loading ? 'Calculando…'
-          : trend.error ? 'No disponible' : trend.data ? `${trend.data.sensSlope >= 0 ? '+' : ''}${trend.data.sensSlope.toLocaleString('es',
-            { maximumFractionDigits: 3 })} ${unit} · p = ${trend.data.pValue.toLocaleString('es', { maximumSignificantDigits: 2 })}${
-            trend.data.isSignificant ? ' · significativa' : ' · no significativa'}` : 'Sin calcular'}</span></p>
+        )} <span>{source === 'demo' || !observation ? 'Not computed' : trend.loading ? 'Computing…'
+          : trend.error ? 'Unavailable' : trend.data ? `${trend.data.sensSlope >= 0 ? '+' : ''}${trend.data.sensSlope.toLocaleString('en-US',
+            { maximumFractionDigits: 3 })} ${unit} · p = ${trend.data.pValue.toLocaleString('en-US', { maximumSignificantDigits: 2 })}${
+            trend.data.isSignificant ? ' · significant' : ' · not significant'}` : 'Not computed'}</span></p>
       </footer>
     </aside>
   );

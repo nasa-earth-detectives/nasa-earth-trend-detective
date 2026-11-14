@@ -6,8 +6,8 @@ using NasaTrendDetective.Application.DTOs;
 namespace NasaTrendDetective.Tests.Api;
 
 /// <summary>
-/// Sin datasets sembrados (la carpeta de semillas no existe en el directorio de pruebas): la API
-/// debe declarar todo como sintético y negarse a inventar una grilla.
+/// Without seeded datasets (the seed directory does not exist in the test execution folder):
+/// the API must declare everything as synthetic and refuse to invent a grid.
 /// </summary>
 [Collection(ApiHostCollection.Name)]
 public class DatasetsControllerIntegrationTests : IClassFixture<WebApplicationFactory<Program>>
@@ -36,7 +36,7 @@ public class DatasetsControllerIntegrationTests : IClassFixture<WebApplicationFa
         var response = await _client.GetAsync("/api/trends/grid?variable=Oco2&startYear=2000&endYear=2025");
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
-        Assert.Contains("Sin datos observados", await response.Content.ReadAsStringAsync());
+        Assert.Contains("No observed data", await response.Content.ReadAsStringAsync());
     }
 
     [Fact]

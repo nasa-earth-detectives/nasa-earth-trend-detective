@@ -8,9 +8,9 @@ import { createHexColumns } from './hexColumns';
 type ObservationHandler = (observation: ClimateObservation | null) => void;
 
 /**
- * Observaciones anuales: nunca convierte valores de temperatura/NDVI/CO₂ en pendientes.
- * Mantiene una InstancedMesh/BVH en la capa pública de Globe, porque el hexbin nativo
- * crea un Mesh por celda; su modo merged pierde transiciones y selección individual.
+ * Annual observations: never converts temperature/NDVI/CO₂ values into slopes.
+ * Maintains an InstancedMesh/BVH on Globe's public layer, because native hexbin
+ * creates one Mesh per cell; its merged mode loses transitions and individual selection.
  */
 export function createEarthHexLayer(
   globe: GlobeInstance,
@@ -44,12 +44,12 @@ export function createEarthHexLayer(
         .map(observation => [observation.id, observation]));
       columns.setDataset({
         variable,
-        // Huella gráfica nominal, no resolución científica ni agrupación por países.
+        // Nominal graphical footprint, not scientific resolution or country aggregation.
         resolutionDegrees: 2.2,
         heightDomain: 1,
         cells: Array.from(observations.values(), observation => ({
           id: observation.id, latitude: observation.latitude, longitude: observation.longitude,
-          // Campo privado del renderer legado: la magnitud se calcula arriba por variable.
+          // Private field of legacy renderer: magnitude is computed above per variable.
           slope: getObservationValue(observation),
         })),
       });

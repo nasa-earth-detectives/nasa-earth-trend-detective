@@ -1,7 +1,7 @@
 namespace NasaTrendDetective.Infrastructure.Implements;
 
 /// <summary>
-/// Opciones de configuración del motor analítico embebido DuckDB (sección "DuckDb").
+/// Configuration options for embedded DuckDB OLAP engine ("DuckDb" section).
 /// </summary>
 public sealed class DuckDbOptions
 {
@@ -11,25 +11,25 @@ public sealed class DuckDbOptions
     public const string DefaultDatabasePath = "nasa_earth_trends.duckdb";
 
     /// <summary>
-    /// Ruta del archivo local .duckdb o ":memory:" para una base efímera en memoria.
+    /// Path to local .duckdb file or ":memory:" for ephemeral in-memory database.
     /// </summary>
     public string DatabasePath { get; set; } = DefaultDatabasePath;
 
     /// <summary>
-    /// Tope de memoria de DuckDB (p.ej. "256MB"); vacío = el de DuckDB (80 % de la RAM que detecta).
-    /// En un contenedor pequeño (Render gratuito: 512 MB) hay que fijarlo: la importación del Parquet
-    /// de GISTEMP llegó a 647 MB sin tope, y DuckDB no siempre ve el límite del contenedor. Con tope,
-    /// lo que no cabe se escribe en disco temporal en vez de tumbar el proceso.
+    /// DuckDB memory ceiling (e.g. "256MB"); empty = default DuckDB ceiling (80% of detected RAM).
+    /// On constrained containers (Render free tier: 512 MB) this must be set: unconstrained Parquet
+    /// import of GISTEMP reached 647 MB, and DuckDB does not always detect container cgroup limits.
+    /// With a ceiling, overflow is written to temporary disk storage rather than crashing the process.
     /// </summary>
     public string? MemoryLimit { get; set; }
 
     /// <summary>
-    /// Carpeta donde DuckDB vuelca lo que no cabe en <see cref="MemoryLimit"/>; null = "&lt;base&gt;.tmp".
-    /// Se crea explícitamente: en Windows DuckDB 1.5 no la creó y la importación falló con "IO Error".
+    /// Directory where DuckDB spills overflow exceeding <see cref="MemoryLimit"/>; null = "&lt;database&gt;.tmp".
+    /// Created explicitly: on Windows DuckDB does not auto-create missing spill directories, causing IO errors.
     /// </summary>
     public string? TempDirectory { get; set; }
 
-    /// <summary>Hilos de DuckDB; null = todos los núcleos. Menos hilos, menos búferes simultáneos.</summary>
+    /// <summary>DuckDB worker threads; null = all CPU cores. Fewer threads reduce simultaneous buffer allocations.</summary>
     public int? Threads { get; set; }
 
     public bool IsInMemory =>
