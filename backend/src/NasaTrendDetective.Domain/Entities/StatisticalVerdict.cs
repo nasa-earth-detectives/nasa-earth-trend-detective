@@ -20,4 +20,10 @@ public sealed record StatisticalVerdict(
     /// Va aparte de los parámetros posicionales para no romper a quien ya construye el veredicto.
     /// </summary>
     public LinearTrendVerdict Linear { get; init; } = LinearTrendVerdict.Inconclusive;
+
+    /// <summary>
+    /// El mismo Mann-Kendall después de descontar la persistencia entre años. El veredicto clásico
+    /// supone años independientes; éste dice si la tendencia sigue ahí cuando no se supone.
+    /// </summary>
+    public PrewhitenedTrendVerdict Prewhitened { get; init; } = PrewhitenedTrendVerdict.Inconclusive;
 }

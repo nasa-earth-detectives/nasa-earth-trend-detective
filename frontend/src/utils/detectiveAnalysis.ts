@@ -31,6 +31,8 @@ export interface SignificanceInput {
   sensSlope: number;
   /** Puntuación Z de Mann-Kendall; se muestra si la fuente la entrega. */
   zScore?: number;
+  /** false si la tendencia no supera el Mann-Kendall con preblanqueo; undefined si no se calculó. */
+  survivesPersistence?: boolean;
 }
 
 const frequency = new Intl.NumberFormat('es', { maximumSignificantDigits: 2 });
@@ -51,6 +53,16 @@ export function describeSignificance(variable: ClimateVariable, mk: Significance
   }
 
   const increase = mk.sensSlope > 0;
+  if (mk.survivesPersistence === false) {
+    return {
+      tone: 'inconclusive',
+      label: 'Tendencia sin confirmar',
+      claim: `El test clásico ve ${increase ? 'un aumento' : 'un descenso'} (p ${p}), `
+        + 'pero deja de verlo al descontar la persistencia de un año al siguiente.',
+      caveat: 'Puede ser una racha larga y no un cambio sostenido. Con más años el veredicto podría confirmarse.',
+    };
+  }
+
   return {
     tone: increase ? 'increase' : 'decrease',
     label: increase ? 'Aumento sostenido' : 'Descenso sostenido',

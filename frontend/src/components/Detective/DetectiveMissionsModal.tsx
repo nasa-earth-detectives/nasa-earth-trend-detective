@@ -120,6 +120,7 @@ export function DetectiveMissionsModal({ open, onClose, onSelectMission }: Detec
 
         <p className="dossier__foot">
           Prueba de Mann-Kendall y pendiente de Sen sobre todos los años disponibles, con 95 % de confianza.
+          El valor p ya descuenta la persistencia de un año al siguiente; sólo se dice que sube o baja si lo supera.
           MERRA-2 es un modelo de la NASA que reconstruye la atmósfera a partir de observaciones, no una
           medición directa: el tablero dice qué muestran sus datos, no por qué ocurre.
         </p>

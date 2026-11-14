@@ -24,12 +24,15 @@ export const OBSERVATION_SCALES: Record<ClimateVariable, ObservationScale> = {
     domain: [0, 1], midpoint: 0.5, unit: 'NDVI', label: 'Índice de vegetación',
     stops: [SCIENCE_SURFACE_COLORS.drySoil, SCIENCE_ACCENTS.ModisNdvi.accent, SCIENCE_SURFACE_COLORS.chlorophyll],
   },
+  // Percentil 90 del valor absoluto medido en 2025 (49 cm). Los mantos de hielo se salen de la escala
+  // a propósito (percentil 99: 406 cm): con ellos dentro, el resto del planeta se vería sin color.
   GraceMass: {
-    domain: [-30, 30], midpoint: 0, unit: 'cm H₂O eq.', label: 'Anomalía de agua y hielo',
+    domain: [-50, 50], midpoint: 0, unit: 'cm H₂O eq.', label: 'Anomalía de agua y hielo · base 2004–2009',
     stops: [SCIENCE_SURFACE_COLORS.waterDeficit, SCIENCE_SURFACE_COLORS.neutral, SCIENCE_SURFACE_COLORS.glacier],
   },
+  // Rango medido en las medias anuales de OCO-2: de 396 ppm (mínimo de 2015) a 429 ppm (máximo de 2025).
   Oco2: {
-    domain: [360, 450], midpoint: 420, unit: 'ppm', label: 'Concentración de CO₂',
+    domain: [395, 430], midpoint: 412.5, unit: 'ppm', label: 'Concentración de CO₂ · media de la columna',
     stops: [SCIENCE_SURFACE_COLORS.co2Baseline, SCIENCE_ACCENTS.Oco2.accent, SCIENCE_SURFACE_COLORS.co2Elevated],
   },
   // MERRA-2: anomalía anual respecto a 1991-2020. Cada dominio es el percentil 99 del valor absoluto

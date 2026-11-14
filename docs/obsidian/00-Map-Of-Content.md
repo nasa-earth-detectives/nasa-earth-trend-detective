@@ -69,6 +69,7 @@ Bienvenido a la bóveda central de documentación y diseño de ingeniería de nu
 - [[37-MERRA2-Datos-Reales-y-Casos-Opuestos]]: variables reales de MERRA-2 y GPM (NASA POWER), casos con tendencias opuestas medidas, estadística contrastada con SciPy y rediseño del asistente.
 - [[38-Como-Funciona-El-Detective-De-Tendencias]]: guía de punta a punta: qué hace, de dónde salen los datos, backend, frontend, cómo añadir una variable y dónde están los textos para traducir.
 - [[39-Formulas-y-Supuestos-para-QA-Fisico]]: para la revisión de física: fórmulas añadidas o cambiadas, cómo se comprobaron, autocorrelación lag-1 medida y puntos abiertos.
+- [[40-GRACE-OCO2-Reales-y-Correcciones-de-Significancia]]: GRACE y CO₂ con datos reales (9 de 9 variables), Mann-Kendall con preblanqueo iterativo elegido por simulación, control de falsos descubrimientos y efecto medido en cada mapa.
 
 ---
 

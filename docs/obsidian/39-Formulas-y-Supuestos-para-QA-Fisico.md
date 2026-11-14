@@ -6,6 +6,12 @@ está hecho y necesita su criterio. Complementa el inventario de [[34-Trazabilid
 
 Registro de cifras: [[37-MERRA2-Datos-Reales-y-Casos-Opuestos]]. Cómo funciona todo: [[38-Como-Funciona-El-Detective-De-Tendencias]].
 
+> **Actualización del 2026-11-14 (tarde).** Tres cosas que aquí figuraban como pendientes ya están
+> hechas en la rama `feat/grace-oco2-significance`: GRACE y OCO-2 con datos reales, la corrección por
+> autocorrelación y el control de comparaciones múltiples. Fórmulas, simulación y puntos abiertos
+> nuevos: [[40-GRACE-OCO2-Reales-y-Correcciones-de-Significancia]]. Las secciones 4 y 5 se dejan como
+> estaban, con una nota de qué cambió.
+
 ---
 
 ## 1. Qué cambia respecto al inventario de la nota 34
@@ -17,10 +23,10 @@ Registro de cifras: [[37-MERRA2-Datos-Reales-y-Casos-Opuestos]]. Cómo funciona 
 | Años incompletos | `MinMonthsPerYear = 9` para toda la grilla | Depende de la variable: 9 en datos mensuales, 1 en anuales (2.4). |
 | Prueba t | no existía | Añadida (2.8 y 2.9). |
 | NDVI | rango $[-0.2, 1.0]$ | En el producto va de 0 a 1: GIBS publica transparente el NDVI $\le 0$ (2.5). |
-| GRACE y OCO-2 | tasas como $-262$ Gt/año en los casos | Siguen siendo demostración. Esas cifras escritas a mano se quitaron de la interfaz. |
-| Pre-blanqueamiento lag-1 | pendiente | **Sigue pendiente.** Ver la medición de la sección 4. |
+| GRACE y OCO-2 | tasas como $-262$ Gt/año en los casos | **Ya son datos reales** (nota 40). Las cifras escritas a mano se quitaron de la interfaz. |
+| Pre-blanqueamiento lag-1 | pendiente | **Hecho, pero no con TFPW:** medido, TFPW da más falsos positivos que no corregir. Ver la nota 40. |
 
-Las tareas `[PHYS-T2]` y `[PHYS-T3]` dependen de GRACE y OCO-2, que todavía no tienen datos reales.
+Las tareas `[PHYS-T2]` y `[PHYS-T3]` dependían de GRACE y OCO-2: ya tienen datos reales con los que trabajar.
 
 ---
 
@@ -132,10 +138,15 @@ percentil 99 medido en los datos: son presentación, no umbrales físicos.
 
 ---
 
-## 4. Autocorrelación lag-1: medida, no corregida
+## 4. Autocorrelación lag-1: primera medición (superada por la nota 40)
 
-Ni Mann-Kendall ni la prueba t corrigen la autocorrelación serial. El producto **no** aplica
-pre-blanqueamiento. Como punto de partida para `[PHYS-T4]` se midió fuera del producto, con
+> **Qué cambió.** El producto ya aplica una corrección (preblanqueo iterativo de Zhang et al., 2000) y
+> la enseña junto al veredicto clásico. La tabla de abajo usó TFPW y concluía "el veredicto no cambia":
+> era el método el que no corregía. Con el método adoptado, la precipitación de MERRA-2 en la Amazonía
+> pasa de p = 0,016 a p = 0,091 y deja de ser significativa. Simulación y fórmulas en la nota 40.
+
+Ni Mann-Kendall ni la prueba t corrigen la autocorrelación serial. Cuando se escribió esto el producto
+**no** aplicaba pre-blanqueamiento. Como punto de partida para `[PHYS-T4]` se midió fuera del producto, con
 $r_1$ sobre los residuos tras quitar la pendiente de Sen y con TFPW (Yue et al., 2002):
 
 | Serie | $n$ | $r_1$ | p de M-K | p con TFPW | ¿Cambia el veredicto? |
@@ -163,12 +174,12 @@ con la corrección de varianza de Hamed y Rao (1998) antes de adoptar uno.
 
 ## 5. Puntos abiertos para tu criterio
 
-1. **Autocorrelación** (sección 4): decidir si se implementa TFPW o corrección de varianza. El sitio
-   para engancharlo es `TrendStatisticsEngine.Analyze`.
-2. **Comparaciones múltiples.** La grilla prueba cada celda por separado al 5 %. Sólo por azar se
-   esperan unas 810 "significativas" de 16.200 (unas 229 de las 4.573 de tierra). No hay corrección
-   (por ejemplo, tasa de falsos descubrimientos). Los recuentos medidos van de 1.287 (NDVI, de
-   3.094 celdas) a 12.043 (temperatura del aire, de 16.200).
+1. **Autocorrelación** (sección 4): **hecho** con preblanqueo iterativo, enganchado en
+   `TrendStatisticsEngine.Analyze`. Queda a tu criterio lo que la nota 40 lista como abierto: el método
+   reduce los falsos positivos a la mitad, no los elimina.
+2. **Comparaciones múltiples: hecho** con Benjamini-Hochberg (tasa de falsos descubrimientos del 5 %)
+   sobre los p del preblanqueo. La grilla probaba cada celda por separado al 5 %: sólo por azar se
+   esperaban unas 810 "significativas" de 16.200. Recuentos antes y después, en la nota 40.
 3. **Sesgo de selección en los pares.** Se eligieron entre las celdas de mayor $|Z|$: son extremos de
    la grilla, no celdas al azar. Sirven para ilustrar, no para estimar un efecto típico.
 4. **Sin mecanismo físico.** Los pares dicen que dos regiones van en sentidos opuestos, no que las una
@@ -207,4 +218,5 @@ de SciPy están fijados en `backend/tests/NasaTrendDetective.Tests/ScientificVal
 - Sen, P. K. (1968). *Estimates of the regression coefficient based on Kendall's tau.* JASA 63.
 - Yue, S., Pilon, P., Phinney, B., Cavadias, G. (2002). *The influence of autocorrelation on the ability to detect trend in hydrological series.* Hydrol. Process. 16.
 - Hamed, K. H., Rao, A. R. (1998). *A modified Mann-Kendall trend test for autocorrelated data.* J. Hydrol. 204.
+- Las del preblanqueo iterativo y de Benjamini-Hochberg están en la nota 40.
 - Gelaro, R., et al. (2017). *MERRA-2.* J. Climate 30, doi:10.1175/JCLI-D-16-0758.1.
