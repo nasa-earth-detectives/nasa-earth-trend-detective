@@ -2,7 +2,7 @@
 
 > **NASA International Space Apps Challenge 2026**  
 > **Categoría:** Ciencias de la Tierra (*Earth Science*)  
-> **Equipo:** July, Fabriany Medina (Reving), Johan Sebastian Olaya, Especialista en Física (Pendiente Correo), Diego Arias, Brayan Stid Cortés (bscl).
+> **Equipo:** Daniela Ramos / July (`@July173`), Fabriany Medina (`@reivyng`), Johan Sebastian Olaya (`@JohanSebastianOlayaReyes`), Emilse Cabrera (`@emilsecc`), Diego Arias (`@DiegoArias32`), Brayan Stid Cortés (`@brayancortes22`).
 
 ---
 

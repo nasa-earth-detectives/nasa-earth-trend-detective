@@ -34,10 +34,10 @@ Para maximizar la especialización técnica, velocidad de desarrollo y revisión
 
 | Integrante | Rol Oficial | Módulos a Cargo en el Monorrepo | Tecnologías Principales |
 | :--- | :--- | :--- | :--- |
-| **July** | **Lead Backend & Arquitectura** | `backend/src/NasaTrendDetective.Api/`<br>`backend/src/NasaTrendDetective.Domain/` | C# .NET 10, Clean Architecture, APIs REST, Rate Limiting, Seguridad Anti-Bots |
-| **Fabriany Medina (Reving)** | **Data & ETL Engineer** | `backend/src/NasaTrendDetective.Infrastructure/`<br>`data/` | Ingesta Satelital NASA (GISTEMP, MODIS, GRACE-FO, OCO-2), DuckDB OLAP, Parquet |
-| **Johan Sebastian Olaya Reyes** | **Data Scientist & Modelado Estadístico** | `backend/src/NasaTrendDetective.Application/`<br>`backend/src/NasaTrendDetective.Domain/` | Test de Mann-Kendall ($S$, $\text{Var}(S)$, $Z$, $p < 0.05$), Pendiente de Sen, Opposing Trends Engine |
-| **Especialista en Física (Pendiente Correo)** | **Física & Dinámica Climática** | `backend/src/NasaTrendDetective.Application/Physics/`<br>`docs/obsidian/34-*` | Teleconexiones (ENSO, NAO, IOD), Forzamiento Radiativo ($W/m^2$), GRACE EWH, Pre-whitening Mann-Kendall |
+| **July (`@July173`)** | **Lead Backend & Arquitectura** | `backend/src/NasaTrendDetective.Api/`<br>`backend/src/NasaTrendDetective.Domain/` | C# .NET 10, Clean Architecture, APIs REST, Rate Limiting, Seguridad Anti-Bots |
+| **Fabriany Medina (`@reivyng`)** | **Data & ETL Engineer** | `backend/src/NasaTrendDetective.Infrastructure/`<br>`data/` | Ingesta Satelital NASA (GISTEMP, MODIS, GRACE-FO, OCO-2), DuckDB OLAP, Parquet |
+| **Johan Sebastian Olaya Reyes (`@JohanSebastianOlayaReyes`)** | **Data Scientist & Modelado Estadístico** | `backend/src/NasaTrendDetective.Application/`<br>`backend/src/NasaTrendDetective.Domain/` | Test de Mann-Kendall ($S$, $\text{Var}(S)$, $Z$, $p < 0.05$), Pendiente de Sen, Opposing Trends Engine |
+| **Emilse Cabrera (`@emilsecc`)** | **Física, Dinámica Climática & QA** | `backend/src/NasaTrendDetective.Application/`<br>`docs/obsidian/34-*` | Teleconexiones (ENSO, NAO, IOD), Forzamiento Radiativo ($W/m^2$), GRACE EWH, Pre-whitening Mann-Kendall, QA Científico |
 
 ---
 

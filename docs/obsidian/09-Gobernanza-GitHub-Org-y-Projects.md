@@ -10,13 +10,13 @@ El monorrepo está alojado oficialmente en la **Organización de GitHub**:
 👉 **URL de la Organización:** [https://github.com/nasa-earth-detectives](https://github.com/nasa-earth-detectives)  
 👉 **Repositorio Oficial:** [https://github.com/nasa-earth-detectives/nasa-earth-trend-detective](https://github.com/nasa-earth-detectives/nasa-earth-trend-detective)
 
-### Distribución de Roles para los 5 Participantes:
-- **Owners (2 Administradores):** Brayan Stid Cortés (@brayancortes22) y July (garantiza respaldo sin dependencia de una sola cuenta).
-- **Members (3 Integrantes):** Fabriany Medina (Reving), Johan Olaya y Diego Arias.
-- **Equipos en GitHub Organization (Teams):**
-  - [developers](https://github.com/orgs/nasa-earth-detectives/teams/developers): Todos los 5 participantes con permisos de lectura y escritura base.
-  - [backend-team](https://github.com/orgs/nasa-earth-detectives/teams/backend-team): July, Reving y Johan (Revisores CODEOWNERS de Backend, ETL y Matemáticas).
-  - [frontend-team](https://github.com/orgs/nasa-earth-detectives/teams/frontend-team): Brayan y Diego (Revisores CODEOWNERS de UI/UX, Componentes y WebGL 3D).
+### Distribución de Roles para los 6 Participantes:
+- **Owner / Administrador:** Brayan Stid Cortés (`@brayancortes22`).
+- **Members & Colaboradores (5 Integrantes):** Daniela Ramos / July (`@July173`, invitación de org pendiente por aceptar), Fabriany Medina / Reving (`@reivyng`), Johan Sebastian Olaya (`@JohanSebastianOlayaReyes`), Emilse Cabrera (`@emilsecc`) y Diego Arias (`@DiegoArias32`).
+- **Equipos en GitHub Organization (Teams) vinculados a Project #1:**
+  - [developers](https://github.com/orgs/nasa-earth-detectives/teams/developers): Acceso base de equipo al monorrepo y al tablero oficial (`@brayancortes22`, `@DiegoArias32`, `@reivyng`, `@emilsecc`, invitación `@July173`).
+  - [backend-team](https://github.com/orgs/nasa-earth-detectives/teams/backend-team): Núcleo Backend, ETL, Ciencia de Datos y Física & QA (`@reivyng`, `@emilsecc`, `@brayancortes22`, invitación `@July173`).
+  - [frontend-team](https://github.com/orgs/nasa-earth-detectives/teams/frontend-team): Revisores `CODEOWNERS` de UI/UX, React 19, Componentes y WebGL 3D (`@brayancortes22`, `@DiegoArias32`).
 
 ---
 
@@ -48,16 +48,23 @@ To https://github.com/nasa-earth-detectives/nasa-earth-trend-detective.git
 
 ---
 
-## 📋 3. Tablero de Gestión: GitHub Projects
+## 📋 3. Tablero de Gestión: GitHub Projects, Issues y Milestones
 
-👉 **Tablero Kanban Oficial:** [https://github.com/orgs/nasa-earth-detectives/projects/1](https://github.com/orgs/nasa-earth-detectives/projects/1)
+👉 **Tablero Kanban Oficial:** [https://github.com/orgs/nasa-earth-detectives/projects/1](https://github.com/orgs/nasa-earth-detectives/projects/1)  
+👉 **Vínculos Activos:** Enlazado oficialmente al repositorio `nasa-earth-detectives/nasa-earth-trend-detective` y a los equipos [`frontend-team`](https://github.com/orgs/nasa-earth-detectives/teams/frontend-team/projects), [`backend-team`](https://github.com/orgs/nasa-earth-detectives/teams/backend-team/projects) y [`developers`](https://github.com/orgs/nasa-earth-detectives/teams/developers/projects).
 
-Columnas configuradas para los 4 Sprints:
-1. **📥 Backlog:** Ideas, requerimientos futuros y datasets adicionales de la NASA.
-2. **📋 To Do:** Tareas atómicas priorizadas del sprint actual.
-3. **🚧 In Progress:** Tareas en desarrollo activo (asociadas a una rama `feat/*`).
-4. **👀 Review:** Pull Requests abiertos pendientes de revisión según `CODEOWNERS`.
-5. **✅ Done:** Código fusionado en `development` y verificado en staging.
+Columnas configuradas en el campo **Status** para los 4 Sprints y el módulo de Física & QA:
+1. **Backlog:** Ideas, requerimientos futuros y datasets NASA/CSA adicionales.
+2. **To Do:** Tareas atómicas priorizadas del sprint o módulo activo (`#59` S4-T2, `#62` S4-T5, `#64` S4-T6, `#65` S4-T7, `#66`–`#70` PHYS-T1..T5).
+3. **In Progress:** Tareas en desarrollo activo (`#61` `[S4-T4]` a cargo de `@DiegoArias32`).
+4. **Review:** Pendiente de QA físico, pruebas integrales o revisión `CODEOWNERS` en Pull Request.
+5. **Done:** Tareas entregadas, verificadas y cerradas (`#42`–`#58`, `#60`, `#63` — Sprints 1–3, S4-T1, S4-T3 y S4-T5 Extra).
+
+### Vistas, Campos Personalizados y Milestones Sincronizados con ClickUp
+- **Campos personalizados en Project #1:** `Sprint`, `Equipo` (`Frontend & 3D`, `Backend & API`, `Datos & ETL`, `Ciencia de Datos`, `Física & QA`, `Equipo Completo`), `Responsable`, `Prioridad`, `Código ClickUp` y `Horas`.
+- **Vistas configuradas:** `Lista General (ClickUp)`, `Tablero Kanban`, `Sprint 4 · Hackathon Neiva`, `Frontend Team`, `Física & QA (Emilse)` y `Backend, Datos & Ciencia`.
+- **Milestones del repositorio:** `#1 Sprint 1` (cerrado), `#2 Sprint 2` (cerrado), `#3 Sprint 3` (cerrado), `#4 Sprint 4: Hackathon Neiva, Datos Reales y Entrega NASA` (abierto) y `#5 Física Climática, Dinámica Atmosférica y QA` (abierto).
+- **Total de Issues sincronizados 1:1 con ClickUp:** **29 Issues** (`#42`–`#70`: 19 cerrados en `Done`, 1 abierto en `In Progress`, 9 abiertos en `To Do`), cada uno con el checklist completo de sus subtareas y enlaces directos a ClickUp.
 
 ---
 

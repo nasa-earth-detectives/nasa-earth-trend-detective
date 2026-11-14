@@ -30,10 +30,10 @@
 ### 🖥️ Subequipo Backend & Núcleo Científico ([@nasa-earth-detectives/backend-team](https://github.com/orgs/nasa-earth-detectives/teams/backend-team))
 | Integrante | Rol Oficial | Especialidad Técnica | Responsabilidad Monorrepo |
 | :--- | :--- | :--- | :--- |
-| **July** | **Lead Backend & Arquitectura** | C# .NET 10, Clean Architecture, APIs REST, Middlewares | `backend/src/NasaTrendDetective.Api/` |
-| **Fabriany Medina (Reving)** | **Data & ETL Engineer** | Extracción Satelital NASA, Normalización Espacial, DuckDB OLAP | `backend/src/NasaTrendDetective.Infrastructure/`, `data/` |
-| **Johan Sebastian Olaya Reyes** | **Data Scientist & Matemáticas** | Test de Mann-Kendall, Estimador de Sen, Opposing Trends Engine | `backend/src/NasaTrendDetective.Application/` |
-| **Especialista en Física (Pendiente Correo)** | **Física & Dinámica Climática** | Teleconexiones (ENSO, NAO), Forzamiento Radiativo, GRACE EWH | `docs/obsidian/34-*`, `backend/src/.../Physics/` |
+| **July (`@July173`)** | **Lead Backend & Arquitectura** | C# .NET 10, Clean Architecture, APIs REST, Middlewares | `backend/src/NasaTrendDetective.Api/` |
+| **Fabriany Medina (`@reivyng`)** | **Data & ETL Engineer** | Extracción Satelital NASA, Normalización Espacial, DuckDB OLAP | `backend/src/NasaTrendDetective.Infrastructure/`, `data/` |
+| **Johan Sebastian Olaya Reyes (`@JohanSebastianOlayaReyes`)** | **Data Scientist & Matemáticas** | Test de Mann-Kendall, Estimador de Sen, Opposing Trends Engine | `backend/src/NasaTrendDetective.Application/` |
+| **Emilse Cabrera (`@emilsecc`)** | **Física, Dinámica Climática & QA** | Teleconexiones (ENSO, NAO), Forzamiento Radiativo, GRACE EWH, QA Físico | `docs/obsidian/34-*`, `backend/src/.../Physics/` |
 
 ### 🎨 Subequipo Frontend & Visualización 3D ([@nasa-earth-detectives/frontend-team](https://github.com/orgs/nasa-earth-detectives/teams/frontend-team))
 | Integrante | Rol Oficial | Especialidad Técnica | Responsabilidad Monorrepo |
