@@ -59,13 +59,17 @@ public static class SensSlopeEstimator
             medianSlope = (slopes[(total / 2) - 1] + slopes[total / 2]) / 2.0;
         }
 
-        // Intervalo de Confianza al 95% usando Var(S)
+        // Intervalo de confianza del 95 % según Sen (1968): con las pendientes ordenadas, el límite
+        // inferior es la de rango M1 y el superior la de rango M2 + 1 (contando desde 1), con
+        // M1 = (N - C)/2, M2 = (N + C)/2 y C = z·sqrt(Var(S)). En índices desde 0 son M1 - 1 y M2.
+        // La versión anterior usaba M1 como índice desde 0: el límite inferior quedaba una posición
+        // alto y el intervalo, más estrecho de lo debido. Mismo redondeo que scipy.stats.theilslopes.
         (double Lower, double Upper) ci = (medianSlope, medianSlope);
         if (varianceS > 0)
         {
             var cAlpha = MannKendallCalculator.ZCritical95 * Math.Sqrt(varianceS);
-            var lowerIndex = Math.Clamp((int)Math.Floor((total - cAlpha) / 2.0), 0, total - 1);
-            var upperIndex = Math.Clamp((int)Math.Floor((total + cAlpha) / 2.0), 0, total - 1);
+            var lowerIndex = Math.Max((int)Math.Round((total - cAlpha) / 2.0) - 1, 0);
+            var upperIndex = Math.Min((int)Math.Round((total + cAlpha) / 2.0), total - 1);
             ci = (slopes[lowerIndex], slopes[upperIndex]);
         }
 

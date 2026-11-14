@@ -4,9 +4,14 @@ import { CLIMATE_VARIABLES } from '../../config/climateLayers';
 import { HEX_PALETTE_GRADIENT, sampleHexColor } from '../../config/hexPalette';
 import { describeHexTrend, formatHexValue, HEX_PRESENTATION, readableHexUnit } from '../../config/hexPresentation';
 import type { HexCell, HexDataset } from '../../types/hex.types';
+import type { DatasetProvenance } from '../../types/dataset.types';
+import { provenanceLabel } from '../../services/datasetCatalog';
+import { HexCellVerdict, HexSignificanceSummary } from './HexSignificance';
 
 interface HexReadoutProps {
   data: HexDataset | null;
+  /** Procedencia de la variable activa: rotula la fuente real en vez de un genérico "API". */
+  provenance?: DatasetProvenance | null;
   loading: boolean;
   error: string | null;
   selectedCell: HexCell | null;
@@ -64,7 +69,7 @@ function CellPicker({ data, cell, onSelectCell }: {
 }
 
 /** El signo expresa dirección; no determina significancia estadística ni causa física. */
-export function HexReadout({ data, loading, error, selectedCell, onSelectCell }: HexReadoutProps) {
+export function HexReadout({ data, provenance = null, loading, error, selectedCell, onSelectCell }: HexReadoutProps) {
   const ready = !loading && !error && data !== null;
   const count = ready ? data.cells.length : 0;
   const state = loading ? 'loading' : error ? 'error' : count === 0 ? 'empty' : 'ready';
@@ -100,11 +105,13 @@ export function HexReadout({ data, loading, error, selectedCell, onSelectCell }:
           <p className="hex-readout__direction" title={presentation?.explanation}>{direction}
             {clipped && <span> · Fuera de escala: color y altura limitados a ±{formatHexValue(data.heightDomain)}</span>}
           </p>
+          <HexCellVerdict cell={cell} />
         </> : <div className="hex-readout__count">
           <strong>{loading || error ? '—' : count.toLocaleString('es-CO')}</strong>
           <span>{loading ? 'Preparando la capa…' : error ? 'Capa no disponible' :
             count === 0 ? 'Sin celdas para este periodo' : data?.source === 'demo' ? 'celdas de muestra' : 'celdas de análisis'}</span>
         </div>}
+        {!cell && ready && data.significance && <HexSignificanceSummary significance={data.significance} />}
         {error && <p className="hex-readout__error">{error}</p>}
       </div>
       {ready && count > 0 && <>
@@ -139,7 +146,7 @@ export function HexReadout({ data, loading, error, selectedCell, onSelectCell }:
       <p className="hex-readout__source">
         <span aria-hidden="true" />
         {!data ? 'Sin datos visibles en esta capa' : data.source === 'api'
-          ? 'Datos recibidos de la API' : 'Datos simulados · no son observaciones NASA'}
+          ? provenanceLabel(provenance) : 'Datos simulados · no son observaciones NASA'}
       </p>
       {ready && count > 0 && <CellPicker key={`${data.variable}:${data.source}`} data={data} cell={cell} onSelectCell={onSelectCell} />}
     </section>

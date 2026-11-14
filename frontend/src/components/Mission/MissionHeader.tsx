@@ -1,4 +1,4 @@
-import { Compass, Search, Sparkles, BookOpen } from 'lucide-react';
+import { Compass, Search, Scale, BookOpen } from 'lucide-react';
 
 interface MissionHeaderProps {
   edition?: string;
@@ -32,10 +32,10 @@ export function MissionHeader({
             onClick={onOpenMissions}
             className="mission-action-btn focus-ring"
             data-ui-control
-            aria-label="Casos de demostración preconfigurados"
-            title="Casos de demostración (NASA Space Apps)"
+            aria-label="Casos de estudio con tendencias opuestas"
+            title="Casos de estudio: dos regiones, sentidos opuestos"
           >
-            <Sparkles size={14} strokeWidth={1.8} aria-hidden="true" />
+            <Scale size={14} strokeWidth={1.8} aria-hidden="true" />
             <span className="mission-btn-text">Casos</span>
           </button>
         )}

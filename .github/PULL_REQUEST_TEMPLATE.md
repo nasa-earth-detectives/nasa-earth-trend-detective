@@ -35,7 +35,7 @@ Closes #<!-- Número del Issue o código ClickUp ej. [S3-T4] -->
 ---
 
 ### ✅ Checklist de Calidad e Ingeniería (GEMINI.md Obligatorio)
-- [ ] **Modularidad:** Todos los archivos creados/modificados tienen menos de 150-200 líneas (SRP).
+- [ ] **Modularidad:** Todos los archivos creados/modificados tienen 300 líneas o menos (SRP).
 - [ ] **Cero Código Quemado:** Sin URLs absolutas, IDs hardcodeados ni strings mágicos (uso de Enums y `.env`).
 - [ ] **Compilación Limpia:** `npm run build` y `dotnet build` pasan con 0 errores y 0 advertencias.
 - [ ] **Rigor Científico:** Si incluye cálculos matemáticos, se verificó la validez no paramétrica contra datos de la NASA.

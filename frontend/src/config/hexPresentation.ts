@@ -38,6 +38,41 @@ export const HEX_PRESENTATION: Record<ClimateVariable, HexPresentation> = {
     decrease: 'Descenso de CO₂',
     explanation: 'Ritmo de cambio de la concentración de CO₂ durante el periodo; no es la concentración actual.',
   },
+  Merra2Temperature: {
+    heading: 'Tendencia de temperatura del aire',
+    subject: 'La temperatura del aire a 2 m',
+    increase: 'Aumento de la temperatura del aire',
+    decrease: 'Descenso de la temperatura del aire',
+    explanation: 'Ritmo de cambio de la temperatura media anual del aire durante el periodo; no es la temperatura actual.',
+  },
+  Merra2Precipitation: {
+    heading: 'Tendencia de precipitación',
+    subject: 'La precipitación',
+    increase: 'Aumento de la precipitación',
+    decrease: 'Descenso de la precipitación',
+    explanation: 'Ritmo de cambio de la precipitación media anual durante el periodo; no es la lluvia de un año concreto.',
+  },
+  GpmPrecipitation: {
+    heading: 'Tendencia de precipitación (satélite)',
+    subject: 'La precipitación estimada por satélite',
+    increase: 'Aumento de la precipitación',
+    decrease: 'Descenso de la precipitación',
+    explanation: 'Ritmo de cambio de la precipitación media anual de GPM IMERG durante el periodo; no es la lluvia de un año concreto.',
+  },
+  Merra2Evaporation: {
+    heading: 'Tendencia de evaporación',
+    subject: 'La evaporación en tierra',
+    increase: 'Aumento de la evaporación',
+    decrease: 'Descenso de la evaporación',
+    explanation: 'Ritmo de cambio de la evaporación media anual sobre tierra durante el periodo; por sí sola no indica sequía.',
+  },
+  Merra2SoilMoisture: {
+    heading: 'Tendencia de humedad del suelo',
+    subject: 'La humedad del suelo',
+    increase: 'Aumento de la humedad del suelo',
+    decrease: 'Descenso de la humedad del suelo',
+    explanation: 'Ritmo de cambio de la humedad media anual en la zona de raíces durante el periodo; no es la humedad actual.',
+  },
 };
 
 const regular = new Intl.NumberFormat('es-CO', { maximumSignificantDigits: 3 });

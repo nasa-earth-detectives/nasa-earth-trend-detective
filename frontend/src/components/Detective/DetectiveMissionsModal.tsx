@@ -1,77 +1,38 @@
+/**
+ * Casos de estudio: un tablero que compara dos regiones variable por variable. Es la idea central del
+ * reto (una misma variable sube en un lugar y baja en otro) enseñada con datos, no contada.
+ */
 import { useEffect, useRef } from 'react';
-import { X, Flame, Snowflake, Trees, Factory, ChevronRight } from 'lucide-react';
+import { X } from 'lucide-react';
 import type { ClimateVariable } from '../../types/climate.types';
 import type { SelectedLocation } from '../../hooks/useImmersiveUi';
+import { CLIMATE_VARIABLES } from '../../config/climateLayers';
+import { CASE_REGIONS, CASE_VARIABLES, caseKey, type CaseRegion } from '../../config/opposingCases';
+import { OBSERVATION_SCALES } from '../../utils/colorScales';
+import { useFocusTrap } from '../../hooks/useFocusTrap';
+import { useOpposingCases, type CaseVerdict } from '../../hooks/useOpposingCases';
+import { verdictTone } from '../../utils/caseVerdict';
+import { OpposingCaseCell } from './OpposingCaseCell';
+import { VARIABLE_ACCENT_STYLE, VARIABLE_ICONS } from './variableIcons';
 import '../../styles/detective-modals.css';
 
+/** Lo que el globo necesita para abrir un caso: qué variable, dónde y en qué año. */
 export interface MissionPreset {
-  id: string;
-  title: string;
-  tag: string;
-  icon: typeof Flame;
-  accent: string;
   variable: ClimateVariable;
   location: SelectedLocation;
   year: number;
-  highlightText: string;
-  description: string;
-  scientificContext: string;
 }
 
-export const DEMO_MISSIONS: MissionPreset[] = [
-  {
-    id: 'arctic-amplification',
-    title: 'Amplificación Ártica',
-    tag: 'Datos Reales GISTEMP',
-    icon: Flame,
-    accent: '#ff5533',
-    variable: 'Gistemp',
-    location: { lat: 73.0, lng: -40.0 },
-    year: 2024,
-    highlightText: '+0.72 °C / década (p < 0.001)',
-    description: 'El calentamiento polar supera por 4x el promedio global debido a la pérdida de reflectividad albedo en el hielo marino.',
-    scientificContext: 'GISTEMP v4 · Observación Real de la NASA',
-  },
-  {
-    id: 'greenland-ice-melt',
-    title: 'Deshielo en Groenlandia',
-    tag: 'Masa Satelital GRACE',
-    icon: Snowflake,
-    accent: '#00d2ff',
-    variable: 'GraceMass',
-    location: { lat: 71.0, lng: -42.5 },
-    year: 2023,
-    highlightText: '-262 Gt / año de pérdida',
-    description: 'Micro-anomalías del campo gravitatorio terrestre confirman el desprendimiento sostenido de los casquetes glaciares.',
-    scientificContext: 'GRACE / GRACE-FO · Misión de Gravedad NASA/GFZ',
-  },
-  {
-    id: 'sahel-greening',
-    title: 'Reverdecimiento del Sahel',
-    tag: 'Vegetación MODIS',
-    icon: Trees,
-    accent: '#10b981',
-    variable: 'ModisNdvi',
-    location: { lat: 14.5, lng: 1.5 },
-    year: 2022,
-    highlightText: '+0.015 NDVI / década',
-    description: 'Aumento de vigor foliar en el borde sur del Sahara por variaciones meridionales en el cinturón de lluvias monzónicas.',
-    scientificContext: 'MODIS Terra/Aqua · Índice de Vegetación NDVI',
-  },
-  {
-    id: 'mauna-loa-co2',
-    title: 'Forzamiento por CO₂ en Mauna Loa',
-    tag: 'Espectrometría OCO-2',
-    icon: Factory,
-    accent: '#ec4899',
-    variable: 'Oco2',
-    location: { lat: 19.5, lng: -155.5 },
-    year: 2024,
-    highlightText: '> 422 ppm en columna',
-    description: 'Fracción molar media de dióxido de carbono troposférico con tendencia monotónica creciente sin precedentes.',
-    scientificContext: 'OCO-2 / OCO-3 · Espectrómetro de Rejilla NASA',
-  },
-];
+const coordinates = (region: CaseRegion) =>
+  `${Math.abs(region.lat)}° ${region.lat >= 0 ? 'N' : 'S'} · ${Math.abs(region.lng)}° ${region.lng >= 0 ? 'E' : 'O'}`;
+
+/** Lectura del par: sólo se dice "opuestas" si las dos tendencias son significativas y de signo contrario. */
+function pairReading(first: CaseVerdict | undefined, second: CaseVerdict | undefined): { tone: string; label: string } {
+  const tones = [verdictTone(first), verdictTone(second)];
+  if (tones.includes('none')) return { tone: 'pending', label: '—' };
+  if (tones.includes('flat')) return { tone: 'open', label: 'No concluyente' };
+  return tones[0] === tones[1] ? { tone: 'same', label: 'Mismo sentido' } : { tone: 'opposite', label: 'Opuestas' };
+}
 
 interface DetectiveMissionsModalProps {
   open: boolean;
@@ -80,68 +41,89 @@ interface DetectiveMissionsModalProps {
 }
 
 export function DetectiveMissionsModal({ open, onClose, onSelectMission }: DetectiveMissionsModalProps) {
-  const modalRef = useRef<HTMLDivElement>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const verdicts = useOpposingCases(open);
+  useFocusTrap(dialogRef, open);
 
   useEffect(() => {
     if (!open) return;
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
-    };
+    const handleKeyDown = (event: KeyboardEvent) => { if (event.key === 'Escape') onClose(); };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [open, onClose]);
 
   if (!open) return null;
 
+  const openCase = (variable: ClimateVariable, region: CaseRegion) => {
+    const verdict = verdicts[caseKey(variable, region.id)];
+    if (verdict?.status !== 'ready') return;
+    onSelectMission({ variable, location: { lat: region.lat, lng: region.lng }, year: verdict.endYear });
+    onClose();
+  };
+
   return (
-    <div className="detective-modal-backdrop" onClick={onClose} role="dialog" aria-modal="true" aria-labelledby="missions-title">
-      <div className="detective-modal-card" onClick={e => e.stopPropagation()} ref={modalRef}>
-        <header className="detective-modal-header">
+    <div className="dossier-backdrop" onClick={onClose}>
+      <div className="dossier dossier--wide" role="dialog" aria-modal="true" aria-labelledby="cases-title"
+        ref={dialogRef} tabIndex={-1} onClick={event => event.stopPropagation()}>
+        <header className="dossier__header">
           <div>
-            <span className="detective-modal-eyebrow">NASA Space Apps 2026 · Demostración Oficial</span>
-            <h2 id="missions-title">Misiones de Detective Preconfiguradas</h2>
-            <p className="detective-modal-desc">
-              Selecciona un caso de estudio para volar inmediatamente la cámara a la coordenada exacta y analizar la evidencia.
+            <p className="dossier__eyebrow">Casos de estudio<span>MERRA-2 · NASA POWER</span></p>
+            <h2 id="cases-title">Dos regiones, sentidos opuestos</h2>
+            <p className="dossier__lead">
+              La misma variable puede subir en un lugar y bajar en otro. Cada cifra de este tablero se calcula
+              ahora mismo con la serie real de esa celda: ninguna está escrita a mano.
             </p>
           </div>
-          <button type="button" onClick={onClose} className="detective-modal-close focus-ring" aria-label="Cerrar ventana">
-            <X size={20} strokeWidth={1.5} />
+          <button type="button" onClick={onClose} className="dossier__close focus-ring" aria-label="Cerrar">
+            <X size={18} strokeWidth={1.5} aria-hidden="true" />
           </button>
         </header>
 
-        <div className="detective-missions-grid">
-          {DEMO_MISSIONS.map(mission => {
-            const Icon = mission.icon;
-            return (
-              <article key={mission.id} className="detective-mission-item" style={{ '--card-accent': mission.accent } as React.CSSProperties}>
-                <div className="detective-mission-top">
-                  <div className="detective-mission-badge" style={{ borderColor: mission.accent, color: mission.accent }}>
-                    <Icon size={14} />
-                    <span>{mission.tag}</span>
-                  </div>
-                  <span className="detective-mission-year">Año {mission.year}</span>
-                </div>
-
-                <h3>{mission.title}</h3>
-                <p className="detective-mission-highlight">{mission.highlightText}</p>
-                <p className="detective-mission-body">{mission.description}</p>
-                <p className="detective-mission-meta">{mission.scientificContext}</p>
-
-                <button
-                  type="button"
-                  className="detective-mission-launch-btn focus-ring"
-                  onClick={() => {
-                    onSelectMission(mission);
-                    onClose();
-                  }}
-                >
-                  <span>Investigar caso</span>
-                  <ChevronRight size={16} />
-                </button>
-              </article>
-            );
-          })}
+        <div className="case-board scrollbar-instrument">
+          <table className="case-board__table">
+            <caption className="sr-only">Tendencias por variable en dos regiones</caption>
+            <thead>
+              <tr className="case-board__head">
+                <th scope="col">Variable</th>
+                {CASE_REGIONS.map(region => (
+                  <th key={region.id} scope="col" className="case-board__place">{region.name}<small>{coordinates(region)}</small></th>
+                ))}
+                <th scope="col">Lectura</th>
+              </tr>
+            </thead>
+            <tbody>
+              {CASE_VARIABLES.map(variable => {
+                const meta = CLIMATE_VARIABLES.find(item => item.id === variable);
+                const Icon = VARIABLE_ICONS[variable];
+                const [first, second] = CASE_REGIONS.map(region => verdicts[caseKey(variable, region.id)]);
+                const reading = pairReading(first, second);
+                return (
+                  <tr key={variable} className="case-board__row" style={VARIABLE_ACCENT_STYLE[variable]}>
+                    <th scope="row">
+                      <div className="case-board__variable">
+                        <span className="case-board__icon" aria-hidden="true"><Icon size={17} strokeWidth={1.5} /></span>
+                        <span>{meta?.name}<small>{OBSERVATION_SCALES[variable].unit}</small></span>
+                      </div>
+                    </th>
+                    {CASE_REGIONS.map((region, index) => (
+                      <OpposingCaseCell key={region.id} verdict={index === 0 ? first : second}
+                        unit={OBSERVATION_SCALES[variable].unit} placeLabel={`${meta?.name} en ${region.name}`}
+                        onOpen={() => openCase(variable, region)} />
+                    ))}
+                    <td><span className="case-board__reading" data-tone={reading.tone}>{reading.label}</span></td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
         </div>
+
+        <p className="dossier__foot">
+          Prueba de Mann-Kendall y pendiente de Sen sobre todos los años disponibles, con 95 % de confianza.
+          El valor p ya descuenta la persistencia de un año al siguiente; sólo se dice que sube o baja si lo supera.
+          MERRA-2 es un modelo de la NASA que reconstruye la atmósfera a partir de observaciones, no una
+          medición directa: el tablero dice qué muestran sus datos, no por qué ocurre.
+        </p>
       </div>
     </div>
   );

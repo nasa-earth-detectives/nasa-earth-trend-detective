@@ -24,13 +24,43 @@ export const OBSERVATION_SCALES: Record<ClimateVariable, ObservationScale> = {
     domain: [0, 1], midpoint: 0.5, unit: 'NDVI', label: 'Índice de vegetación',
     stops: [SCIENCE_SURFACE_COLORS.drySoil, SCIENCE_ACCENTS.ModisNdvi.accent, SCIENCE_SURFACE_COLORS.chlorophyll],
   },
+  // Percentil 90 del valor absoluto medido en 2025 (49 cm). Los mantos de hielo se salen de la escala
+  // a propósito (percentil 99: 406 cm): con ellos dentro, el resto del planeta se vería sin color.
   GraceMass: {
-    domain: [-30, 30], midpoint: 0, unit: 'cm H₂O eq.', label: 'Anomalía de agua y hielo',
+    domain: [-50, 50], midpoint: 0, unit: 'cm H₂O eq.', label: 'Anomalía de agua y hielo · base 2004–2009',
     stops: [SCIENCE_SURFACE_COLORS.waterDeficit, SCIENCE_SURFACE_COLORS.neutral, SCIENCE_SURFACE_COLORS.glacier],
   },
+  // Rango medido en las medias anuales de OCO-2: de 396 ppm (mínimo de 2015) a 429 ppm (máximo de 2025).
   Oco2: {
-    domain: [360, 450], midpoint: 420, unit: 'ppm', label: 'Concentración de CO₂',
+    domain: [395, 430], midpoint: 412.5, unit: 'ppm', label: 'Concentración de CO₂ · media de la columna',
     stops: [SCIENCE_SURFACE_COLORS.co2Baseline, SCIENCE_ACCENTS.Oco2.accent, SCIENCE_SURFACE_COLORS.co2Elevated],
+  },
+  // MERRA-2: anomalía anual respecto a 1991-2020. Cada dominio es el percentil 99 del valor absoluto
+  // medido en los datos cargados (2,50 °C; 2,17 y 0,93 mm/día; 0,147), no un umbral científico.
+  Merra2Temperature: {
+    domain: [-2.5, 2.5], midpoint: 0, unit: '°C', label: 'Anomalía de temperatura del aire · base 1991–2020',
+    colorContrastPower: 0.65,
+    stops: [SCIENCE_SURFACE_COLORS.cold, SCIENCE_SURFACE_COLORS.neutral, SCIENCE_SURFACE_COLORS.hot],
+  },
+  Merra2Precipitation: {
+    domain: [-2, 2], midpoint: 0, unit: 'mm/día', label: 'Anomalía de precipitación · base 1991–2020',
+    colorContrastPower: 0.6,
+    stops: [SCIENCE_SURFACE_COLORS.waterDeficit, SCIENCE_SURFACE_COLORS.neutral, SCIENCE_SURFACE_COLORS.glacier],
+  },
+  GpmPrecipitation: {
+    domain: [-2, 2], midpoint: 0, unit: 'mm/día', label: 'Anomalía de precipitación (satélite) · base 2001–2020',
+    colorContrastPower: 0.6,
+    stops: [SCIENCE_SURFACE_COLORS.waterDeficit, SCIENCE_SURFACE_COLORS.neutral, SCIENCE_SURFACE_COLORS.glacier],
+  },
+  Merra2Evaporation: {
+    domain: [-0.9, 0.9], midpoint: 0, unit: 'mm/día', label: 'Anomalía de evaporación · base 1991–2020',
+    colorContrastPower: 0.65,
+    stops: [SCIENCE_SURFACE_COLORS.drySoil, SCIENCE_SURFACE_COLORS.neutral, SCIENCE_SURFACE_COLORS.glacier],
+  },
+  Merra2SoilMoisture: {
+    domain: [-0.15, 0.15], midpoint: 0, unit: 'fracción', label: 'Anomalía de humedad del suelo · base 1991–2020',
+    colorContrastPower: 0.65,
+    stops: [SCIENCE_SURFACE_COLORS.drySoil, SCIENCE_SURFACE_COLORS.neutral, SCIENCE_SURFACE_COLORS.chlorophyll],
   },
 };
 
@@ -40,8 +70,9 @@ const cssColor = new Color();
 
 /** No confunde una observación anual con una pendiente de cambio por año. */
 export function getObservationValue(observation: ClimateObservation): number {
-  return observation.variable === 'Gistemp' || observation.variable === 'GraceMass'
-    ? observation.anomaly ?? observation.value : observation.value;
+  // NDVI y CO₂ se leen en valor absoluto; el resto, como diferencia respecto a su periodo base.
+  return observation.variable === 'ModisNdvi' || observation.variable === 'Oco2'
+    ? observation.value : observation.anomaly ?? observation.value;
 }
 
 export function sampleObservationColor(variable: ClimateVariable, value: number, target = new Color()): Color {

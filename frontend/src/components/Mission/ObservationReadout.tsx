@@ -4,6 +4,7 @@ import type { ObservationCoverage, ObservationLayerMode, ObservationSource } fro
 import type { DatasetProvenance } from '../../types/dataset.types';
 import { getObservationValue, observationColorCss, OBSERVATION_SCALES } from '../../utils/colorScales';
 import { partialYearNote, provenanceLabel } from '../../services/datasetCatalog';
+import { OCEAN_COVERING_VARIABLES } from '../../config/climateLayers';
 
 interface ObservationReadoutProps {
   observations: ClimateObservation[];
@@ -25,6 +26,11 @@ const descriptions: Record<ClimateVariable, [string, string, string]> = {
   ModisNdvi: ['Bajo NDVI', '', 'Alto NDVI'],
   GraceMass: ['Déficit', 'Referencia', 'Acumulación'],
   Oco2: ['Menor CO₂', '', 'Mayor CO₂'],
+  Merra2Temperature: ['Más fría', 'Referencia', 'Más cálida'],
+  Merra2Precipitation: ['Más seco', 'Referencia', 'Más lluvioso'],
+  GpmPrecipitation: ['Más seco', 'Referencia', 'Más lluvioso'],
+  Merra2Evaporation: ['Menos evaporación', 'Referencia', 'Más evaporación'],
+  Merra2SoilMoisture: ['Suelo más seco', 'Referencia', 'Suelo más húmedo'],
 };
 
 /** Alternativa de teclado paginada: nunca monta miles de opciones. */
@@ -81,7 +87,7 @@ export function ObservationReadout({ observations, variable, year, source, prove
   const value = cell ? getObservationValue(cell) : null;
   const ramp = Array.from({ length: 9 }, (_, i) => observationColorCss(variable, min + (max - min) * i / 8)).join(', ');
   const labels = descriptions[variable];
-  const scope = coverage === 'land' || variable === 'ModisNdvi' || variable === 'GraceMass' ? 'Superficie terrestre' : 'Tierra + océano';
+  const scope = coverage === 'land' || !OCEAN_COVERING_VARIABLES.has(variable) ? 'Superficie terrestre' : 'Tierra + océano';
   return <section className="hex-readout observation-readout" aria-label="Lectura de observaciones"
     data-state={loading ? 'loading' : error ? 'error' : observations.length ? 'ready' : 'empty'}>
     <div className="hex-readout__heading"><span>{mode === 'heat' ? 'Mapa de calor' : mode === 'hex' ? 'Hexágonos 3D' : 'Observaciones'} · {scope}</span><span title={partialYearNote(provenance, year) ? 'Año en curso: media de los meses publicados' : undefined}>{year}{partialYearNote(provenance, year) ? ` · ${partialYearNote(provenance, year)}` : ''}</span></div>
@@ -103,7 +109,7 @@ export function ObservationReadout({ observations, variable, year, source, prove
         </div>
         <div className="hex-color-key__scale" aria-hidden="true"><span>{number(min)}</span><span>{number((min + max) / 2)}</span><span>{number(max)}</span></div>
         <div className="hex-color-key__labels" aria-hidden="true">{labels.map((label, i) => <span key={i}>{label}</span>)}</div>
-        {variable === 'Gistemp' && <p className="hex-color-key__reference">Respecto al promedio de referencia</p>}
+        {(provenance?.baseline || variable === 'Gistemp') && <p className="hex-color-key__reference">Respecto al promedio de {provenance?.baseline ?? 'referencia'}</p>}
       </div>
       <p className="observation-readout__method">{mode === 'heat' ? 'Media espacial suavizada · radio de 4°' : 'Altura normalizada · escala fija por variable'}</p>
     </>}

@@ -1,7 +1,7 @@
 import { useEffect, useRef, type KeyboardEvent } from 'react';
 import { X } from 'lucide-react';
 import type { ClimateVariable } from '../../types/climate.types';
-import { SCIENTIFIC_OVERLAYS } from '../../config/climateLayers';
+import { OCEAN_COVERING_VARIABLES, SCIENTIFIC_OVERLAYS } from '../../config/climateLayers';
 import type { LayerTab } from '../../hooks/useImmersiveUi';
 import { VariableLayerList } from './VariableLayerList';
 import { ViewOptionsList } from './ViewOptionsList';
@@ -120,7 +120,7 @@ export function LayerPanel({
           <ReadingModeControl reading={reading} onReadingChange={onReadingChange}
             observationMode={observationMode} onObservationModeChange={onObservationModeChange}
             coverage={coverage} onCoverageChange={onCoverageChange}
-            showCoverage={selectedVariable === 'Gistemp' || selectedVariable === 'Oco2'} />
+            showCoverage={OCEAN_COVERING_VARIABLES.has(selectedVariable)} />
           <VariableLayerList selected={selectedVariable} onSelect={onVariableSelect} />
 
           <div className="instrument-live-section" style={{ marginTop: '1.25rem', paddingTop: '1rem', borderTop: '1px solid rgba(255,255,255,0.08)' }}>

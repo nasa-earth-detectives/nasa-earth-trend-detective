@@ -23,7 +23,7 @@ export const CLIMATE_MILESTONES: Record<number, ClimateMilestone> = {
     categoryLabel: 'Récord Glaciar',
     summary: 'Desprendimiento de 3.250 km² de hielo en la Península Antártica en solo 35 días.',
     scientificImpact: 'Aceleración del flujo de glaciares tributarios hacia el océano antártico.',
-    badgeColor: '#38bdf8',
+    badgeColor: '#5f88a6',
   },
   2005: {
     year: 2005,
@@ -32,7 +32,7 @@ export const CLIMATE_MILESTONES: Record<number, ClimateMilestone> = {
     categoryLabel: 'Anomalía Oceánica',
     summary: 'Calentamiento récord en el Golfo de México y 28 tormentas nombradas en el Atlántico.',
     scientificImpact: 'Primera evidencia satelital de intensificación térmica en huracanes mayores.',
-    badgeColor: '#f97316',
+    badgeColor: '#d4834a',
   },
   2012: {
     year: 2012,
@@ -41,7 +41,7 @@ export const CLIMATE_MILESTONES: Record<number, ClimateMilestone> = {
     categoryLabel: 'Mínimo Criósfera',
     summary: 'La extensión de hielo marino polar cayó a 3,41 millones de km² (el registro más bajo satelital).',
     scientificImpact: 'Amplificación ártica acelerada por retroalimentación de albedo oceánico.',
-    badgeColor: '#06b6d4',
+    badgeColor: '#7fb2c9',
   },
   2015: {
     year: 2015,
@@ -50,7 +50,7 @@ export const CLIMATE_MILESTONES: Record<number, ClimateMilestone> = {
     categoryLabel: 'Gobernanza Global',
     summary: 'Firma internacional de la COP21 fijando la meta de limitar el calentamiento a 1,5°C.',
     scientificImpact: 'Establecimiento de inventarios de emisiones globales basados en satélites.',
-    badgeColor: '#10b981',
+    badgeColor: '#93b185',
   },
   2016: {
     year: 2016,
@@ -59,7 +59,7 @@ export const CLIMATE_MILESTONES: Record<number, ClimateMilestone> = {
     categoryLabel: 'Pico Térmico',
     summary: 'Anomalía de +1,02°C sobre la media base, impulsada por un evento El Niño de intensidad extrema.',
     scientificImpact: 'Blanqueamiento masivo de corales en la Gran Barrera y arrecifes tropicales.',
-    badgeColor: '#ef4444',
+    badgeColor: '#c8703f',
   },
   2020: {
     year: 2020,
@@ -68,7 +68,7 @@ export const CLIMATE_MILESTONES: Record<number, ClimateMilestone> = {
     categoryLabel: 'Anomalía Forzamiento',
     summary: 'Caída súbita del 7% en emisiones globales y reducción de aerosoles detectada por satélites.',
     scientificImpact: 'Demostración empírica de respuesta climática ante cambios abruptos en aerosoles.',
-    badgeColor: '#a855f7',
+    badgeColor: '#a38cb9',
   },
   2023: {
     year: 2023,
@@ -77,7 +77,7 @@ export const CLIMATE_MILESTONES: Record<number, ClimateMilestone> = {
     categoryLabel: 'Récord Absoluto',
     summary: 'Meses consecutivos con temperaturas globales superficiales sin precedentes (+1,18°C).',
     scientificImpact: 'Pérdida récord de hielo en la Antártida y temperaturas récord en superficie marina.',
-    badgeColor: '#e11d48',
+    badgeColor: '#b9645a',
   },
   2024: {
     year: 2024,
@@ -86,7 +86,7 @@ export const CLIMATE_MILESTONES: Record<number, ClimateMilestone> = {
     categoryLabel: 'Cúspide Instrumental',
     summary: 'Máximo histórico de temperatura media global superficial (+1,28 °C sobre la media 1951-1980, GISTEMP v4).',
     scientificImpact: 'Riesgo inminente de rebasamiento transitorio del umbral de 1,5°C de París.',
-    badgeColor: '#f43f5e',
+    badgeColor: '#bf6557',
   },
   2026: {
     year: 2026,
@@ -95,7 +95,7 @@ export const CLIMATE_MILESTONES: Record<number, ClimateMilestone> = {
     categoryLabel: 'Misión Activa',
     summary: 'Plataforma interactiva 3D para la detección geo-temporal de tendencias y teleconexiones.',
     scientificImpact: 'Democratización analítica de petabytes de datos de misiones satelitales de la NASA.',
-    badgeColor: '#06b6d4',
+    badgeColor: '#7fb2c9',
   },
 };
 

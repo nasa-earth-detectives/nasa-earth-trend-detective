@@ -58,6 +58,8 @@ public class TrendAnalysisService : ITrendAnalysisService
             IsSignificant = verdict.IsSignificant,
             Direction = verdict.Direction.ToString(),
             ConfidenceInterval95 = verdict.ConfidenceInterval95,
+            Linear = verdict.Linear,
+            Prewhitened = verdict.Prewhitened,
             Observations = observations,
             Source = observed ? DatasetStatusDto.Observed : DatasetStatusDto.Synthetic
         };
@@ -87,6 +89,8 @@ public class TrendAnalysisService : ITrendAnalysisService
             IsSignificant = verdict.IsSignificant,
             Direction = verdict.Direction.ToString(),
             ConfidenceInterval95 = verdict.ConfidenceInterval95,
+            Linear = verdict.Linear,
+            Prewhitened = verdict.Prewhitened,
             Observations = request.Observations
         };
 

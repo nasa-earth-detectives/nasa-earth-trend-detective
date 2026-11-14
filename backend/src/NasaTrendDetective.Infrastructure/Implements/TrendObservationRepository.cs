@@ -14,9 +14,6 @@ namespace NasaTrendDetective.Infrastructure.Implements;
 /// </summary>
 public class TrendObservationRepository : ITrendObservationRepository
 {
-    /// <summary>Misma regla que el análisis por celda: un año incompleto no entra en la serie.</summary>
-    private const int MinMonthsPerYear = GridTrendService.MinMonthsPerYear;
-
     private readonly IDuckDbRepository _repository;
 
     public TrendObservationRepository(IDuckDbRepository repository)
@@ -38,7 +35,8 @@ public class TrendObservationRepository : ITrendObservationRepository
             ["varId"] = (byte)variable,
             ["startYear"] = startYear,
             ["endYear"] = endYear,
-            ["minMonths"] = MinMonthsPerYear
+            // Misma regla que el análisis por celda: un año incompleto no entra en la serie.
+            ["minMonths"] = VariableCadence.MinPeriodsPerYear(variable)
         };
 
         var where = "WHERE variable_id = $varId AND year BETWEEN $startYear AND $endYear";

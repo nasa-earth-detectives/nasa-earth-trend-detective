@@ -19,6 +19,12 @@ public class TrendResultDto
     public bool IsSignificant { get; set; }
     public string Direction { get; set; } = string.Empty;
     public double[] ConfidenceInterval95 { get; set; } = Array.Empty<double>();
+
+    /// <summary>Prueba t de la regresión lineal: pendiente por año, IC del 95 %, t y valor p.</summary>
+    public LinearTrendVerdict Linear { get; set; } = LinearTrendVerdict.Inconclusive;
+
+    /// <summary>Mann-Kendall con preblanqueo: autocorrelación de un año al siguiente, Z y valor p.</summary>
+    public PrewhitenedTrendVerdict Prewhitened { get; set; } = PrewhitenedTrendVerdict.Inconclusive;
     public IReadOnlyList<AnnualObservation>? Observations { get; set; }
 
     /// <summary>"observed" (DuckDB) o "synthetic" (serie de demostración: la variable no tiene dataset).</summary>

@@ -23,7 +23,7 @@ public class DatasetsController : ControllerBase
     [ProducesResponseType(typeof(IReadOnlyList<DatasetStatusDto>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetDatasets(CancellationToken cancellationToken)
     {
-        // Sin caché: es una consulta de una tabla de 4 filas y debe reflejar el sembrado en cuanto termina.
+        // Sin caché: es una consulta de una tabla con una fila por variable y debe reflejar el sembrado en cuanto termina.
         return Ok(await _catalogService.GetCatalogAsync(cancellationToken));
     }
 }

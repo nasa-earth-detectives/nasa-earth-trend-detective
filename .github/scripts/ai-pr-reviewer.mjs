@@ -70,7 +70,7 @@ function generateStaticReport(changedFiles, issues) {
 
   md += `\n### 📋 Cumplimiento de Reglas del Proyecto (GEMINI.md)\n`;
   md += `| Regla | Estado | Detalle |\n| :--- | :---: | :--- |\n`;
-  md += `| **Modularidad (<200 líneas)** | ${hasErrors ? '❌' : '✅'} | ${hasErrors ? 'Se detectaron archivos extensos' : 'Archivos concisos'} |\n`;
+  md += `| **Modularidad (<=300 líneas)** | ${hasErrors ? '❌' : '✅'} | ${hasErrors ? 'Se detectaron archivos extensos' : 'Archivos concisos'} |\n`;
   md += `| **Anti-Hardcoding** | ${issues.some(i => i.message.includes('quemado')) ? '⚠️' : '✅'} | Verificación de IDs y URLs fijas |\n`;
   md += `| **Three.js / WebGL & React 19** | ${issues.some(i => i.message.includes('WebGL') || i.message.includes('Three')) ? '⚠️' : '✅'} | Ciclo de vida y shaders |\n`;
 

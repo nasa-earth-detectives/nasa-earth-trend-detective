@@ -1,10 +1,10 @@
 import type { ClimateVariable } from '../types/climate.types';
 import type { DatasetCatalog, DatasetProvenance, ResolvedSource } from '../types/dataset.types';
+import { VARIABLE_IDS } from '../config/climateLayers';
 import { getJson } from './apiClient';
 
 export type DataSourceMode = 'auto' | 'demo' | 'api';
 
-const VARIABLES: readonly ClimateVariable[] = ['Gistemp', 'ModisNdvi', 'GraceMass', 'Oco2'];
 /** Un backend dormido (Render gratuito) no debe dejar la Tierra sin datos: pasado esto, demo. */
 const CATALOG_TIMEOUT_MS = 6000;
 /** Tras un fallo se reintenta, pero no en cada cambio de año. */
@@ -39,7 +39,7 @@ export function adaptDatasetCatalog(payload: unknown): DatasetCatalog {
     if (!entry || typeof entry !== 'object') continue;
     const row = entry as Record<string, unknown>;
     const code = row.code as ClimateVariable;
-    if (!VARIABLES.includes(code) || row.status !== 'observed' || !row.provenance || typeof row.provenance !== 'object') continue;
+    if (!VARIABLE_IDS.includes(code) || row.status !== 'observed' || !row.provenance || typeof row.provenance !== 'object') continue;
     const p = row.provenance as Record<string, unknown>;
     catalog.set(code, {
       provider: text(p, 'provider'), product: text(p, 'product'), unit: text(p, 'unit'),

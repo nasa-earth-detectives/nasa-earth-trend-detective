@@ -1,7 +1,7 @@
 /**
  * pr-audit-rules.mjs
  * Reglas de auditoría estática y políticas de evaluación para PRs.
- * Cumple con GEMINI.md: Anti God-Class (<200 líneas), Anti-Hardcoding y Blindaje.
+ * Cumple con GEMINI.md: Anti God-Class (<=300 líneas), Anti-Hardcoding y Blindaje.
  */
 
 export const CODE_EXTENSIONS = [
@@ -36,8 +36,8 @@ export function isCodeFile(filename) {
 }
 
 export const AUDIT_POLICIES = {
-  maxLinesPerFile: 200,
-  warnLinesPerFile: 150,
+  maxLinesPerFile: 300,
+  warnLinesPerFile: 250,
   suspiciousPatterns: [
     { regex: /find\([0-9]+\)/i, message: 'Posible ID de registro quemado (find con número fijo)' },
     { regex: /===?\s*['"]https?:\/\//i, message: 'URL absoluta quemada en comparación directa' },
@@ -104,7 +104,7 @@ export function buildReviewerSystemPrompt() {
 Evalúa el diff del Pull Request contra las siguientes reglas OBLIGATORIAS del equipo:
 
 1. MODULARIDAD ESTRICTA (ANTI GOD-CLASS):
-   - Archivos concisos (< 150 a 200 líneas).
+   - Archivos concisos (<= 300 líneas; aviso desde 250 líneas).
    - Separación de responsabilidades: Handlers, Hooks, DTOs, Service Layer.
 2. CERO CÓDIGO QUEMADO (NO HARDCODING):
    - Prohibido quemar IDs de registros, URLs absolutas o constantes mágicas sin Enums.

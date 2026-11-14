@@ -9,8 +9,9 @@ namespace NasaTrendDetective.Application.Interfaces;
 public interface IGridTrendRepository
 {
     /// <param name="minMonthsPerYear">
-    /// Un año entra en la serie de una celda solo si tiene al menos estos meses válidos; así un año
-    /// en curso (p.ej. enero-agosto) no se compara de igual a igual con años completos.
+    /// Un año entra en la serie de una celda solo si tiene al menos estos periodos válidos; así un año
+    /// en curso (p.ej. enero-agosto) no se compara de igual a igual con años completos. Lo decide
+    /// VariableCadence: 9 meses en datasets mensuales, 1 fila en datasets anuales.
     /// </param>
     Task<IReadOnlyList<CellAnnualSeries>> GetCellAnnualSeriesAsync(
         ClimateVariable variable,
