@@ -4,6 +4,7 @@ import type { ObservationCoverage, ObservationLayerMode, ObservationSource } fro
 import type { DatasetProvenance } from '../../types/dataset.types';
 import { getObservationValue, observationColorCss, OBSERVATION_SCALES } from '../../utils/colorScales';
 import { partialYearNote, provenanceLabel } from '../../services/datasetCatalog';
+import { OCEAN_COVERING_VARIABLES } from '../../config/climateLayers';
 
 interface ObservationReadoutProps {
   observations: ClimateObservation[];
@@ -23,11 +24,16 @@ const coordinates = (item: ClimateObservation) => `${Math.abs(item.latitude).toF
 const descriptions: Record<ClimateVariable, [string, string, string]> = {
   Gistemp: ['Cooler', 'Baseline', 'Warmer'],
   ModisNdvi: ['Low NDVI', '', 'High NDVI'],
-  GraceMass: ['Deficit', 'Baseline', 'Gain'],
+  GraceMass: ['Deficit', 'Baseline', 'Surplus'],
   Oco2: ['Lower CO₂', '', 'Higher CO₂'],
+  Merra2Temperature: ['Cooler', 'Baseline', 'Warmer'],
+  Merra2Precipitation: ['Drier', 'Baseline', 'Wetter'],
+  GpmPrecipitation: ['Drier', 'Baseline', 'Wetter'],
+  Merra2Evaporation: ['Less evaporation', 'Baseline', 'More evaporation'],
+  Merra2SoilMoisture: ['Drier soil', 'Baseline', 'Wetter soil'],
 };
 
-/** Paginated keyboard alternative: never renders thousands of option elements. */
+/** Paginated keyboard fallback: never mounts thousands of options. */
 function ObservationPicker({ observations, selected, onSelect }: Pick<ObservationReadoutProps, 'observations' | 'selected' | 'onSelect'>) {
   const [open, setOpen] = useState(false);
   const [requestedPage, setPage] = useState(0);
@@ -45,7 +51,7 @@ function ObservationPicker({ observations, selected, onSelect }: Pick<Observatio
       close(event.currentTarget);
       event.currentTarget.querySelector('summary')?.focus();
     }}>
-    <summary className="focus-ring">{selected ? 'Other cell' : 'Select cell'}<span aria-hidden="true">↗</span></summary>
+    <summary className="focus-ring">{selected ? 'Other cell' : 'Choose cell'}<span aria-hidden="true">↗</span></summary>
     {open && <div className="hex-cell-picker__controls">
       <select className="focus-ring" aria-label="Observation cell by coordinates" value={selected?.id ?? ''}
         onChange={event => {
@@ -62,15 +68,15 @@ function ObservationPicker({ observations, selected, onSelect }: Pick<Observatio
         {items.map(item => <option key={item.id} value={item.id}>{coordinates(item)} · {number(getObservationValue(item))} {OBSERVATION_SCALES[item.variable].unit}</option>)}
       </select>
       <div className="hex-cell-picker__pagination">
-        <button className="focus-ring" type="button" aria-label="Previous page of cells" disabled={page === 0} onClick={() => setPage(page - 1)}>←</button>
+        <button className="focus-ring" type="button" aria-label="Previous cell page" disabled={page === 0} onClick={() => setPage(page - 1)}>←</button>
         <output aria-live="polite">{number(start + 1)}–{number(start + items.length)}<span> of {number(observations.length)}</span></output>
-        <button className="focus-ring" type="button" aria-label="Next page of cells" disabled={start + items.length >= observations.length} onClick={() => setPage(page + 1)}>→</button>
+        <button className="focus-ring" type="button" aria-label="Next cell page" disabled={start + items.length >= observations.length} onClick={() => setPage(page + 1)}>→</button>
       </div>
     </div>}
   </details>;
 }
 
-/** Annual values, distinct from a temporal slope. Hexagons and heatmap share the scale. */
+/** Annual values, distinct from a temporal slope. Hexagons and heat share a scale. */
 export function ObservationReadout({ observations, variable, year, source, provenance = null, mode, coverage, loading, error,
   selected, onSelect }: ObservationReadoutProps) {
   const scale = OBSERVATION_SCALES[variable];
@@ -81,10 +87,10 @@ export function ObservationReadout({ observations, variable, year, source, prove
   const value = cell ? getObservationValue(cell) : null;
   const ramp = Array.from({ length: 9 }, (_, i) => observationColorCss(variable, min + (max - min) * i / 8)).join(', ');
   const labels = descriptions[variable];
-  const scope = coverage === 'land' || variable === 'ModisNdvi' || variable === 'GraceMass' ? 'Land surface' : 'Land + ocean';
+  const scope = coverage === 'land' || !OCEAN_COVERING_VARIABLES.has(variable) ? 'Land surface' : 'Land + ocean';
   return <section className="hex-readout observation-readout" aria-label="Observation readout"
     data-state={loading ? 'loading' : error ? 'error' : observations.length ? 'ready' : 'empty'}>
-    <div className="hex-readout__heading"><span>{mode === 'heat' ? 'Heatmap' : mode === 'hex' ? '3D Hexagons' : 'Observations'} · {scope}</span><span title={partialYearNote(provenance, year) ? 'Current year: average of published months' : undefined}>{year}{partialYearNote(provenance, year) ? ` · ${partialYearNote(provenance, year)}` : ''}</span></div>
+    <div className="hex-readout__heading"><span>{mode === 'heat' ? 'Heat map' : mode === 'hex' ? '3D hexagons' : 'Observations'} · {scope}</span><span title={partialYearNote(provenance, year) ? 'Current year: mean of published months' : undefined}>{year}{partialYearNote(provenance, year) ? ` · ${partialYearNote(provenance, year)}` : ''}</span></div>
     <div className="hex-readout__body" role="status" aria-live="polite" aria-atomic="true">
       {cell && value !== null ? <>
         <p className="hex-readout__coordinates">{coordinates(cell)}</p>
@@ -103,7 +109,7 @@ export function ObservationReadout({ observations, variable, year, source, prove
         </div>
         <div className="hex-color-key__scale" aria-hidden="true"><span>{number(min)}</span><span>{number((min + max) / 2)}</span><span>{number(max)}</span></div>
         <div className="hex-color-key__labels" aria-hidden="true">{labels.map((label, i) => <span key={i}>{label}</span>)}</div>
-        {variable === 'Gistemp' && <p className="hex-color-key__reference">Relative to baseline average</p>}
+        {(provenance?.baseline || variable === 'Gistemp') && <p className="hex-color-key__reference">Relative to {provenance?.baseline ?? 'reference'} baseline</p>}
       </div>
       <p className="observation-readout__method">{mode === 'heat' ? 'Smoothed spatial mean · 4° radius' : 'Normalized height · fixed scale per variable'}</p>
     </>}

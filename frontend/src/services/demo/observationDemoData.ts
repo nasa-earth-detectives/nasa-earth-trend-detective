@@ -1,5 +1,6 @@
 import type { ClimateObservation, ClimateVariable } from '../../types/climate.types';
 import { HEX_GLOBAL_COVERAGE, HEX_GLOBAL_FLAGS } from './hexGlobalCoverage';
+import { hasDemoScenario } from './demoScenario';
 
 const RADIANS = Math.PI / 180;
 const VARIABLES: readonly ClimateVariable[] = ['Gistemp', 'ModisNdvi', 'GraceMass', 'Oco2'];
@@ -52,6 +53,8 @@ export function sampleDemoObservation(variable: ClimateVariable, year: number, l
 }
 
 export function createDemoObservations(variable: ClimateVariable, year: number): ClimateObservation[] {
+  // MERRA-2 has no synthetic scenario: without the API there are no observations to display.
+  if (!hasDemoScenario(variable)) return [];
   validateContext(variable, year);
   return locations.filter(location => variable === 'ModisNdvi' ? location.flags === 3
     : variable === 'GraceMass' ? (location.flags & 1) !== 0 : true).map(location => {

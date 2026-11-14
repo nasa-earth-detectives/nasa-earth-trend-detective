@@ -1,0 +1,20 @@
+{
+  "variable": "Merra2SoilMoisture",
+  "provider": "nasa-power-merra2",
+  "product": "MERRA-2 · root-zone soil moisture (0-1) (NASA POWER v10, annual mean)",
+  "baseline": "1991-2020",
+  "unit": "fraction",
+  "trendUnit": "fraction / year",
+  "interim": false,
+  "resolutionDegrees": 2.0,
+  "sourceUrl": "https://nasa-power.s3.amazonaws.com/merra2/temporal/power_merra2_annual_temporal_utc.zarr/GWETROOT",
+  "sourceFile": "power_merra2_annual_temporal_utc.zarr/GWETROOT",
+  "sourceSha256": "639640ce6ba093e0c72dce131fab456e49b383a0983aa04e81c90e0f4b4b83db",
+  "retrievedAt": "2026-11-14T15:57:05+00:00",
+  "coverageStart": 1981,
+  "coverageEnd": 2025,
+  "lastMonth": "2025-12",
+  "rows": 205785,
+  "processing": "POWER annual mean regridded from 0.5° x 0.625° to 2° using area-weighted averaging; cells with less than 50 percent of their area covered are omitted. anomaly = value - cell mean over the baseline period.",
+  "citation": "NASA POWER Project: NASA POWER Data v10. NASA Langley Research Center. https://power.larc.nasa.gov/ (CC BY 4.0). Derived from MERRA-2: Gelaro et al. (2017), J. Climate 30, 5419-5454, doi:10.1175/JCLI-D-16-0758.1"
+}

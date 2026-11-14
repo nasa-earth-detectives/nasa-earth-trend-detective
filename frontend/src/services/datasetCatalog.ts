@@ -1,18 +1,18 @@
 import type { ClimateVariable } from '../types/climate.types';
 import type { DatasetCatalog, DatasetProvenance, ResolvedSource } from '../types/dataset.types';
+import { VARIABLE_IDS } from '../config/climateLayers';
 import { getJson } from './apiClient';
 
 export type DataSourceMode = 'auto' | 'demo' | 'api';
 
-const VARIABLES: readonly ClimateVariable[] = ['Gistemp', 'ModisNdvi', 'GraceMass', 'Oco2'];
-/** A sleeping backend (free-tier hosting) must not leave Earth without data: timeout falls back to demo. */
+/** A sleeping backend (free Render tier) must not leave Earth without data: fall back to demo after timeout. */
 const CATALOG_TIMEOUT_MS = 6000;
-/** Retries after a failure, but not on every year change. */
+/** Retry after failure, but not on every year change. */
 const RETRY_AFTER_MS = 60_000;
 
 let cached: { promise: Promise<DatasetCatalog>; failedAt: number | null } | null = null;
 
-/** auto: API for variables with real dataset, demo for the rest. demo/api force a specific source. */
+/** auto: API for variables with real datasets and demo for the rest. demo/api force a single source. */
 export function readDataSourceMode(value: unknown, name: string): DataSourceMode {
   const mode = value ?? 'auto';
   if (mode !== 'auto' && mode !== 'demo' && mode !== 'api') throw new Error(`${name} must be auto, demo, or api.`);
@@ -31,7 +31,7 @@ function number(row: Record<string, unknown>, field: string): number {
   return value;
 }
 
-/** Boundary of DatasetStatusDto: rejects incomplete provenances instead of displaying partial data. */
+/** Boundary of DatasetStatusDto: rejects incomplete provenance instead of displaying partial metadata. */
 export function adaptDatasetCatalog(payload: unknown): DatasetCatalog {
   if (!Array.isArray(payload)) throw new Error('Dataset catalog must be a list.');
   const catalog = new Map<ClimateVariable, DatasetProvenance>();
@@ -39,7 +39,7 @@ export function adaptDatasetCatalog(payload: unknown): DatasetCatalog {
     if (!entry || typeof entry !== 'object') continue;
     const row = entry as Record<string, unknown>;
     const code = row.code as ClimateVariable;
-    if (!VARIABLES.includes(code) || row.status !== 'observed' || !row.provenance || typeof row.provenance !== 'object') continue;
+    if (!VARIABLE_IDS.includes(code) || row.status !== 'observed' || !row.provenance || typeof row.provenance !== 'object') continue;
     const p = row.provenance as Record<string, unknown>;
     catalog.set(code, {
       provider: text(p, 'provider'), product: text(p, 'product'), unit: text(p, 'unit'),
@@ -62,13 +62,13 @@ async function fetchCatalog(): Promise<DatasetCatalog> {
   }
 }
 
-/** Never rejects: without API, the catalog stays empty and falls back to the demo scenario. */
+/** Never rejects: without an API, the catalog stays empty and everything falls back to the demo scenario. */
 export function getDatasetCatalog(): Promise<DatasetCatalog> {
   if (cached && (cached.failedAt === null || Date.now() - cached.failedAt < RETRY_AFTER_MS)) return cached.promise;
   const entry: { promise: Promise<DatasetCatalog>; failedAt: number | null } = { promise: Promise.resolve(new Map()), failedAt: null };
   entry.promise = fetchCatalog().catch((error: unknown) => {
     entry.failedAt = Date.now();
-    console.warn('Dataset catalog not available; falling back to demo scenario.', error);
+    console.warn('Dataset catalog unavailable; falling back to demo scenario.', error);
     return new Map();
   });
   cached = entry;
@@ -84,7 +84,7 @@ export async function resolveVariableSource(mode: DataSourceMode, variable: Clim
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
-/** "through Aug" if the requested year is the dataset's latest and incomplete; otherwise null. */
+/** "through Aug" if the requested year is the dataset's final year and incomplete; otherwise null. */
 export function partialYearNote(provenance: DatasetProvenance | null, year: number): string | null {
   const match = provenance && /^(\d{4})-(\d{2})$/.exec(provenance.lastMonth);
   if (!match || Number(match[1]) !== year || Number(match[2]) >= 12) return null;

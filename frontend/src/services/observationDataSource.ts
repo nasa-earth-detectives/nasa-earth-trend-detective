@@ -10,12 +10,21 @@ export interface ObservationDataset {
   source: ObservationSource;
   provenance: DatasetProvenance | null;
 }
-const API_VARIABLE_IDS: Record<ClimateVariable, number> = { Gistemp: 1, ModisNdvi: 2, GraceMass: 3, Oco2: 4 };
+const API_VARIABLE_IDS: Record<ClimateVariable, number> = {
+  Gistemp: 1, ModisNdvi: 2, GraceMass: 3, Oco2: 4,
+  Merra2Temperature: 5, Merra2Precipitation: 6, Merra2Evaporation: 7, Merra2SoilMoisture: 8,
+  GpmPrecipitation: 9,
+};
 const unitPatterns: Record<ClimateVariable, RegExp> = {
   Gistemp: /^(°c|celsius)( ?anomaly)?$/,
   ModisNdvi: /^(ndvi|1|adimensional)$/,
   GraceMass: /^(cm|cm ewh|cm h2o eq\.?|cm water equivalent)$/,
   Oco2: /^ppm$/,
+  Merra2Temperature: /^°c$/,
+  Merra2Precipitation: /^mm\/day$/,
+  Merra2Evaporation: /^mm\/day$/,
+  Merra2SoilMoisture: /^fraction$/,
+  GpmPrecipitation: /^mm\/day$/,
 };
 
 function finite(value: unknown, field: string): number {

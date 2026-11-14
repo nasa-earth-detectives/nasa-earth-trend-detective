@@ -1,7 +1,7 @@
 /**
  * detectiveAnalysis.ts
- * Scientific utilities for coordinate formatting and plain-language interpretation of
- * the Mann-Kendall / Sen verdict, without overpromising beyond what the test proves.
+ * Scientific utilities for formatting coordinates and reading the Mann-Kendall / Sen
+ * verdict in plain language, without claiming more than the test proves.
  */
 
 import type { ClimateVariable } from '../types/climate.types';
@@ -12,7 +12,7 @@ export function formatCoordinate(val: number, posChar: string, negChar: string):
   return `${Math.abs(val).toFixed(2)}° ${dir}`;
 }
 
-/** Three possible states. "No conclusive change" does not mean "no change". */
+/** Three possible states. "Inconclusive change" does not mean "no change". */
 export type SignificanceTone = 'increase' | 'decrease' | 'inconclusive';
 
 export interface SignificancePresentation {
@@ -24,7 +24,7 @@ export interface SignificancePresentation {
   caveat: string;
 }
 
-/** Minimum fields required for reading: works for the card and for a grid cell. */
+/** Minimum inputs needed for reading: works for both the card and a grid cell. */
 export interface SignificanceInput {
   isSignificant: boolean;
   pValue: number;
@@ -33,7 +33,7 @@ export interface SignificanceInput {
   zScore?: number;
 }
 
-const frequency = new Intl.NumberFormat('en', { maximumSignificantDigits: 2 });
+const frequency = new Intl.NumberFormat('en-US', { maximumSignificantDigits: 2 });
 
 export function describeSignificance(variable: ClimateVariable, mk: SignificanceInput): SignificancePresentation {
   const subject = HEX_PRESENTATION[variable];
@@ -42,10 +42,10 @@ export function describeSignificance(variable: ClimateVariable, mk: Significance
   if (!mk.isSignificant) {
     return {
       tone: 'inconclusive',
-      label: 'No conclusive change',
+      label: 'Inconclusive change',
       claim: `The slope sign is ${mk.sensSlope > 0 ? 'positive' : mk.sensSlope < 0 ? 'negative' : 'zero'}, `
-        + 'but the test cannot distinguish it from chance at 95% confidence.',
-      caveat: `A p-value ${p} greater than 0.05 does not prove there is no change: it proves this series is not enough to confirm it. `
+        + 'but the test does not distinguish it from random chance at 95% confidence.',
+      caveat: `A p-value ${p} greater than 0.05 does not prove there is no change: it proves this series alone is not enough to establish one. `
         + 'With more years or less noise, the verdict could change.',
     };
   }
@@ -55,6 +55,6 @@ export function describeSignificance(variable: ClimateVariable, mk: Significance
     tone: increase ? 'increase' : 'decrease',
     label: increase ? 'Sustained increase' : 'Sustained decrease',
     claim: `${increase ? subject.increase : subject.decrease} over the period (p ${p}).`,
-    caveat: 'Mann–Kendall detects a monotonic trend. It does not measure acceleration or prove the cause of change.',
+    caveat: 'Mann–Kendall detects a monotonic trend. It does not measure acceleration or prove the cause of the change.',
   };
 }

@@ -32,6 +32,33 @@ export const OBSERVATION_SCALES: Record<ClimateVariable, ObservationScale> = {
     domain: [360, 450], midpoint: 420, unit: 'ppm', label: 'CO₂ concentration',
     stops: [SCIENCE_SURFACE_COLORS.co2Baseline, SCIENCE_ACCENTS.Oco2.accent, SCIENCE_SURFACE_COLORS.co2Elevated],
   },
+  // MERRA-2: annual anomaly relative to 1991-2020. Each domain is the 99th percentile of the
+  // absolute value measured in loaded data (2.50 °C; 2.17 and 0.93 mm/day; 0.147), not a scientific threshold.
+  Merra2Temperature: {
+    domain: [-2.5, 2.5], midpoint: 0, unit: '°C', label: 'Air temperature anomaly · 1991–2020 baseline',
+    colorContrastPower: 0.65,
+    stops: [SCIENCE_SURFACE_COLORS.cold, SCIENCE_SURFACE_COLORS.neutral, SCIENCE_SURFACE_COLORS.hot],
+  },
+  Merra2Precipitation: {
+    domain: [-2, 2], midpoint: 0, unit: 'mm/day', label: 'Precipitation anomaly · 1991–2020 baseline',
+    colorContrastPower: 0.6,
+    stops: [SCIENCE_SURFACE_COLORS.waterDeficit, SCIENCE_SURFACE_COLORS.neutral, SCIENCE_SURFACE_COLORS.glacier],
+  },
+  GpmPrecipitation: {
+    domain: [-2, 2], midpoint: 0, unit: 'mm/day', label: 'Precipitation anomaly (satellite) · 2001–2020 baseline',
+    colorContrastPower: 0.6,
+    stops: [SCIENCE_SURFACE_COLORS.waterDeficit, SCIENCE_SURFACE_COLORS.neutral, SCIENCE_SURFACE_COLORS.glacier],
+  },
+  Merra2Evaporation: {
+    domain: [-0.9, 0.9], midpoint: 0, unit: 'mm/day', label: 'Evaporation anomaly · 1991–2020 baseline',
+    colorContrastPower: 0.65,
+    stops: [SCIENCE_SURFACE_COLORS.drySoil, SCIENCE_SURFACE_COLORS.neutral, SCIENCE_SURFACE_COLORS.glacier],
+  },
+  Merra2SoilMoisture: {
+    domain: [-0.15, 0.15], midpoint: 0, unit: 'fraction', label: 'Soil moisture anomaly · 1991–2020 baseline',
+    colorContrastPower: 0.65,
+    stops: [SCIENCE_SURFACE_COLORS.drySoil, SCIENCE_SURFACE_COLORS.neutral, SCIENCE_SURFACE_COLORS.chlorophyll],
+  },
 };
 
 const referenceColors = Object.fromEntries(Object.entries(OBSERVATION_SCALES)
@@ -40,8 +67,9 @@ const cssColor = new Color();
 
 /** Does not confuse an annual observation with a rate of change per year. */
 export function getObservationValue(observation: ClimateObservation): number {
-  return observation.variable === 'Gistemp' || observation.variable === 'GraceMass'
-    ? observation.anomaly ?? observation.value : observation.value;
+  // NDVI and CO₂ are read as absolute values; the rest as differences relative to their baseline period.
+  return observation.variable === 'ModisNdvi' || observation.variable === 'Oco2'
+    ? observation.value : observation.anomaly ?? observation.value;
 }
 
 export function sampleObservationColor(variable: ClimateVariable, value: number, target = new Color()): Color {

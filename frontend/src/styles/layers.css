@@ -145,3 +145,5 @@
   line-height: 16px;
   color: var(--text-tertiary);
 }
+/* Upcoming variable badge: system sea blue (previously an inline light blue). */
+.variable-row__soon { color: var(--science-sea); border-color: rgba(95, 136, 166, .45); }

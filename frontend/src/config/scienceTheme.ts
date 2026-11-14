@@ -27,6 +27,12 @@ export const SCIENCE_ACCENTS: Record<ClimateVariable, ScienceAccent> = {
   GraceMass: { accent: '#9dc0d2', rgb: '157, 192, 210', shortLabel: 'Water & Ice' },
   // Restrained atmospheric violet.
   Oco2: { accent: '#a38cb9', rgb: '163, 140, 185', shortLabel: 'CO₂' },
+  // MERRA-2: terracotta for air, rain blue, ochre and moss green for land water.
+  Merra2Temperature: { accent: '#d98a5f', rgb: '217, 138, 95', shortLabel: 'Air Temp.' },
+  Merra2Precipitation: { accent: '#6f9fd0', rgb: '111, 159, 208', shortLabel: 'Precipitation' },
+  GpmPrecipitation: { accent: '#7fb2c9', rgb: '127, 178, 201', shortLabel: 'GPM Precip.' },
+  Merra2Evaporation: { accent: '#c9a45c', rgb: '201, 164, 92', shortLabel: 'Evaporation' },
+  Merra2SoilMoisture: { accent: '#8b9a6b', rgb: '139, 154, 107', shortLabel: 'Soil Moisture' },
 };
 
 /** Deep navy reserved for Sea Level when the API supports it. */

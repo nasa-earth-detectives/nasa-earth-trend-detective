@@ -44,7 +44,7 @@ public sealed class DuckDbSchemaColumnTests : IDisposable
             "INSERT INTO fact_climate_observations VALUES (1, 1, 4.711, -74.072, 2020, 1, 14.2, 0.9)");
 
         await Assert.ThrowsAnyAsync<Exception>(() => _repository.ExecuteAsync(
-            "INSERT INTO fact_climate_observations VALUES (2, 9, 0, 0, 2020, 1, 1, 1)"));
+            "INSERT INTO fact_climate_observations VALUES (2, 99, 0, 0, 2020, 1, 1, 1)"));
         await Assert.ThrowsAnyAsync<Exception>(() => _repository.ExecuteAsync(
             "INSERT INTO fact_climate_observations VALUES (3, 1, 0, 0, 2020, 13, 1, 1)"));
         Assert.Equal(1L, await _repository.ExecuteScalarAsync<long>(
@@ -59,6 +59,6 @@ public sealed class DuckDbSchemaColumnTests : IDisposable
         await hostedService.StartAsync(CancellationToken.None);
         await hostedService.StopAsync(CancellationToken.None);
 
-        Assert.Equal(4L, await _repository.ExecuteScalarAsync<long>("SELECT COUNT(*) FROM dim_variable"));
+        Assert.Equal(9L, await _repository.ExecuteScalarAsync<long>("SELECT COUNT(*) FROM dim_variable"));
     }
 }

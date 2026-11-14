@@ -3,27 +3,37 @@ import type { ClimateVariable } from '../types/climate.types';
 import type { TrendFilterParams } from '../types/trend.types';
 import { createDemoHexDataset, HEX_VARIABLE_PROFILES } from './demo/hexDemoData';
 import { readDataSourceMode, resolveVariableSource } from './datasetCatalog';
+import { SATELLITE_TIMELINE } from '../config/climateLayers';
 import { trendService } from './trendService';
 
-/** Explicit correspondence with backend/.../Enums/ClimateVariable.cs, without assuming JSON strings. */
-const API_VARIABLE_IDS: Record<ClimateVariable, number> = { Gistemp: 1, ModisNdvi: 2, GraceMass: 3, Oco2: 4 };
+/** Explicit mapping to backend/.../Enums/ClimateVariable.cs without assuming JSON strings. */
+const API_VARIABLE_IDS: Record<ClimateVariable, number> = {
+  Gistemp: 1, ModisNdvi: 2, GraceMass: 3, Oco2: 4,
+  Merra2Temperature: 5, Merra2Precipitation: 6, Merra2Evaporation: 7, Merra2SoilMoisture: 8,
+  GpmPrecipitation: 9,
+};
 
 /**
- * API scaling: /trends/grid returns Sen's slope per year, the same unit as the demo
- * profile (e.g. °C / year), so the height shares domain and both scenarios read identically.
+ * API scale: /trends/grid returns Sen's slope per year, the same unit as the demo profile
+ * (e.g., °C / year), so heights share the same domain and both scenarios read identically.
  */
 export const HEX_API_PRESENTATION: Record<ClimateVariable, { heightDomain: number; resolutionDegrees: number }> = {
   Gistemp: { heightDomain: HEX_VARIABLE_PROFILES.Gistemp.heightDomain, resolutionDegrees: 2 },
   ModisNdvi: { heightDomain: HEX_VARIABLE_PROFILES.ModisNdvi.heightDomain, resolutionDegrees: 2.2 },
   GraceMass: { heightDomain: HEX_VARIABLE_PROFILES.GraceMass.heightDomain, resolutionDegrees: 2.2 },
   Oco2: { heightDomain: HEX_VARIABLE_PROFILES.Oco2.heightDomain, resolutionDegrees: 2.2 },
+  Merra2Temperature: { heightDomain: HEX_VARIABLE_PROFILES.Merra2Temperature.heightDomain, resolutionDegrees: 2 },
+  Merra2Precipitation: { heightDomain: HEX_VARIABLE_PROFILES.Merra2Precipitation.heightDomain, resolutionDegrees: 2 },
+  Merra2Evaporation: { heightDomain: HEX_VARIABLE_PROFILES.Merra2Evaporation.heightDomain, resolutionDegrees: 2 },
+  Merra2SoilMoisture: { heightDomain: HEX_VARIABLE_PROFILES.Merra2SoilMoisture.heightDomain, resolutionDegrees: 2 },
+  GpmPrecipitation: { heightDomain: HEX_VARIABLE_PROFILES.GpmPrecipitation.heightDomain, resolutionDegrees: 2 },
 };
 
 function abortError() {
-  return new DOMException('Hex query aborted', 'AbortError');
+  return new DOMException('Hexagon query aborted', 'AbortError');
 }
 
-/** Cancels delivery even if the underlying HTTP service does not yet accept AbortSignal. */
+/** Cancels delivery even if the underlying HTTP service does not yet accept an AbortSignal. */
 function withAbort<T>(request: Promise<T>, signal?: AbortSignal): Promise<T> {
   if (!signal) return request;
   if (signal.aborted) return Promise.reject(abortError());
@@ -46,7 +56,7 @@ function withAbort<T>(request: Promise<T>, signal?: AbortSignal): Promise<T> {
 
 function finiteNumber(value: unknown, name: string, index: number): number {
   if (typeof value !== 'number' || !Number.isFinite(value)) {
-    throw new Error(`Trends API: invalid ${name} at cell ${index + 1}.`);
+    throw new Error(`Trends API: invalid ${name} in cell ${index + 1}.`);
   }
   return value;
 }
@@ -77,12 +87,12 @@ function readResolution(value: unknown): number | undefined {
   return resolution;
 }
 
-/** Accepts current DTO without requiring confidenceInterval95; rejects corrupt data or mismatched filter data. */
+/** Accepts current DTO without requiring confidenceInterval95; rejects corrupt or mismatched data. */
 export function adaptApiHexDataset(payload: unknown, filter: TrendFilterParams): HexDataset {
   const metadata: Record<string, unknown> = payload && typeof payload === 'object' && !Array.isArray(payload)
     ? payload as Record<string, unknown> : {};
   const rows: unknown = Array.isArray(payload) ? payload : metadata.cells;
-  if (!Array.isArray(rows)) throw new Error('Trends API must return a list of cells or an object with cells.');
+  if (!Array.isArray(rows)) throw new Error('Trends API must return a list of cells or an object containing cells.');
   assertMatchingContext(metadata, filter);
   const seen = new Set<string>();
   const envelopeUnit = readUnit(metadata.unit);
@@ -92,13 +102,13 @@ export function adaptApiHexDataset(payload: unknown, filter: TrendFilterParams):
   let unitCount = 0;
   let resolutionCount = 0;
   const cells: HexCell[] = rows.map((entry: unknown, index) => {
-    if (!entry || typeof entry !== 'object') throw new Error(`Invalid cell ${index + 1} in API.`);
+    if (!entry || typeof entry !== 'object') throw new Error(`Invalid cell ${index + 1} in API response.`);
     const row = entry as Record<string, unknown>;
     const latitude = finiteNumber(row.latitude, 'latitude', index);
     const longitude = finiteNumber(row.longitude, 'longitude', index);
     const slope = finiteNumber(row.sensSlope, 'sensSlope', index);
     if (latitude < -90 || latitude > 90 || longitude < -180 || longitude > 180) {
-      throw new Error(`Coordinates out of range at cell ${index + 1}.`);
+      throw new Error(`Coordinates out of range in cell ${index + 1}.`);
     }
     assertMatchingContext(row, filter);
     const nextUnit = readUnit(row.unit);
@@ -120,21 +130,21 @@ export function adaptApiHexDataset(payload: unknown, filter: TrendFilterParams):
     return { id, latitude, longitude: normalizedLng, slope };
   });
   if (envelopeUnit === undefined && unitCount > 0 && unitCount !== cells.length) {
-    throw new Error('API must declare unit for all cells or on the containing envelope object.');
+    throw new Error('API must declare unit for all cells or on the enclosing object.');
   }
   if (envelopeResolution === undefined && resolutionCount > 0 && resolutionCount !== cells.length) {
-    throw new Error('API must declare resolution for all cells or on the containing envelope object.');
+    throw new Error('API must declare resolution for all cells or on the enclosing object.');
   }
   const heightDomain = metadata.heightDomain === undefined
     ? HEX_API_PRESENTATION[filter.variable].heightDomain : finiteNumber(metadata.heightDomain, 'heightDomain', 0);
-  if (heightDomain <= 0) throw new Error('Height domain must be greater than zero.');
+  if (heightDomain <= 0) throw new Error('Vertical domain must be greater than zero.');
   return {
     cells,
     variable: filter.variable,
     startYear: filter.startYear,
     endYear: filter.endYear,
     source: 'api',
-    // The current API does not declare the time base for sensSlope: do not infer a scientific unit.
+    // Current API does not declare the time base of sensSlope: do not infer a scientific unit.
     unit: unit ?? 'slope · undeclared unit',
     heightDomain,
     resolutionDegrees: resolution ?? HEX_API_PRESENTATION[filter.variable].resolutionDegrees,
@@ -146,16 +156,24 @@ export async function getHexDataset(filter: TrendFilterParams, signal?: AbortSig
   if (!Number.isInteger(filter.startYear) || !Number.isInteger(filter.endYear)
     || filter.startYear < 1 || filter.endYear > 9999 || filter.startYear > filter.endYear
     || !Object.hasOwn(HEX_VARIABLE_PROFILES, filter.variable)) {
-    throw new Error('The observation period or variable is invalid.');
+    throw new Error('Observation period or variable is invalid.');
   }
   const mode = readDataSourceMode(import.meta.env.VITE_HEX_DATA_SOURCE, 'VITE_HEX_DATA_SOURCE');
   const resolved = await withAbort(resolveVariableSource(mode, filter.variable), signal);
   if (resolved.source === 'demo') {
     const profile: unknown = import.meta.env.VITE_HEX_DEMO_PROFILE ?? 'global';
     if (profile !== 'global' && profile !== 'regional' && profile !== 'stress') throw new Error('VITE_HEX_DEMO_PROFILE must be global, regional, or stress.');
-    return withAbort(Promise.resolve().then(() => createDemoHexDataset(filter, profile)), signal);
+    // Synthetic scenario starts in 2000: do not label it with earlier years.
+    const demoFilter = { ...filter, startYear: Math.min(filter.endYear, Math.max(filter.startYear, SATELLITE_TIMELINE.startYear)) };
+    return withAbort(Promise.resolve().then(() => createDemoHexDataset(demoFilter, profile)), signal);
   }
-  const payload: unknown = await trendService.getGridTrends(filter, signal);
+  // Trim requested period to the source's real coverage: requesting 1981-2026 from a dataset
+  // starting in 2000 would return the same grid labeled with years it does not have.
+  const coverage = resolved.provenance;
+  const endYear = coverage ? Math.min(filter.endYear, coverage.coverageEnd) : filter.endYear;
+  const startYear = Math.min(endYear, coverage ? Math.max(filter.startYear, coverage.coverageStart) : filter.startYear);
+  const period = { ...filter, startYear, endYear };
+  const payload: unknown = await trendService.getGridTrends(period, signal);
   if (signal?.aborted) throw abortError();
-  return adaptApiHexDataset(payload, filter);
+  return adaptApiHexDataset(payload, period);
 }

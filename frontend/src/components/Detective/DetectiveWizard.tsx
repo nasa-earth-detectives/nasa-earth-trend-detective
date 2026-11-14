@@ -1,29 +1,22 @@
 /**
  * DetectiveWizard.tsx
  *
- * "Trend Detective" welcome wizard modal.
- * Guides the user through 3 simple steps:
- *   1. What do you want to study? (variable)
- *   2. In which region of the world?
- *   3. In what time period?
+ * "Trend Detective" startup briefing: three questions (what, where, how many years) matching
+ * the NASA Space Apps 2026 challenge "Be An Earth System Trend Detective!".
  *
- * Upon completion, fires onComplete with the selection ready to
- * configure the globe directly.
- *
- * Target audience: secondary school students and general public
- * (NASA Space Apps 2026 — "Be An Earth System Trend Detective!").
+ * Docked to one side rather than a centered modal: the globe is the main piece of the instrument
+ * and must stay in view. Each choice updates it immediately (variable and location).
  */
-
-import { useEffect, useId, useRef, useState } from 'react';
+import { useCallback, useEffect, useId, useRef, useState } from 'react';
+import { ArrowLeft, ArrowRight } from 'lucide-react';
 import type { ClimateVariable } from '../../types/climate.types';
-import { CLIMATE_VARIABLES, SATELLITE_TIMELINE } from '../../config/climateLayers';
-import {
-  VARIABLE_GLOSSARY,
-  WIZARD_REGIONS,
-  WIZARD_PERIODS,
-  type WizardRegion,
-  type WizardPeriod,
-} from '../../config/glossary';
+import type { DatasetCatalog } from '../../types/dataset.types';
+import { CLIMATE_VARIABLES } from '../../config/climateLayers';
+import { WIZARD_REGIONS, WIZARD_PERIODS, type WizardRegion, type WizardPeriod } from '../../config/wizardOptions';
+import { getDatasetCatalog } from '../../services/datasetCatalog';
+import { useFocusTrap } from '../../hooks/useFocusTrap';
+import { RegionStep, VariableStep } from './DetectiveWizardSteps';
+import { PeriodStep } from './DetectiveWizardPeriod';
 import '../../styles/detective-wizard.css';
 
 export interface WizardResult {
@@ -34,213 +27,120 @@ export interface WizardResult {
 }
 
 interface DetectiveWizardProps {
+  initialVariable?: ClimateVariable;
   onComplete: (result: WizardResult) => void;
   onSkip: () => void;
+  /** Choice is shown on the globe before confirming. */
+  onPreviewVariable?: (variable: ClimateVariable) => void;
+  onPreviewRegion?: (region: WizardRegion) => void;
 }
 
-const STEPS = ['Variable', 'Region', 'Period'] as const;
+const STEPS = [
+  { label: 'Variable', question: 'What do you want to investigate?',
+    hint: 'Pick an Earth system variable. The globe updates as you choose.' },
+  { label: 'Location', question: 'Where do you want to look?',
+    hint: 'Almost no trend is global: the same variable rises in one place and falls in another.' },
+  { label: 'Period', question: 'How many years do you want to analyze?',
+    hint: 'With more years, the statistical test better distinguishes a real trend from chance.' },
+] as const;
 type Step = 0 | 1 | 2;
 
-export function DetectiveWizard({ onComplete, onSkip }: DetectiveWizardProps) {
+export function DetectiveWizard({ initialVariable = 'Gistemp', onComplete, onSkip, onPreviewVariable, onPreviewRegion }: DetectiveWizardProps) {
   const [step, setStep] = useState<Step>(0);
-  const [variable, setVariable] = useState<ClimateVariable>('Gistemp');
+  const [direction, setDirection] = useState<'forward' | 'back'>('forward');
+  const [variable, setVariable] = useState<ClimateVariable>(initialVariable);
   const [region, setRegion] = useState<WizardRegion>(WIZARD_REGIONS[0]);
   const [period, setPeriod] = useState<WizardPeriod>(WIZARD_PERIODS[0]);
+  const [catalog, setCatalog] = useState<DatasetCatalog | null>(null);
   const dialogRef = useRef<HTMLDivElement>(null);
   const headingId = useId();
+  useFocusTrap(dialogRef);
 
-  // Initial focus on mount (accessibility)
+  // The catalog reports which variables have real loaded data and which years each covers.
   useEffect(() => {
-    dialogRef.current?.focus();
+    let active = true;
+    void getDatasetCatalog().then(loaded => { if (active) setCatalog(loaded); });
+    return () => { active = false; };
   }, []);
 
-  // Escape key → skip
   useEffect(() => {
-    const handleKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') { e.preventDefault(); onSkip(); }
+    const handleKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') { event.preventDefault(); onSkip(); }
     };
     window.addEventListener('keydown', handleKey, { capture: true });
     return () => window.removeEventListener('keydown', handleKey, { capture: true });
   }, [onSkip]);
 
-  const currentEntry = VARIABLE_GLOSSARY[variable];
+  const selectVariable = useCallback((next: ClimateVariable) => {
+    setVariable(next);
+    onPreviewVariable?.(next);
+  }, [onPreviewVariable]);
+  const selectRegion = useCallback((next: WizardRegion) => {
+    setRegion(next);
+    onPreviewRegion?.(next);
+  }, [onPreviewRegion]);
 
+  const goTo = (next: Step) => {
+    setDirection(next > step ? 'forward' : 'back');
+    setStep(next);
+    // When arriving at the "location" step, the globe turns to the selected region without waiting for a click.
+    if (next === 1) onPreviewRegion?.(region);
+  };
   const handleNext = () => {
-    if (step < 2) {
-      setStep((s) => (s + 1) as Step);
-      return;
-    }
-    // Step 3 completed → emit result
-    onComplete({ variable, region, startYear: period.startYear, endYear: period.endYear });
+    if (step < 2) goTo((step + 1) as Step);
+    else onComplete({ variable, region, startYear: period.startYear, endYear: period.endYear });
   };
 
-  const handleBack = () => {
-    if (step > 0) setStep((s) => (s - 1) as Step);
-  };
+  const variableName = CLIMATE_VARIABLES.find(item => item.id === variable)?.name ?? variable;
+  const summary = [
+    { id: 'variable', label: variableName },
+    ...(step > 0 ? [{ id: 'region', label: region.label }] : []),
+    ...(step > 1 ? [{ id: 'period', label: period.label }] : []),
+  ];
 
   return (
-    <div className="wizard-overlay" role="dialog" aria-modal="true" aria-labelledby={headingId}
-      ref={dialogRef} tabIndex={-1}>
-      <div className="wizard-panel">
-
-        {/* Header */}
-        <header className="wizard-header">
-          <span className="wizard-badge">
-            <span aria-hidden="true">🔍</span>
-            NASA Space Apps 2026
-          </span>
-          <h1 id={headingId} className="wizard-title">Trend Detective</h1>
-          <p className="wizard-subtitle">
-            Choose what to investigate and the system will analyze whether there is a statistically
-            significant change in NASA data.
-          </p>
+    <div className="briefing" role="dialog" aria-modal="true" aria-labelledby={headingId} ref={dialogRef} tabIndex={-1}>
+      <div className="briefing__sheet">
+        <header className="briefing__header">
+          <p className="briefing__eyebrow">Trend Detective<span>NASA Space Apps 2026</span></p>
+          <ol className="briefing__rail" data-step={step} aria-label="Wizard steps">
+            {STEPS.map((item, index) => (
+              <li key={item.label} data-state={index === step ? 'current' : index < step ? 'done' : 'todo'}
+                aria-current={index === step ? 'step' : undefined}>
+                <span className="briefing__rail-index">{String(index + 1).padStart(2, '0')}</span>
+                <span className="briefing__rail-label">{item.label}</span>
+              </li>
+            ))}
+          </ol>
+          <h1 id={headingId} className="briefing__question">{STEPS[step].question}</h1>
+          <p className="briefing__hint">{STEPS[step].hint}</p>
         </header>
 
-        {/* Step indicator */}
-        <div className="wizard-steps" role="list" aria-label="Wizard steps">
-          {STEPS.map((label, i) => (
-            <span key={label} role="listitem">
-              <span
-                className="wizard-step-dot"
-                data-active={i === step}
-                data-done={i < step}
-                aria-current={i === step ? 'step' : undefined}
-                title={label}
-              />
-            </span>
-          ))}
-          <span className="wizard-step-label">Step {step + 1} of {STEPS.length} — {STEPS[step]}</span>
+        {/* Key forces step remount so the entrance transition replays. */}
+        <div className="briefing__body scrollbar-instrument" key={step} data-direction={direction}>
+          {step === 0 && <VariableStep variable={variable} catalog={catalog} onSelect={selectVariable} />}
+          {step === 1 && <RegionStep region={region} variable={variable} onSelect={selectRegion} onSuggest={selectVariable} />}
+          {step === 2 && <PeriodStep period={period} variable={variable} catalog={catalog} onSelect={setPeriod} />}
         </div>
 
-        {/* ── Step 1: Variable ── */}
-        {step === 0 && (
-          <section className="wizard-body">
-            <p className="wizard-step-title">What do you want to study?</p>
-            <div className="wizard-variables" role="radiogroup" aria-label="Scientific variable">
-              {CLIMATE_VARIABLES.map((meta) => {
-                const entry = VARIABLE_GLOSSARY[meta.id];
-                return (
-                  <button
-                    key={meta.id}
-                    type="button"
-                    role="radio"
-                    aria-checked={variable === meta.id}
-                    className="wizard-var-card"
-                    data-selected={variable === meta.id}
-                    onClick={() => setVariable(meta.id)}
-                  >
-                    <span className="wizard-var-emoji" aria-hidden="true">{entry.emoji}</span>
-                    <span className="wizard-var-name">{meta.name}</span>
-                    <span className="wizard-var-tagline">{entry.tagline}</span>
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Expanded description of selected variable */}
-            <div className="wizard-var-detail" aria-live="polite" aria-atomic="true">
-              <p><strong>{currentEntry.emoji} {currentEntry.tagline}</strong></p>
-              <p>{currentEntry.plain}</p>
-              <p>💡 <em>{currentEntry.askAbout}</em></p>
-              <p>Unit: {currentEntry.unit}</p>
-            </div>
-          </section>
-        )}
-
-        {/* ── Step 2: Region ── */}
-        {step === 1 && (
-          <section className="wizard-body">
-            <p className="wizard-step-title">Which region of the world?</p>
-            <div className="wizard-regions" role="radiogroup" aria-label="Study region">
-              {WIZARD_REGIONS.map((r) => (
-                <button
-                  key={r.id}
-                  type="button"
-                  role="radio"
-                  aria-checked={region.id === r.id}
-                  className="wizard-region-card"
-                  data-selected={region.id === r.id}
-                  onClick={() => setRegion(r)}
-                >
-                  <span className="wizard-region-label">{r.label}</span>
-                  <span className="wizard-region-desc">{r.description}</span>
-                </button>
-              ))}
-            </div>
-
-            {/* Note: if "custom" is selected, explains how to click */}
-            {region.id === 'custom' && (
-              <p className="wizard-science-note">
-                <strong>💡 Free mode:</strong> Once on the globe, you can tap any point on Earth
-                to select the region you want to investigate.
-              </p>
+        <footer className="briefing__footer">
+          <p className="briefing__summary" aria-live="polite">
+            {summary.map(entry => <span key={entry.id}>{entry.label}</span>)}
+          </p>
+          <div className="briefing__actions">
+            {step === 0 ? (
+              <button type="button" className="briefing__ghost focus-ring" onClick={onSkip}>Explore without guide</button>
+            ) : (
+              <button type="button" className="briefing__ghost focus-ring" onClick={() => goTo((step - 1) as Step)}>
+                <ArrowLeft size={15} strokeWidth={1.7} aria-hidden="true" />Back
+              </button>
             )}
-
-            {/* Suggested variable for the region */}
-            {region.id !== 'custom' && !region.suggestedVariables.includes(variable) && (
-              <p className="wizard-science-note">
-                <strong>Tip:</strong> For {region.label}, the most informative variable
-                is usually{' '}
-                {region.suggestedVariables.map((v) =>
-                  CLIMATE_VARIABLES.find((m) => m.id === v)?.name
-                ).join(' or ')}.
-                You can switch it in the Variables panel if you prefer.
-              </p>
-            )}
-          </section>
-        )}
-
-        {/* ── Step 3: Period ── */}
-        {step === 2 && (
-          <section className="wizard-body">
-            <p className="wizard-step-title">How many years of data to analyze?</p>
-            <div className="wizard-periods" role="radiogroup" aria-label="Analysis period">
-              {WIZARD_PERIODS.map((p) => (
-                <button
-                  key={p.id}
-                  type="button"
-                  role="radio"
-                  aria-checked={period.id === p.id}
-                  className="wizard-period-card"
-                  data-selected={period.id === p.id}
-                  onClick={() => setPeriod(p)}
-                >
-                  <span className="wizard-period-years">{p.label}</span>
-                  <span className="wizard-period-desc">{p.description}</span>
-                </button>
-              ))}
-            </div>
-
-            <p className="wizard-science-note">
-              <strong>Why does the period matter?</strong>{' '}
-              The Mann-Kendall statistical test needs enough data points to
-              distinguish a real trend from random noise. The longer the period,
-              the more reliable the result. Available data spans from{' '}
-              {SATELLITE_TIMELINE.startYear} to today.
-            </p>
-          </section>
-        )}
-
-        {/* Footer */}
-        <footer className="wizard-footer">
-          {step === 0 ? (
-            <button type="button" className="wizard-btn-skip" onClick={onSkip}>
-              Skip and explore freely
+            <button type="button" className="briefing__primary focus-ring" onClick={handleNext}>
+              {step < 2 ? 'Continue' : 'Open dossier'}
+              <ArrowRight size={16} strokeWidth={1.8} aria-hidden="true" />
             </button>
-          ) : (
-            <button type="button" className="wizard-btn-back" onClick={handleBack}>
-              ← Back
-            </button>
-          )}
-          <button
-            type="button"
-            className="wizard-btn-next focus-ring"
-            onClick={handleNext}
-          >
-            {step < 2 ? 'Next →' : '🔍 Start investigation'}
-          </button>
+          </div>
         </footer>
-
       </div>
     </div>
   );

@@ -13,6 +13,14 @@ public static class VariableUnits
         ClimateVariable.Gistemp => "°C Anomaly",
         ClimateVariable.ModisNdvi => "NDVI",
         ClimateVariable.GraceMass => "cm EWH",
-        _ => "ppm"
+        ClimateVariable.Oco2 => "ppm",
+        ClimateVariable.Merra2Temperature => "°C",
+        ClimateVariable.Merra2Precipitation => "mm/day",
+        ClimateVariable.Merra2Evaporation => "mm/day",
+        ClimateVariable.Merra2SoilMoisture => "fraction",
+        ClimateVariable.GpmPrecipitation => "mm/day",
+        // No default branch with a unit: a new variable without a declared unit must fail
+        // here, rather than being labeled in ppm.
+        _ => throw new ArgumentOutOfRangeException(nameof(variable), variable, "Variable has no declared unit.")
     };
 }

@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { ClimateObservation, ClimateVariable } from '../../types/climate.types';
 import type { DatasetProvenance } from '../../types/dataset.types';
 import type { TrendFilterParams } from '../../types/trend.types';
-import { CLIMATE_VARIABLES, SATELLITE_TIMELINE } from '../../config/climateLayers';
+import { CLIMATE_VARIABLES } from '../../config/climateLayers';
 import { applyScienceAccent } from '../../config/scienceTheme';
 import { useImmersiveUi, type SelectedLocation } from '../../hooks/useImmersiveUi';
 import { useSceneControls } from '../../hooks/useSceneControls';
@@ -27,6 +27,7 @@ import { DetectiveCard } from '../Detective/DetectiveCard';
 import { DetectiveMissionsModal, type MissionPreset } from '../Detective/DetectiveMissionsModal';
 import { DetectiveGlossaryModal } from '../Detective/DetectiveGlossaryModal';
 import { TimeNavigator } from '../Controls/TimeNavigator';
+import { useCoverageTimeline, useFocusLocation, useFocusOffset, useTrendReadingSync } from './useLayoutSceneSync';
 import { guidedTourService } from '../../services/guidedTourService';
 import '../../styles/workspace.css';
 import '../../styles/instrument-chrome.css';
@@ -41,6 +42,12 @@ interface ImmersiveEarthLayoutProps {
   provenance: DatasetProvenance | null;
   filter: TrendFilterParams;
   initialLocation?: SelectedLocation | null;
+  /** Location requested from outside the scene (wizard): the globe flies to it and inspects it. */
+  focusLocation?: SelectedLocation | null;
+  /** Location shown by the wizard while choosing: the globe turns toward it without opening inspection. */
+  previewLocation?: SelectedLocation | null;
+  /** Startup briefing occupies the left side: the globe shifts so it is not covered. */
+  briefingOpen?: boolean;
   onVariableChange: (variable: ClimateVariable) => void;
   onYearChange: (year: number) => void;
   onOpenWizard?: () => void;
@@ -49,7 +56,8 @@ interface ImmersiveEarthLayoutProps {
 /** A single WebGL viewport; each intent reorganizes DOM instruments. */
 export function ImmersiveEarthLayout({
   observations, loading, observationError, source, provenance, filter,
-  initialLocation = null, onVariableChange, onYearChange, onOpenWizard,
+  initialLocation = null, focusLocation = null, previewLocation = null, briefingOpen = false,
+  onVariableChange, onYearChange, onOpenWizard,
 }: ImmersiveEarthLayoutProps) {
   const sceneApiRef = useRef<GlobeSceneApi | null>(null);
   const ui = useImmersiveUi(initialLocation);
@@ -88,21 +96,7 @@ export function ImmersiveEarthLayout({
     sceneApiRef.current?.setObservationMode(observationMode);
     if (observationMode !== 'hex') setSelectedObservation(null);
   }, [observationMode]);
-  useEffect(() => {
-    sceneApiRef.current?.setReadingMode?.(reading);
-    setSelectedTrendCell(null);
-    if (reading === 'trend') setSelectedObservation(null);
-  }, [reading]);
-  useEffect(() => {
-    const api = sceneApiRef.current;
-    api?.setTrendCellSelectHandler?.(setSelectedTrendCell);
-    return () => api?.setTrendCellSelectHandler?.(null);
-  }, []);
-  useEffect(() => {
-    if (!trendReading) return;
-    sceneApiRef.current?.setTrendData?.(hexData.data);
-    setSelectedTrendCell(null);
-  }, [trendReading, hexData.data]);
+  useTrendReadingSync(sceneApiRef, reading, hexData.data, setSelectedTrendCell, setSelectedObservation);
   useEffect(() => {
     sceneApiRef.current?.setLocationSelectHandler(ui.selectLocation);
     return () => sceneApiRef.current?.setLocationSelectHandler(null);
@@ -110,17 +104,9 @@ export function ImmersiveEarthLayout({
   useEffect(() => {
     if (initialLocation) sceneApiRef.current?.setUserLocation?.(initialLocation);
   }, [initialLocation]);
-  useEffect(() => {
-    const updateOffset = () => {
-      const offset = panelOpen && window.innerWidth >= 1024 ? -Math.min(210, Math.max(110, window.innerWidth * 0.1)) : 0;
-      const verticalOffset = panelOpen && window.innerWidth < 1024 && window.innerHeight > window.innerWidth
-        ? -Math.min(130, window.innerHeight * 0.15) : 0;
-      sceneApiRef.current?.setFocusOffset(offset, verticalOffset);
-    };
-    updateOffset();
-    window.addEventListener('resize', updateOffset);
-    return () => window.removeEventListener('resize', updateOffset);
-  }, [panelOpen]);
+  useFocusOffset(sceneApiRef, panelOpen, briefingOpen);
+  useFocusLocation(sceneApiRef, focusLocation, previewLocation, ui.selectLocation);
+  const timeline = useCoverageTimeline(source, provenance, loading, filter.endYear, onYearChange);
 
   const mission = CLIMATE_VARIABLES.find(item => item.id === filter.variable)?.satelliteMission ?? '';
   const handleCloseInspector = useCallback(() => {
@@ -161,7 +147,7 @@ export function ImmersiveEarthLayout({
       <div className="mission-position quiet-instrument"><MissionHeader onStartTour={handleStartTour} onOpenWizard={onOpenWizard} onOpenMissions={() => setMissionsOpen(true)} onOpenGlossary={() => setGlossaryOpen(true)} /></div>
       <div className="system-position quiet-instrument" data-hex-active={true}>
         {trendReading ? (
-          <HexReadout data={hexData.data} loading={hexData.loading} error={hexData.error}
+          <HexReadout data={hexData.data} provenance={provenance} loading={hexData.loading} error={hexData.error}
             selectedCell={selectedTrendCell} onSelectCell={id => sceneApiRef.current?.setObservationSelection(id)} />
         ) : (
           <ObservationReadout observations={visibleObservations} variable={filter.variable} year={filter.endYear}
@@ -176,7 +162,7 @@ export function ImmersiveEarthLayout({
       </div>
       <div id="tour-time-navigator" className="time-position quiet-instrument" data-expanded={ui.mode === 'time'}
         inert={panelOpen || ui.mode === 'inspection'}>
-        <TimeNavigator startYear={SATELLITE_TIMELINE.startYear} endYear={SATELLITE_TIMELINE.endYear}
+        <TimeNavigator startYear={timeline.startYear} endYear={timeline.endYear}
           currentYear={filter.endYear} missionLabel={mission} onChange={onYearChange}
           collapsed={ui.mode !== 'time'} onToggleCollapsed={() => ui.toggleMode('time')} onPlaybackChange={setIsPlaying} />
       </div>

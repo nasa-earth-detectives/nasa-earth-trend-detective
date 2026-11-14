@@ -19,6 +19,9 @@ public class TrendResultDto
     public bool IsSignificant { get; set; }
     public string Direction { get; set; } = string.Empty;
     public double[] ConfidenceInterval95 { get; set; } = Array.Empty<double>();
+
+    /// <summary>Linear regression t-test: slope per year, 95% CI, t, and p-value.</summary>
+    public LinearTrendVerdict Linear { get; set; } = LinearTrendVerdict.Inconclusive;
     public IReadOnlyList<AnnualObservation>? Observations { get; set; }
 
     /// <summary>"observed" (DuckDB) or "synthetic" (demonstration series: the variable has no loaded dataset).</summary>

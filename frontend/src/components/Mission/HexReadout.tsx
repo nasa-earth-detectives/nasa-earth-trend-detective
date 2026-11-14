@@ -4,9 +4,13 @@ import { CLIMATE_VARIABLES } from '../../config/climateLayers';
 import { HEX_PALETTE_GRADIENT, sampleHexColor } from '../../config/hexPalette';
 import { describeHexTrend, formatHexValue, HEX_PRESENTATION, readableHexUnit } from '../../config/hexPresentation';
 import type { HexCell, HexDataset } from '../../types/hex.types';
+import type { DatasetProvenance } from '../../types/dataset.types';
+import { provenanceLabel } from '../../services/datasetCatalog';
 
 interface HexReadoutProps {
   data: HexDataset | null;
+  /** Active variable provenance: labels the real source instead of a generic "API". */
+  provenance?: DatasetProvenance | null;
   loading: boolean;
   error: string | null;
   selectedCell: HexCell | null;
@@ -18,7 +22,7 @@ const coordinates = (cell: HexCell) =>
   `${Math.abs(cell.latitude).toFixed(1)}° ${cell.latitude < 0 ? 'S' : 'N'} · ${Math.abs(cell.longitude).toFixed(1)}° ${cell.longitude < 0 ? 'W' : 'E'}`;
 const PAGE_SIZE = 100;
 
-/** Preserves native keyboard selection without generating thousands of option nodes. */
+/** Keeps a native keyboard selection without creating thousands of option nodes. */
 function CellPicker({ data, cell, onSelectCell }: {
   data: HexDataset;
   cell: HexCell | null;
@@ -43,7 +47,7 @@ function CellPicker({ data, cell, onSelectCell }: {
       event.currentTarget.querySelector('summary')?.focus();
     }}
     onToggle={event => setOpen(event.currentTarget.open)}>
-    <summary className="focus-ring">{cell ? 'Change cell' : 'Select cell'}<span aria-hidden="true">↗</span></summary>
+    <summary className="focus-ring">{cell ? 'Change cell' : 'Choose cell'}<span aria-hidden="true">↗</span></summary>
     {open && <div className="hex-cell-picker__controls">
       <select aria-label="Analysis cell by coordinates" className="focus-ring"
         value={cell?.id ?? ''} onChange={event => onSelectCell(event.target.value || null)}>
@@ -52,19 +56,19 @@ function CellPicker({ data, cell, onSelectCell }: {
         {pageCells.map(item => <option key={item.id} value={item.id}>{label(item)}</option>)}
       </select>
       <div className="hex-cell-picker__pagination">
-        <button className="focus-ring" type="button" aria-label="Previous page of cells"
+        <button className="focus-ring" type="button" aria-label="Previous cell page"
           disabled={page === 0} onClick={() => setPage(page - 1)}>←</button>
         <output aria-live="polite">{number.format(start + 1)}–{number.format(start + pageCells.length)}
           <span> of {number.format(data.cells.length)}</span></output>
-        <button className="focus-ring" type="button" aria-label="Next page of cells"
+        <button className="focus-ring" type="button" aria-label="Next cell page"
           disabled={page >= pageCount - 1} onClick={() => setPage(page + 1)}>→</button>
       </div>
     </div>}
   </details>;
 }
 
-/** Sign indicates direction; it does not determine statistical significance or physical causation. */
-export function HexReadout({ data, loading, error, selectedCell, onSelectCell }: HexReadoutProps) {
+/** The sign expresses direction; it does not determine statistical significance or physical cause. */
+export function HexReadout({ data, provenance = null, loading, error, selectedCell, onSelectCell }: HexReadoutProps) {
   const ready = !loading && !error && data !== null;
   const count = ready ? data.cells.length : 0;
   const state = loading ? 'loading' : error ? 'error' : count === 0 ? 'empty' : 'ready';
@@ -98,7 +102,7 @@ export function HexReadout({ data, loading, error, selectedCell, onSelectCell }:
             <strong aria-hidden="true" style={{ color: cellColor }} title={`Received value: ${cell.slope} ${data?.unit}`}>{formatHexValue(cell.slope, true)}</strong>
             <span aria-hidden="true">{unit}</span></p>
           <p className="hex-readout__direction" title={presentation?.explanation}>{direction}
-            {clipped && <span> · Out of range: color and height clamped to ±{formatHexValue(data.heightDomain)}</span>}
+            {clipped && <span> · Out of scale: color and height capped at ±{formatHexValue(data.heightDomain)}</span>}
           </p>
         </> : <div className="hex-readout__count">
           <strong>{loading || error ? '—' : count.toLocaleString('en-US')}</strong>
@@ -108,7 +112,7 @@ export function HexReadout({ data, loading, error, selectedCell, onSelectCell }:
         {error && <p className="hex-readout__error">{error}</p>}
       </div>
       {ready && count > 0 && <>
-        <div className="hex-color-key" role="group" aria-label={`${variable?.name ?? data.variable} scale: blue for decreases, red for increases; zero for no change. Fixed domain from minus ${formatHexValue(data.heightDomain)} to plus ${formatHexValue(data.heightDomain)} ${unit}. Color does not indicate statistical significance.`}>
+        <div className="hex-color-key" role="group" aria-label={`Scale for ${variable?.name ?? data.variable}: blue for decreases, red for increases; zero for no change. Fixed domain from minus ${formatHexValue(data.heightDomain)} to plus ${formatHexValue(data.heightDomain)} ${unit}. Color does not indicate statistical significance.`}>
           <p className="hex-color-key__context">Rate of change<span>{unit}</span></p>
           <div className="hex-color-key__ramp" style={{ background: HEX_PALETTE_GRADIENT }} aria-hidden="true">
             <span className="hex-color-key__zero" />
@@ -121,7 +125,7 @@ export function HexReadout({ data, loading, error, selectedCell, onSelectCell }:
             <span>Decrease</span><span>No change</span><span>Increase</span>
           </div>
         </div>
-        <div className="hex-height-key" role="img" aria-label={`Height proportional to absolute magnitude. Fixed scale from zero to ${formatHexValue(data.heightDomain)} ${unit}; higher values are visually clamped.`}>
+        <div className="hex-height-key" role="img" aria-label={`Height proportional to absolute magnitude. Fixed scale from zero to ${formatHexValue(data.heightDomain)} ${unit}; higher values are visually capped.`}>
           <svg viewBox="0 0 90 44" aria-hidden="true">
             <path className="hex-height-key__datum" d="M0 40H88" />
             {[{ x: 8, y: 31 }, { x: 34, y: 21 }, { x: 60, y: 7 }].map(({ x, y }) =>
@@ -139,7 +143,7 @@ export function HexReadout({ data, loading, error, selectedCell, onSelectCell }:
       <p className="hex-readout__source">
         <span aria-hidden="true" />
         {!data ? 'No visible data in this layer' : data.source === 'api'
-          ? 'Data received from API' : 'Simulated data · not NASA observations'}
+          ? provenanceLabel(provenance) : 'Simulated data · not NASA observations'}
       </p>
       {ready && count > 0 && <CellPicker key={`${data.variable}:${data.source}`} data={data} cell={cell} onSelectCell={onSelectCell} />}
     </section>

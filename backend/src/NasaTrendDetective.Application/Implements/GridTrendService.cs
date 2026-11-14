@@ -7,13 +7,7 @@ namespace NasaTrendDetective.Application.Implements;
 public class GridTrendService : IGridTrendService
 {
     /// <summary>
-    /// 9 out of 12 months (75%): excludes an incomplete current year without discarding polar cells
-    /// that might have a missing month. This is a project heuristic, not a cited standard.
-    /// </summary>
-    public const int MinMonthsPerYear = 9;
-
-    /// <summary>
-    /// Below ~10 years the normal approximation of Mann-Kendall loses reliability.
+    /// Below ~10 years, the Mann-Kendall normal approximation is no longer reliable.
     /// </summary>
     public const int MinYearsPerCell = 10;
 
@@ -38,8 +32,9 @@ public class GridTrendService : IGridTrendService
             return null;
         }
 
+        var minPeriodsPerYear = VariableCadence.MinPeriodsPerYear(query.Variable);
         var series = await _gridRepository.GetCellAnnualSeriesAsync(
-            query.Variable, query.StartYear, query.EndYear, MinMonthsPerYear, cancellationToken)
+            query.Variable, query.StartYear, query.EndYear, minPeriodsPerYear, cancellationToken)
             .ConfigureAwait(false);
 
         var cells = series
@@ -72,7 +67,7 @@ public class GridTrendService : IGridTrendService
             Provider = provenance.Provider,
             Product = provenance.Product,
             Interim = provenance.Interim,
-            MinMonthsPerYear = MinMonthsPerYear,
+            MinMonthsPerYear = minPeriodsPerYear,
             MinYearsPerCell = MinYearsPerCell,
             Cells = cells
         };

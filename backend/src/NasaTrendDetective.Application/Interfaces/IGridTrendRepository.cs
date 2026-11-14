@@ -4,13 +4,14 @@ using NasaTrendDetective.Domain.Enums;
 namespace NasaTrendDetective.Application.Interfaces;
 
 /// <summary>
-/// Annual time series per grid cell, sourced exclusively from observed data (without synthetic filling).
+/// Annual series per grid cell, with observed data only (no synthetic padding).
 /// </summary>
 public interface IGridTrendRepository
 {
     /// <param name="minMonthsPerYear">
-    /// A year is included in a cell's series only if it contains at least this many valid months; this prevents
-    /// an incomplete current year (e.g. Jan-Aug) from being evaluated against full years.
+    /// A year enters a cell's series only if it has at least this many valid periods; this way a year
+    /// in progress (e.g., January-August) is not compared on equal terms with complete years. Decided by
+    /// VariableCadence: 9 months in monthly datasets, 1 row in annual datasets.
     /// </param>
     Task<IReadOnlyList<CellAnnualSeries>> GetCellAnnualSeriesAsync(
         ClimateVariable variable,

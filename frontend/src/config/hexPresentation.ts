@@ -38,6 +38,41 @@ export const HEX_PRESENTATION: Record<ClimateVariable, HexPresentation> = {
     decrease: 'CO₂ decrease',
     explanation: 'Rate of change of CO₂ concentration over the period; not the current concentration.',
   },
+  Merra2Temperature: {
+    heading: 'Air temperature trend',
+    subject: 'The 2 m air temperature',
+    increase: 'Air temperature increase',
+    decrease: 'Air temperature decrease',
+    explanation: 'Rate of change of annual mean air temperature over the period; not the current temperature.',
+  },
+  Merra2Precipitation: {
+    heading: 'Precipitation trend',
+    subject: 'Precipitation',
+    increase: 'Precipitation increase',
+    decrease: 'Precipitation decrease',
+    explanation: 'Rate of change of annual mean precipitation over the period; not the rainfall of a specific year.',
+  },
+  GpmPrecipitation: {
+    heading: 'Precipitation trend (satellite)',
+    subject: 'Satellite-estimated precipitation',
+    increase: 'Precipitation increase',
+    decrease: 'Precipitation decrease',
+    explanation: 'Rate of change of GPM IMERG annual mean precipitation over the period; not the rainfall of a specific year.',
+  },
+  Merra2Evaporation: {
+    heading: 'Evaporation trend',
+    subject: 'Land evaporation',
+    increase: 'Evaporation increase',
+    decrease: 'Evaporation decrease',
+    explanation: 'Rate of change of annual mean land evaporation over the period; by itself it does not indicate drought.',
+  },
+  Merra2SoilMoisture: {
+    heading: 'Soil moisture trend',
+    subject: 'Soil moisture',
+    increase: 'Soil moisture increase',
+    decrease: 'Soil moisture decrease',
+    explanation: 'Rate of change of annual mean root-zone soil moisture over the period; not the current moisture level.',
+  },
 };
 
 const regular = new Intl.NumberFormat('en-US', { maximumSignificantDigits: 3 });

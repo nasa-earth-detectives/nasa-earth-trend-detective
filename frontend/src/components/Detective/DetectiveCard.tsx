@@ -12,6 +12,7 @@ import { CLIMATE_VARIABLES, SATELLITE_TIMELINE } from '../../config/climateLayer
 import { formatCoordinate } from '../../utils/detectiveAnalysis';
 import { TrendSignificanceBadge } from './TrendSignificanceBadge';
 import { TimeSeriesChart } from './TimeSeriesChart';
+import { TrendMethods } from './TrendMethods';
 import { DetectiveExportActions } from './DetectiveExportActions';
 import { sampleDemoObservation } from '../../services/demo/observationDemoData';
 import { getObservationValue, OBSERVATION_SCALES } from '../../utils/colorScales';
@@ -32,7 +33,7 @@ interface DetectiveCardProps {
   onYearChange?: (year: number) => void;
 }
 
-/** With API: real cell annual series and its Mann-Kendall / Sen verdict. With demo: labeled scenario. */
+/** With API: real annual cell series and its Mann-Kendall / Sen verdict. With demo: labeled scenario. */
 export function DetectiveCard({ open, location, variable, year, source, provenance = null, observation,
   observationDistanceDegrees, supportRadiusDegrees, loading, onClose, onYearChange }: DetectiveCardProps) {
   const closeRef = useRef<HTMLButtonElement>(null);
@@ -53,7 +54,7 @@ export function DetectiveCard({ open, location, variable, year, source, provenan
 
   const seriesData = useMemo<TimeSeriesDataPoint[]>(() => {
     if (!observation || loading) return [];
-    // Without backend series, no regional series is synthesized: only the received annual value.
+    // Without the backend series, do not fabricate a regional one: only the received annual value.
     if (source === 'api') return trend.data?.series ?? [{ year, value: getObservationValue(observation) }];
     return Array.from({ length: SATELLITE_TIMELINE.endYear - SATELLITE_TIMELINE.startYear + 1 }, (_, index) => {
       const sampleYear = SATELLITE_TIMELINE.startYear + index;
@@ -98,7 +99,7 @@ export function DetectiveCard({ open, location, variable, year, source, provenan
         <p title={`${observation.latitude}, ${observation.longitude}`}>
           {formatCoordinate(observation.latitude, 'N', 'S')} · {formatCoordinate(observation.longitude, 'E', 'W')}
         </p>
-        <p>This reading corresponds to the sample above, not the exact clicked point.</p>
+        <p>The reading corresponds to this sample, not the selected point.</p>
       </div>}
 
       <div className="inspection-variable">
@@ -126,11 +127,11 @@ export function DetectiveCard({ open, location, variable, year, source, provenan
       />
 
       <footer className="inspection-provenance">
-        {!loading && !observation && <p>No samples of this variable within {supportRadiusDegrees}° in the active coverage.</p>}
+        {!loading && !observation && <p>No samples for this variable within {supportRadiusDegrees}° in the active coverage.</p>}
         <p>{source === 'demo' ? 'Synthetic data · not NASA observations.' :
           observation ? provenanceLabel(provenance) : 'No sample received for this location.'}</p>
         <p>{variable === 'Gistemp'
-          ? 'Red: warmer · blue: cooler relative to baseline average. Not absolute temperature.'
+          ? 'Red: warmer · blue: cooler relative to reference baseline. Not absolute temperature.'
           : `${OBSERVATION_SCALES[variable].label}.`}</p>
         <p>Mann–Kendall / Sen {trend.data && (
           <TrendSignificanceBadge result={{
@@ -139,10 +140,11 @@ export function DetectiveCard({ open, location, variable, year, source, provenan
             sensSlope: trend.data.sensSlope,
             zScore: trend.data.zScore,
           }} variable={variable} unit={unit} />
-        )} <span>{source === 'demo' || !observation ? 'Not computed' : trend.loading ? 'Computing…'
+        )} <span>{source === 'demo' || !observation ? 'Not calculated' : trend.loading ? 'Calculating…'
           : trend.error ? 'Unavailable' : trend.data ? `${trend.data.sensSlope >= 0 ? '+' : ''}${trend.data.sensSlope.toLocaleString('en-US',
             { maximumFractionDigits: 3 })} ${unit} · p = ${trend.data.pValue.toLocaleString('en-US', { maximumSignificantDigits: 2 })}${
-            trend.data.isSignificant ? ' · significant' : ' · not significant'}` : 'Not computed'}</span></p>
+            trend.data.isSignificant ? ' · significant' : ' · not significant'}` : 'Not calculated'}</span></p>
+        {source === 'api' && observation && trend.data && <TrendMethods trend={trend.data} unit={unit} />}
       </footer>
     </aside>
   );

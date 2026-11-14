@@ -9,14 +9,11 @@ using NasaTrendDetective.Infrastructure.Interfaces;
 namespace NasaTrendDetective.Infrastructure.Implements;
 
 /// <summary>
-/// Real observation queries from DuckDB. Does not fill with synthetic data: if no rows exist,
-/// it returns an empty list, and the service (which knows the catalog) decides what to display.
+/// Reads real observations from DuckDB. Does not pad with synthetic data: if there are no rows
+/// it returns an empty list, and the service—which knows the catalog—decides what to show.
 /// </summary>
 public class TrendObservationRepository : ITrendObservationRepository
 {
-    /// <summary>Same rule as cell-level analysis: an incomplete year is not included in the series.</summary>
-    private const int MinMonthsPerYear = GridTrendService.MinMonthsPerYear;
-
     private readonly IDuckDbRepository _repository;
 
     public TrendObservationRepository(IDuckDbRepository repository)
@@ -38,7 +35,8 @@ public class TrendObservationRepository : ITrendObservationRepository
             ["varId"] = (byte)variable,
             ["startYear"] = startYear,
             ["endYear"] = endYear,
-            ["minMonths"] = MinMonthsPerYear
+            // Same rule as per-cell analysis: an incomplete year does not enter the series.
+            ["minMonths"] = VariableCadence.MinPeriodsPerYear(variable)
         };
 
         var where = "WHERE variable_id = $varId AND year BETWEEN $startYear AND $endYear";
@@ -51,8 +49,8 @@ public class TrendObservationRepository : ITrendObservationRepository
             parameters["maxLng"] = longitude.Value + toleranceDegrees;
         }
 
-        // count(DISTINCT month): the spatial window may span multiple cells; what matters is how many
-        // months of the year are represented, not the total row count.
+        // count(DISTINCT month): the window may span multiple cells, and what matters is how many
+        // months of the year are represented, not how many rows exist.
         var sql = $"""
             SELECT
                 CAST(year AS INTEGER) AS obs_year,
@@ -80,7 +78,7 @@ public class TrendObservationRepository : ITrendObservationRepository
             ["year"] = year
         };
 
-        // One row per cell (average across available months). Previously returned one row per month with
+        // One row per cell (mean of available months). Previously one row per month was returned with
         // LIMIT 5000: the same cell appeared up to 12 times and the grid was arbitrarily truncated.
         const string sql = """
             SELECT
@@ -112,7 +110,7 @@ public class TrendObservationRepository : ITrendObservationRepository
         var anomaly = record.IsDBNull(3) ? (double?)null : record.GetDouble(3);
         return new TrendObservation
         {
-            // Deterministic and unique per cell: frontend rejects duplicate identifiers.
+            // Deterministic and unique per cell: the frontend rejects duplicate identifiers.
             Id = string.Create(CultureInfo.InvariantCulture, $"{variable}:{year}:{latitude:F3}:{longitude:F3}"),
             Variable = variable,
             Latitude = latitude,

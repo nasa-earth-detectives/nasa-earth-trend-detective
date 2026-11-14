@@ -3,13 +3,23 @@ import type { HexDataset } from '../../types/hex.types';
 import type { TrendFilterParams } from '../../types/trend.types';
 import { DEMO_LAND_CELL_IDS } from './hexDemoCoverage';
 import { HEX_GLOBAL_COVERAGE, HEX_GLOBAL_FLAGS } from './hexGlobalCoverage';
+import { hasDemoScenario } from './demoScenario';
 
-/** Presentation scales for mock scenario, not scientific thresholds. */
+/** Presentation scales for the synthetic scenario, not scientific thresholds. */
 export const HEX_VARIABLE_PROFILES: Record<ClimateVariable, { unit: string; heightDomain: number }> = {
   Gistemp: { unit: '°C / year', heightDomain: 0.08 },
-  ModisNdvi: { unit: 'NDVI / year', heightDomain: 0.015 },
+  // 99th percentile of measured slope in real 2000-2025 NDVI: 0.0046 per year.
+  ModisNdvi: { unit: 'NDVI / year', heightDomain: 0.005 },
   GraceMass: { unit: 'cm H₂O eq. / year', heightDomain: 3 },
   Oco2: { unit: 'ppm / year', heightDomain: 4 },
+  // MERRA-2 has no synthetic scenario. The vertical domain is the 99th percentile of the slope
+  // measured in real 1981-2025 data (0.081 °C; 0.046, 0.029, and 0.0043 per year).
+  Merra2Temperature: { unit: '°C / year', heightDomain: 0.08 },
+  Merra2Precipitation: { unit: 'mm/day / year', heightDomain: 0.045 },
+  Merra2Evaporation: { unit: 'mm/day / year', heightDomain: 0.03 },
+  Merra2SoilMoisture: { unit: 'fraction / year', heightDomain: 0.0045 },
+  // Same domain as MERRA-2 precipitation so both can be compared at a glance.
+  GpmPrecipitation: { unit: 'mm/day / year', heightDomain: 0.045 },
 };
 
 export const DEMO_HEX_RESOLUTION_DEGREES = 2.2;
@@ -29,10 +39,10 @@ const VARIABLES: ClimateVariable[] = ['Gistemp', 'ModisNdvi', 'GraceMass', 'Oco2
 const landCellIds = new Set<string>(DEMO_LAND_CELL_IDS);
 export type HexDemoProfile = 'global' | 'regional' | 'stress';
 
-/** Reproducible benchmark: all 6,211 cells reside in the hemisphere of the initial frame. */
+/** Reproducible benchmark: all 6,211 cells lie in the initial camera hemisphere. */
 export const HEX_STRESS_PROFILE = { radius: 45, resolutionDegrees: 0.75, latitude: 18, longitude: -12 } as const;
 
-/** Tangent plane geodesic projection: preserves spacing even near Greenland. */
+/** Tangent-plane geodesic projection: preserves spacing even near Greenland. */
 function projectCenter(latitude: number, longitude: number, east: number, north: number) {
   const distance = Math.hypot(east, north) * RADIANS;
   if (distance === 0) return { latitude, longitude };
@@ -57,8 +67,8 @@ interface DemoLocation {
   readonly envelope: number;
 }
 
-// Two base geometries. Centers and spatial factors are retained,
-// never mutable objects returned to consumers of each query.
+// Two base geometries. Centers and spatial factors are cached,
+// never the mutable objects returned to each query consumer.
 const locationCache = new Map<HexDemoProfile, readonly DemoLocation[]>();
 
 interface GlobalLocation {
@@ -72,7 +82,7 @@ interface GlobalLocation {
 }
 let globalLocations: readonly GlobalLocation[] | null = null;
 
-/** Near-uniform area sampling: avoids clustering thousands of columns at poles. */
+/** Nearly equal-area sampling: avoids piling thousands of columns at the poles. */
 function getGlobalLocations(): readonly GlobalLocation[] {
   if (globalLocations) return globalLocations;
   globalLocations = Array.from({ length: HEX_GLOBAL_COVERAGE.count }, (_, index) => {
@@ -94,7 +104,7 @@ function createGlobalDataset(filter: TrendFilterParams): HexDataset {
   const locations = getGlobalLocations().filter(location => filter.variable === 'ModisNdvi'
     ? location.flags === 3 : filter.variable === 'GraceMass' ? (location.flags & 1) !== 0 : true);
   const cells = locations.map(({ id, latitude, longitude, x, y, z }) => {
-    // Continuous synthetic field over sphere, without jumps at ±180° or political borders.
+    // Continuous synthetic field over the sphere, without seams at ±180° or political borders.
     const field = 0.62 * Math.sin(3 * x + 2 * y + phase) * Math.cos(2 * z - phase * 0.3)
       + 0.38 * Math.sin(4 * z - y + phase * 0.7);
     return { id, latitude, longitude, slope: Number((field * 0.55 * profile.heightDomain).toFixed(7)) };
@@ -118,7 +128,7 @@ function getLocations(demoProfile: HexDemoProfile): readonly DemoLocation[] {
         if (Math.abs(q + r) > patchRadius) continue;
         const east = resolutionDegrees * (q + r / 2);
         const north = resolutionDegrees * Math.sqrt(3) / 2 * r;
-        // Dense stress test limits height to prevent foreground columns from obscuring others.
+        // Stress benchmark caps height so foreground columns do not occlude others.
         const envelope = stress ? 0.3 : 0.38 + 0.52 * Math.exp(-(q * q + r * r + q * r) / 28);
         patch.push({
           id: `demo:${region.id}:${q}:${r}`,
@@ -136,8 +146,14 @@ function getLocations(demoProfile: HexDemoProfile): readonly DemoLocation[] {
   return locations;
 }
 
-/** Global by default; regional preserves comparison and stress is purely for benchmarking. */
+/** Global by default; regional preserves comparison and stress is only for load testing. */
 export function createDemoHexDataset(filter: TrendFilterParams, demoProfile: HexDemoProfile = 'global'): HexDataset {
+  if (!hasDemoScenario(filter.variable)) {
+    // Without real data, render nothing: an empty grid rather than another variable's synthetic field.
+    const { unit, heightDomain } = HEX_VARIABLE_PROFILES[filter.variable];
+    return { cells: [], variable: filter.variable, startYear: filter.startYear, endYear: filter.endYear,
+      source: 'demo', unit, heightDomain, resolutionDegrees: DEMO_HEX_RESOLUTION_DEGREES };
+  }
   if (demoProfile === 'global') return createGlobalDataset(filter);
   const profile = HEX_VARIABLE_PROFILES[filter.variable];
   const variableIndex = VARIABLES.indexOf(filter.variable);
