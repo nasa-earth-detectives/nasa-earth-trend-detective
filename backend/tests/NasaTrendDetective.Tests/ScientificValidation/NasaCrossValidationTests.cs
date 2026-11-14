@@ -11,6 +11,7 @@ public class NasaCrossValidationTests
     {
         // Serie representativa de anomalías GISTEMP en el Ártico (2000-2024)
         // La literatura oficial de la NASA reporta un calentamiento ártico de ~+0.7°C por década.
+        // No representa observaciones GISTEMP ni una tasa de calentamiento verificada/publicada por NASA para ese periodo.
         var observations = Enumerable.Range(2000, 25).Select(year =>
         {
             var t = year - 2000;
@@ -22,7 +23,7 @@ public class NasaCrossValidationTests
         var verdict = TrendStatisticsEngine.Analyze(observations);
 
         // Tolerancia científica: 0.65°C a 0.75°C por década
-        Assert.True(verdict.SensSlopePerDecade >= 0.60 && verdict.SensSlopePerDecade <= 0.80,
+        Assert.True(verdict.SensSlopePerDecade >= 0.65 && verdict.SensSlopePerDecade <= 0.75,
             $"La pendiente decenal calculada ({verdict.SensSlopePerDecade}°C/década) debe converger con el informe NASA (+0.70°C/década).");
         Assert.True(verdict.ZScore > 1.96, "El calentamiento ártico debe ser estadísticamente significativo.");
         Assert.Equal(TrendDirection.Increasing, verdict.Direction);
@@ -31,12 +32,13 @@ public class NasaCrossValidationTests
     [Fact]
     public void GreenlandIceLoss_MatchesNasaGraceFoDecayRate()
     {
-        // Datos representativos GRACE/GRACE-FO para masa glaciar de Groenlandia (2002-2024)
-        // NASA reporta una pérdida promedio de ~-260 a -275 Gt/año (cm de agua equivalente acumulada negativa)
-        var observations = Enumerable.Range(2002, 23).Select(year =>
+        // Datos representativos GRACE/GRACE-FO para masa glaciar de Groenlandia (2002-2025)
+        // NASA reporta una pérdida promedio de aproximadamente 264 Gt/año 
+        // Fuente: http://svs.gsfc.nasa.gov/31156/
+        var observations = Enumerable.Range(2002, 24).Select(year =>
         {
             var t = year - 2002;
-            var massLoss = -262.0 * t + 15.0 * Math.Cos(t * 1.3);
+            var massLoss = -264.0 * t + 15.0 * Math.Cos(t * 1.3);
             return new AnnualObservation(year, Math.Round(massLoss, 1), Math.Round(massLoss, 1));
         }).ToList();
 
