@@ -68,6 +68,7 @@ Bienvenido a la bóveda central de documentación y diseño de ingeniería de nu
 - [[36-Plan-Hackathon-Neiva-Nuevas-Fuentes-NASA-CSA]]: Plan operativo Hackathon Neiva (14–15 nov 2026), Google Doc maestro, delegación de ajustes en ClickUp y mapa de fuentes NASA/CSA/KNMI.
 - [[37-MERRA2-Datos-Reales-y-Casos-Opuestos]]: variables reales de MERRA-2 y GPM (NASA POWER), casos con tendencias opuestas medidas, estadística contrastada con SciPy y rediseño del asistente.
 - [[38-Como-Funciona-El-Detective-De-Tendencias]]: guía de punta a punta: qué hace, de dónde salen los datos, backend, frontend, cómo añadir una variable y dónde están los textos para traducir.
+- [[39-Formulas-y-Supuestos-para-QA-Fisico]]: para la revisión de física: fórmulas añadidas o cambiadas, cómo se comprobaron, autocorrelación lag-1 medida y puntos abiertos.
 
 ---
 
