@@ -3,8 +3,9 @@ using NasaTrendDetective.Domain.Entities;
 namespace NasaTrendDetective.Application.Statistics;
 
 /// <summary>
-/// Unified analytical engine to compute the full statistical verdict of a series:
-/// Mann-Kendall with Sen's slope (non-parametric) and the linear regression t-test.
+/// Unified analytical engine to compute the full statistical verdict for a series:
+/// non-parametric Mann-Kendall with Sen's slope, the linear regression t-test, and
+/// prewhitened Mann-Kendall that removes year-to-year persistence.
 /// </summary>
 public static class TrendStatisticsEngine
 {
@@ -30,7 +31,8 @@ public static class TrendStatisticsEngine
             mk.Direction,
             mk.Significance)
         {
-            Linear = LinearTrendTest.Calculate(values, years)
+            Linear = LinearTrendTest.Calculate(values, years),
+            Prewhitened = PrewhiteningTrendTest.Calculate(values, years)
         };
     }
 }

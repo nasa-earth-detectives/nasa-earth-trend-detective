@@ -5,6 +5,7 @@ import { createDemoHexDataset, HEX_VARIABLE_PROFILES } from './demo/hexDemoData'
 import { readDataSourceMode, resolveVariableSource } from './datasetCatalog';
 import { SATELLITE_TIMELINE } from '../config/climateLayers';
 import { trendService } from './trendService';
+import { readCellSignificance, readGridSignificance } from './hexSignificance';
 
 /** Explicit mapping to backend/.../Enums/ClimateVariable.cs without assuming JSON strings. */
 const API_VARIABLE_IDS: Record<ClimateVariable, number> = {
@@ -127,7 +128,7 @@ export function adaptApiHexDataset(payload: unknown, filter: TrendFilterParams):
     const id = `api:${latitude.toFixed(7)}:${normalizedLng.toFixed(7)}`;
     if (seen.has(id)) throw new Error('API returned duplicate trends for the same location.');
     seen.add(id);
-    return { id, latitude, longitude: normalizedLng, slope };
+    return { id, latitude, longitude: normalizedLng, slope, ...readCellSignificance(row) };
   });
   if (envelopeUnit === undefined && unitCount > 0 && unitCount !== cells.length) {
     throw new Error('API must declare unit for all cells or on the enclosing object.');
@@ -148,6 +149,7 @@ export function adaptApiHexDataset(payload: unknown, filter: TrendFilterParams):
     unit: unit ?? 'slope · undeclared unit',
     heightDomain,
     resolutionDegrees: resolution ?? HEX_API_PRESENTATION[filter.variable].resolutionDegrees,
+    significance: readGridSignificance(metadata, cells.length),
   };
 }
 

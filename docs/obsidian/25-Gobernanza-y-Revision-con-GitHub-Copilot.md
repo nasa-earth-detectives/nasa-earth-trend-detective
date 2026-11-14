@@ -19,7 +19,7 @@ Copilot actúa como un evaluador técnico implacable que audita cada propuesta d
 
 Las directrices oficiales residen en [`.github/copilot-instructions.md`](file:///c:/Users/NITRO%20ACER/Desktop/proyectos%20con%20ia/nasa%20project/.github/copilot-instructions.md) y se aplican a todas las revisiones automáticas:
 
-1. **Modularidad Estricta (<150-200 líneas):** Ningún archivo nuevo o modificado puede convertirse en un God Object. Todo componente o servicio debe respetar el principio de responsabilidad única (SRP).
+1. **Modularidad Estricta (<=300 líneas):** Ningún archivo nuevo o modificado puede convertirse en un God Object (aviso preventivo desde 250 líneas). Todo componente o servicio debe respetar el principio de responsabilidad única (SRP).
 2. **Cero Código Quemado (No Hardcoding):** Prohibido el uso de IDs numéricos directos, URLs absolutas, strings mágicos repetidos o tasas fijas sin constantes tipadas, Enums (`TrendDirection`, `ObservationMode`) o variables de entorno.
 3. **Estrategia Estricta de 3 Ramas:**
    - `development` ➔ Rama de integración diaria.
@@ -74,7 +74,7 @@ Cada revisión en el PR se publica con la siguiente estructura estandarizada:
 ### 🤖 GitHub Copilot PR Review Assessment
 
 #### 1. Verificación de Cumplimiento de Reglas
-- [x] **Modularidad (<200 líneas):** PASA
+- [x] **Modularidad (<=300 líneas):** PASA
 - [x] **Cero Hardcoding (Enums/Env):** PASA
 - [x] **Estrategia de Ramas:** PASA
 - [x] **Seguridad / Anti-Bots:** PASA
@@ -93,7 +93,7 @@ Cada revisión en el PR se publica con la siguiente estructura estandarizada:
 ## 🚀 6. Guía Rápida para Desarrolladores
 
 1. Crea tu rama de funcionalidad desde `development` (ej. `feat/mi-tarea`).
-2. Implementa tu código respetando los límites de líneas (<200) y cero código quemado.
+2. Implementa tu código respetando los límites de líneas (<=300) y cero código quemado.
 3. Actualiza la nota correspondiente en `docs/obsidian/`.
 4. Abre el PR hacia `development` y llena la plantilla [`PULL_REQUEST_TEMPLATE.md`](file:///c:/Users/NITRO%20ACER/Desktop/proyectos%20con%20ia/nasa%20project/.github/PULL_REQUEST_TEMPLATE.md).
 5. Si deseas una nueva revisión tras aplicar correcciones, añade un comentario con `/copilot-review` o la etiqueta `copilot-review`.

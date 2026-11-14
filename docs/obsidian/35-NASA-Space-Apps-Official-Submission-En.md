@@ -33,12 +33,15 @@ Earth: **what** is changing, **where**, **how much**, and whether the change is 
 **significant**.
 
 ### Developed Solution
-1. **Guided briefing in three choices.** A variable, a place and a period. Seven variables carry real
+1. **Guided briefing in three choices.** A variable, a place and a period. All nine variables carry real
    NASA data; the 3D globe reacts while the user chooses.
 2. **Time series for the selected 2° cell**, with its trend line, up to 45 years (1981–2025).
 3. **A verdict with three methods:** Mann-Kendall with Sen's slope, the 95 % confidence interval of
-   that slope, and a t-test on a linear regression. The card states whether the methods agree.
-4. **A global map of the trend** (Sen's slope per cell), showing where the variable rises and falls.
+   that slope, and a t-test on a linear regression. The card states whether the methods agree, and
+   whether the trend survives once year-to-year persistence is discounted.
+4. **A global map of the trend** (Sen's slope per cell), showing where the variable rises and falls,
+   with the count of cells that remain significant after correcting for persistence and for testing
+   thousands of cells at once.
 5. **Opposite trends, measured.** A case board compares two regions variable by variable, computed
    live from the series. Arcs on the globe link real opposing pairs.
 6. **Built for students:** a plain-language glossary, definitions for each variable, guided cases
@@ -84,21 +87,38 @@ as a result too, with the reason (often, not enough years).
 - **Mann-Kendall trend test** with tie correction: score $S$, $\text{Var}(S)$, $Z$ and two-sided $p$-value.
 - **Sen's slope** (median of pairwise slopes) with its 95 % confidence interval (Sen, 1968).
 - **t-test on the slope of a least-squares regression**, with standard error and 95 % interval.
+- **Serial correlation:** Mann-Kendall repeated after iterative pre-whitening (Zhang et al., 2000;
+  Wang and Swail, 2001). The method was chosen by simulation, not by reputation: on 2,000 trend-free
+  AR(1) series per case the classic test gives 4–38 % false positives, the widely used TFPW 5–50 %, and
+  the adopted method 3.5–19 %. It halves false positives; it does not remove them.
+- **Multiple testing:** Benjamini-Hochberg false discovery rate (5 %) across all cells of a map.
 - **Cross-validation:** Sen's slope, its interval, the regression slope, standard error, $t$ and
   interval match SciPy 1.18.1 to 6 decimals on three series, one of them real MERRA-2 data; the
-  $p$-value matches within a relative error of $10^{-6}$. 180 automated backend tests pass.
+  $p$-value matches within a relative error of $10^{-6}$. The Benjamini-Hochberg adjustment matches
+  SciPy to 9 decimals. 194 automated backend tests pass.
 
-### Measured Results (2° grid, Mann-Kendall at 95 %)
-| Variable (period) | Cells | Significant increase | Significant decrease | Not significant |
-| :--- | ---: | ---: | ---: | ---: |
-| Air temperature, MERRA-2 (1981–2025) | 16,200 | 10,986 | 1,057 | 4,157 |
-| Precipitation, MERRA-2 (1981–2025) | 16,200 | 2,948 | 2,674 | 10,578 |
-| Precipitation, GPM IMERG (1998–2025) | 16,200 | 3,693 | 943 | 11,564 |
-| Land evaporation, MERRA-2 (1981–2025) | 4,573 | 1,136 | 628 | 2,809 |
-| Root-zone soil moisture, MERRA-2 (1981–2025) | 4,573 | 1,237 | 645 | 2,691 |
-| Vegetation index (NDVI), MODIS Terra (2000–2025) | 3,094 | 1,146 | 141 | 1,807 |
+### Measured Results (2° grid)
+Cells with a significant trend: Mann-Kendall at 95 % with no correction, then after discounting
+persistence, then also controlling the false discovery rate at 5 %. The last two columns split that
+final count.
 
-**Opposite trends in two regions** (Sen's slope per decade, all significant):
+| Variable (period) | Cells | Uncorrected | Persistence-corrected | + FDR 5 % | Increase | Decrease |
+| :--- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Surface temperature, GISTEMP (2000–2026) | 16,021 | 9,843 | 8,449 | 7,117 | 7,117 | 0 |
+| Air temperature, MERRA-2 (1981–2025) | 16,200 | 12,043 | 11,176 | 10,727 | 9,952 | 775 |
+| Precipitation, MERRA-2 (1981–2025) | 16,200 | 5,622 | 4,911 | 2,812 | 1,697 | 1,115 |
+| Precipitation, GPM IMERG (1998–2025) | 16,200 | 4,667 | 4,070 | 2,297 | 2,065 | 231 |
+| Land evaporation, MERRA-2 (1981–2025) | 4,573 | 1,764 | 1,465 | 941 | 645 | 296 |
+| Root-zone soil moisture, MERRA-2 (1981–2025) | 4,573 | 1,891 | 1,293 | 737 | 502 | 235 |
+| Vegetation index (NDVI), MODIS Terra (2000–2025) | 3,094 | 1,287 | 1,211 | 894 | 830 | 64 |
+| Water and ice mass, GRACE / GRACE-FO (2002–2025) | 5,832 | 4,358 | 3,684 | 3,517 | 1,805 | 1,712 |
+| Column CO₂, OCO-2 (2015–2025) | 3,139 | 3,139 | 3,138 | 3,138 | 3,138 | 0 |
+
+Where the signal is strong (temperature, ice, CO₂) the corrections change little; where it is weak and
+noisy (precipitation, soil moisture) about half of the "significant" cells do not survive.
+
+**Opposite trends in two regions** (Sen's slope per decade; all eight remain significant after the
+persistence correction, the weakest being air temperature in Bangladesh, $p = 0.015$):
 
 | Variable | Central-West Brazil (19° S, 53° W) | Bangladesh (23° N, 91° E) |
 | :--- | :--- | :--- |
@@ -119,6 +139,8 @@ as a result too, with the reason (often, not enough years).
 | **GPM IMERG** (GPM is named in the challenge) | NASA GPM, served by **NASA POWER v10** | Annual mean satellite precipitation, 1998–2025, regridded from 0.1° to 2°. Lets users compare a model with a satellite product at the same place. |
 | **MODIS** vegetation index (MODIS is named in the challenge) | MODIS on Terra, product MOD13A3 (NASA LP DAAC), served by **NASA GIBS** | Monthly NDVI, March 2000 to December 2025: cell means on the 2° grid, recovered from the GIBS tiles with their official colormap (142 classes, 0.005 to 0.01 wide). |
 | **GISTEMP v4** | NASA Goddard Institute for Space Studies | Monthly land–ocean temperature anomaly on a 2° grid, January 2000 to August 2026. |
+| **GRACE / GRACE-FO** | NASA Goddard Space Flight Center mascons, RL06v2.0 (Loomis et al., 2019), open download | Monthly water and ice mass on land, April 2002 to December 2025, in cm of water equivalent relative to 2004–2009: 12,896 land and grounded-ice mascons regridded to 5,832 cells of 2°. |
+| **OCO-2** column CO₂ | OCO-2 Level 2 Lite (GES DISC), served by **NASA GIBS** | Annual mean XCO₂ per 2° cell, 2015–2025, recovered from the daily GIBS images with their official colormap (0.4 ppm classes): 13.1 million soundings. Rises in every cell with a series, median +2.47 ppm per year. |
 | **NASA GIBS imagery** | Blue Marble NG, VIIRS Black Marble, Landsat WELD | Day and night surface of the 3D globe. |
 | **NASA 3D spacecraft models** | NASA | Terra, Aqua, GRACE-FO and OCO-2 drawn in orbit. |
 
@@ -129,7 +151,6 @@ as a result too, with the reason (often, not enough years).
 | **AppEEARS** | Diego | Tried for MODIS NDVI and discarded: a global monthly point request advanced 1 % in 23 minutes (days per task). NDVI was loaded from NASA GIBS instead. |
 | **Giovanni** | Fabriany / Emilse | To compare our series with NASA's; its API needs an Earthdata token. Not done. |
 | **Hydrology Time Series** | Fabriany | The "Data Rods" service answers with a GES DISC notice that it is being discontinued. Not usable as probed on 2026-11-14. |
-| **GRACE / GRACE-FO** and **OCO-2** | — | Still demonstration scenarios in the app, labeled as such. Not available in AppEEARS or GIBS as data; they need PO.DAAC and GES DISC. |
 | **KNMI Climate Explorer** | Johan / Emilse | Planned as an external cross-check. Today the statistics are cross-validated against SciPy. |
 | **NOAA Climate Data Online** | Emilse / Fabriany | Planned as a station-level check of a grid cell. Not done. |
 | **SeaWiFS paper (NTRS 20090042747)** | Johan | Methodological reference to cite. Not yet cited in the product. |
@@ -137,7 +158,9 @@ as a result too, with the reason (often, not enough years).
 
 **Honest limits:** MERRA-2 is a reanalysis (a model that assimilates observations), not a direct
 measurement; its precipitation trends can include effects of changes in the observing system. NASA
-POWER marks its IMERG parameter as "reviewing". The tool reports what the data show, not the cause.
+POWER marks its IMERG parameter as "reviewing". OCO-2 has no series where clouds leave too few
+soundings (central Amazon, Colombia) and none poleward of 60°. The persistence correction halves false
+positives but does not remove them. The tool reports what the data show, not the cause.
 
 ### How NASA Resources Inspired the Solution
 The challenge states that a variable can trend one way in one region and the opposite way in
@@ -173,21 +196,22 @@ paired with the live application.
 | **Slide 1** | **NASA Earth System Trend Detective** | Cover: 6-member team from Neiva (Colombia), live app URL and repository link. |
 | **Slide 2** | **The Challenge: Signal vs. Noise** | Why it is hard to pick a variable and prove a trend; the four questions (*what, where, how much, significant*). |
 | **Slide 3** | **Three Choices, One Verdict** | Screenshots: the guided briefing, the globe turning to the chosen place, the 45-year ruler, the detective card with the series and the verdict. |
-| **Slide 4** | **Real NASA Data, With Provenance** | **MERRA-2** and **GPM IMERG** through NASA POWER, **MODIS NDVI** through NASA GIBS, **GISTEMP v4**. One line on what is still a demonstration. |
-| **Slide 5** | **Scientific Rigor** | Mann-Kendall, Sen's slope with 95 % CI and the t-test; "do the methods agree?"; the SciPy cross-validation; model against satellite in the Amazon. |
+| **Slide 4** | **Real NASA Data, With Provenance** | Nine variables, all real: **MERRA-2** and **GPM IMERG** through NASA POWER, **MODIS NDVI** and **OCO-2 CO₂** through NASA GIBS, **GRACE** mascons from NASA Goddard, **GISTEMP v4**. |
+| **Slide 5** | **Scientific Rigor** | Mann-Kendall, Sen's slope with 95 % CI and the t-test; the persistence and false-discovery corrections, with how many cells survive; the SciPy cross-validation. Honest example: Amazon rainfall looked significant ($p = 0.016$) and did not survive ($p = 0.091$). |
 | **Slide 6** | **Opposite Trends, Measured** | The case board: Central-West Brazil against Bangladesh, four variables, all significant and opposite; the global table of cells rising and falling. |
-| **Slide 7** | **Architecture, Impact & Roadmap** | React + Three.js → .NET 10 → DuckDB with seeds and manifests; classroom use; next: GRACE and OCO-2. |
+| **Slide 7** | **Architecture, Impact & Roadmap** | React + Three.js → .NET 10 → DuckDB with seeds and manifests; classroom use; next: external cross-checks (Giovanni, KNMI) and CSA data. |
 
 ### 45-Second Judge Elevator Pitch (English)
 > *"Hello judges, we are the NASA Earth System Trend Detective team from Neiva, Colombia. Is it
 > raining more or less where you live? And is that change real, or just noise? Our web tool lets a
 > student answer that in three choices: a variable, a place and a period. It uses real NASA data —
 > the MERRA-2 reanalysis, GPM satellite precipitation and MODIS vegetation, all named in this
-> challenge, plus GISTEMP — on an interactive 3D globe. It draws the series and tests it three ways: Mann-Kendall,
-> Sen's slope with its confidence interval, and a t-test, cross-validated against SciPy. And it
+> challenge, plus GRACE, OCO-2 and GISTEMP — on an interactive 3D globe. It draws the series and tests it three ways: Mann-Kendall,
+> Sen's slope with its confidence interval, and a t-test, cross-validated against SciPy, and then
+> checks whether the trend survives year-to-year persistence. And it
 > shows the idea at the heart of this challenge with numbers: in Central-West Brazil the air warms
 > and the land dries, while in Bangladesh it cools and gets wetter. Same variables, opposite
-> directions, all statistically significant. Thank you!"*
+> directions, all statistically significant even after that correction. Thank you!"*
 
 ---
 
@@ -197,9 +221,10 @@ paired with the live application.
    tested answer in three choices.
 2. **Creativity:** the guided briefing drives a live 3D globe, and the "opposite trends" idea of the
    challenge becomes a board computed from the data.
-3. **Validity:** three significance methods cross-validated against SciPy; real data with a
-   provenance manifest per dataset; demonstration variables labeled as such; limits stated.
+3. **Validity:** three significance methods cross-validated against SciPy, plus corrections for
+   serial correlation and multiple testing chosen by simulation; real data with a provenance manifest
+   per dataset; limits stated, including a headline example that did not survive our own check.
 4. **Relevance:** it follows the four objectives of the challenge and uses three sources the
-   challenge names (MERRA-2, GPM and MODIS), plus GISTEMP.
+   challenge names (MERRA-2, GPM and MODIS), plus GRACE, OCO-2 and GISTEMP.
 5. **Presentation:** an instrument-style interface, a glossary in plain language, case studies ready
    to open and a focused 7-slide narrative.

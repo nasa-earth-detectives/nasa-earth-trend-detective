@@ -13,6 +13,16 @@
 .hex-readout__measurement > span { color: var(--text-secondary); font: 11px var(--font-readout); }
 .hex-readout__direction { margin-top: 3px; font-size: 11px; line-height: 1.5; color: var(--text-secondary); }
 .hex-readout__direction > span { color: var(--text-primary); }
+/* Significance: three counts from most permissive to strictest; the last one is what holds up. */
+.hex-significance { display: grid; gap: 3px; margin: 9px 0 0; }
+.hex-significance > div { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+.hex-significance dt { font-size: 11px; line-height: 1.4; color: var(--text-secondary); }
+.hex-significance dd { margin: 0; white-space: nowrap; font: 11px var(--font-readout); color: var(--text-secondary); }
+.hex-significance dd > span { display: inline-block; min-width: 38px; margin-left: 6px; text-align: right; color: var(--text-quaternary); }
+.hex-significance > div[data-final] dt, .hex-significance > div[data-final] dd { color: var(--text-primary); }
+.hex-readout__verdict { margin-top: 5px; padding-left: 8px; font-size: 11px; line-height: 1.5; color: var(--text-secondary); border-left: 2px solid var(--edge-highlight); }
+.hex-readout__verdict[data-tone='robust'] { color: var(--text-primary); border-left-color: var(--active-accent); }
+.hex-readout__verdict > span { font-family: var(--font-readout); white-space: nowrap; color: var(--text-tertiary); }
 .hex-color-key { margin: 12px 0 8px; }
 .hex-color-key__context { display: flex; justify-content: space-between; align-items: baseline; gap: 8px;
   color: var(--text-secondary); font-size: 11px; line-height: 1.5; }

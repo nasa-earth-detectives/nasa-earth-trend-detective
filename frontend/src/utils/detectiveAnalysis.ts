@@ -31,6 +31,8 @@ export interface SignificanceInput {
   sensSlope: number;
   /** Mann-Kendall Z-score; shown if provided by the source. */
   zScore?: number;
+  /** false if the trend fails prewhitened Mann-Kendall; undefined if not computed. */
+  survivesPersistence?: boolean;
 }
 
 const frequency = new Intl.NumberFormat('en-US', { maximumSignificantDigits: 2 });
@@ -51,6 +53,16 @@ export function describeSignificance(variable: ClimateVariable, mk: Significance
   }
 
   const increase = mk.sensSlope > 0;
+  if (mk.survivesPersistence === false) {
+    return {
+      tone: 'inconclusive',
+      label: 'Unconfirmed trend',
+      claim: `The classic test detects ${increase ? 'an increase' : 'a decrease'} (p ${p}), `
+        + 'but no longer detects it after accounting for year-to-year persistence.',
+      caveat: 'It may be a long streak rather than a sustained shift. With more years, the verdict could be confirmed.',
+    };
+  }
+
   return {
     tone: increase ? 'increase' : 'decrease',
     label: increase ? 'Sustained increase' : 'Sustained decrease',

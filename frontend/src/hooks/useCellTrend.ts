@@ -12,10 +12,19 @@ export interface CellTrend {
   isSignificant: boolean;
   zScore: number;
   direction: string;
-  /** 95% confidence interval for Sen's slope; null if the API does not send it. */
+  /** 95% confidence interval for Sen's slope; null if not sent by the API. */
   confidenceInterval95: [number, number] | null;
-  /** Linear regression t-test on the same series; null if the API does not send it. */
+  /** Linear regression t-test on the same series; null if not sent by the API. */
   linear: LinearTrend | null;
+  /** Mann-Kendall after removing year-to-year persistence; null if omitted or inconclusive. */
+  prewhitened: PrewhitenedTrend | null;
+}
+
+export interface PrewhitenedTrend {
+  /** Year-to-year lag-1 autocorrelation, from -1 to 1. */
+  lag1Autocorrelation: number;
+  pValue: number;
+  isSignificant: boolean;
 }
 
 export interface LinearTrend {
@@ -39,7 +48,7 @@ function interval(value: unknown): [number, number] | null {
     ? [value[0] as number, value[1] as number] : null;
 }
 
-/** New DTO fields: if missing (legacy API) the card simply does not show them. */
+/** New DTO fields: if missing (older API), the card simply does not display them. */
 function linearTrend(value: unknown): LinearTrend | null {
   if (!value || typeof value !== 'object') return null;
   const row = value as Record<string, unknown>;
@@ -50,11 +59,20 @@ function linearTrend(value: unknown): LinearTrend | null {
     isSignificant: row.isSignificant === true };
 }
 
-/** TrendResultDto boundary. Requires Source = "observed": a synthetic series is never shown as real. */
+/** sampleSize = 0 is the backend marker for "inconclusive" (short series or no consecutive years). */
+function prewhitenedTrend(value: unknown): PrewhitenedTrend | null {
+  if (!value || typeof value !== 'object') return null;
+  const row = value as Record<string, unknown>;
+  if (typeof row.lag1Autocorrelation !== 'number' || typeof row.pValue !== 'number'
+    || typeof row.sampleSize !== 'number' || row.sampleSize <= 0) return null;
+  return { lag1Autocorrelation: row.lag1Autocorrelation, pValue: row.pValue, isSignificant: row.isSignificant === true };
+}
+
+/** TrendResultDto boundary. Requires Source = "observed": a synthetic series is never drawn as real. */
 export function adaptCellTrend(payload: unknown): CellTrend {
   if (!payload || typeof payload !== 'object') throw new Error('Invalid trend response.');
   const row = payload as Record<string, unknown>;
-  if (row.source !== 'observed') throw new Error('The API has no real observations for this cell.');
+  if (row.source !== 'observed') throw new Error('API has no real observations for this cell.');
   if (!Array.isArray(row.observations)) throw new Error('Trend response does not include the annual series.');
   const series = row.observations.map((entry: unknown) => {
     const point = (entry ?? {}) as Record<string, unknown>;
@@ -64,10 +82,11 @@ export function adaptCellTrend(payload: unknown): CellTrend {
   return { series, sensSlope: finite(row.sensSlope, 'sensSlope'), pValue: finite(row.pValue, 'pValue'),
     isSignificant: row.isSignificant === true, zScore: finite(row.mannKendallZ, 'mannKendallZ'),
     direction: typeof row.direction === 'string' ? row.direction : 'Stable',
-    confidenceInterval95: interval(row.confidenceInterval95), linear: linearTrend(row.linear) };
+    confidenceInterval95: interval(row.confidenceInterval95), linear: linearTrend(row.linear),
+    prewhitened: prewhitenedTrend(row.prewhitened) };
 }
 
-/** Queries only when an API cell is selected; with demo it returns null without requesting anything. */
+/** Only queries when an API cell is selected; in demo mode returns null without fetching. */
 export function useCellTrend(variable: ClimateVariable, provenance: DatasetProvenance | null,
   cell: { latitude: number; longitude: number } | null) {
   const latitude = cell?.latitude ?? null;
@@ -87,7 +106,7 @@ export function useCellTrend(variable: ClimateVariable, provenance: DatasetProve
       .catch((error: unknown) => {
         if (controller.signal.aborted) return;
         setState({ key, data: null, loading: false,
-          error: error instanceof Error ? error.message : 'Could not compute trend.' });
+          error: error instanceof Error ? error.message : 'Could not calculate the trend.' });
       });
     return () => controller.abort();
   }, [key, provenance, variable, latitude, longitude]);

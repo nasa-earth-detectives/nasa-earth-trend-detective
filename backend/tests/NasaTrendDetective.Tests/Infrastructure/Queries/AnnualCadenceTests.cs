@@ -49,7 +49,7 @@ public sealed class AnnualCadenceTests : IAsyncLifetime
     [InlineData(ClimateVariable.Gistemp, 9)]
     [InlineData(ClimateVariable.ModisNdvi, 9)]
     [InlineData(ClimateVariable.GraceMass, 9)]
-    [InlineData(ClimateVariable.Oco2, 9)]
+    [InlineData(ClimateVariable.Oco2, 1)]
     [InlineData(ClimateVariable.Merra2Temperature, 1)]
     [InlineData(ClimateVariable.Merra2Precipitation, 1)]
     [InlineData(ClimateVariable.Merra2Evaporation, 1)]

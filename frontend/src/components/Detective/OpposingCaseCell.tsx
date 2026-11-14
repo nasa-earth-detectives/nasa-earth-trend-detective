@@ -1,6 +1,6 @@
 /**
- * A cell (<td>) of the case board: the real series of a variable in a region, with its slope
- * and verdict. It receives no pre-baked figures: only what the API just returned.
+ * A cell (<td>) in the case board: the real series for one variable in one region, with its slope
+ * and verdict. Receives no precomputed figures: only what the API just returned.
  */
 import { ArrowDownRight, ArrowUpRight, Minus } from 'lucide-react';
 import type { CaseVerdict } from '../../hooks/useOpposingCases';
@@ -55,7 +55,9 @@ export function OpposingCaseCell({ verdict, unit, placeLabel, onOpen }: Opposing
   const { trend } = verdict;
   const Icon = tone === 'up' ? ArrowUpRight : tone === 'down' ? ArrowDownRight : Minus;
   const reading = tone === 'up' ? 'Rising' : tone === 'down' ? 'Falling' : 'No conclusive trend';
-  const p = trend.pValue < 0.001 ? 'p < 0.001' : `p = ${probability.format(trend.pValue)}`;
+  // Display the strictest p-value available: the one that accounts for year-to-year persistence.
+  const pValue = trend.prewhitened?.pValue ?? trend.pValue;
+  const p = pValue < 0.001 ? 'p < 0.001' : `p = ${probability.format(pValue)}`;
   return (
     <td>
       <div className="case-cell" data-tone={tone}>

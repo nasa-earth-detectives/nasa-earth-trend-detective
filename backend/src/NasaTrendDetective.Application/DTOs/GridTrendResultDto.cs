@@ -27,5 +27,17 @@ public class GridTrendResultDto
     public int MinMonthsPerYear { get; set; }
     public int MinYearsPerCell { get; set; }
 
+    /// <summary>Tolerated false discovery rate when marking a cell as corrected-significant.</summary>
+    public double FalseDiscoveryRate { get; set; }
+
+    /// <summary>Cells with p &lt; 0.05 in the classic Mann-Kendall test, without any correction.</summary>
+    public int SignificantCells { get; set; }
+
+    /// <summary>Cells that remain at p &lt; 0.05 after removing year-to-year persistence.</summary>
+    public int PrewhitenedSignificantCells { get; set; }
+
+    /// <summary>Cells that also pass multiple-comparison control.</summary>
+    public int CorrectedSignificantCells { get; set; }
+
     public IReadOnlyList<GridTrendCellDto> Cells { get; set; } = Array.Empty<GridTrendCellDto>();
 }

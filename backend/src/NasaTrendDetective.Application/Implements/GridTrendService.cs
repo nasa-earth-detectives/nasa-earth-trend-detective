@@ -51,11 +51,22 @@ public class GridTrendService : IGridTrendService
                     MannKendallZ = verdict.ZScore,
                     PValue = verdict.PValue,
                     IsSignificant = verdict.IsSignificant,
+                    PrewhitenedPValue = verdict.Prewhitened.PValue,
                     Direction = verdict.Direction.ToString(),
                     Years = cell.Years.Count
                 };
             })
             .ToList();
+
+        // With thousands of cells tested at once, p < 0.05 lets hundreds pass by chance. Adjust the
+        // prewhitened p-values rather than the classic ones: FDR adjustment only holds when each p-value
+        // is calibrated, and the classic test is not when the series has persistence.
+        var adjusted = BenjaminiHochberg.Adjust(cells.Select(cell => cell.PrewhitenedPValue).ToList());
+        for (var index = 0; index < cells.Count; index++)
+        {
+            cells[index].AdjustedPValue = adjusted[index];
+            cells[index].IsSignificantCorrected = adjusted[index] <= BenjaminiHochberg.DefaultFalseDiscoveryRate;
+        }
 
         return new GridTrendResultDto
         {
@@ -69,6 +80,10 @@ public class GridTrendService : IGridTrendService
             Interim = provenance.Interim,
             MinMonthsPerYear = minPeriodsPerYear,
             MinYearsPerCell = MinYearsPerCell,
+            FalseDiscoveryRate = BenjaminiHochberg.DefaultFalseDiscoveryRate,
+            SignificantCells = cells.Count(cell => cell.IsSignificant),
+            PrewhitenedSignificantCells = cells.Count(cell => cell.PrewhitenedPValue < 0.05),
+            CorrectedSignificantCells = cells.Count(cell => cell.IsSignificantCorrected),
             Cells = cells
         };
     }

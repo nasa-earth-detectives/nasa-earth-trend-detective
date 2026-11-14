@@ -139,6 +139,7 @@ export function DetectiveCard({ open, location, variable, year, source, provenan
             pValue: trend.data.pValue,
             sensSlope: trend.data.sensSlope,
             zScore: trend.data.zScore,
+            survivesPersistence: trend.data.prewhitened?.isSignificant,
           }} variable={variable} unit={unit} />
         )} <span>{source === 'demo' || !observation ? 'Not calculated' : trend.loading ? 'Calculating…'
           : trend.error ? 'Unavailable' : trend.data ? `${trend.data.sensSlope >= 0 ? '+' : ''}${trend.data.sensSlope.toLocaleString('en-US',

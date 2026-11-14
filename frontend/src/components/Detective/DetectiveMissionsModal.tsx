@@ -1,5 +1,5 @@
 /**
- * Case studies: a board comparing two regions variable by variable. It is the core idea of the
+ * Case studies: a board comparing two regions variable by variable. This is the core idea of the
  * challenge (the same variable rises in one place and falls in another) shown with data, not told.
  */
 import { useEffect, useRef } from 'react';
@@ -26,12 +26,12 @@ export interface MissionPreset {
 const coordinates = (region: CaseRegion) =>
   `${Math.abs(region.lat)}° ${region.lat >= 0 ? 'N' : 'S'} · ${Math.abs(region.lng)}° ${region.lng >= 0 ? 'E' : 'W'}`;
 
-/** Pair reading: only called "Opposite" if both trends are significant and have opposite signs. */
+/** Pair reading: only called "Opposing" if both trends are significant and have opposite signs. */
 function pairReading(first: CaseVerdict | undefined, second: CaseVerdict | undefined): { tone: string; label: string } {
   const tones = [verdictTone(first), verdictTone(second)];
   if (tones.includes('none')) return { tone: 'pending', label: '—' };
   if (tones.includes('flat')) return { tone: 'open', label: 'Inconclusive' };
-  return tones[0] === tones[1] ? { tone: 'same', label: 'Same direction' } : { tone: 'opposite', label: 'Opposite' };
+  return tones[0] === tones[1] ? { tone: 'same', label: 'Same direction' } : { tone: 'opposite', label: 'Opposing' };
 }
 
 interface DetectiveMissionsModalProps {
@@ -68,10 +68,10 @@ export function DetectiveMissionsModal({ open, onClose, onSelectMission }: Detec
         <header className="dossier__header">
           <div>
             <p className="dossier__eyebrow">Case studies<span>MERRA-2 · NASA POWER</span></p>
-            <h2 id="cases-title">Two regions, opposite directions</h2>
+            <h2 id="cases-title">Two regions, opposing directions</h2>
             <p className="dossier__lead">
               The same variable can rise in one place and fall in another. Every figure on this board is computed
-              live from that cell’s actual series: none are hardcoded.
+              right now from that cell&apos;s real time series: nothing is hardcoded.
             </p>
           </div>
           <button type="button" onClick={onClose} className="dossier__close focus-ring" aria-label="Close">
@@ -119,9 +119,10 @@ export function DetectiveMissionsModal({ open, onClose, onSelectMission }: Detec
         </div>
 
         <p className="dossier__foot">
-          Mann-Kendall test and Sen’s slope across all available years, at 95% confidence.
-          MERRA-2 is a NASA model that reconstructs the atmosphere from observations, not a direct
-          measurement: the board states what its data show, not why it happens.
+          Mann–Kendall test and Sen&apos;s slope across all available years at 95% confidence.
+          The p-value already accounts for year-to-year persistence; a series is only reported as rising or falling if it passes that check.
+          MERRA-2 is a NASA reanalysis model that reconstructs the atmosphere from observations, not a direct
+          measurement: this board shows what its data indicate, not why it happens.
         </p>
       </div>
     </div>

@@ -22,6 +22,9 @@ public class TrendResultDto
 
     /// <summary>Linear regression t-test: slope per year, 95% CI, t, and p-value.</summary>
     public LinearTrendVerdict Linear { get; set; } = LinearTrendVerdict.Inconclusive;
+
+    /// <summary>Prewhitened Mann-Kendall: lag-1 year-to-year autocorrelation, Z-score, and p-value.</summary>
+    public PrewhitenedTrendVerdict Prewhitened { get; set; } = PrewhitenedTrendVerdict.Inconclusive;
     public IReadOnlyList<AnnualObservation>? Observations { get; set; }
 
     /// <summary>"observed" (DuckDB) or "synthetic" (demonstration series: the variable has no loaded dataset).</summary>

@@ -2,19 +2,19 @@
  * Single catalog of scientific layers for the platform.
  *
  * Shared source of truth for the Layer Drawer and any future 3D layer.
- * Avoids duplicating variable metadata across multiple components.
+ * Avoids duplicating variable metadata across components.
  */
 import type { ClimateVariable, VariableMetadata } from '../types/climate.types';
 
 /**
- * Navigation range: from 2000 to the current year (UTC). The current year
- * is partial: the UI shows up to which month data is available (DatasetProvenance.lastMonth).
+ * Navigation range: from 2000 to the current year (UTC), always up to date. The current
+ * year is partial: the UI shows the latest available month (DatasetProvenance.lastMonth).
  */
 export const SATELLITE_TIMELINE = { startYear: 2000, endYear: new Date().getUTCFullYear() } as const;
 
 /**
  * Earliest year with real data across all sources (MERRA-2). Default start of the trend
- * period: the challenge requires a long series, and each source trims it to its own coverage.
+ * period: the challenge calls for a long series, and each source trims it to its own coverage.
  */
 export const EARLIEST_RECORD_YEAR = 1981;
 
@@ -25,7 +25,7 @@ export const CLIMATE_VARIABLES: VariableMetadata[] = [
     name: 'Surface temperature',
     satelliteMission: 'NASA GISTEMP v4',
     unit: '°C anomaly',
-    description: 'Combined land-ocean surface temperature anomalies.',
+    description: 'Combined land-ocean temperature anomalies.',
     colorScheme: 'Thermal',
   },
   // MERRA-2: NASA reanalysis named in the challenge. Annual mean served by NASA POWER, 1981-2025.
@@ -34,7 +34,7 @@ export const CLIMATE_VARIABLES: VariableMetadata[] = [
     name: 'Air temperature (2 m)',
     satelliteMission: 'MERRA-2 · NASA POWER',
     unit: '°C · anomaly',
-    description: 'Annual mean air temperature at 2 m, as difference relative to 1991–2020.',
+    description: 'Annual mean 2 m air temperature, as difference relative to 1991–2020.',
     colorScheme: 'Thermal',
   },
   {
@@ -58,7 +58,7 @@ export const CLIMATE_VARIABLES: VariableMetadata[] = [
     name: 'Land evaporation',
     satelliteMission: 'MERRA-2 · NASA POWER',
     unit: 'mm/day · anomaly',
-    description: 'Water moving from soil and plants into the air. Land only.',
+    description: 'Water moving from soil and plants into the air. Over land only.',
     colorScheme: 'Hydrology',
   },
   {
@@ -66,7 +66,7 @@ export const CLIMATE_VARIABLES: VariableMetadata[] = [
     name: 'Soil moisture',
     satelliteMission: 'MERRA-2 · NASA POWER',
     unit: '0–1 fraction · anomaly',
-    description: 'Water available to plants in the root zone. Land only.',
+    description: 'Water available to plants in the root zone. Over land only.',
     colorScheme: 'Hydrology',
   },
   {
@@ -82,55 +82,55 @@ export const CLIMATE_VARIABLES: VariableMetadata[] = [
     name: 'Water & ice mass',
     satelliteMission: 'GRACE / GRACE-FO',
     unit: 'cm H₂O eq.',
-    description: 'Gravitational anomalies of water and ice reserves.',
+    description: 'Water and ice on land, weighed from space: monthly anomaly relative to 2004-2009. Since 2002.',
     colorScheme: 'Hydrology',
   },
   {
     id: 'Oco2',
     name: 'Carbon dioxide',
-    satelliteMission: 'OCO-2 / OCO-3',
+    satelliteMission: 'OCO-2',
     unit: 'ppm XCO₂',
-    description: 'Column-averaged dry-air mole fraction of CO₂ in the atmosphere.',
+    description: 'Column-averaged CO₂ measured by the OCO-2 satellite: annual mean. Since 2015.',
     colorScheme: 'Atmospheric',
   },
 ];
 
-/** Canonical list of variable codes; the API catalog and shared URL validate against it. */
+/** Single list of variable codes; both the API catalog and shared URLs validate against it. */
 export const VARIABLE_IDS: readonly ClimateVariable[] = CLIMATE_VARIABLES.map(variable => variable.id);
 
-/** Variables that also cover the ocean: only here does choosing land vs. land + ocean make sense. */
+/** Variables that also cover the ocean: only for these does choosing between land and land + ocean apply. */
 export const OCEAN_COVERING_VARIABLES: ReadonlySet<ClimateVariable> =
   new Set<ClimateVariable>(['Gistemp', 'Oco2', 'Merra2Temperature', 'Merra2Precipitation', 'GpmPrecipitation']);
 
-/** Instrument status row: present or announced capability. */
+/** Instrument status row: current or planned capability. */
 export interface StatusRow {
   id: string;
   name: string;
   detail?: string;
-  /** Short availability tag. */
+  /** Short availability marker. */
   status: string;
-  /** Implemented capability; does not represent the load state of its assets. */
+  /** Implemented capability; does not represent asset loading state. */
   active?: boolean;
 }
 
 /**
  * Sea Level is on the roadmap, but `ClimateVariable` and the .NET API
- * do not support it yet. Declared disabled instead of simulating support.
+ * do not support it yet. Declared as upcoming rather than simulating support.
  */
 export const UPCOMING_VARIABLES: StatusRow[] = [
   { id: 'sentinel6', name: 'Sea level', detail: 'Sentinel-6 / ECCO', status: 'Altimetry', active: true },
 ];
 
-/** Operational global planetary analysis and dynamics layers. */
+/** Operational global planetary dynamics and analysis overlays. */
 export const SCIENTIFIC_OVERLAYS: StatusRow[] = [
   { id: 'ocean-flow', name: '3D ocean currents (ECCO/OSCAR)', status: 'Operational', active: true },
   { id: 'teleconnections', name: 'Climate teleconnections (ENSO/AMOC)', status: 'Operational', active: true },
-  { id: 'hotspots', name: 'Radar ripples on extreme hotspots', status: 'Operational', active: true },
+  { id: 'hotspots', name: 'Extreme hotspot radar waves', status: 'Operational', active: true },
   { id: 'opposing', name: 'Opposing trends engine', status: 'Algorithm', active: true },
   { id: 'satellites', name: 'Orbital satellite constellation', status: 'Operational', active: true },
 ];
 
-/** Built-in earthSurface capabilities; toggles are shown only if a real API exists. */
+/** Capabilities built into earthSurface; toggles are shown only when a real API exists. */
 export const VISUAL_SYSTEM_ROWS: StatusRow[] = [
   { id: 'atmosphere', name: 'Atmosphere', status: 'Built-in', active: true },
   { id: 'clouds', name: 'Cloud layer', status: 'Built-in', active: true },
