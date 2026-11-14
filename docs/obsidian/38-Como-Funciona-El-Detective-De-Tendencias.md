@@ -158,7 +158,7 @@ npm run build --workspace=frontend
 ```
 
 La CI rechaza cualquier `.ts`, `.tsx` o `.cs` de `frontend/src`, `packages/shared/src` o
-`backend/src` con más de 200 líneas.
+`backend/src` con más de 300 líneas.
 
 ## 6. Añadir una variable nueva
 

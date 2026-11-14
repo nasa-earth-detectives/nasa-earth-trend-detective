@@ -6,10 +6,10 @@ Volver al [[00-Map-Of-Content]]
 
 ## 🛡️ Reglas Obligatorias de Desarrollo
 
-### 1. Modularidad Estricta (< 150-200 líneas por archivo)
+### 1. Modularidad Estricta (<= 300 líneas por archivo)
 - **Prohibición de Archivos Monolíticos:** Ningún archivo debe concentrar múltiples responsabilidades (Anti God-Class).
 - Desacoplar en clases de acción (Action Classes), capas de servicio, DTOs inmutables y Custom Hooks.
-- Si una clase supera las 150 líneas, refactorizarla inmediatamente en submódulos especializados.
+- Si una clase supera las 250-300 líneas, refactorizarla inmediatamente en submódulos especializados.
 
 ### 2. Cero Código "Quemado" (Zero Hardcoding)
 - Prohibido quemar IDs de usuarios, URLs absolutas o constantes numéricas sin significado.

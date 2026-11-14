@@ -31,7 +31,7 @@ Su propósito es **prevenir la entrada de regresiones arquitectónicas, incompat
                   │   Evalúa con las reglas de GEMINI.md:          │
                   │   • Incompatibilidades de Three.js / WebGL     │
                   │   • Fugas en React 19 StrictMode               │
-                  │   • Archivos monolíticos (>200 líneas)         │
+                  │   • Archivos monolíticos (>300 líneas)         │
                   │   • Código quemado / Hardcoding                │
                   └──────────────────────┬─────────────────────────┘
                                          │
@@ -48,7 +48,7 @@ Su propósito es **prevenir la entrada de regresiones arquitectónicas, incompat
 
 | Criterio | Regla | Detección Automática |
 | :--- | :--- | :--- |
-| **Modularidad Estricta** | Archivos < 150-200 líneas (Anti God-Class) | Conteo estático de líneas en diffs y archivos modificados |
+| **Modularidad Estricta** | Archivos <= 300 líneas (aviso en 250, Anti God-Class) | Conteo estático de líneas en diffs y archivos modificados |
 | **Anti-Hardcoding** | Cero IDs numéricos quemados (`find(123)`), URLs absolutas | Regex patterns de valores mágicos y credenciales |
 | **Three.js / WebGL** | Caché dinámico de shaders y compatibilidad v0.186 | Detección de `customProgramCacheKey` estático y firmas obsoletas |
 | **React 19 Ciclo de Vida** | Compatibilidad con montaje doble de `StrictMode` | Advertencia sobre destrucciones irreversibles de WebGL |
