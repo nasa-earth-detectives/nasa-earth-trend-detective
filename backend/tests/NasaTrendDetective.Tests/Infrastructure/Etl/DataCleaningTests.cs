@@ -113,8 +113,8 @@ public class DataCleaningTests
         var (level, message) = Assert.Single(logger.Entries);
         Assert.Equal(LogLevel.Information, level);
         Assert.Contains("Oco2", message);
-        Assert.Contains("50% válidos antes", message);
-        Assert.Contains("66.67% después", message);
+        Assert.Contains("50% valid before imputation", message);
+        Assert.Contains("66.67% after", message);
     }
 
     [Fact]

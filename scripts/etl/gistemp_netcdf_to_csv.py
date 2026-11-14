@@ -98,12 +98,12 @@ def main() -> None:
         manifest = {
             "variable": "Gistemp",
             "provider": "nasa-giss-gistemp-v4",
-            "product": "GISTEMP v4 · anomalía de temperatura tierra-océano (GHCNv4 + ERSSTv5, 1200 km)",
+            "product": "GISTEMP v4 · land-ocean temperature anomaly (GHCNv4 + ERSSTv5, 1200 km)",
             "baseline": "1951-1980",
             "unit": "°C Anomaly",
             # The API reports Sen's slope per year: the trend unit travels with the
             # dataset so another source (different unit or time base) requires no code changes.
-            "trendUnit": "°C / año",
+            "trendUnit": "°C / year",
             # Public GISTEMP download while the challenge provides its official source: the UI
             # displays it as an interim source and it is replaced with another manifest + Parquet.
             "interim": True,
