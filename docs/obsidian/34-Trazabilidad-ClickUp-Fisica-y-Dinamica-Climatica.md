@@ -17,6 +17,11 @@ Proporcionar solidez y validación biofísica irrefutable a las tendencias detec
 
 ## 📐 Inventario Verificado de Fórmulas Integradas en el Proyecto (Estado Real del Código)
 
+> **Actualización del 2026-11-14 (rama `feat/merra2-real-data`):** cambian el intervalo de confianza de
+> Sen, los pares de tendencias opuestas (ya no son series de referencia) y la regla de meses por año,
+> y se añaden la prueba t y el regrillado por área. Las fórmulas nuevas, cómo se comprobaron y los
+> puntos abiertos están en [[39-Formulas-y-Supuestos-para-QA-Fisico]].
+
 Todas estas ecuaciones están documentadas directamente dentro de las tarjetas `[PHYS-T1]` a `[PHYS-T5]` en ClickUp (`npm run sync:physics`):
 
 1. **Núcleo Estadístico en C# (`backend/src/NasaTrendDetective.Application/Statistics/`):**

@@ -19,14 +19,15 @@
 -- =============================================================================
 
 -- Dimension de variables climaticas. Los ids estan alineados con el enum
--- NasaTrendDetective.Domain.Enums.ClimateVariable (Gistemp=1 .. Oco2=4).
+-- NasaTrendDetective.Domain.Enums.ClimateVariable (Gistemp=1 .. GpmPrecipitation=9).
+-- Sin CHECK sobre el rango de ids: la clave foranea y el seed ya lo acotan, y un CHECK obliga
+-- a reconstruir la base cada vez que se suma una variable (ver DuckDbSchemaInitializer).
 CREATE TABLE IF NOT EXISTS dim_variable (
     variable_id   TINYINT PRIMARY KEY,
     variable_code VARCHAR NOT NULL UNIQUE,
     variable_name VARCHAR NOT NULL,
     unit          VARCHAR NOT NULL,
-    mission       VARCHAR NOT NULL,
-    CHECK (variable_id BETWEEN 1 AND 4)
+    mission       VARCHAR NOT NULL
 );
 
 -- Dimension temporal con granularidad mensual (clave natural year + month).
@@ -54,7 +55,7 @@ CREATE TABLE IF NOT EXISTS dim_location (
 );
 
 -- Tabla de hechos: una fila por observacion (variable, celda, anio, mes).
--- Solo variable_id declara FOREIGN KEY (dimension de 4 filas, costo nulo).
+-- Solo variable_id declara FOREIGN KEY (dimension de pocas filas, costo nulo).
 -- (year, month) y (latitude, longitude) referencian logicamente a dim_time y
 -- dim_location sin FK declarada para no penalizar la ingesta masiva. Recordatorio: insertar ORDER BY variable_id, year,
 -- latitude, longitude (ver cabecera).
@@ -102,7 +103,12 @@ INSERT OR IGNORE INTO dim_variable (variable_id, variable_code, variable_name, u
     (1, 'Gistemp',   'Anomalia de temperatura superficial global', 'degC',  'NASA GISS GISTEMP v4'),
     (2, 'ModisNdvi', 'Indice de vegetacion NDVI',                   'NDVI',  'Terra/Aqua MODIS'),
     (3, 'GraceMass', 'Anomalia de masa de agua equivalente',        'cm',    'GRACE/GRACE-FO'),
-    (4, 'Oco2',      'Concentracion columnar de CO2 (XCO2)',        'ppm',   'OCO-2');
+    (4, 'Oco2',      'Concentracion columnar de CO2 (XCO2)',        'ppm',   'OCO-2'),
+    (5, 'Merra2Temperature',   'Temperatura del aire a 2 m',             'degC',     'MERRA-2 (NASA POWER)'),
+    (6, 'Merra2Precipitation', 'Precipitacion total corregida',          'mm/day',   'MERRA-2 (NASA POWER)'),
+    (7, 'Merra2Evaporation',   'Evaporacion en tierra',                  'mm/day',   'MERRA-2 (NASA POWER)'),
+    (8, 'Merra2SoilMoisture',  'Humedad del suelo en la zona de raices', 'fraction', 'MERRA-2 (NASA POWER)'),
+    (9, 'GpmPrecipitation',    'Precipitacion estimada por satelite',    'mm/day',   'GPM IMERG (NASA POWER)');
 
 -- Seed de dim_time: meses de 1880 (inicio de GISTEMP) a 2100 (idempotente).
 INSERT OR IGNORE INTO dim_time (year, month, decade, quarter, season, first_day)

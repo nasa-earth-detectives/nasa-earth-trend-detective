@@ -1,36 +1,31 @@
 import type { Teleconnection, TeleconnectionEndpoint } from '../types/teleconnection.types';
+import type { ClimateVariable } from '../types/climate.types';
+import { SCIENCE_ACCENTS } from '../config/scienceTheme';
 import { getJson } from './apiClient';
 
-/** Paleta de la escena: un color por variable del par y dos para procesos físicos. */
-const VARIABLE_COLORS: Record<number | string, string> = {
-  1: '#fb923c', Gistemp: '#fb923c',
-  2: '#4ade80', ModisNdvi: '#4ade80',
-  3: '#e879f9', GraceMass: '#e879f9',
-  4: '#fde047', Oco2: '#fde047',
+/** Ids de backend/.../Enums/ClimateVariable.cs: la API puede enviar la variable como número o como texto. */
+const VARIABLE_BY_ID: Record<number, ClimateVariable> = {
+  1: 'Gistemp', 2: 'ModisNdvi', 3: 'GraceMass', 4: 'Oco2',
+  5: 'Merra2Temperature', 6: 'Merra2Precipitation', 7: 'Merra2Evaporation', 8: 'Merra2SoilMoisture',
+  9: 'GpmPrecipitation',
 };
+const NEUTRAL_ARC = '#aaa99d';
+
+/** Cada arco lleva el acento de su variable: el mismo color que tiene en el resto del instrumento. */
+function arcColor(variable: unknown): string {
+  const code = typeof variable === 'number' ? VARIABLE_BY_ID[variable] : variable as ClimateVariable;
+  return SCIENCE_ACCENTS[code]?.accent ?? NEUTRAL_ARC;
+}
 
 /**
  * Procesos físicos que no son pares de la API: se dibujan como contexto y se marcan 'local'.
  * Las coordenadas son representativas de cada región, no un cálculo.
  */
 const PHYSICAL: Teleconnection[] = [
-  { id: 'enso-walker', name: 'ENSO · circulación de Walker del Pacífico', color: '#22d3ee', altitude: 0.32, source: 'local',
+  { id: 'enso-walker', name: 'ENSO · circulación de Walker del Pacífico', color: '#9dc0d2', altitude: 0.32, source: 'local',
     from: { label: 'Pacífico occidental', lat: 2, lng: 150 }, to: { label: 'Pacífico oriental', lat: -2, lng: -95 } },
-  { id: 'sahara-amazon', name: 'Polvo del Sahara que fertiliza la Amazonía', color: '#fbbf24', altitude: 0.26, source: 'local',
+  { id: 'sahara-amazon', name: 'Polvo del Sahara que fertiliza la Amazonía', color: '#bda778', altitude: 0.26, source: 'local',
     from: { label: 'Depresión de Bodélé (Chad)', lat: 17, lng: 18 }, to: { label: 'Cuenca amazónica', lat: -3.5, lng: -62 } },
-];
-
-/** Copia de las regiones de OpposingTrendsService para cuando la API no responde. */
-const FALLBACK_PAIRS: Teleconnection[] = [
-  { id: 'arctic-atlantic-thermal', name: 'Amplificación ártica vs. Atlántico Norte subpolar', color: VARIABLE_COLORS.Gistemp,
-    altitude: 0.22, source: 'local',
-    from: { label: 'Atlántico Norte Subpolar', lat: 55, lng: -30 }, to: { label: 'Ártico (Svalbard)', lat: 78.22, lng: 15.63 } },
-  { id: 'amazon-china-ndvi', name: 'Reverdecimiento en China vs. estrés en la Amazonía', color: VARIABLE_COLORS.ModisNdvi,
-    altitude: 0.42, source: 'local',
-    from: { label: 'Cuenca Amazónica', lat: -3.46, lng: -62.21 }, to: { label: 'Sur de China', lat: 25, lng: 115 } },
-  { id: 'polar-ice-divergence', name: 'Masa de hielo: Groenlandia vs. Antártida oriental', color: VARIABLE_COLORS.GraceMass,
-    altitude: 0.5, source: 'local',
-    from: { label: 'Manto de Groenlandia', lat: 72, lng: -40 }, to: { label: 'Meseta Antártica Oriental', lat: -75, lng: 100 } },
 ];
 
 function endpoint(region: unknown): TeleconnectionEndpoint | null {
@@ -49,22 +44,25 @@ export function adaptOpposingPairs(payload: unknown): Teleconnection[] {
     const from = endpoint(row.decreasingRegion);
     const to = endpoint(row.increasingRegion);
     if (!from || !to || typeof row.pairId !== 'string') return [];
-    const variable = (row.increasingRegion as Record<string, unknown>).variable as number | string;
+    const variable = (row.increasingRegion as Record<string, unknown>).variable;
     const distance = Math.acos(Math.max(-1, Math.min(1, Math.sin(from.lat * Math.PI / 180) * Math.sin(to.lat * Math.PI / 180)
       + Math.cos(from.lat * Math.PI / 180) * Math.cos(to.lat * Math.PI / 180) * Math.cos((to.lng - from.lng) * Math.PI / 180))));
     return [{ id: row.pairId, name: typeof row.driverProcess === 'string' ? row.driverProcess : row.pairId,
-      from, to, color: VARIABLE_COLORS[variable] ?? '#22d3ee', altitude: 0.12 + 0.13 * distance, source: 'api' }];
+      from, to, color: arcColor(variable), altitude: 0.12 + 0.13 * distance, source: 'api' }];
   });
 }
 
 let cached: Promise<Teleconnection[]> | null = null;
 
-/** Pares de la API + procesos físicos. Nunca rechaza: sin API usa la copia local de las regiones. */
+/**
+ * Pares de tendencias opuestas de la API + procesos físicos de contexto. Nunca rechaza. Sin API no
+ * hay pares: antes se dibujaba una copia local de regiones inventadas, y eso era presentar como
+ * resultado algo que nadie había calculado.
+ */
 export function getTeleconnections(): Promise<Teleconnection[]> {
   cached ??= getJson<unknown>('/trends/opposing')
     .then(adaptOpposingPairs)
-    .then((pairs) => (pairs.length ? pairs : FALLBACK_PAIRS))
-    .catch(() => { cached = null; return FALLBACK_PAIRS; })
+    .catch((): Teleconnection[] => { cached = null; return []; })
     .then((pairs) => [...pairs, ...PHYSICAL]);
   return cached;
 }

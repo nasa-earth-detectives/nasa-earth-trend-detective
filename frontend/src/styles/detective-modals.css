@@ -1,253 +1,110 @@
-/* ==============================================================================
-   Ventanas Modales de Detective: Misiones Preconfiguradas y Glosario Escolar
-   ============================================================================== */
+/**
+ * detective-modals.css
+ *
+ * Expedientes que se abren sobre el globo: casos de estudio y glosario. Mismo lenguaje que el resto
+ * del instrumento: grafito, filetes finos, esquinas casi rectas y un solo color saturado por variable.
+ * Nada de paletas por tarjeta ni de sombras de colores.
+ */
 
-.detective-modal-backdrop {
+.dossier-backdrop {
   position: fixed;
   inset: 0;
   z-index: 1200;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1.5rem;
-  background: rgba(3, 7, 18, 0.78);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  animation: fadeInModal 0.22s ease-out;
-}
-
-@keyframes fadeInModal {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-.detective-modal-card {
-  position: relative;
-  width: 100%;
-  max-width: 860px;
-  max-height: 88vh;
-  display: flex;
-  flex-direction: column;
-  background: rgba(13, 20, 36, 0.94);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 18px;
-  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255, 255, 255, 0.05);
-  overflow: hidden;
-  animation: scaleUpModal 0.24s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-@keyframes scaleUpModal {
-  from { transform: scale(0.96) translateY(8px); opacity: 0; }
-  to { transform: scale(1) translateY(0); opacity: 1; }
-}
-
-.detective-modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  padding: 1.5rem 1.75rem 1.25rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.detective-modal-eyebrow {
-  display: inline-block;
-  font-size: 0.72rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: #38bdf8;
-  margin-bottom: 0.35rem;
-}
-
-.detective-modal-header h2 {
-  margin: 0;
-  font-size: 1.35rem;
-  font-weight: 700;
-  color: #f8fafc;
-  letter-spacing: -0.015em;
-}
-
-.detective-modal-desc {
-  margin: 0.35rem 0 0;
-  font-size: 0.88rem;
-  color: #94a3b8;
-  line-height: 1.4;
-}
-
-.detective-modal-close {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 34px;
-  height: 34px;
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #94a3b8;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.detective-modal-close:hover {
-  background: rgba(255, 255, 255, 0.12);
-  color: #f8fafc;
-}
-
-/* Grilla de Misiones */
-.detective-missions-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
-  gap: 1.25rem;
-  padding: 1.5rem 1.75rem;
-  overflow-y: auto;
+  place-items: center;
+  padding: 24px;
+  background: rgba(5, 7, 10, .7);
+  animation: dossier-veil 300ms var(--ease-soft) both;
 }
 
-.detective-mission-item {
+.dossier {
   display: flex;
   flex-direction: column;
-  padding: 1.35rem;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 14px;
-  transition: all 0.2s ease;
+  width: min(680px, 100%);
+  /* Sin esto el ancho minimo del tablero (760 px) ensancha el dialogo entero en el movil, en vez de dejar
+     que el tablero se desplace por dentro. */
+  min-width: 0;
+  max-height: min(820px, calc(100svh - 48px));
+  outline: none;
+  color: var(--text-primary);
+  background: var(--surface-deep-instrument);
+  border: 1px solid var(--edge-subtle);
+  border-top: 2px solid var(--active-accent);
+  border-radius: 3px;
+  box-shadow: 0 34px 90px rgba(0, 0, 0, .6);
+  animation: dossier-in 460ms var(--ease-panel) both;
+}
+.dossier--wide { width: min(1000px, 100%); }
+
+@keyframes dossier-veil { from { opacity: 0; } to { opacity: 1; } }
+@keyframes dossier-in { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+
+.dossier__header { display: flex; justify-content: space-between; gap: 24px; padding: 28px 32px 22px; border-bottom: 1px solid var(--edge-subtle); }
+.dossier__eyebrow { display: flex; gap: 14px; margin: 0 0 12px; font-family: var(--font-readout); font-size: 11px; letter-spacing: .13em; text-transform: uppercase; color: var(--active-accent); }
+.dossier__eyebrow span { color: var(--text-quaternary); }
+.dossier__header h2 { margin: 0; font-size: clamp(23px, 2vw, 29px); font-weight: 300; line-height: 1.15; letter-spacing: -.012em; }
+.dossier__lead { margin: 10px 0 0; max-width: 64ch; font-size: 13px; line-height: 1.55; color: var(--text-secondary); }
+.dossier__close { display: grid; place-items: center; flex: none; width: 36px; height: 36px; color: var(--text-tertiary); background: none; border: 1px solid var(--edge-subtle); border-radius: 3px; cursor: pointer; transition: color var(--motion-fast), border-color var(--motion-fast); }
+.dossier__close:hover { color: var(--text-primary); border-color: var(--edge-highlight); }
+.dossier__foot { margin: 0; padding: 16px 32px 22px; font-size: 12px; line-height: 1.55; color: var(--text-tertiary); border-top: 1px solid var(--edge-subtle); }
+
+/* ── Tablero de casos ──────────────────────────────────────── */
+.case-board { overflow: auto; padding: 0 32px; }
+/* Tabla HTML con su disposición nativa: los anchos salen de la fila de cabecera (22,6 / 32,2 / 32,2 / 13 %). */
+.case-board__table { width: 100%; min-width: 760px; table-layout: fixed; border-collapse: collapse; }
+.case-board__table th, .case-board__table td { padding: 15px 22px 15px 0; font-weight: 400; text-align: left; vertical-align: middle; }
+.case-board__table th:last-child, .case-board__table td:last-child { padding-right: 0; }
+.case-board__head th { padding-top: 16px; padding-bottom: 11px; font-family: var(--font-readout); font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: var(--text-quaternary); }
+.case-board__head th:first-child { width: 22.6%; }
+.case-board__head th:last-child { width: 13%; }
+.case-board__head .case-board__place { font-family: inherit; font-size: 15px; letter-spacing: 0; text-transform: none; color: var(--text-primary); }
+.case-board__head small { display: block; margin-top: 3px; font-family: var(--font-readout); font-size: 10px; letter-spacing: .06em; color: var(--text-tertiary); }
+.case-board__row { --row-accent: var(--active-accent); --row-rgb: 232, 230, 218; border-top: 1px solid var(--edge-subtle); }
+
+.case-board__variable { display: flex; align-items: center; gap: 12px; font-size: 14px; line-height: 19px; }
+.case-board__variable small { display: block; font-family: var(--font-readout); font-size: 10px; letter-spacing: .06em; color: var(--text-tertiary); }
+.case-board__icon { display: grid; place-items: center; flex: none; width: 34px; height: 34px; color: var(--row-accent); background: rgba(var(--row-rgb), .08); border: 1px solid rgba(var(--row-rgb), .45); border-radius: 3px; }
+
+/* El color de cada celda es el sentido del cambio, con la misma paleta que las columnas del globo. */
+.case-cell { --tone: var(--text-tertiary); display: grid; grid-template-columns: auto 1fr; grid-template-areas: 'spark slope' 'spark verdict' 'open open'; gap: 2px 14px; align-items: center; min-height: 76px; }
+.case-cell[data-tone='up'] { --tone: #d08172; }
+.case-cell[data-tone='down'] { --tone: #6f9fc8; }
+.case-cell__spark { grid-area: spark; overflow: visible; }
+.case-cell__series { fill: none; stroke: var(--text-tertiary); stroke-width: 1; stroke-linejoin: round; }
+.case-cell__sen { stroke: var(--tone); stroke-width: 1.6; }
+.case-cell__slope { grid-area: slope; align-self: end; margin: 0; }
+.case-cell__slope strong { font-family: var(--font-readout); font-size: 21px; font-weight: 500; letter-spacing: -.03em; color: var(--tone); }
+.case-cell__slope span { margin-left: 7px; font-family: var(--font-readout); font-size: 10px; color: var(--text-tertiary); }
+.case-cell__verdict { grid-area: verdict; align-self: start; display: flex; align-items: center; gap: 5px; margin: 0; font-size: 12px; color: var(--text-secondary); }
+.case-cell__verdict svg { color: var(--tone); }
+.case-cell__verdict span { margin-left: 5px; font-family: var(--font-readout); font-size: 10px; color: var(--text-quaternary); }
+.case-cell__open { grid-area: open; justify-self: start; margin-top: 5px; padding: 0; font-size: 11px; letter-spacing: .03em; color: var(--text-tertiary); background: none; border: 0; border-bottom: 1px solid var(--edge-highlight); cursor: pointer; transition: color var(--motion-fast), border-color var(--motion-fast); }
+.case-cell__open:hover { color: var(--text-primary); border-color: var(--text-primary); }
+.case-cell__empty { grid-column: 1 / -1; margin: 0; font-family: var(--font-readout); font-size: 11px; color: var(--text-quaternary); }
+
+.case-board__reading { display: inline-block; padding: 4px 9px; font-family: var(--font-readout); font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--text-tertiary); border: 1px solid var(--edge-subtle); border-radius: 2px; }
+.case-board__reading[data-tone='opposite'] { color: var(--text-primary); border-color: var(--text-secondary); background: linear-gradient(90deg, rgba(208, 129, 114, .22), rgba(111, 159, 200, .22)); }
+.case-board__reading[data-tone='pending'] { border-color: transparent; }
+
+/* ── Glosario ──────────────────────────────────────────────── */
+.glossary-list { overflow-y: auto; margin: 0; padding: 0 32px 12px; list-style: none; }
+.glossary-entry { display: grid; grid-template-columns: 34px 1fr; gap: 0 12px; padding: 20px 0; border-bottom: 1px solid var(--edge-subtle); }
+.glossary-entry:last-child { border-bottom: 0; }
+.glossary-entry__index { padding-top: 3px; font-family: var(--font-readout); font-size: 11px; color: var(--active-accent); }
+.glossary-entry h3 { margin: 0 0 8px; font-size: 16px; font-weight: 500; line-height: 1.3; color: var(--text-primary); }
+.glossary-entry p { margin: 0; max-width: 62ch; font-size: 13px; line-height: 1.6; color: var(--text-secondary); }
+.glossary-entry__plain { margin-top: 11px !important; padding-left: 12px; color: var(--text-primary) !important; border-left: 1px solid var(--edge-highlight); }
+.glossary-entry__plain span { display: block; margin-bottom: 2px; font-family: var(--font-readout); font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: var(--text-quaternary); }
+.glossary-entry__caveat { margin-top: 9px !important; font-family: var(--font-readout); font-size: 11px !important; color: var(--status-local) !important; }
+
+@media (max-width: 720px) {
+  .dossier-backdrop { padding: 0; place-items: end stretch; }
+  .dossier, .dossier--wide { width: 100%; max-height: 92svh; border-inline: 0; border-bottom: 0; }
+  .dossier__header { padding: 22px 20px 18px; }
+  .case-board, .glossary-list { padding-inline: 20px; }
+  .dossier__foot { padding: 14px 20px calc(18px + env(safe-area-inset-bottom)); }
 }
 
-.detective-mission-item:hover {
-  background: rgba(255, 255, 255, 0.05);
-  border-color: var(--card-accent, rgba(255, 255, 255, 0.2));
-  transform: translateY(-2px);
-}
-
-.detective-mission-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 0.75rem;
-}
-
-.detective-mission-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.2rem 0.6rem;
-  border-radius: 9999px;
-  border: 1px solid currentColor;
-  font-size: 0.72rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  background: rgba(255, 255, 255, 0.03);
-}
-
-.detective-mission-year {
-  font-size: 0.78rem;
-  color: #64748b;
-  font-weight: 600;
-}
-
-.detective-mission-item h3 {
-  margin: 0;
-  font-size: 1.15rem;
-  font-weight: 600;
-  color: #f1f5f9;
-}
-
-.detective-mission-highlight {
-  margin: 0.4rem 0 0.5rem;
-  font-size: 0.95rem;
-  font-weight: 700;
-  color: var(--card-accent, #38bdf8);
-}
-
-.detective-mission-body {
-  margin: 0;
-  font-size: 0.85rem;
-  line-height: 1.45;
-  color: #cbd5e1;
-  flex-grow: 1;
-}
-
-.detective-mission-meta {
-  margin: 0.75rem 0 1rem;
-  font-size: 0.75rem;
-  color: #94a3b8;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
-  padding-top: 0.5rem;
-}
-
-.detective-mission-launch-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  width: 100%;
-  padding: 0.65rem 1rem;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 10px;
-  color: #f8fafc;
-  font-size: 0.85rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.detective-mission-launch-btn:hover {
-  background: var(--card-accent, #38bdf8);
-  border-color: transparent;
-  color: #030712;
-}
-
-/* Glosario */
-.detective-glossary-list {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  padding: 1.5rem 1.75rem;
-  overflow-y: auto;
-}
-
-.detective-glossary-card {
-  padding: 1.25rem 1.35rem;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 12px;
-}
-
-.detective-glossary-card-header {
-  display: flex;
-  align-items: center;
-  gap: 0.65rem;
-  margin-bottom: 0.5rem;
-}
-
-.detective-glossary-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.detective-glossary-card-header h3 {
-  margin: 0;
-  font-size: 1.05rem;
-  font-weight: 600;
-  color: #f8fafc;
-}
-
-.detective-glossary-def {
-  margin: 0;
-  font-size: 0.86rem;
-  line-height: 1.5;
-  color: #cbd5e1;
-}
-
-.detective-glossary-tip {
-  margin-top: 0.65rem;
-  padding: 0.5rem 0.75rem;
-  background: rgba(56, 189, 248, 0.06);
-  border-left: 3px solid #38bdf8;
-  border-radius: 4px;
-  font-size: 0.8rem;
-  line-height: 1.4;
-  color: #e2e8f0;
+@media (prefers-reduced-motion: reduce) {
+  .dossier-backdrop, .dossier { animation: none; }
 }

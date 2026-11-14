@@ -20,7 +20,10 @@ public class GridTrendResultDto
     public string Product { get; set; } = string.Empty;
     public bool Interim { get; set; }
 
-    /// <summary>Reglas de inclusión aplicadas, para que el cliente pueda explicarlas.</summary>
+    /// <summary>
+    /// Reglas de inclusión aplicadas, para que el cliente pueda explicarlas. En un dataset mensual
+    /// son meses por año (9); en uno anual, como MERRA-2, es 1: el año ya llega completo.
+    /// </summary>
     public int MinMonthsPerYear { get; set; }
     public int MinYearsPerCell { get; set; }
 

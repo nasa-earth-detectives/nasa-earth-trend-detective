@@ -4,125 +4,202 @@
 **Project Name:** NASA Earth System Trend Detective  
 **Live Application URL:** [https://nasa-earth-trend-detective.vercel.app](https://nasa-earth-trend-detective.vercel.app)  
 **Production API:** [https://nasa-trend-detective-api-72rq.onrender.com](https://nasa-trend-detective-api-72rq.onrender.com)  
-**Official Repository:** [https://github.com/nasa-earth-detectives/nasa-earth-trend-detective](https://github.com/nasa-earth-detectives/nasa-earth-trend-detective)
-**Master Team Dossier (Google Docs):** [Proyecto Nasa — Documento Maestro](https://docs.google.com/document/d/11M8ZQrT3TRZ6_gqd6MHrb-t6v0x3BwdOTVZWiQskOhs/edit)
+**Official Repository:** [https://github.com/nasa-earth-detectives/nasa-earth-trend-detective](https://github.com/nasa-earth-detectives/nasa-earth-trend-detective)  
+**Master Team Dossier (Google Docs):** [Proyecto Nasa — Documento Maestro](https://docs.google.com/document/d/11M8ZQrT3TRZ6_gqd6MHrb-t6v0x3BwdOTVZWiQskOhs/edit)  
 **Hackathon Plan & ClickUp Sync:** [[36-Plan-Hackathon-Neiva-Nuevas-Fuentes-NASA-CSA]] | [[19-Trazabilidad-ClickUp-Sprint-4]]  
+**Evidence for every figure below:** [[37-MERRA2-Datos-Reales-y-Casos-Opuestos]] | How it works: [[38-Como-Funciona-El-Detective-De-Tendencias]]  
+
+> **Status on 2026-11-14.** This dossier separates what is **in the product and verified** from what
+> is **planned or in progress**. Only the first group should go into the official submission; move an
+> item up when its owner has finished and checked it. Declaring a resource the product does not use
+> would hurt the *Validity* criterion.
 
 ---
 
 ## 1. High-Level Project Summary (Overview)
 
 ### Project Title
-**NASA Earth System Trend Detective (Interactive 3D Climate Diagnostics & Statistical Trend Analysis)**
+**NASA Earth System Trend Detective (Interactive 3D Globe & Statistical Trend Analysis)**
 
 ### Problem & Need Identified
-Earth observation data collected by NASA satellites over decades—spanning surface temperature, vegetation indices, ice sheet mass, and atmospheric carbon—exceeds petabytes of information. However, for educators, high school students, researchers, and citizen scientists, extracting rigorous long-term climate trends remains overwhelmingly complex. Users face high barriers: downloading massive NetCDF/HDF files, configuring Python or scientific GIS tools, and dealing with non-transparent statistical calculations that often obscure whether observed changes are statistically meaningful or merely natural climate variability.
+Earth science offers thousands of variables measured by missions or produced by models. For a
+student or a citizen it is hard to pick one that might be changing, and harder to tell whether a
+change is real or just year-to-year noise. The same variable can also rise in one region and fall
+in another.
 
 ### Challenge Addressed
-Our project responds directly to NASA's **"Be An Earth System Trend Detective!"** challenge. We empower users to act as planetary investigators: selecting any terrestrial coordinates or ecosystem biome, inspecting multi-decade historical records, and automatically computing statistical significance to uncover real climate trends across interconnected Earth systems.
+The tool answers the four questions of **"Be An Earth System Trend Detective!"** for any place on
+Earth: **what** is changing, **where**, **how much**, and whether the change is statistically
+**significant**.
 
 ### Developed Solution
-We developed **NASA Earth System Trend Detective**, a high-performance, web-based Earth observatory combining:
-1. **Interactive 4D Planetary Globe:** Rendered at 60 FPS in WebGL/Three.js with NASA Blue Marble, night-lights textures, and accurate orbits of NASA Earth observation satellites (Terra, Aqua, GRACE-FO, OCO-2).
-2. **Columnar High-Speed Analytics Engine:** Built on DuckDB OLAP and .NET 10 Clean Architecture, executing spatial and temporal slicing over real NASA datasets in sub-millisecond query windows without client-side lag.
-3. **Automated Non-Parametric Statistics:** Real-time computation of the **Mann-Kendall rank test** (detecting monotonic trends with $p$-value and $Z$-score) paired with **Sen's Slope Estimator** (calculating robust median rates of change resistant to outliers).
-4. **Student & Citizen Scientist Empowerment:** Featuring 1-click curated missions (Arctic Amplification with real GISTEMP data, Greenland Ice Loss, Sahel Greening, and Atmospheric CO2), an accessible student climate glossary, biophysical regional context detection, and raw CSV data exports.
+1. **Guided briefing in three choices.** A variable, a place and a period. Seven variables carry real
+   NASA data; the 3D globe reacts while the user chooses.
+2. **Time series for the selected 2° cell**, with its trend line, up to 45 years (1981–2025).
+3. **A verdict with three methods:** Mann-Kendall with Sen's slope, the 95 % confidence interval of
+   that slope, and a t-test on a linear regression. The card states whether the methods agree.
+4. **A global map of the trend** (Sen's slope per cell), showing where the variable rises and falls.
+5. **Opposite trends, measured.** A case board compares two regions variable by variable, computed
+   live from the series. Arcs on the globe link real opposing pairs.
+6. **Built for students:** a plain-language glossary, definitions for each variable, guided cases
+   and CSV export.
 
 ### Importance & Real-World Utility
-This solution transforms abstract numbers into actionable, verifiable scientific insights. By democratizing access to NASA climate records and statistical tests, it provides schools, universities, policymakers, and local communities with an interactive laboratory to detect climate impacts, evaluate environmental conservation efforts, and cultivate scientific literacy.
+It turns "the climate is changing" into a question a student can test: choose a place, read the
+series and learn what a significant trend is and what it is not. A non-significant result is shown
+as a result too, with the reason (often, not enough years).
 
 ---
 
 ## 2. Technical Details & Architecture
 
-### System Architecture
-The application employs an enterprise Clean Architecture decoupled into a high-throughput backend and an ultra-responsive frontend:
-
 ```
 ┌────────────────────────────────────────────────────────┐
-│                   Vercel Edge CDN                      │
+│                     Vercel (frontend)                  │
 │        React 19 + TypeScript + Three.js / Globe.gl     │
-│   (3D Orbiting Satellites, 1-Click Missions, Glossary) │
 └──────────────────────────┬─────────────────────────────┘
                            │ HTTPS / REST (JSON)
 ┌──────────────────────────▼─────────────────────────────┐
-│                    Render Cloud VM                     │
-│                .NET 10 Clean Architecture               │
-│  (Controllers, Application Queries, Domain Entities)   │
+│                     Render (backend)                   │
+│   ASP.NET Core (.NET 10), Clean Architecture, Brotli   │
 └──────────────────────────┬─────────────────────────────┘
-                           │ In-Memory Columnar Slices
+                           │
 ┌──────────────────────────▼─────────────────────────────┐
-│                 DuckDB In-Memory OLAP                  │
-│    GISTEMP v4, MODIS NDVI, GRACE-FO, OCO-2 Parquet/CSVs│
+│          DuckDB (embedded, 256 MB memory limit)        │
+│ Parquet seeds: GISTEMP, MERRA-2 (4), GPM, MODIS NDVI   │
+│   Each seed ships with a provenance manifest           │
 └────────────────────────────────────────────────────────┘
 ```
 
 ### Technical Tools & Languages
-- **Programming Languages:** C# (.NET 10), TypeScript (strict mode), SQL (DuckDB dialect), Modern CSS3 with Design Tokens.
-- **Frontend Frameworks & Libraries:** React 19, Vite, Three.js, Globe.gl, Lucide Icons, Canvas 2D/3D overlays.
-- **Backend & Scientific Engine:** ASP.NET Core (.NET 10), DuckDB.NET (embedded in-memory columnar database), MathNet.Numerics / custom non-parametric statistical kernels.
-- **Hosting & Infrastructure:** Vercel (Production Frontend SPA), Render (Containerized Docker Web Service with 256MB DuckDB memory guard & 2 compute threads).
+- **Languages:** C# (.NET 10), TypeScript (strict mode), SQL (DuckDB), Python (data conversion), CSS.
+- **Frontend:** React 19, Vite, Three.js, Globe.gl, lucide-react.
+- **Backend:** ASP.NET Core, DuckDB.NET. The statistics are implemented in the project, with no
+  numerical library, and cross-checked against SciPy.
+- **Data pipeline:** Python scripts read NASA's public Zarr stores, regrid to a common 2° grid and
+  write CSV; a .NET tool normalizes to Parquet; the API loads the seeds at start-up.
+- **Hosting:** Vercel (frontend) and Render (Docker web service).
 
 ### Scientific Algorithms Implemented
-- **Mann-Kendall Trend Test:** Evaluates the relative frequency of increases versus decreases in chronological observations. Calculates the Kendall score $S$, variance $\text{Var}(S)$, and standardized test statistic $Z$. Computes two-tailed $p$-values to verify trend significance at the 95% confidence level ($p < 0.05$).
-- **Sen's Slope Estimator:** Calculates the median of all pairwise slopes between chronological points $\frac{x_j - x_k}{j - k}$. Provides an unbiased, outlier-resilient slope measurement representing the true annual rate of change in observed physical units ($^\circ\text{C}/\text{year}$, $\text{NDVI}/\text{decade}$, $\text{cm EWH}/\text{year}$).
+- **Mann-Kendall trend test** with tie correction: score $S$, $\text{Var}(S)$, $Z$ and two-sided $p$-value.
+- **Sen's slope** (median of pairwise slopes) with its 95 % confidence interval (Sen, 1968).
+- **t-test on the slope of a least-squares regression**, with standard error and 95 % interval.
+- **Cross-validation:** Sen's slope, its interval, the regression slope, standard error, $t$ and
+  interval match SciPy 1.18.1 to 6 decimals on three series, one of them real MERRA-2 data; the
+  $p$-value matches within a relative error of $10^{-6}$. 180 automated backend tests pass.
+
+### Measured Results (2° grid, Mann-Kendall at 95 %)
+| Variable (period) | Cells | Significant increase | Significant decrease | Not significant |
+| :--- | ---: | ---: | ---: | ---: |
+| Air temperature, MERRA-2 (1981–2025) | 16,200 | 10,986 | 1,057 | 4,157 |
+| Precipitation, MERRA-2 (1981–2025) | 16,200 | 2,948 | 2,674 | 10,578 |
+| Precipitation, GPM IMERG (1998–2025) | 16,200 | 3,693 | 943 | 11,564 |
+| Land evaporation, MERRA-2 (1981–2025) | 4,573 | 1,136 | 628 | 2,809 |
+| Root-zone soil moisture, MERRA-2 (1981–2025) | 4,573 | 1,237 | 645 | 2,691 |
+| Vegetation index (NDVI), MODIS Terra (2000–2025) | 3,094 | 1,146 | 141 | 1,807 |
+
+**Opposite trends in two regions** (Sen's slope per decade, all significant):
+
+| Variable | Central-West Brazil (19° S, 53° W) | Bangladesh (23° N, 91° E) |
+| :--- | :--- | :--- |
+| Air temperature | +0.585 °C | −0.112 °C |
+| Precipitation | −0.528 mm/day | +1.53 mm/day |
+| Root-zone soil moisture | −0.0467 | +0.0604 |
+| Land evaporation | −0.395 mm/day | +0.311 mm/day |
 
 ---
 
 ## 3. NASA Data & Space Agency Partner Resources Declaration
 
-To ensure full compliance and global award eligibility, our project builds directly on primary NASA Earth science missions, partner space agency datasets, and open scientific references:
+### 3.1 In the product today (verified)
 
-| Resource / Dataset | Agency / Source | Application in Project |
+| Resource | Agency / Source | Use in the project |
 | :--- | :--- | :--- |
-| **GISTEMP v4 (Surface Temperature Anomaly)** | NASA Goddard Institute for Space Studies (GISS) | Real global surface temperature anomalies ($1880\text{--}2024$) mapped into 3D hexagonal prisms and decade-scale trend analysis. |
-| **MODIS NDVI & AppEEARS / Giovanni** | NASA EOSDIS / LP DAAC / GES DISC | Data extraction and normalized greening/desertification series (MOD13A2/MYD13A2) across key biomes (Sahel, Amazon Basin) packaged for credential-free reproducibility. |
-| **Hydrology Time Series** | NASA GES DISC | Hydrological time-series methodology and surface/subsurface water balance trend exploration. |
-| **GRACE & GRACE-FO Mass Anomaly** | NASA JPL | Terrestrial water storage and polar ice mass balance anomalies expressed in Equivalent Water Height (cm EWH, e.g., Greenland ice loss case). |
-| **OCO-2 Carbon Dioxide ($X_{\text{CO}_2}$)** | NASA JPL | Column-averaged atmospheric carbon dioxide mole fraction tracking global greenhouse gas accumulation. |
-| **NASA NTRS 20090042747 (SeaWiFS Chlorophyll)** | NASA Technical Reports Server | Methodological reference for coastal/river-influenced time-series construction and non-parametric statistical significance testing. |
-| **NASA Visible Earth (Blue/Black Marble) & Orbits** | NASA Earth Observatory | High-fidelity photorealistic day/night textures and 3D orbital propagation of Terra, Aqua, GRACE-FO, and OCO-2 spacecraft. |
-| **SWOT Mission & RADARSAT Constellation (RCM) / Geo.ca** | Canadian Space Agency (CSA) / NASA-CNES | Surface water topography and coastal/wetland/maritime Earth observation frameworks extending our hydrological monitoring scope. |
-| **KNMI Climate Explorer** | Royal Netherlands Meteorological Institute | Independent scientific benchmark used to cross-validate Mann-Kendall $p$-values and Sen's slopes across core planetary hotspots. |
-| **NOAA NCEI Climate Data Online (CDO)** | NOAA National Centers for Environmental Information | Historical station-level weather and climate records complementing gridded satellite pixels. |
+| **MERRA-2** reanalysis (named in the challenge) | NASA GMAO, served by **NASA POWER v10** (NASA Langley), public Zarr store | Annual mean air temperature at 2 m, corrected precipitation, land evaporation and root-zone soil wetness, 1981–2025, regridded from 0.5° × 0.625° to 2°. |
+| **GPM IMERG** (GPM is named in the challenge) | NASA GPM, served by **NASA POWER v10** | Annual mean satellite precipitation, 1998–2025, regridded from 0.1° to 2°. Lets users compare a model with a satellite product at the same place. |
+| **MODIS** vegetation index (MODIS is named in the challenge) | MODIS on Terra, product MOD13A3 (NASA LP DAAC), served by **NASA GIBS** | Monthly NDVI, March 2000 to December 2025: cell means on the 2° grid, recovered from the GIBS tiles with their official colormap (142 classes, 0.005 to 0.01 wide). |
+| **GISTEMP v4** | NASA Goddard Institute for Space Studies | Monthly land–ocean temperature anomaly on a 2° grid, January 2000 to August 2026. |
+| **NASA GIBS imagery** | Blue Marble NG, VIIRS Black Marble, Landsat WELD | Day and night surface of the 3D globe. |
+| **NASA 3D spacecraft models** | NASA | Terra, Aqua, GRACE-FO and OCO-2 drawn in orbit. |
+
+### 3.2 Planned or in progress (not in the product yet)
+
+| Resource | Owner | Status on 2026-11-14 |
+| :--- | :--- | :--- |
+| **AppEEARS** | Diego | Tried for MODIS NDVI and discarded: a global monthly point request advanced 1 % in 23 minutes (days per task). NDVI was loaded from NASA GIBS instead. |
+| **Giovanni** | Fabriany / Emilse | To compare our series with NASA's; its API needs an Earthdata token. Not done. |
+| **Hydrology Time Series** | Fabriany | The "Data Rods" service answers with a GES DISC notice that it is being discontinued. Not usable as probed on 2026-11-14. |
+| **GRACE / GRACE-FO** and **OCO-2** | — | Still demonstration scenarios in the app, labeled as such. Not available in AppEEARS or GIBS as data; they need PO.DAAC and GES DISC. |
+| **KNMI Climate Explorer** | Johan / Emilse | Planned as an external cross-check. Today the statistics are cross-validated against SciPy. |
+| **NOAA Climate Data Online** | Emilse / Fabriany | Planned as a station-level check of a grid cell. Not done. |
+| **SeaWiFS paper (NTRS 20090042747)** | Johan | Methodological reference to cite. Not yet cited in the product. |
+| **CSA: SWOT, RADARSAT Constellation, Geo.ca** | Fabriany / Daniela / Diego | Not integrated. |
+
+**Honest limits:** MERRA-2 is a reanalysis (a model that assimilates observations), not a direct
+measurement; its precipitation trends can include effects of changes in the observing system. NASA
+POWER marks its IMERG parameter as "reviewing". The tool reports what the data show, not the cause.
 
 ### How NASA Resources Inspired the Solution
-The sheer scope of NASA's Earth Observing System—and complementary hydrological missions from partner agencies like the Canadian Space Agency—inspired us to treat the planet as a synchronized biological and physical system. Instead of viewing temperature, vegetation, or surface water in isolation, our platform lets users witness how ocean currents, atmospheric carbon, hydrology, and polar ice loss correlate across continents.
+The challenge states that a variable can trend one way in one region and the opposite way in
+another. With a global grid from NASA loaded, that is no longer an example to illustrate: the tool
+searches the grid and shows it with numbers.
 
 ---
 
 ## 4. Artificial Intelligence (AI) Declaration
 
 In full accordance with Space Apps Challenge guidelines:
-- **AI Tools Used:** Google Gemini (via Antigravity IDE) and GitHub Copilot were utilized strictly as software engineering and productivity support for architectural refactoring, responsive CSS debugging, unit test design, and documentation structuring.
-- **Human Verification & Integrity:** All scientific algorithms (Mann-Kendall, Sen's Slope), physical interpretations, DuckDB analytical queries, and UI/UX integration decisions were manually reviewed, tested, and validated by our 6-member engineering and climate physics team.
-- **Zero Trademark Violation & Watermarking Rule:** No generative AI tools were used to fabricate scientific observations, nor to generate, contain, or modify any NASA logos, flags, mission emblems, or agency visual identifiers. Any AI-generated visual illustrations used externally carry a visible watermark disclosing AI origin.
+- **AI Tools Used:** Google Gemini (via Antigravity IDE), GitHub Copilot and Anthropic Claude (via
+  Claude Code) were used as software engineering and productivity support: architecture and
+  refactoring, the data pipeline, tests, interface design, debugging and documentation.
+- **Human Verification & Integrity:** the scientific algorithms, physical interpretations, queries
+  and interface decisions were reviewed, run and validated by our 6-member team. The statistics are
+  checked against an independent implementation (SciPy), and the figures in this document come from
+  the project's own data and tests.
+- **Zero Trademark Violation & Watermarking Rule:** no generative AI tool was used to fabricate
+  scientific observations, nor to generate or modify NASA logos, flags, mission emblems or agency
+  identifiers. Any AI-generated illustration used externally carries a visible watermark.
 
 ---
 
 ## 5. Project Demonstration — Option A: 7-Slide English Presentation
 
-**Selected Official Demo Option:** **Option A — Presentation: maximum 7 slides (including cover slide)**, all text in **English**, hosted publicly and verified in incognito mode prior to submission, paired with our live production web observatory ([https://nasa-earth-trend-detective.vercel.app](https://nasa-earth-trend-detective.vercel.app)).
+**Selected Official Demo Option:** **Option A — Presentation: maximum 7 slides (including cover
+slide)**, all text in **English**, hosted publicly and verified in incognito mode before submission,
+paired with the live application.
 
 | Slide # | Suggested English Title | Key Content & Visual Evidence |
 | :---: | :--- | :--- |
-| **Slide 1** | **NASA Earth System Trend Detective** | Cover slide: *Interactive 4D Observatory & Statistical Climate Laboratory*, 6-member Neiva (Colombia) team, live app URL, and repository link. |
-| **Slide 2** | **The Challenge: Signal vs. Noise Across Terabytes** | Why non-specialists struggle to pick Earth science variables and prove trend significance; directly framing the 4 challenge questions (*What, Where, How Much, Significant*). |
-| **Slide 3** | **Interactive 4D Globe & Instant Trend Inspector** | Live 1080p UI screenshots: 3D hexagons, 2000–2026 Time Slider, 1-click Detective Missions (Arctic Amplification, Greenland, Sahel, Mauna Loa), regional biome context, and CSV export. |
-| **Slide 4** | **Powered by NASA & Space Agency Partner Data** | Data provenance integration: **GISTEMP v4**, **AppEEARS / Giovanni / Hydrology Time Series**, **GRACE-FO**, **OCO-2**, **SeaWiFS (NTRS)**, **CSA SWOT/RCM**, **KNMI**, and **NOAA CDO**. |
-| **Slide 5** | **Scientific Rigor & Physical Validation** | **Mann-Kendall** ($S$, tie-corrected $\text{Var}(S)$, $Z$, $p < 0.05$), **Sen's Slope** (95% CI), opposing 3D teleconnections, EWH physics, lag-1 autocorrelation checks, and KNMI cross-validation table. |
-| **Slide 6** | **Scalable Cloud Architecture (.NET 10 + DuckDB)** | Architecture flow diagram: Vercel Edge (`React 19 + Three.js / Globe.gl 60 FPS`) $\rightarrow$ Render (`ASP.NET Core .NET 10 Clean Architecture + Rate Limiting + Brotli + DuckDB OLAP 256 MB`). |
-| **Slide 7** | **Impact, Educational Access & Roadmap** | Student-friendly glossary impact, classroom and municipal water/climate monitoring applications, and post-hackathon live SWOT/AppEEARS expansion. |
+| **Slide 1** | **NASA Earth System Trend Detective** | Cover: 6-member team from Neiva (Colombia), live app URL and repository link. |
+| **Slide 2** | **The Challenge: Signal vs. Noise** | Why it is hard to pick a variable and prove a trend; the four questions (*what, where, how much, significant*). |
+| **Slide 3** | **Three Choices, One Verdict** | Screenshots: the guided briefing, the globe turning to the chosen place, the 45-year ruler, the detective card with the series and the verdict. |
+| **Slide 4** | **Real NASA Data, With Provenance** | **MERRA-2** and **GPM IMERG** through NASA POWER, **MODIS NDVI** through NASA GIBS, **GISTEMP v4**. One line on what is still a demonstration. |
+| **Slide 5** | **Scientific Rigor** | Mann-Kendall, Sen's slope with 95 % CI and the t-test; "do the methods agree?"; the SciPy cross-validation; model against satellite in the Amazon. |
+| **Slide 6** | **Opposite Trends, Measured** | The case board: Central-West Brazil against Bangladesh, four variables, all significant and opposite; the global table of cells rising and falling. |
+| **Slide 7** | **Architecture, Impact & Roadmap** | React + Three.js → .NET 10 → DuckDB with seeds and manifests; classroom use; next: GRACE and OCO-2. |
 
 ### 45-Second Judge Elevator Pitch (English)
-> *"Hello judges, we are the NASA Earth System Trend Detective team from Neiva, Colombia. Earth's climate generates petabytes of satellite observations, yet most citizens and students cannot easily test whether local changes are statistically significant or just natural noise. Our web platform brings NASA's GISTEMP, AppEEARS, Hydrology, GRACE, and OCO-2 insights together with CSA SWOT water perspectives on an interactive 60-FPS 3D globe powered by a .NET 10 and DuckDB analytical engine. With one click, anyone can explore historical trends, compare opposing teleconnected regions, verify statistical significance using Mann-Kendall and Sen's Slope tests, and export evidence-based CSV reports. We make Earth system science transparent, fast, and accessible for everyone. Thank you!"*
+> *"Hello judges, we are the NASA Earth System Trend Detective team from Neiva, Colombia. Is it
+> raining more or less where you live? And is that change real, or just noise? Our web tool lets a
+> student answer that in three choices: a variable, a place and a period. It uses real NASA data —
+> the MERRA-2 reanalysis, GPM satellite precipitation and MODIS vegetation, all named in this
+> challenge, plus GISTEMP — on an interactive 3D globe. It draws the series and tests it three ways: Mann-Kendall,
+> Sen's slope with its confidence interval, and a t-test, cross-validated against SciPy. And it
+> shows the idea at the heart of this challenge with numbers: in Central-West Brazil the air warms
+> and the land dries, while in Bangladesh it cools and gets wetter. Same variables, opposite
+> directions, all statistically significant. Thank you!"*
 
 ---
 
 ## 6. Official Judging Criteria Alignment
 
-1. **Impact:** Lowers the entry barrier to planetary climate science for students, educators, municipal planners, and citizens worldwide by removing complex coding prerequisites.
-2. **Creativity:** Bridges 60 FPS Three.js gaming graphics with serious academic non-parametric statistics and embedded DuckDB OLAP technology.
-3. **Validity:** Implements rigorous peer-reviewed statistical tests (Mann-Kendall test, Sen's median slope), physical climate validation (`[PHYS-T1..T5]`), and independent cross-validation against KNMI Climate Explorer.
-4. **Relevance:** Directly integrates primary NASA missions and open data tools (GISTEMP v4, AppEEARS, Giovanni, Hydrology Time Series, GRACE-FO, OCO-2, Blue/Black Marble, NTRS SeaWiFS) alongside CSA SWOT/RCM and NOAA CDO resources for the *Be An Earth System Trend Detective!* challenge.
-5. **Presentation:** Intuitive, mission-driven UI featuring accessible typography, high-contrast dark space theme, 1-click guided cases, student glossary, and a focused 7-slide narrative.
+1. **Impact:** no installation, no file handling and no code: a student gets from a question to a
+   tested answer in three choices.
+2. **Creativity:** the guided briefing drives a live 3D globe, and the "opposite trends" idea of the
+   challenge becomes a board computed from the data.
+3. **Validity:** three significance methods cross-validated against SciPy; real data with a
+   provenance manifest per dataset; demonstration variables labeled as such; limits stated.
+4. **Relevance:** it follows the four objectives of the challenge and uses three sources the
+   challenge names (MERRA-2, GPM and MODIS), plus GISTEMP.
+5. **Presentation:** an instrument-style interface, a glossary in plain language, case studies ready
+   to open and a focused 7-slide narrative.

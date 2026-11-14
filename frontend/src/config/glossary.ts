@@ -5,7 +5,6 @@
  * de secundaria y público general (audiencia objetivo NASA Space Apps 2026).
  *
  * Cada entrada define:
- *  - `emoji`      : ícono visual de la variable
  *  - `tagline`    : frase corta de gancho (≤ 8 palabras)
  *  - `plain`      : definición en lenguaje cotidiano (1-2 oraciones)
  *  - `whyMatters` : por qué importa detectar esta tendencia
@@ -17,7 +16,6 @@
 import type { ClimateVariable } from '../types/climate.types';
 
 export interface GlossaryEntry {
-  emoji: string;
   tagline: string;
   plain: string;
   whyMatters: string;
@@ -28,7 +26,6 @@ export interface GlossaryEntry {
 
 export const VARIABLE_GLOSSARY: Record<ClimateVariable, GlossaryEntry> = {
   Gistemp: {
-    emoji: '🌡️',
     tagline: '¿Está la Tierra más caliente que antes?',
     plain:
       'No es la temperatura del día de hoy. Es qué tan diferente está el planeta comparado con el promedio del siglo XX. Un valor positivo significa más calor; negativo, más frío.',
@@ -39,20 +36,73 @@ export const VARIABLE_GLOSSARY: Record<ClimateVariable, GlossaryEntry> = {
     exampleRegion: { label: 'Ártico (Svalbard)', lat: 78, lng: 15 },
     unit: 'grados Celsius de diferencia respecto al siglo pasado',
   },
+  Merra2Temperature: {
+    tagline: '¿Hace más calor en el aire que respiramos?',
+    plain:
+      'Es la temperatura del aire a dos metros del suelo, promediada en todo el año. La calcula MERRA-2, un modelo de la NASA que combina satélites, globos y estaciones. Aquí se muestra como diferencia respecto al promedio de 1991 a 2020.',
+    whyMatters:
+      'Es la temperatura que sienten las personas, los cultivos y los animales. Cambios pequeños pero sostenidos afectan a las cosechas, al hielo y a la demanda de agua.',
+    askAbout:
+      '¿En qué lugares sube la temperatura del aire y en cuáles baja?',
+    exampleRegion: { label: 'Amazonía central', lat: -3, lng: -61 },
+    unit: 'grados Celsius de diferencia respecto a 1991–2020',
+  },
+  Merra2Precipitation: {
+    tagline: '¿Llueve más o menos que antes?',
+    plain:
+      'Es la lluvia y la nieve que caen en promedio cada día del año, en milímetros. Un milímetro equivale a un litro de agua por metro cuadrado. Los valores vienen de MERRA-2, el modelo de la NASA.',
+    whyMatters:
+      'De la lluvia dependen los ríos, los cultivos y el agua potable. La misma variable puede subir en una región y bajar en otra: por eso hay que mirar lugar por lugar.',
+    askAbout:
+      '¿Dónde llueve cada vez más y dónde cada vez menos?',
+    exampleRegion: { label: 'Sahel central', lat: 15, lng: 5 },
+    unit: 'milímetros de agua por día, como diferencia respecto a 1991–2020',
+  },
+  GpmPrecipitation: {
+    tagline: '¿Qué lluvia ven los satélites?',
+    plain:
+      'Es la lluvia y la nieve estimadas desde el espacio por la misión GPM, que combina las mediciones de varios satélites en un producto llamado IMERG. Se da en milímetros por día, promediados en el año, desde 1998.',
+    whyMatters:
+      'Es una medición hecha desde satélites, no un modelo. Compararla con la precipitación de MERRA-2 en el mismo lugar enseña si dos fuentes distintas cuentan la misma historia.',
+    askAbout:
+      '¿El satélite y el modelo ven la misma tendencia en este lugar?',
+    exampleRegion: { label: 'Bangladés oriental', lat: 23, lng: 91 },
+    unit: 'milímetros de agua por día, como diferencia respecto a 2001–2020',
+  },
+  Merra2Evaporation: {
+    tagline: '¿Cuánta agua se va del suelo al aire?',
+    plain:
+      'La evaporación es el agua que pasa del suelo y de las plantas al aire. Se mide en milímetros por día, igual que la lluvia, y aquí sólo existe sobre tierra firme.',
+    whyMatters:
+      'Si se evapora más agua de la que llueve, el suelo se seca. Comparar evaporación y lluvia en un mismo lugar ayuda a entender si esa región gana o pierde agua.',
+    askAbout:
+      '¿La evaporación cambia en el mismo sentido que la lluvia?',
+    exampleRegion: { label: 'Llanura del Ganges', lat: 25, lng: 81 },
+    unit: 'milímetros de agua por día, como diferencia respecto a 1991–2020',
+  },
+  Merra2SoilMoisture: {
+    tagline: '¿Tiene el suelo agua para las plantas?',
+    plain:
+      'Indica cuánta agua hay en la capa de suelo donde crecen las raíces. Va de 0 (completamente seco) a 1 (saturado de agua) y sólo existe sobre tierra firme.',
+    whyMatters:
+      'Con poca humedad en el suelo las plantas sufren aunque llueva un poco. Es una señal temprana de sequía y afecta directamente a la agricultura.',
+    askAbout:
+      '¿Hay regiones donde el suelo se seca año tras año?',
+    exampleRegion: { label: 'Península ibérica', lat: 39, lng: -3 },
+    unit: 'fracción de 0 a 1, como diferencia respecto a 1991–2020',
+  },
   ModisNdvi: {
-    emoji: '🌿',
     tagline: '¿Están los bosques creciendo o desapareciendo?',
     plain:
-      'El NDVI mide qué tan verde está una zona. Va de -1 (sin vida) a +1 (selva densa). Los satélites Terra y Aqua capturan este dato mirando cómo las plantas reflejan la luz.',
+      'El NDVI mide qué tan verde está una zona. Va de 0 (suelo desnudo) a 1 (selva densa). El instrumento MODIS, a bordo del satélite Terra, lo obtiene mirando cómo las plantas reflejan la luz.',
     whyMatters:
       'Los bosques absorben CO₂ y regulan el agua. Cuando el NDVI baja en una región, puede significar deforestación, sequía o incendios. Cuando sube, puede indicar reforestación o más lluvia.',
     askAbout:
       '¿Está la Amazonía perdiendo vegetación año tras año?',
     exampleRegion: { label: 'Amazonía central', lat: -5, lng: -60 },
-    unit: 'índice sin unidad (de -1 a +1, mayor = más vegetación)',
+    unit: 'índice sin unidad (de 0 a 1, mayor = más vegetación)',
   },
   GraceMass: {
-    emoji: '🧊',
     tagline: '¿Cuánta agua y hielo está desapareciendo?',
     plain:
       'Los satélites GRACE y GRACE-FO detectan cambios en la gravedad de la Tierra para medir si hay más o menos agua o hielo bajo tierra o en los glaciares. Es como una balanza gigante en el espacio.',
@@ -64,7 +114,6 @@ export const VARIABLE_GLOSSARY: Record<ClimateVariable, GlossaryEntry> = {
     unit: 'centímetros equivalentes de agua (más negativo = menos masa)',
   },
   Oco2: {
-    emoji: '💨',
     tagline: '¿Hay más CO₂ en el aire que antes?',
     plain:
       'El satélite OCO-2 mide cuánto dióxido de carbono hay en una columna de aire sobre cada punto de la Tierra. Es el gas que más contribuye al efecto invernadero.',
@@ -76,100 +125,3 @@ export const VARIABLE_GLOSSARY: Record<ClimateVariable, GlossaryEntry> = {
     unit: 'partes por millón en el aire (ppm)',
   },
 };
-
-/**
- * Regiones de demostración predefinidas para el wizard.
- * El jurado puede elegir una región sin tener que hacer clic en el globo.
- */
-export interface WizardRegion {
-  id: string;
-  label: string;
-  description: string;
-  lat: number;
-  lng: number;
-  suggestedVariables: ClimateVariable[];
-}
-
-export const WIZARD_REGIONS: WizardRegion[] = [
-  {
-    id: 'arctic',
-    label: '🏔️ Ártico',
-    description: 'Zona de calentamiento más rápido del planeta',
-    lat: 78,
-    lng: 15,
-    suggestedVariables: ['Gistemp', 'GraceMass'],
-  },
-  {
-    id: 'amazon',
-    label: '🌳 Amazonía',
-    description: 'El pulmón verde más grande de la Tierra',
-    lat: -5,
-    lng: -60,
-    suggestedVariables: ['ModisNdvi', 'Gistemp'],
-  },
-  {
-    id: 'sahara',
-    label: '🏜️ Sahara',
-    description: 'Desierto en expansión desde hace décadas',
-    lat: 23,
-    lng: 15,
-    suggestedVariables: ['Gistemp', 'ModisNdvi'],
-  },
-  {
-    id: 'greenland',
-    label: '🧊 Groenlandia',
-    description: 'El mayor reservorio de hielo del hemisferio norte',
-    lat: 72,
-    lng: -40,
-    suggestedVariables: ['GraceMass', 'Gistemp'],
-  },
-  {
-    id: 'southasia',
-    label: '🌾 Asia del Sur',
-    description: 'Región agrícola bajo estrés hídrico creciente',
-    lat: 25,
-    lng: 80,
-    suggestedVariables: ['GraceMass', 'ModisNdvi'],
-  },
-  {
-    id: 'custom',
-    label: '📍 Elegir en el mapa',
-    description: 'Toca cualquier punto del globo para seleccionarlo',
-    lat: 0,
-    lng: 0,
-    suggestedVariables: ['Gistemp'],
-  },
-];
-
-/** Períodos representativos para el wizard. */
-export interface WizardPeriod {
-  id: string;
-  label: string;
-  description: string;
-  startYear: number;
-  endYear: number;
-}
-
-export const WIZARD_PERIODS: WizardPeriod[] = [
-  {
-    id: '25y',
-    label: '25 años',
-    description: '2000 → hoy · Suficiente para detectar tendencias claras',
-    startYear: 2000,
-    endYear: new Date().getUTCFullYear(),
-  },
-  {
-    id: '15y',
-    label: '15 años',
-    description: '2010 → hoy · Tendencias recientes con buena cobertura',
-    startYear: 2010,
-    endYear: new Date().getUTCFullYear(),
-  },
-  {
-    id: '10y',
-    label: '10 años',
-    description: '2015 → hoy · Cambios de la última década',
-    startYear: 2015,
-    endYear: new Date().getUTCFullYear(),
-  },
-];

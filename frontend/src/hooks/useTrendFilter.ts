@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import { ClimateVariable } from '../types/climate.types';
 import { TrendFilterParams } from '../types/trend.types';
-import { SATELLITE_TIMELINE } from '../config/climateLayers';
+import { EARLIEST_RECORD_YEAR, SATELLITE_TIMELINE } from '../config/climateLayers';
 
 export function useTrendFilter(
   initialVariable: ClimateVariable = 'Gistemp',
@@ -9,7 +9,7 @@ export function useTrendFilter(
 ) {
   const [filter, setFilter] = useState<TrendFilterParams>({
     variable: initialVariable,
-    startYear: 2002,
+    startYear: EARLIEST_RECORD_YEAR,
     endYear: Math.max(SATELLITE_TIMELINE.startYear, Math.min(SATELLITE_TIMELINE.endYear, initialYear)),
   });
 

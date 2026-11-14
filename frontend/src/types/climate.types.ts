@@ -1,4 +1,6 @@
-export type ClimateVariable = 'Gistemp' | 'ModisNdvi' | 'GraceMass' | 'Oco2';
+export type ClimateVariable = 'Gistemp' | 'ModisNdvi' | 'GraceMass' | 'Oco2'
+  | 'Merra2Temperature' | 'Merra2Precipitation' | 'Merra2Evaporation' | 'Merra2SoilMoisture'
+  | 'GpmPrecipitation';
 
 export interface GeoLocation {
   latitude: number;
