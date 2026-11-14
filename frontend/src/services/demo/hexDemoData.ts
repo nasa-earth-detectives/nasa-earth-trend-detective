@@ -3,13 +3,23 @@ import type { HexDataset } from '../../types/hex.types';
 import type { TrendFilterParams } from '../../types/trend.types';
 import { DEMO_LAND_CELL_IDS } from './hexDemoCoverage';
 import { HEX_GLOBAL_COVERAGE, HEX_GLOBAL_FLAGS } from './hexGlobalCoverage';
+import { hasDemoScenario } from './demoScenario';
 
 /** Escalas de presentación del escenario ficticio, no umbrales científicos. */
 export const HEX_VARIABLE_PROFILES: Record<ClimateVariable, { unit: string; heightDomain: number }> = {
   Gistemp: { unit: '°C / año', heightDomain: 0.08 },
-  ModisNdvi: { unit: 'NDVI / año', heightDomain: 0.015 },
+  // Percentil 99 de la pendiente medida en el NDVI real de 2000-2025: 0,0046 por año.
+  ModisNdvi: { unit: 'NDVI / año', heightDomain: 0.005 },
   GraceMass: { unit: 'cm H₂O eq. / año', heightDomain: 3 },
   Oco2: { unit: 'ppm / año', heightDomain: 4 },
+  // MERRA-2 no tiene escenario ficticio. El dominio vertical es el percentil 99 de la pendiente
+  // medida en los datos reales 1981-2025 (0,081 °C; 0,046, 0,029 y 0,0043 por año).
+  Merra2Temperature: { unit: '°C / año', heightDomain: 0.08 },
+  Merra2Precipitation: { unit: 'mm/día / año', heightDomain: 0.045 },
+  Merra2Evaporation: { unit: 'mm/día / año', heightDomain: 0.03 },
+  Merra2SoilMoisture: { unit: 'fracción / año', heightDomain: 0.0045 },
+  // Mismo dominio que la precipitación de MERRA-2 para poder comparar las dos de un vistazo.
+  GpmPrecipitation: { unit: 'mm/día / año', heightDomain: 0.045 },
 };
 
 export const DEMO_HEX_RESOLUTION_DEGREES = 2.2;
@@ -138,6 +148,12 @@ function getLocations(demoProfile: HexDemoProfile): readonly DemoLocation[] {
 
 /** Global por defecto; regional conserva la comparación y stress sirve sólo para medir carga. */
 export function createDemoHexDataset(filter: TrendFilterParams, demoProfile: HexDemoProfile = 'global'): HexDataset {
+  if (!hasDemoScenario(filter.variable)) {
+    // Sin datos reales no se dibuja nada: una grilla vacía, no el campo ficticio de otra variable.
+    const { unit, heightDomain } = HEX_VARIABLE_PROFILES[filter.variable];
+    return { cells: [], variable: filter.variable, startYear: filter.startYear, endYear: filter.endYear,
+      source: 'demo', unit, heightDomain, resolutionDegrees: DEMO_HEX_RESOLUTION_DEGREES };
+  }
   if (demoProfile === 'global') return createGlobalDataset(filter);
   const profile = HEX_VARIABLE_PROFILES[filter.variable];
   const variableIndex = VARIABLES.indexOf(filter.variable);

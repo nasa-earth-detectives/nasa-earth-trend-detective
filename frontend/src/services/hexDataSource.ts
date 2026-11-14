@@ -3,10 +3,15 @@ import type { ClimateVariable } from '../types/climate.types';
 import type { TrendFilterParams } from '../types/trend.types';
 import { createDemoHexDataset, HEX_VARIABLE_PROFILES } from './demo/hexDemoData';
 import { readDataSourceMode, resolveVariableSource } from './datasetCatalog';
+import { SATELLITE_TIMELINE } from '../config/climateLayers';
 import { trendService } from './trendService';
 
 /** Correspondencia explícita con backend/.../Enums/ClimateVariable.cs, sin suponer strings JSON. */
-const API_VARIABLE_IDS: Record<ClimateVariable, number> = { Gistemp: 1, ModisNdvi: 2, GraceMass: 3, Oco2: 4 };
+const API_VARIABLE_IDS: Record<ClimateVariable, number> = {
+  Gistemp: 1, ModisNdvi: 2, GraceMass: 3, Oco2: 4,
+  Merra2Temperature: 5, Merra2Precipitation: 6, Merra2Evaporation: 7, Merra2SoilMoisture: 8,
+  GpmPrecipitation: 9,
+};
 
 /**
  * Escala de la API: /trends/grid devuelve la pendiente de Sen por año, la misma unidad que el perfil
@@ -17,6 +22,11 @@ export const HEX_API_PRESENTATION: Record<ClimateVariable, { heightDomain: numbe
   ModisNdvi: { heightDomain: HEX_VARIABLE_PROFILES.ModisNdvi.heightDomain, resolutionDegrees: 2.2 },
   GraceMass: { heightDomain: HEX_VARIABLE_PROFILES.GraceMass.heightDomain, resolutionDegrees: 2.2 },
   Oco2: { heightDomain: HEX_VARIABLE_PROFILES.Oco2.heightDomain, resolutionDegrees: 2.2 },
+  Merra2Temperature: { heightDomain: HEX_VARIABLE_PROFILES.Merra2Temperature.heightDomain, resolutionDegrees: 2 },
+  Merra2Precipitation: { heightDomain: HEX_VARIABLE_PROFILES.Merra2Precipitation.heightDomain, resolutionDegrees: 2 },
+  Merra2Evaporation: { heightDomain: HEX_VARIABLE_PROFILES.Merra2Evaporation.heightDomain, resolutionDegrees: 2 },
+  Merra2SoilMoisture: { heightDomain: HEX_VARIABLE_PROFILES.Merra2SoilMoisture.heightDomain, resolutionDegrees: 2 },
+  GpmPrecipitation: { heightDomain: HEX_VARIABLE_PROFILES.GpmPrecipitation.heightDomain, resolutionDegrees: 2 },
 };
 
 function abortError() {
@@ -153,9 +163,17 @@ export async function getHexDataset(filter: TrendFilterParams, signal?: AbortSig
   if (resolved.source === 'demo') {
     const profile: unknown = import.meta.env.VITE_HEX_DEMO_PROFILE ?? 'global';
     if (profile !== 'global' && profile !== 'regional' && profile !== 'stress') throw new Error('VITE_HEX_DEMO_PROFILE debe ser global, regional o stress.');
-    return withAbort(Promise.resolve().then(() => createDemoHexDataset(filter, profile)), signal);
+    // El escenario ficticio se declara desde 2000: no se rotula con años anteriores.
+    const demoFilter = { ...filter, startYear: Math.min(filter.endYear, Math.max(filter.startYear, SATELLITE_TIMELINE.startYear)) };
+    return withAbort(Promise.resolve().then(() => createDemoHexDataset(demoFilter, profile)), signal);
   }
-  const payload: unknown = await trendService.getGridTrends(filter, signal);
+  // El periodo pedido se recorta a la cobertura real de la fuente: pedir 1981-2026 a un dataset que
+  // empieza en 2000 devolvería la misma grilla rotulada con años que no tiene.
+  const coverage = resolved.provenance;
+  const endYear = coverage ? Math.min(filter.endYear, coverage.coverageEnd) : filter.endYear;
+  const startYear = Math.min(endYear, coverage ? Math.max(filter.startYear, coverage.coverageStart) : filter.startYear);
+  const period = { ...filter, startYear, endYear };
+  const payload: unknown = await trendService.getGridTrends(period, signal);
   if (signal?.aborted) throw abortError();
-  return adaptApiHexDataset(payload, filter);
+  return adaptApiHexDataset(payload, period);
 }

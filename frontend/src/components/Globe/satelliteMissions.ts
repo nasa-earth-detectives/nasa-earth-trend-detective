@@ -31,14 +31,14 @@ export interface SatelliteMission {
 export const SATELLITE_MISSIONS: SatelliteMission[] = [
   // Terra: nodo descendente 10:30 → ascendente 22:30. MODIS barre 2.330 km.
   { id: 'terra', name: 'Terra · MODIS', altitudeKm: 705, inclinationDeg: 98.2, periodMin: 98.9,
-    ascendingNodeLocalTime: 22.5, phase: 0.4, accent: '#4ade80', swathHalfWidth: 0.11, model: 'terra' },
+    ascendingNodeLocalTime: 22.5, phase: 0.4, accent: '#86a05c', swathHalfWidth: 0.11, model: 'terra' },
   { id: 'aqua', name: 'Aqua · MODIS', altitudeKm: 705, inclinationDeg: 98.2, periodMin: 98.8,
-    ascendingNodeLocalTime: 13.5, phase: 2.2, accent: '#22d3ee', swathHalfWidth: 0.11, model: 'aqua' },
+    ascendingNodeLocalTime: 13.5, phase: 2.2, accent: '#9dc0d2', swathHalfWidth: 0.11, model: 'aqua' },
   { id: 'oco2', name: 'OCO-2 · CO₂', altitudeKm: 705, inclinationDeg: 98.2, periodMin: 98.8,
-    ascendingNodeLocalTime: 13.6, phase: 3.6, accent: '#fb923c', swathHalfWidth: 0.05, model: 'oco2' },
+    ascendingNodeLocalTime: 13.6, phase: 3.6, accent: '#d4834a', swathHalfWidth: 0.05, model: 'oco2' },
   // Se dibuja con el modelo de GRACE (2002-2017), su predecesora casi idéntica: la NASA no publica GRACE-FO.
   { id: 'grace-fo', name: 'GRACE-FO · masa de agua', altitudeKm: 490, inclinationDeg: 89, periodMin: 94.5,
-    ascendingNodeLocalTime: null, illustrativeNodeOffsetDeg: 75, phase: 5.1, accent: '#e879f9', swathHalfWidth: 0.07,
+    ascendingNodeLocalTime: null, illustrativeNodeOffsetDeg: 75, phase: 5.1, accent: '#a38cb9', swathHalfWidth: 0.07,
     model: 'grace' },
 ];
 

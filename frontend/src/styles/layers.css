@@ -145,3 +145,5 @@
   line-height: 16px;
   color: var(--text-tertiary);
 }
+/* Etiqueta de variable anunciada: azul marino del sistema (antes, un celeste puesto en línea). */
+.variable-row__soon { color: var(--science-sea); border-color: rgba(95, 136, 166, .45); }

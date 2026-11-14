@@ -14,4 +14,10 @@ public sealed record StatisticalVerdict(
     TrendSignificance Significance)
 {
     public bool IsSignificant => Math.Abs(ZScore) > 1.95996398454 || PValue < 0.05;
+
+    /// <summary>
+    /// Prueba t de la regresión lineal sobre la misma serie: el segundo método que nombra el reto.
+    /// Va aparte de los parámetros posicionales para no romper a quien ya construye el veredicto.
+    /// </summary>
+    public LinearTrendVerdict Linear { get; init; } = LinearTrendVerdict.Inconclusive;
 }

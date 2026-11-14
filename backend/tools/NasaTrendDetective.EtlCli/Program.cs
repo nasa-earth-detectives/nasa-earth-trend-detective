@@ -10,7 +10,8 @@ using NasaTrendDetective.Infrastructure.Interfaces;
 // Herramienta de consola del ETL. Reutiliza las piezas de Infrastructure (normalizador e importador)
 // para que el camino CSV -> Parquet -> DuckDB sea el mismo en local, en CI y en la API.
 //
-//   normalize --source <csv> --variable <Gistemp|ModisNdvi|GraceMass|Oco2> [--output <x.parquet>]
+//   normalize --source <csv> --variable <nombre de ClimateVariable, p.ej. Gistemp o Merra2Temperature>
+//             [--output <x.parquet>]
 //             [--output-dir <carpeta>] [--time-format %Y-%m-%d]
 //   seed      [--directory <carpeta>]     (carga Parquet + manifiestos en la base de DUCKDB_DATABASE_PATH)
 //

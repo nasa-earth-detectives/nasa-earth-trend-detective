@@ -1,0 +1,72 @@
+/**
+ * Una celda del tablero de casos: la serie real de una variable en una región, con su pendiente y
+ * su veredicto. No recibe cifras preparadas: sólo lo que acaba de devolver la API.
+ */
+import { ArrowDownRight, ArrowUpRight, Minus } from 'lucide-react';
+import type { CaseVerdict } from '../../hooks/useOpposingCases';
+import type { TimeSeriesDataPoint } from '../../types/detective.types';
+
+const WIDTH = 132;
+const HEIGHT = 36;
+const perDecade = new Intl.NumberFormat('es', { maximumSignificantDigits: 3, signDisplay: 'exceptZero' });
+const probability = new Intl.NumberFormat('es', { maximumSignificantDigits: 2 });
+
+/** Tono del veredicto: sin significancia no se afirma ni subida ni bajada, sea cual sea el signo. */
+export function verdictTone(verdict: CaseVerdict | undefined): 'up' | 'down' | 'flat' | 'none' {
+  if (verdict?.status !== 'ready') return 'none';
+  if (!verdict.trend.isSignificant || verdict.trend.sensSlope === 0) return 'flat';
+  return verdict.trend.sensSlope > 0 ? 'up' : 'down';
+}
+
+/** Serie anual y recta de Sen (pasa por la mediana de los residuos, como define el estimador). */
+function Sparkline({ series, slope }: { series: TimeSeriesDataPoint[]; slope: number }) {
+  if (series.length < 2) return null;
+  const firstYear = series[0].year;
+  const lastYear = series[series.length - 1].year;
+  const values = series.map(point => point.value);
+  const min = Math.min(...values);
+  const max = Math.max(...values);
+  const x = (year: number) => ((year - firstYear) / (lastYear - firstYear)) * WIDTH;
+  const y = (value: number) => HEIGHT - 3 - ((value - min) / (max - min || 1)) * (HEIGHT - 6);
+  const residuals = series.map(point => point.value - slope * (point.year - firstYear)).sort((a, b) => a - b);
+  const intercept = residuals[Math.floor(residuals.length / 2)];
+  const path = series.map((point, index) => `${index ? 'L' : 'M'}${x(point.year).toFixed(1)} ${y(point.value).toFixed(1)}`).join(' ');
+  return (
+    <svg className="case-cell__spark" viewBox={`0 0 ${WIDTH} ${HEIGHT}`} width={WIDTH} height={HEIGHT} aria-hidden="true">
+      <path d={path} className="case-cell__series" />
+      <line x1={0} y1={y(intercept)} x2={WIDTH} y2={y(intercept + slope * (lastYear - firstYear))} className="case-cell__sen" />
+    </svg>
+  );
+}
+
+interface OpposingCaseCellProps {
+  verdict: CaseVerdict | undefined;
+  /** Unidad del valor, p. ej. "mm/día"; la pendiente se muestra por década. */
+  unit: string;
+  placeLabel: string;
+  onOpen: () => void;
+}
+
+export function OpposingCaseCell({ verdict, unit, placeLabel, onOpen }: OpposingCaseCellProps) {
+  const tone = verdictTone(verdict);
+  if (verdict?.status !== 'ready') {
+    return (
+      <div className="case-cell" data-tone={tone} role="cell">
+        <p className="case-cell__empty">{verdict?.status === 'error' ? 'Sin conexión con los datos' : 'Calculando con la serie real…'}</p>
+      </div>
+    );
+  }
+  const { trend } = verdict;
+  const Icon = tone === 'up' ? ArrowUpRight : tone === 'down' ? ArrowDownRight : Minus;
+  const reading = tone === 'up' ? 'Sube' : tone === 'down' ? 'Baja' : 'Sin tendencia concluyente';
+  const p = trend.pValue < 0.001 ? 'p < 0,001' : `p = ${probability.format(trend.pValue)}`;
+  return (
+    <div className="case-cell" data-tone={tone} role="cell">
+      <Sparkline series={trend.series} slope={trend.sensSlope} />
+      <p className="case-cell__slope"><strong>{perDecade.format(trend.sensSlope * 10)}</strong><span>{unit} por década</span></p>
+      <p className="case-cell__verdict"><Icon size={14} strokeWidth={1.8} aria-hidden="true" />{reading}<span>{p}</span></p>
+      <button type="button" className="case-cell__open focus-ring" onClick={onOpen}
+        aria-label={`Ver ${placeLabel} en el globo`}>Ver en el globo</button>
+    </div>
+  );
+}

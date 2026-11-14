@@ -3,8 +3,8 @@ using NasaTrendDetective.Domain.Entities;
 namespace NasaTrendDetective.Application.Statistics;
 
 /// <summary>
-/// Motor analítico unificado para calcular el veredicto estadístico completo
-/// combinando Mann-Kendall y Sen's Slope para una serie temporal dada.
+/// Motor analítico unificado para calcular el veredicto estadístico completo de una serie:
+/// Mann-Kendall con la pendiente de Sen (no paramétrico) y la prueba t de la regresión lineal.
 /// </summary>
 public static class TrendStatisticsEngine
 {
@@ -28,6 +28,9 @@ public static class TrendStatisticsEngine
             sens.SlopePerDecade,
             new[] { sens.ConfidenceInterval95.Lower, sens.ConfidenceInterval95.Upper },
             mk.Direction,
-            mk.Significance);
+            mk.Significance)
+        {
+            Linear = LinearTrendTest.Calculate(values, years)
+        };
     }
 }

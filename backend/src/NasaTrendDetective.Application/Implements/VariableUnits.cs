@@ -13,6 +13,14 @@ public static class VariableUnits
         ClimateVariable.Gistemp => "°C Anomaly",
         ClimateVariable.ModisNdvi => "NDVI",
         ClimateVariable.GraceMass => "cm EWH",
-        _ => "ppm"
+        ClimateVariable.Oco2 => "ppm",
+        ClimateVariable.Merra2Temperature => "°C",
+        ClimateVariable.Merra2Precipitation => "mm/day",
+        ClimateVariable.Merra2Evaporation => "mm/day",
+        ClimateVariable.Merra2SoilMoisture => "fraction",
+        ClimateVariable.GpmPrecipitation => "mm/day",
+        // Sin rama por defecto con unidad: una variable nueva sin unidad declarada debe fallar
+        // aquí, no salir rotulada en ppm.
+        _ => throw new ArgumentOutOfRangeException(nameof(variable), variable, "Variable sin unidad declarada.")
     };
 }

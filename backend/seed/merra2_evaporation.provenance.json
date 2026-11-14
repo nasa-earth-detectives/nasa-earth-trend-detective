@@ -1,0 +1,20 @@
+{
+  "variable": "Merra2Evaporation",
+  "provider": "nasa-power-merra2",
+  "product": "MERRA-2 · evaporación en tierra (NASA POWER v10, media anual)",
+  "baseline": "1991-2020",
+  "unit": "mm/day",
+  "trendUnit": "mm/día / año",
+  "interim": false,
+  "resolutionDegrees": 2.0,
+  "sourceUrl": "https://nasa-power.s3.amazonaws.com/merra2/temporal/power_merra2_annual_temporal_utc.zarr/EVLAND",
+  "sourceFile": "power_merra2_annual_temporal_utc.zarr/EVLAND",
+  "sourceSha256": "fc464703397b6c1482ce542f326287b9d2acdddd2ccab87357a7d74d1aea8eda",
+  "retrievedAt": "2026-11-14T15:55:48+00:00",
+  "coverageStart": 1981,
+  "coverageEnd": 2025,
+  "lastMonth": "2025-12",
+  "rows": 205785,
+  "processing": "Media anual de POWER regrillada de 0,5° x 0,625° a 2° con promedio ponderado por área; celdas con menos del 50 por ciento de su área con dato, sin fila. anomaly = valor - media de la celda en el periodo base.",
+  "citation": "NASA POWER Project: NASA POWER Data v10. NASA Langley Research Center. https://power.larc.nasa.gov/ (CC BY 4.0). Datos derivados de MERRA-2: Gelaro et al. (2017), J. Climate 30, 5419-5454, doi:10.1175/JCLI-D-16-0758.1"
+}

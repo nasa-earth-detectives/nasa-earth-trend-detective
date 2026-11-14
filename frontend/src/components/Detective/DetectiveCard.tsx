@@ -12,6 +12,7 @@ import { CLIMATE_VARIABLES, SATELLITE_TIMELINE } from '../../config/climateLayer
 import { formatCoordinate } from '../../utils/detectiveAnalysis';
 import { TrendSignificanceBadge } from './TrendSignificanceBadge';
 import { TimeSeriesChart } from './TimeSeriesChart';
+import { TrendMethods } from './TrendMethods';
 import { DetectiveExportActions } from './DetectiveExportActions';
 import { sampleDemoObservation } from '../../services/demo/observationDemoData';
 import { getObservationValue, OBSERVATION_SCALES } from '../../utils/colorScales';
@@ -143,6 +144,7 @@ export function DetectiveCard({ open, location, variable, year, source, provenan
           : trend.error ? 'No disponible' : trend.data ? `${trend.data.sensSlope >= 0 ? '+' : ''}${trend.data.sensSlope.toLocaleString('es',
             { maximumFractionDigits: 3 })} ${unit} · p = ${trend.data.pValue.toLocaleString('es', { maximumSignificantDigits: 2 })}${
             trend.data.isSignificant ? ' · significativa' : ' · no significativa'}` : 'Sin calcular'}</span></p>
+        {source === 'api' && observation && trend.data && <TrendMethods trend={trend.data} unit={unit} />}
       </footer>
     </aside>
   );

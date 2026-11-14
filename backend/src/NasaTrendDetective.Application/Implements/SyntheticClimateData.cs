@@ -10,9 +10,22 @@ namespace NasaTrendDetective.Application.Implements;
 /// </summary>
 internal static class SyntheticClimateData
 {
+    /// <summary>
+    /// Solo las cuatro variables originales tienen escenario de demostración. Para cualquier otra
+    /// (MERRA-2) no hay nada que mostrar sin su dataset: se devuelve vacío en vez de reutilizar la
+    /// pendiente del CO2, que era la rama por defecto.
+    /// </summary>
+    public static bool HasDemoScenario(ClimateVariable variable) => variable is
+        ClimateVariable.Gistemp or ClimateVariable.ModisNdvi or ClimateVariable.GraceMass or ClimateVariable.Oco2;
+
     public static IReadOnlyList<AnnualObservation> AnnualSeries(
         ClimateVariable variable, int startYear, int endYear, double lat, double lng)
     {
+        if (!HasDemoScenario(variable))
+        {
+            return [];
+        }
+
         var count = Math.Max(1, endYear - startYear + 1);
         var list = new List<AnnualObservation>(count);
         var baseSeed = (int)Math.Abs(lat * 100 + lng * 10 + (int)variable);
@@ -39,6 +52,11 @@ internal static class SyntheticClimateData
 
     public static IReadOnlyList<TrendObservation> GridSnapshot(ClimateVariable variable, int year)
     {
+        if (!HasDemoScenario(variable))
+        {
+            return [];
+        }
+
         var points = new[]
         {
             (78.22, 15.63, 0.85, 1.42),   // Ártico
