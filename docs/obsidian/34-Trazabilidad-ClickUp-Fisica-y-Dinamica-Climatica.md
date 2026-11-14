@@ -5,13 +5,32 @@
 - **Lista:** `Física Climática, Dinámica Atmosférica y Teleconexiones` (ID: `1600500000000664`)
 - **Asignada:** `Emilse Cabrera` (`emilse.cabrera.c@gmail.com` | ClickUp ID: `252219659`) — Especialista en Física Climática y Testing Científico
 - **Supervisión & Vinculación:** Johan Sebastian Olaya (Data Science) & Brayan Stid Cortés (Frontend Lead)
-- **Relacionado:** [[00-Map-Of-Content]], [[03-Roles-y-Equipo]], [[05-Rigor-Cientifico-MannKendall]], [[24-Implementacion-Motor-Cientifico-y-Api]]
+- **Relacionado:** [[00-Map-Of-Content]], [[03-Roles-y-Equipo]], [[05-Rigor-Cientifico-MannKendall]], [[24-Implementacion-Motor-Cientifico-y-Api]], [[36-Plan-Hackathon-Neiva-Nuevas-Fuentes-NASA-CSA]]
 
 ---
 
 ## 🎯 Objetivo del Módulo de Física
 
-Proporcionar solidez y validación biofísica irrefutable a las tendencias detectadas por la plataforma, garantizando que los arcos de teleconexión espacial, las anomalías de masa gravitacional de GRACE-FO, el forzamiento radiativo de gases de efecto invernadero (OCO-2) y las correcciones de autocorrelación serial en Mann-Kendall cumplan con las leyes fundamentales de conservación de energía y masa del sistema climático terrestre.
+Proporcionar solidez y validación biofísica irrefutable a las tendencias detectadas por la plataforma, separando de forma transparente las fórmulas **ya integradas en el código actual** de las extensiones físicas **propuestas para validación o ajuste** durante el Hackathon Neiva (14–15 nov 2026).
+
+---
+
+## 📐 Inventario Verificado de Fórmulas Integradas en el Proyecto (Estado Real del Código)
+
+Todas estas ecuaciones están documentadas directamente dentro de las tarjetas `[PHYS-T1]` a `[PHYS-T5]` en ClickUp (`npm run sync:physics`):
+
+1. **Núcleo Estadístico en C# (`backend/src/NasaTrendDetective.Application/Statistics/`):**
+   - **Mann-Kendall (`MannKendallCalculator.cs`):** $S = \sum_{k < j} \operatorname{sgn}(x_j - x_k)$ con umbral de empate $|x_j - x_k| \le 10^{-7}$ ($n \ge 3$); $\operatorname{Var}(S) = \frac{n(n-1)(2n+5) - \sum t_i(t_i-1)(2t_i+5)}{18}$ (redondeo a 6 decimales); estandarización $Z = \frac{S \mp 1}{\sqrt{\operatorname{Var}(S)}}$ y criterio bilateral $|Z| > 1.95996398454$ ($p < 0.05$). *(Nota: aún no implementa pre-blanqueamiento lag-1 Yue-Pilon).*
+   - **Normal Estándar (`NormalDistribution.cs`):** aproximación de **Abramowitz & Stegun** (error $< 1.5 \times 10^{-7}$): $t = \frac{1}{1 + 0.2316419 |z|}$, $\Phi(|z|) = 1 - \frac{1}{\sqrt{2\pi}} e^{-z^2/2}\sum_{m=1}^{5} B_m t^m$, $p = 2(1 - \Phi(|z|))$ ($0.0$ si $|z| \ge 8.0$).
+   - **Pendiente de Sen (`SensSlopeEstimator.cs`):** mediana de $Q_{kj} = \frac{x_j - x_k}{t_j - t_k}$ ($\Delta t \ne 0$, $n \ge 2$), `SlopePerDecade = medianSlope * 10`, e IC 95 % con $C_\alpha = Z_{0.975}\sqrt{\operatorname{Var}(S)}$ en índices $\lfloor(N \mp C_\alpha)/2\rfloor$.
+2. **Teleconexiones y Geometría Geodésica (`OpposingTrendsService.cs`, `teleconnectionService.ts`, `observationLookup.ts`):**
+   - **Índice de divergencia (`EvaluatePair`):** $|Z_{\text{inc}} - Z_{\text{dec}}|\cdot(1 + |\text{SensSlope}_{\text{inc}} - \text{SensSlope}_{\text{dec}}|)$ *(los 3 pares predefinidos usan $|Z_A - Z_B|$ sobre series lineales de referencia sin lag temporal)*.
+   - **Arcos 3D y Haversine:** $\delta = \arccos(\sin\phi_1\sin\phi_2 + \cos\phi_1\cos\phi_2\cos(\lambda_2-\lambda_1))$, altitud $= 0.12 + 0.13\,\delta$; Haversine en grados con soporte $< 4^\circ$.
+3. **ETL DuckDB, Calor 3D y Mecánica Orbital (`CanonicalGridSql.cs`, `DataCleaningSql.cs`, `GridTrendService.cs`, `earthHeatRaster.ts`, `solarPosition.ts`, `lunarPosition.ts`, `satelliteMissions.ts`):**
+   - **WGS84 e imputación lineal ETL:** envoltura longitudinal a $[-180, 180)$ (`DECIMAL(5,2)`), fill values `[-9999, 9999]` y relleno lineal únicamente para huecos de **1 periodo** ($\Delta t \le 2.5\,\Delta t_{\text{min}}$); grilla con `MinMonthsPerYear = 9` y `MinYearsPerCell = 10`.
+   - **Mapa de calor esférico y aclareo polar:** kernel cuadrático $w_i = \left(\frac{\cos\theta_i - \cos 4^\circ}{1 - \cos 4^\circ}\right)^2$ y aclareo `round(1 / max(cos φ, 1e-6))`.
+   - **Astronomía y órbitas:** posición subsolar USNO (1800–2200), serie lunar analítica (ecuación del centro, evección, variación) y parámetros nominales de Terra, Aqua, OCO-2 (`705 km`, `98.2°`) y GRACE-FO (`490 km`, `89°`) con exageración radial $R_{\text{vis}} = R_{\text{globo}}(1 + 3 h_{\text{km}}/6371)$ y `timeScale = 90×`.
+4. **Pendiente / NO codificado aún en backend (objetivo de revisión científica):** rezagos `lag 1–6` dinámicos, conversión gravimétrica $\text{EWH}=\Delta\sigma/\rho_w$ / filtrado GRACE externo, forzamiento radiativo $\Delta F = 5.35 \ln(C/C_0)$ y pre-blanqueamiento lag-1 (`TFPW`).
 
 ---
 
