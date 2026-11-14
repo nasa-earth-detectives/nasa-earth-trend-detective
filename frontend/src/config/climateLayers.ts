@@ -82,15 +82,15 @@ export const CLIMATE_VARIABLES: VariableMetadata[] = [
     name: 'Masa de agua y hielo',
     satelliteMission: 'GRACE / GRACE-FO',
     unit: 'cm H₂O eq.',
-    description: 'Anomalías gravitatorias de reservas de agua y hielo.',
+    description: 'Agua y hielo en tierra, pesados desde el espacio: anomalía mensual respecto a 2004-2009. Desde 2002.',
     colorScheme: 'Hydrology',
   },
   {
     id: 'Oco2',
     name: 'Dióxido de carbono',
-    satelliteMission: 'OCO-2 / OCO-3',
+    satelliteMission: 'OCO-2',
     unit: 'ppm XCO₂',
-    description: 'Fracción molar de CO₂ en columna atmosférica total.',
+    description: 'CO₂ medio en toda la columna de aire, medido por el satélite OCO-2: media anual. Desde 2015.',
     colorScheme: 'Atmospheric',
   },
 ];

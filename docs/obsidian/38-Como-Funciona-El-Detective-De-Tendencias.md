@@ -3,23 +3,25 @@
 Guía para el equipo. Explica qué hace la herramienta, de dónde salen los datos, cómo viajan hasta la
 pantalla y dónde está cada cosa en el código. Escrita el 2026-11-14 sobre la rama
 `feat/merra2-real-data`. El registro de lo que se cambió y sus cifras está en
-[[37-MERRA2-Datos-Reales-y-Casos-Opuestos]].
+[[37-MERRA2-Datos-Reales-y-Casos-Opuestos]]. Actualizada esa misma tarde con GRACE y CO₂ reales y las dos
+correcciones del veredicto: [[40-GRACE-OCO2-Reales-y-Correcciones-de-Significancia]].
 
 ## 1. Qué hace, visto desde el usuario
 
 El reto pide responder cuatro preguntas. La herramienta las responde en este orden:
 
-1. **Qué**: el asistente ofrece las variables. Las que tienen datos reales de la NASA van arriba;
-   las de demostración, aparte y rotuladas.
+1. **Qué**: el asistente ofrece las variables. Las nueve tienen datos reales de la NASA. Si a la API le
+   faltara alguna semilla, esa variable aparecería aparte y rotulada como demostración.
 2. **Dónde**: una región sugerida o cualquier punto del globo. El globo gira al lugar mientras se elige.
 3. **Cuántos años**: una regla de años muestra qué cubre la fuente y qué tramo se va a analizar.
 4. **Cuánto y si es significativo**: la tarjeta dibuja la serie anual y da el veredicto con tres
-   métodos.
+   métodos, y dice si se sostiene al descontar la persistencia entre años.
 
 Además:
 
 - **Lectura "Tendencia (Sen)"** en el panel de variables: el globo pinta el ritmo de cambio de cada
-  celda en todo el periodo. Ahí se ve dónde sube y dónde baja.
+  celda en todo el periodo. Ahí se ve dónde sube y dónde baja, y cuántas celdas siguen siendo
+  significativas después de corregir.
 - **Casos**: tablero que compara dos regiones, variable por variable, con cifras calculadas al abrirlo.
 - **Glosario**: seis conceptos en lenguaje llano.
 
@@ -34,8 +36,8 @@ Además:
 | Evaporación en tierra | MERRA-2 vía NASA POWER | 1981–2025, anual | real |
 | Humedad del suelo | MERRA-2 vía NASA POWER | 1981–2025, anual | real |
 | Vegetación (NDVI) | MODIS Terra vía NASA GIBS | 2000-03 a 2025-12, mensual | real |
-| Masa de agua y hielo | GRACE / GRACE-FO | — | demostración |
-| Dióxido de carbono | OCO-2 | — | demostración |
+| Masa de agua y hielo | GRACE y GRACE-FO, mascons de NASA GSFC | 2002-04 a 2025-12, mensual | real |
+| Dióxido de carbono | OCO-2 vía NASA GIBS | 2015–2025, anual | real |
 
 Todas comparten **la misma grilla de 2°** (centros en latitudes y longitudes impares). Por eso el
 globo, la API y las consultas no distinguen de qué fuente viene una celda.
@@ -97,8 +99,17 @@ Los comandos exactos están en `backend/seed/README.md`.
 - **Prueba t** (`LinearTrendTest`, `StudentTDistribution`): regresión lineal por mínimos cuadrados, con
   error estándar, t, valor p e intervalo del 95 %.
 
-Significativo quiere decir p < 0,05. Los tres se contrastan con SciPy en
-`SciPyCrossValidationTests`.
+- **Mann-Kendall con preblanqueo** (`PrewhiteningTrendTest`): el mismo test después de restar a cada
+  año lo que hereda del anterior. Si a un año seco le suele seguir otro seco, el test clásico toma esa
+  racha por tendencia; éste dice si la tendencia sigue ahí cuando se descuenta.
+
+Significativo quiere decir p < 0,05. Los tres primeros se contrastan con SciPy en
+`SciPyCrossValidationTests`; el cuarto y el ajuste del mapa, en `SignificanceCorrectionsTests`.
+
+En el mapa (`GridTrendService`) hay un paso más. Con miles de celdas probadas a la vez, p < 0,05 deja
+pasar cientos por azar: `BenjaminiHochberg` ajusta los valores p del preblanqueo y marca como sostenidas
+(`isSignificantCorrected`) las celdas que superan una tasa de falsos hallazgos del 5 %. Por qué estos
+métodos y no otros, con la simulación que lo decide, en la nota 40.
 
 ### Reglas de honestidad que el código hace cumplir
 
@@ -199,8 +210,8 @@ dotnet run --project backend/tools/NasaTrendDetective.EtlCli -- normalize --sour
 Tarda unos 5 minutos y deja 184 MB de teselas en `data/nasa/raw/gibs_ndvi/` (fuera de git).
 
 **Por qué no AppEEARS:** se probó. Pedir por puntos todo el planeta mes a mes tarda del orden de 38
-horas por tarea (medido: 1 % en 23 minutos). Tampoco ofrece GRACE ni OCO-2, que siguen como
-demostración.
+horas por tarea (medido: 1 % en 23 minutos). Tampoco ofrece GRACE ni OCO-2: esos dos salieron de los
+mascons de NASA Goddard y del WMS de NASA GIBS (nota 40).
 
 ## 9. Límites que hay que decir en voz alta
 
@@ -208,3 +219,9 @@ demostración.
 - NASA POWER marca su parámetro de IMERG como "reviewing".
 - La herramienta dice qué muestran los datos y con qué confianza. No dice por qué ocurre.
 - Sólo se analizan tendencias lineales, que es el alcance que fija el reto.
+- La corrección por persistencia reduce los falsos positivos a la mitad, no los elimina (medido: de 4–38 %
+  a 3,5–19 % en series simuladas sin tendencia).
+- El CO₂ sube en todas las celdas casi al mismo ritmo: en esa variable no hay tendencias opuestas. Y no
+  tiene serie donde las nubes dejan pocos sondeos (la Amazonía central, Colombia).
+- La lluvia de MERRA-2 en la Amazonía (5° S, 61° O) era el ejemplo de "descenso significativo": no supera
+  la corrección por persistencia (p = 0,091). Como ejemplo sólido, usar Brasil frente a Bangladés.

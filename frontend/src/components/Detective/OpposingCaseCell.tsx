@@ -55,7 +55,9 @@ export function OpposingCaseCell({ verdict, unit, placeLabel, onOpen }: Opposing
   const { trend } = verdict;
   const Icon = tone === 'up' ? ArrowUpRight : tone === 'down' ? ArrowDownRight : Minus;
   const reading = tone === 'up' ? 'Sube' : tone === 'down' ? 'Baja' : 'Sin tendencia concluyente';
-  const p = trend.pValue < 0.001 ? 'p < 0,001' : `p = ${probability.format(trend.pValue)}`;
+  // El p que se enseña es el más exigente disponible: el que ya descuenta la persistencia entre años.
+  const pValue = trend.prewhitened?.pValue ?? trend.pValue;
+  const p = pValue < 0.001 ? 'p < 0,001' : `p = ${probability.format(pValue)}`;
   return (
     <td>
       <div className="case-cell" data-tone={tone}>

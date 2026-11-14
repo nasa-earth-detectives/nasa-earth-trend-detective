@@ -10,8 +10,11 @@ export const HEX_VARIABLE_PROFILES: Record<ClimateVariable, { unit: string; heig
   Gistemp: { unit: '°C / año', heightDomain: 0.08 },
   // Percentil 99 de la pendiente medida en el NDVI real de 2000-2025: 0,0046 por año.
   ModisNdvi: { unit: 'NDVI / año', heightDomain: 0.005 },
+  // Pendiente medida en GRACE 2002-2025: percentil 90 = 2,5 cm/año; percentil 99 = 22 (mantos de hielo, que
+  // se salen de la escala y se rotulan así en la lectura).
   GraceMass: { unit: 'cm H₂O eq. / año', heightDomain: 3 },
-  Oco2: { unit: 'ppm / año', heightDomain: 4 },
+  // Pendiente medida en OCO-2 2015-2025: de 2,30 a 2,70 ppm por año (mediana 2,47).
+  Oco2: { unit: 'ppm / año', heightDomain: 3 },
   // MERRA-2 no tiene escenario ficticio. El dominio vertical es el percentil 99 de la pendiente
   // medida en los datos reales 1981-2025 (0,081 °C; 0,046, 0,029 y 0,0043 por año).
   Merra2Temperature: { unit: '°C / año', heightDomain: 0.08 },

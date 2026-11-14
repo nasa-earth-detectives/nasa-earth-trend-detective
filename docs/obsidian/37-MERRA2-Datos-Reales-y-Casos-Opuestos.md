@@ -200,8 +200,8 @@ GISTEMP (9,6 s); los cinco datasets nuevos suman 5,9 s y no lo suben. No se ha p
 ## Pendiente
 
 - Textos de la interfaz en inglés: lo hacen otros compañeros (ver la sección 7 de la nota 38).
-- GRACE y OCO-2 siguen como demostración: hace falta bajarlos de PO.DAAC y GES DISC con un token de
-  Earthdata Login.
+- ~~GRACE y OCO-2 siguen como demostración.~~ **Hecho el mismo 2026-11-14, sin token:** GRACE desde los
+  mascons de NASA Goddard y CO₂ desde el WMS de NASA GIBS. Ver [[40-GRACE-OCO2-Reales-y-Correcciones-de-Significancia]].
 
 Hecho después de escribir esta lista: el dossier (nota 35) se reescribió con cifras medidas, sin
 declarar como reales las variables de demostración, con Gemini y Claude en la declaración de IA y

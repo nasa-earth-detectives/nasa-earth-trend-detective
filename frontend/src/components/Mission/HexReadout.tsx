@@ -6,6 +6,7 @@ import { describeHexTrend, formatHexValue, HEX_PRESENTATION, readableHexUnit } f
 import type { HexCell, HexDataset } from '../../types/hex.types';
 import type { DatasetProvenance } from '../../types/dataset.types';
 import { provenanceLabel } from '../../services/datasetCatalog';
+import { HexCellVerdict, HexSignificanceSummary } from './HexSignificance';
 
 interface HexReadoutProps {
   data: HexDataset | null;
@@ -104,11 +105,13 @@ export function HexReadout({ data, provenance = null, loading, error, selectedCe
           <p className="hex-readout__direction" title={presentation?.explanation}>{direction}
             {clipped && <span> · Fuera de escala: color y altura limitados a ±{formatHexValue(data.heightDomain)}</span>}
           </p>
+          <HexCellVerdict cell={cell} />
         </> : <div className="hex-readout__count">
           <strong>{loading || error ? '—' : count.toLocaleString('es-CO')}</strong>
           <span>{loading ? 'Preparando la capa…' : error ? 'Capa no disponible' :
             count === 0 ? 'Sin celdas para este periodo' : data?.source === 'demo' ? 'celdas de muestra' : 'celdas de análisis'}</span>
         </div>}
+        {!cell && ready && data.significance && <HexSignificanceSummary significance={data.significance} />}
         {error && <p className="hex-readout__error">{error}</p>}
       </div>
       {ready && count > 0 && <>

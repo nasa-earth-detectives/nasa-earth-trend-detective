@@ -110,18 +110,21 @@ export const VARIABLE_GLOSSARY: Record<ClimateVariable, GlossaryEntry> = {
       'Groenlandia y la Antártida están perdiendo hielo. Esa agua llega al mar y sube el nivel de los océanos. También detecta sequías profundas cuando los acuíferos se agotan.',
     askAbout:
       '¿Groenlandia está perdiendo hielo cada año?',
-    exampleRegion: { label: 'Groenlandia central', lat: 72, lng: -40 },
+    // El interior de Groenlandia casi no cambia (medido: +0,37 cm/año, p = 0,08); la pérdida está en la costa.
+    exampleRegion: { label: 'Sureste de Groenlandia', lat: 69, lng: -33 },
     unit: 'centímetros equivalentes de agua (más negativo = menos masa)',
   },
   Oco2: {
     tagline: '¿Hay más CO₂ en el aire que antes?',
     plain:
       'El satélite OCO-2 mide cuánto dióxido de carbono hay en una columna de aire sobre cada punto de la Tierra. Es el gas que más contribuye al efecto invernadero.',
+    // Medido en los datos cargados (2015-2025): sube en las 3.139 celdas con serie, entre 2,30 y 2,70 ppm
+    // por año. La diferencia entre regiones es pequeña: el satélite ve la mezcla, no la chimenea.
     whyMatters:
-      'Las fábricas, los autos y la deforestación emiten CO₂. Detectar dónde aumenta más rápido ayuda a identificar zonas de alta emisión o zonas donde los bosques ya no absorben suficiente.',
+      'Las fábricas, los autos y la deforestación emiten CO₂, y el aire lo reparte por todo el planeta. Por eso sube casi al mismo ritmo en todas partes, también en mitad del océano: unas 2,5 partes por millón cada año.',
     askAbout:
-      '¿El CO₂ sobre las grandes ciudades industriales aumenta año a año?',
-    exampleRegion: { label: 'Cuenca industrial norte de China', lat: 39, lng: 116 },
+      '¿Sube el CO₂ también lejos de las ciudades, en mitad del Pacífico?',
+    exampleRegion: { label: 'Hawái, junto al observatorio de Mauna Loa', lat: 19, lng: -155 },
     unit: 'partes por millón en el aire (ppm)',
   },
 };
