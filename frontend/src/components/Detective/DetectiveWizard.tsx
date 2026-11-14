@@ -92,7 +92,11 @@ export function DetectiveWizard({ initialVariable = 'Gistemp', onComplete, onSki
   };
 
   const variableName = CLIMATE_VARIABLES.find(item => item.id === variable)?.name ?? variable;
-  const summary = [variableName, step > 0 ? region.label : null, step > 1 ? period.label : null].filter(Boolean);
+  const summary = [
+    { id: 'variable', label: variableName },
+    ...(step > 0 ? [{ id: 'region', label: region.label }] : []),
+    ...(step > 1 ? [{ id: 'period', label: period.label }] : []),
+  ];
 
   return (
     <div className="briefing" role="dialog" aria-modal="true" aria-labelledby={headingId} ref={dialogRef} tabIndex={-1}>
@@ -121,7 +125,7 @@ export function DetectiveWizard({ initialVariable = 'Gistemp', onComplete, onSki
 
         <footer className="briefing__footer">
           <p className="briefing__summary" aria-live="polite">
-            {summary.map((item, index) => <span key={index}>{item}</span>)}
+            {summary.map(entry => <span key={entry.id}>{entry.label}</span>)}
           </p>
           <div className="briefing__actions">
             {step === 0 ? (

@@ -11,7 +11,8 @@ import { CASE_REGIONS, CASE_VARIABLES, caseKey, type CaseRegion } from '../../co
 import { OBSERVATION_SCALES } from '../../utils/colorScales';
 import { useFocusTrap } from '../../hooks/useFocusTrap';
 import { useOpposingCases, type CaseVerdict } from '../../hooks/useOpposingCases';
-import { OpposingCaseCell, verdictTone } from './OpposingCaseCell';
+import { verdictTone } from '../../utils/caseVerdict';
+import { OpposingCaseCell } from './OpposingCaseCell';
 import { VARIABLE_ACCENT_STYLE, VARIABLE_ICONS } from './variableIcons';
 import '../../styles/detective-modals.css';
 
@@ -78,34 +79,43 @@ export function DetectiveMissionsModal({ open, onClose, onSelectMission }: Detec
           </button>
         </header>
 
-        <div className="case-board scrollbar-instrument" role="table" aria-label="Tendencias por variable en dos regiones">
-          <div className="case-board__head" role="row">
-            <span role="columnheader">Variable</span>
-            {CASE_REGIONS.map(region => (
-              <span key={region.id} role="columnheader">{region.name}<small>{coordinates(region)}</small></span>
-            ))}
-            <span role="columnheader">Lectura</span>
-          </div>
-          {CASE_VARIABLES.map(variable => {
-            const meta = CLIMATE_VARIABLES.find(item => item.id === variable);
-            const Icon = VARIABLE_ICONS[variable];
-            const [first, second] = CASE_REGIONS.map(region => verdicts[caseKey(variable, region.id)]);
-            const reading = pairReading(first, second);
-            return (
-              <div key={variable} className="case-board__row" role="row" style={VARIABLE_ACCENT_STYLE[variable]}>
-                <div className="case-board__variable" role="rowheader">
-                  <span className="case-board__icon" aria-hidden="true"><Icon size={17} strokeWidth={1.5} /></span>
-                  <span>{meta?.name}<small>{OBSERVATION_SCALES[variable].unit}</small></span>
-                </div>
-                {CASE_REGIONS.map((region, index) => (
-                  <OpposingCaseCell key={region.id} verdict={index === 0 ? first : second}
-                    unit={OBSERVATION_SCALES[variable].unit} placeLabel={`${meta?.name} en ${region.name}`}
-                    onOpen={() => openCase(variable, region)} />
+        <div className="case-board scrollbar-instrument">
+          <table className="case-board__table">
+            <caption className="sr-only">Tendencias por variable en dos regiones</caption>
+            <thead>
+              <tr className="case-board__head">
+                <th scope="col">Variable</th>
+                {CASE_REGIONS.map(region => (
+                  <th key={region.id} scope="col" className="case-board__place">{region.name}<small>{coordinates(region)}</small></th>
                 ))}
-                <span className="case-board__reading" data-tone={reading.tone} role="cell">{reading.label}</span>
-              </div>
-            );
-          })}
+                <th scope="col">Lectura</th>
+              </tr>
+            </thead>
+            <tbody>
+              {CASE_VARIABLES.map(variable => {
+                const meta = CLIMATE_VARIABLES.find(item => item.id === variable);
+                const Icon = VARIABLE_ICONS[variable];
+                const [first, second] = CASE_REGIONS.map(region => verdicts[caseKey(variable, region.id)]);
+                const reading = pairReading(first, second);
+                return (
+                  <tr key={variable} className="case-board__row" style={VARIABLE_ACCENT_STYLE[variable]}>
+                    <th scope="row">
+                      <div className="case-board__variable">
+                        <span className="case-board__icon" aria-hidden="true"><Icon size={17} strokeWidth={1.5} /></span>
+                        <span>{meta?.name}<small>{OBSERVATION_SCALES[variable].unit}</small></span>
+                      </div>
+                    </th>
+                    {CASE_REGIONS.map((region, index) => (
+                      <OpposingCaseCell key={region.id} verdict={index === 0 ? first : second}
+                        unit={OBSERVATION_SCALES[variable].unit} placeLabel={`${meta?.name} en ${region.name}`}
+                        onOpen={() => openCase(variable, region)} />
+                    ))}
+                    <td><span className="case-board__reading" data-tone={reading.tone}>{reading.label}</span></td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
         </div>
 
         <p className="dossier__foot">
