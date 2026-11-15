@@ -8,6 +8,9 @@ on:
       - production
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 concurrency:
   group: mirror-personal-${{ github.ref }}
   cancel-in-progress: false
@@ -15,23 +18,41 @@ concurrency:
 jobs:
   mirror-to-personal:
     name: Sincronizar hacia Repo Personal (Auto-Deploy Vercel)
+    if: github.repository_owner == 'nasa-earth-detectives'
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Repository
+      - name: Checkout Organization Repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          token: ${{ secrets.PERSONAL_REPO_SYNC_TOKEN }}
+          persist-credentials: false
 
       - name: Push Branch to Personal Repository
         env:
           PERSONAL_TOKEN: ${{ secrets.PERSONAL_REPO_SYNC_TOKEN }}
+          BRANCH_NAME: ${{ github.ref_name }}
         run: |
-          BRANCH_NAME="${GITHUB_REF_NAME}"
-          echo "Sincronizando rama '${BRANCH_NAME}' hacia brayancortes22/nasa-earth-trend-detective..."
-          git push "https://${PERSONAL_TOKEN}@github.com/brayancortes22/nasa-earth-trend-detective.git" "HEAD:${BRANCH_NAME}" --force
-          if [ "${BRANCH_NAME}" = "production" ]; then
-            echo "Sincronizando alias 'main' para disparar despliegue de produccion en Vercel..."
-            git push "https://${PERSONAL_TOKEN}@github.com/brayancortes22/nasa-earth-trend-detective.git" "HEAD:main" --force
+          if [ -z "$PERSONAL_TOKEN" ]; then
+            echo "::error::Falta configurar el secreto PERSONAL_REPO_SYNC_TOKEN en el repositorio de la organización."
+            exit 1
           fi
-          echo "✅ Sincronización completada exitosamente. Vercel desplegará automáticamente la rama '${BRANCH_NAME}'."
+
+          AUTH_HEADER=$(printf 'x-access-token:%s' "$PERSONAL_TOKEN" | base64 -w0)
+          echo "::add-mask::$AUTH_HEADER"
+
+          TARGET_REPO="https://github.com/brayancortes22/nasa-earth-trend-detective.git"
+          echo "Sincronizando rama '${BRANCH_NAME}' hacia brayancortes22/nasa-earth-trend-detective..."
+
+          if ! GIT_TERMINAL_PROMPT=0 git -c "http.https://github.com/.extraheader=AUTHORIZATION: basic ${AUTH_HEADER}" \
+            push "$TARGET_REPO" "HEAD:refs/heads/${BRANCH_NAME}" --force; then
+            echo "::error::Error de autenticación/push hacia el repositorio personal. Verifica que PERSONAL_REPO_SYNC_TOKEN siga vigente y tenga permiso Contents:write en brayancortes22/nasa-earth-trend-detective."
+            exit 1
+          fi
+
+          if [ "${BRANCH_NAME}" = "production" ]; then
+            echo "Sincronizando alias 'main' para disparar despliegue de producción en Vercel..."
+            GIT_TERMINAL_PROMPT=0 git -c "http.https://github.com/.extraheader=AUTHORIZATION: basic ${AUTH_HEADER}" \
+              push "$TARGET_REPO" "HEAD:refs/heads/main" --force
+          fi
+
+          echo "✅ Sincronización completada para '${BRANCH_NAME}'."

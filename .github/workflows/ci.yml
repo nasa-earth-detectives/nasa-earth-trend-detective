@@ -1,0 +1,231 @@
+name: NASA Earth Trend Detective CI
+
+on:
+  pull_request:
+    branches:
+      - development
+      - qa
+      - production
+  workflow_dispatch:
+    inputs:
+      run_docker:
+        description: 'Validar build completo de imágenes Docker'
+        required: true
+        default: true
+        type: boolean
+      run_live_nasa_tests:
+        description: 'Ejecutar pruebas de integración LiveNasaApi'
+        required: true
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ============================================================================
+  # 1. Detección inteligente de alcance para omitir trabajos sin cambios
+  # ============================================================================
+  changes:
+    name: Detect Changed Scopes
+    if: github.repository_owner == 'nasa-earth-detectives'
+    runs-on: ubuntu-latest
+    outputs:
+      frontend: ${{ steps.filter.outputs.frontend }}
+      backend: ${{ steps.filter.outputs.backend }}
+      docker_backend: ${{ steps.filter.outputs.docker_backend }}
+      docker_frontend: ${{ steps.filter.outputs.docker_frontend }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Evaluate Changed Paths
+        id: filter
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            RUN_DOCKER="${{ inputs.run_docker }}"
+            echo "frontend=true" >> "$GITHUB_OUTPUT"
+            echo "backend=true" >> "$GITHUB_OUTPUT"
+            echo "docker_backend=${RUN_DOCKER}" >> "$GITHUB_OUTPUT"
+            echo "docker_frontend=${RUN_DOCKER}" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          BASE_REF="${{ github.base_ref }}"
+          git fetch origin "$BASE_REF" --quiet || true
+          CHANGED=$(git diff --name-only "origin/${BASE_REF}...HEAD" 2>/dev/null || true)
+
+          if [ -z "$CHANGED" ]; then
+            echo "No se pudo resolver un diff vacío; ejecutando validaciones completas por seguridad."
+            echo "frontend=true" >> "$GITHUB_OUTPUT"
+            echo "backend=true" >> "$GITHUB_OUTPUT"
+            echo "docker_backend=true" >> "$GITHUB_OUTPUT"
+            echo "docker_frontend=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          FE="false"
+          BE="false"
+          DK_BE="false"
+          DK_FE="false"
+
+          if echo "$CHANGED" | grep -qE '^(frontend/|packages/shared/|package\.json$|package-lock\.json$|\.github/workflows/ci\.yml$)'; then
+            FE="true"
+          fi
+          if echo "$CHANGED" | grep -qE '^(backend/|\.github/workflows/ci\.yml$)'; then
+            BE="true"
+          fi
+
+          if echo "$CHANGED" | grep -qE '(^docker-compose.*\.ya?ml$|^backend/Dockerfile$|^backend/.*\.(csproj|slnx)$|^\.github/workflows/ci\.yml$)' \
+             || { [ "$BASE_REF" = "production" ] && [ "$BE" = "true" ]; }; then
+            DK_BE="true"
+          fi
+
+          if echo "$CHANGED" | grep -qE '(^docker-compose.*\.ya?ml$|^frontend/Dockerfile$|^package(-lock)?\.json$|^\.github/workflows/ci\.yml$)' \
+             || { [ "$BASE_REF" = "production" ] && [ "$FE" = "true" ]; }; then
+            DK_FE="true"
+          fi
+
+          echo "frontend=$FE" >> "$GITHUB_OUTPUT"
+          echo "backend=$BE" >> "$GITHUB_OUTPUT"
+          echo "docker_backend=$DK_BE" >> "$GITHUB_OUTPUT"
+          echo "docker_frontend=$DK_FE" >> "$GITHUB_OUTPUT"
+
+  # ============================================================================
+  # 2. Frontend: TypeScript, Build Vite y Auditoría React Doctor
+  # ============================================================================
+  frontend:
+    name: Frontend Checks, Build & React Doctor
+    needs: changes
+    if: github.repository_owner == 'nasa-earth-detectives' && needs.changes.outputs.frontend == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Verify TypeScript Types (Shared & Web)
+        run: |
+          npm run type-check --workspace=packages/shared
+          npm run type-check --workspace=frontend
+
+      - name: Build Frontend Bundle (Vite)
+        run: npm run build --workspace=frontend
+
+      - name: Run React Doctor (Oxlint Engine)
+        if: github.event_name == 'pull_request' && !github.event.pull_request.head.repo.fork
+        uses: millionco/react-doctor@v2
+        with:
+          diff: ${{ github.base_ref || 'development' }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+  # ============================================================================
+  # 3. Backend (.NET 10): Compilación Release y Suite Científica
+  # ============================================================================
+  backend:
+    name: Backend Build & Scientific Tests (.NET 10)
+    needs: changes
+    if: github.repository_owner == 'nasa-earth-detectives' && needs.changes.outputs.backend == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET SDK 10.0
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Cache NuGet Packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('backend/**/*.csproj', 'backend/**/*.slnx') }}
+          restore-keys: |
+            nuget-${{ runner.os }}-
+
+      - name: Restore Backend Dependencies
+        run: dotnet restore backend/NasaTrendDetective.slnx
+
+      - name: Build Backend (Release, warnings as errors)
+        run: dotnet build backend/NasaTrendDetective.slnx -c Release --no-restore -warnaserror
+
+      - name: Detect Test Projects
+        id: tests
+        run: |
+          if find backend -name '*Tests*.csproj' | grep -q .; then
+            echo "found=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "found=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Run Scientific Mathematical & 2000-2025 Seeded Tests
+        if: steps.tests.outputs.found == 'true'
+        run: dotnet test backend/NasaTrendDetective.slnx -c Release --no-build --filter "Category!=LiveNasaApi"
+
+      - name: Run Live NASA API 2000-2025 Validation (On Demand)
+        if: steps.tests.outputs.found == 'true' && github.event_name == 'workflow_dispatch' && inputs.run_live_nasa_tests
+        run: dotnet test backend/NasaTrendDetective.slnx -c Release --no-build --filter "Category=LiveNasaApi"
+
+  # ============================================================================
+  # 4. Contenedores Docker (solo ante cambios de Dockerfile/deps o paso a prod)
+  # ============================================================================
+  docker:
+    name: Docker Config & Image Build
+    needs: [changes, frontend, backend]
+    if: >-
+      always()
+      && github.repository_owner == 'nasa-earth-detectives'
+      && needs.changes.result == 'success'
+      && needs.frontend.result != 'failure' && needs.frontend.result != 'cancelled'
+      && needs.backend.result != 'failure' && needs.backend.result != 'cancelled'
+      && (needs.changes.outputs.docker_backend == 'true' || needs.changes.outputs.docker_frontend == 'true')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Validate Docker Compose Configuration
+        run: docker compose config -q
+
+      - name: Build Backend Image
+        if: needs.changes.outputs.docker_backend == 'true'
+        uses: docker/build-push-action@v6
+        with:
+          context: ./backend
+          file: ./backend/Dockerfile
+          push: false
+          cache-from: type=gha,scope=api
+          cache-to: type=gha,mode=max,scope=api
+
+      - name: Build Frontend Image
+        if: needs.changes.outputs.docker_frontend == 'true'
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./frontend/Dockerfile
+          push: false
+          cache-from: type=gha,scope=web
+          cache-to: type=gha,mode=max,scope=web

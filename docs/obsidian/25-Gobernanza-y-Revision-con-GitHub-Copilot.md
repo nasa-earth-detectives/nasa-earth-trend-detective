@@ -1,7 +1,7 @@
 # 🤖 Gobernanza, Gestión y Revisión de PRs con GitHub Copilot
 
 - **Estado:** `Activo / Configurado` 🟢
-- **Mecanismos Clave:** `.github/copilot-instructions.md`, `.github/workflows/copilot-pr-governance.yml`, `.github/PULL_REQUEST_TEMPLATE.md`
+- **Mecanismos Clave:** `.github/copilot-instructions.md`, `.github/workflows/pr-governance.yml`, `.github/PULL_REQUEST_TEMPLATE.md`
 - **Responsables:** Brayan Stid Cortés Lombana (`@brayancortes22`), July (`@july173`)
 - **Relacionado:** [[00-Map-Of-Content]], [[03-Roles-y-Equipo]], [[04-Sprints-y-Roadmap]], [[15-Documentacion-Tecnica-Backend-Dotnet10]]
 
