@@ -1,4 +1,4 @@
-import type { GlossaryAndModalTranslations } from './typesExtra';
+import type { GlossaryAndModalTranslations } from './typesGlossary';
 
 export const glossaryEn: Pick<GlossaryAndModalTranslations, 'variableGlossary' | 'glossaryItems' | 'milestones'> = {
   variableGlossary: {
