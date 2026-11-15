@@ -1,0 +1,83 @@
+import type { ClimateVariable } from '../types/climate.types';
+import type { GlossaryItemCopy, MilestoneCopy, VariableGlossaryCopy } from './types';
+
+/** Copy of the glossary, the milestones and the modal dialogs: the dictionaries in glossary.*.ts and modals.*.ts. */
+export interface GlossaryAndModalTranslations {
+  variableGlossary: Record<ClimateVariable, VariableGlossaryCopy>;
+  glossaryItems: readonly GlossaryItemCopy[];
+  milestones: Record<number, MilestoneCopy>;
+  modals: {
+    glossaryEyebrow: string;
+    glossaryCount: string;
+    glossaryTitle: string;
+    glossaryLead: string;
+    glossaryPlainLabel: string;
+    closeAria: string;
+    casesEyebrow: string;
+    casesTitle: string;
+    casesLead: string;
+    casesCaption: string;
+    casesColVariable: string;
+    casesColReading: string;
+    casesInconclusive: string;
+    casesSameDirection: string;
+    casesOpposing: string;
+    casesFootnote: string;
+    cellUnavailable: string;
+    cellComputing: string;
+    cellRising: string;
+    cellFalling: string;
+    cellNoConclusive: string;
+    cellPerDecade: string;
+    cellViewOnGlobe: string;
+    cellViewAria: string;
+    casesPlaceConnector: string;
+  };
+  tour: {
+    next: string;
+    previous: string;
+    finish: string;
+    closeGuideAria: string;
+    steps: {
+      launchTitle: string;
+      launchBody: string;
+      contextTitle: string;
+      contextBody: string;
+      variableTitle: string;
+      variableBody: string;
+      sceneTitle: string;
+      sceneBody: string;
+      timeTitle: string;
+      timeBody: string;
+      inspectorTitle: string;
+      inspectorBody: string;
+    };
+  };
+  significance: {
+    inconclusiveLabel: string;
+    inconclusiveClaim: string;
+    inconclusiveCaveat: string;
+    unconfirmedLabel: string;
+    unconfirmedClaim: string;
+    unconfirmedCaveat: string;
+    sustainedIncrease: string;
+    sustainedDecrease: string;
+    sustainedCaveat: string;
+    signPositive: string;
+    signNegative: string;
+    signZero: string;
+    increaseWord: string;
+    decreaseWord: string;
+    overPeriod: string;
+    perLabel: string;
+    undeclaredUnit: string;
+    zeroSlope: string;
+    positiveSlope: string;
+    negativeSlope: string;
+    undeclaredNotice: string;
+    betweenYears: string;
+    increasesVerb: string;
+    decreasesVerb: string;
+    slopeConnector: string;
+  };
+}

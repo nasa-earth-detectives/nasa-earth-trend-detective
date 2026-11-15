@@ -13,7 +13,8 @@ import { createEarthUserLocation } from './earthUserLocation';
 import { buildGlobeSceneApi } from './globeApiBuilder';
 import type { EarthSurfaceStatus } from './earthConfig';
 import { createFocusOffsetController, extendCameraFarPlane, resolveInitialAltitude } from './globeSetup';
-import { TRANSITION_MS, createFrameGovernor } from './frameGovernor';
+import { createFrameGovernor } from './frameGovernor';
+import { TRANSITION_MS } from './frameGovernorConfig';
 import { QUALITY_PROFILES, getRenderQuality, setRenderQuality, type RenderQuality } from './renderQuality';
 import type { GlobeLocation, GlobeSceneApi, ScenePreferences } from '../../types/globe.types';
 export type { GlobeLocation, GlobeSceneApi, ScenePreferences };
@@ -197,6 +198,8 @@ export function useGlobeScene(
       controls.removeEventListener('start', handleInteractionStart);
       controls.removeEventListener('end', handleInteractionEnd);
       disposeStarField(globe.scene(), starLayers);
+      // Safe under React StrictMode: this globe was created by this same run of the effect, so the
+      // second mount in development builds its own and never touches one that is still in use.
       globe._destructor();
       while (container.firstChild) container.removeChild(container.firstChild);
     };

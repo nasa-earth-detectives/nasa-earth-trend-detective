@@ -251,7 +251,8 @@ optimizando JavaScript. El rayo que Globe.gl lanza en cada cuadro para detectar 
 sospechoso, no influye (17,0 frente a 16,8 cuadros/s).
 
 **Qué se hizo.** El contenido de la escena es el mismo en todos los equipos; cambia cuándo y con
-cuántos píxeles se dibuja (`components/Globe/frameGovernor.ts`, `renderQuality.ts`, `sceneFrames.ts`):
+cuántos píxeles se dibuja (`components/Globe/frameGovernor.ts` y sus umbrales en
+`frameGovernorConfig.ts`, `renderQuality.ts`, `sceneFrames.ts`):
 
 1. **Dibujar sólo cuando algo cambia.** Globe.gl redibuja en cada cuadro aunque nada se mueva. Ahora
    la escena dibuja mientras gira la cámara, dura una transición o llega algo (una textura, una tesela,
