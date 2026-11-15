@@ -43,7 +43,7 @@ public class RealSeededTrends2000To2025Tests(RealSeededApiFixture fixture)
             Assert.NotNull(d.Provenance);
             var unit = VariableUnits.For(d.Variable);
             Assert.Equal(unit, d.Provenance.Unit);
-            Assert.Equal($"{unit} / year", d.Provenance.TrendUnit);
+            Assert.Equal(ExpectedTrendUnit(d.Variable), d.Provenance.TrendUnit);
             Assert.False(string.IsNullOrWhiteSpace(d.Provenance.Provider));
             Assert.False(string.IsNullOrWhiteSpace(d.Provenance.SourceUrl));
             Assert.True(d.Provenance.CoverageEnd >= 2025, $"{d.Code} ends at {d.Provenance.CoverageEnd}");
@@ -79,7 +79,7 @@ public class RealSeededTrends2000To2025Tests(RealSeededApiFixture fixture)
         Assert.Equal(variable, grid.Variable);
         Assert.Equal(startYear, grid.StartYear);
         Assert.Equal(endYear, grid.EndYear);
-        Assert.Equal($"{VariableUnits.For(variable)} / year", grid.Unit);
+        Assert.Equal(ExpectedTrendUnit(variable), grid.Unit);
         Assert.Equal(2.0, grid.ResolutionDegrees);
         Assert.NotEmpty(grid.Cells);
         Assert.Equal(grid.Cells.Count(c => c.IsSignificant), grid.SignificantCells);
@@ -185,4 +185,9 @@ public class RealSeededTrends2000To2025Tests(RealSeededApiFixture fixture)
             Assert.Equal(2025, pair.DecreasingRegion.EndYear);
         });
     }
+
+    private static string ExpectedTrendUnit(ClimateVariable variable) =>
+        variable == ClimateVariable.Gistemp
+            ? "°C / year"
+            : $"{VariableUnits.For(variable)} / year";
 }
