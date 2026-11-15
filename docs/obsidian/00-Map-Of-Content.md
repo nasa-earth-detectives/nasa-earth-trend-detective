@@ -70,7 +70,7 @@ Bienvenido a la bóveda central de documentación y diseño de ingeniería de nu
 - [[38-Como-Funciona-El-Detective-De-Tendencias]]: guía de punta a punta: qué hace, de dónde salen los datos, backend, frontend, cómo añadir una variable y dónde están los textos para traducir.
 - [[39-Formulas-y-Supuestos-para-QA-Fisico]]: para la revisión de física: fórmulas añadidas o cambiadas, cómo se comprobaron, autocorrelación lag-1 medida y puntos abiertos.
 - [[40-GRACE-OCO2-Reales-y-Correcciones-de-Significancia]]: GRACE y CO₂ con datos reales (9 de 9 variables), Mann-Kendall con preblanqueo iterativo elegido por simulación, control de falsos descubrimientos y efecto medido en cada mapa.
-- [[41-Registro-Jornada-2026-11-14-Bilingue-y-Promocion]]: bitácora del 14 nov 2026 (límite CI 300 líneas `#74`, QA `#76`, suite 2000–2025 `#77`, soporte bilingüe EN/ES y React Doctor 0 issues `#79`, PR `#80` a producción y diagnóstico `PERSONAL_REPO_SYNC_TOKEN`).
+- [[41-Registro-Jornada-2026-11-14-Bilingue-y-Promocion]]: bitácora del 14–15 nov 2026 (soporte bilingüe EN/ES `#79`, promoción `#80`, corrección OOM Render 512 MB `#82`–`#84`, ajuste UI responsivo `.workspace-left-rail` y sincronización GitHub Project `#1`).
 
 ---
 

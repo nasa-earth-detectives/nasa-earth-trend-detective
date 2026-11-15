@@ -162,6 +162,25 @@
   .observation-section { width: 208px; } .context-symbol { min-width: 52px; font-size: 23px; }
   .mode-label small { max-width: 110px; }
 }
+@media (max-width: 1120px) and (min-width: 1024px) {
+  .mission-signature { gap: 14px; }
+  .mission-action-btn { padding: 0 8px; }
+}
+@media (min-width: 1024px) and (max-height: 860px) {
+  .context-kicker { margin-bottom: 8px; }
+  .context-section { margin: 10px 0 9px; padding-bottom: 6px; }
+  .observation-section { width: 196px; height: 50px; }
+  .context-reference { gap: 4px; font-size: 11px; }
+}
+@media (min-width: 1024px) and (max-height: 750px) {
+  [data-reading='trend'] .context-section { display: none; }
+  [data-reading='trend'] .context-kicker { margin-bottom: 6px; }
+  [data-reading='trend'] .context-measure { margin-bottom: 8px; }
+}
+@media (min-width: 1024px) and (max-height: 660px) {
+  .context-section { display: none; }
+  .context-measure { margin-bottom: 8px; }
+}
 @media (max-width: 1023px) {
   .mode-navigator { display: grid; grid-template-columns: 1.18fr 1fr .9fr; gap: 0 18px; }
   .mode-entry, .mode-entry[data-mode-trigger='layers'] { min-height: 64px; gap: 7px; }
@@ -172,7 +191,7 @@
   .recenter-control span { display: none; }
   [data-mode]:not([data-mode='observation']) .mode-navigator { display: flex; flex-direction: column; }
 }
-@media (max-width: 820px) {
+@media (max-width: 960px) {
   .mission-signature { flex-direction: column; align-items: flex-start; gap: 6px; }
 }
 @media (max-width: 600px) {
