@@ -4,6 +4,7 @@ import {
 } from 'three';
 import { GLOBE_RADIUS } from './globeConfig';
 import { lunarDirection } from './lunarPosition';
+import { requestSceneFrame } from './sceneFrames';
 
 /**
  * The Moon in its real direction at this instant, textured and bumped with LRO data (CGI Moon Kit,
@@ -25,14 +26,16 @@ export function createEarthMoon(scene: Scene) {
   const material = new MeshStandardMaterial({ roughness: 1, metalness: 0 });
   // If a texture fails to load, material stays without it (plain gray Moon) rather than sampling
   // an empty image: keeps rendering reasonable while logging the failure to console.
-  const color = loader.load(`${base}earth/moon/lroc-color-2k.jpg`, undefined, undefined, (error) => {
+  // A scene that draws on demand shows each texture when it arrives.
+  const arrived = (): void => requestSceneFrame(scene);
+  const color = loader.load(`${base}earth/moon/lroc-color-2k.jpg`, arrived, undefined, (error) => {
     console.warn('Moon texture unavailable; using fallback gray.', error);
     material.map = null;
     material.color.setScalar(0.55);
     material.needsUpdate = true;
   });
   color.colorSpace = SRGBColorSpace;
-  const normal = loader.load(`${base}earth/moon/ldem-normal-1k.jpg`, undefined, undefined, (error) => {
+  const normal = loader.load(`${base}earth/moon/ldem-normal-1k.jpg`, arrived, undefined, (error) => {
     console.warn('Moon normal map unavailable; rendering without relief.', error);
     material.normalMap = null;
     material.needsUpdate = true;

@@ -35,7 +35,6 @@ export const commonEs: CommonTranslations = {
     guidanceSurface: 'Selecciona la superficie para inspeccionar',
     globeFallback: 'Imágenes terrestres no disponibles · vista alternativa',
     globeDegraded: 'Superficie terrestre · detalle parcial',
-    liteNotice: 'Modo ligero · menos efectos visuales para este equipo, los mismos datos',
     teleconnectionIllustrative: 'Proceso físico · ilustrativo',
   },
   context: {
@@ -99,8 +98,8 @@ export const commonEs: CommonTranslations = {
     satLabel: 'Constelación satelital',
     satDesc: 'Órbitas nominales aceleradas de Terra, Aqua, GRACE-FO y OCO-2. Ilustrativo: no es su posición real',
     motionHeading: 'Movimiento y referencias',
-    liteLabel: 'Modo ligero',
-    liteDesc: 'Menos efectos visuales para equipos sin tarjeta gráfica; los datos no cambian',
+    adaptiveLabel: 'Dibujo adaptable',
+    adaptiveDesc: 'Dibuja el globo sólo cuando cambia y con menos resolución mientras se mueve. Mismo aspecto, mismos datos',
     autoRotateLabel: 'Autorrotación',
     autoRotateDesc: 'Rotación orbital en reposo',
     starsLabel: 'Campo estelar',
