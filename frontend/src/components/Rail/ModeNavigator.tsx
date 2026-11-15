@@ -2,6 +2,7 @@ import { Crosshair, History, MapPin, Orbit, Scan } from 'lucide-react';
 import type { InstrumentMode } from '../../hooks/useImmersiveUi';
 import type { ClimateVariable } from '../../types/climate.types';
 import { OBSERVATION_LENSES } from '../../config/observationLenses';
+import { formatTemplate, useI18n } from '../../i18n';
 
 interface ModeNavigatorProps {
   mode: InstrumentMode;
@@ -25,16 +26,17 @@ export function ModeNavigator({
   onLocateUser,
   locating = false,
 }: ModeNavigatorProps) {
+  const { t } = useI18n();
   const lens = OBSERVATION_LENSES[variable];
   const instruments = [
-    { mode: 'layers', label: 'Variables', detail: lens.domain, panel: 'layer-panel', symbol: lens.symbol },
-    { mode: 'time', label: 'Time', detail: `Selected year · ${year}`, panel: 'mission-time-navigator', symbol: <History size={19} /> },
-    { mode: 'view', label: 'Scene', detail: 'Orbit & references', panel: 'layer-panel', symbol: <Orbit size={19} /> },
+    { mode: 'layers', label: t.rail.variables, detail: t.lenses[variable].domain, panel: 'layer-panel', symbol: lens.symbol },
+    { mode: 'time', label: t.rail.time, detail: formatTemplate(t.rail.timeDetail, { year }), panel: 'mission-time-navigator', symbol: <History size={19} /> },
+    { mode: 'view', label: t.rail.scene, detail: t.rail.sceneDetail, panel: 'layer-panel', symbol: <Orbit size={19} /> },
   ] as const;
 
   return (
-    <nav id="tour-mode-navigator" className="mode-navigator" aria-label="Explore Earth" data-ui-control>
-      <p className="mode-index-label">Observation instruments</p>
+    <nav id="tour-mode-navigator" className="mode-navigator" aria-label={t.rail.navAria} data-ui-control>
+      <p className="mode-index-label">{t.rail.indexLabel}</p>
       {instruments.map(item => (
         <button key={item.mode} type="button" className="mode-entry focus-ring"
           data-mode-trigger={item.mode} data-selected={mode === item.mode}
@@ -53,20 +55,20 @@ export function ModeNavigator({
             onClick={onLocateUser}
             disabled={locating}
             data-mode-trigger="locate"
-            aria-label="Locate my position on Earth"
-            title="Locate my position on Earth"
+            aria-label={t.rail.locateAria}
+            title={t.rail.locateAria}
           >
             <MapPin size={16} aria-hidden="true" />
-            <span>{locating ? 'Locating…' : 'My location'}</span>
+            <span>{locating ? t.rail.locating : t.rail.locate}</span>
           </button>
         )}
         <button type="button" className="recenter-control focus-ring" onClick={onInspectCenter}
-          data-mode-trigger="inspection" aria-label="Inspect center of Earth" title="Inspect center of Earth">
-          <Scan size={16} aria-hidden="true" /><span>Inspect location</span>
+          data-mode-trigger="inspection" aria-label={t.rail.inspectAria} title={t.rail.inspectAria}>
+          <Scan size={16} aria-hidden="true" /><span>{t.rail.inspect}</span>
         </button>
         <button type="button" className="recenter-control focus-ring" onClick={onRecenter}
-          aria-label="Recenter Earth" title="Recenter Earth">
-          <Crosshair size={16} aria-hidden="true" /><span>Recenter planet</span>
+          aria-label={t.rail.recenterAria} title={t.rail.recenterAria}>
+          <Crosshair size={16} aria-hidden="true" /><span>{t.rail.recenter}</span>
         </button>
       </div>
     </nav>

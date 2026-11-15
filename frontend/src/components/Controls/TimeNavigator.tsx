@@ -3,6 +3,7 @@ import { CalendarRange } from 'lucide-react';
 import { useTimelinePlayback } from '../../hooks/useTimelinePlayback';
 import { TimelineTransportControls } from './TimelineTransportControls';
 import { TimeSliderTrack } from './TimeSliderTrack';
+import { formatTemplate, useI18n } from '../../i18n';
 import '../../styles/timeline.css';
 
 interface TimeNavigatorProps {
@@ -30,6 +31,7 @@ export function TimeNavigator({
   onPlaybackChange,
   onChange,
 }: TimeNavigatorProps) {
+  const { t } = useI18n();
   const scaleId = useId();
   const exploreButton = useRef<HTMLButtonElement>(null);
   const playButton = useRef<HTMLButtonElement>(null);
@@ -73,7 +75,7 @@ export function TimeNavigator({
     <section
       id="mission-time-navigator"
       className="time-navigator"
-      aria-label="Mission time navigator"
+      aria-label={t.timeline.navAria}
       data-playing={playback.isPlaying}
       data-collapsed={collapsed}
       data-ui-control
@@ -81,8 +83,8 @@ export function TimeNavigator({
     >
       {/* Always visible observed year field */}
       <div ref={observedField} className="time-observed">
-        <span className="time-eyebrow">Query year</span>
-        <span className="time-year" aria-label={`Selected year: ${currentYear}`}>
+        <span className="time-eyebrow">{t.timeline.eyebrow}</span>
+        <span className="time-year" aria-label={formatTemplate(t.timeline.selectedYearAria, { year: currentYear })}>
           <span key={currentYear}>{currentYear}</span>
         </span>
         {collapsed ? (
@@ -94,10 +96,12 @@ export function TimeNavigator({
             aria-expanded={false}
             aria-controls={scaleId}
           >
-            <CalendarRange size={14} aria-hidden="true" /> Adjust year
+            <CalendarRange size={14} aria-hidden="true" /> {t.timeline.adjustYear}
           </button>
         ) : (
-          <span className="time-state">{playback.isPlaying ? `Playing (${playback.speed}x)` : 'Selected year'}</span>
+          <span className="time-state">
+            {playback.isPlaying ? formatTemplate(t.timeline.playingSpeed, { speed: playback.speed }) : t.timeline.selectedState}
+          </span>
         )}
       </div>
 
@@ -106,7 +110,7 @@ export function TimeNavigator({
         <div className="time-detail-inner">
           <div className="time-heading">
             <div className="time-mission">
-              <span className="time-source-label">Selected product</span>
+              <span className="time-source-label">{t.timeline.selectedProduct}</span>
               <span key={missionLabel} className="time-source">{missionLabel}</span>
             </div>
 
@@ -138,8 +142,8 @@ export function TimeNavigator({
           />
 
           <div className="time-range-context">
-            <span>Exploration range <strong>{startYear}—{endYear}</strong></span>
-            <span>Current speed <strong>{playback.speed}x ({1200 / playback.speed}ms/yr)</strong></span>
+            <span>{t.timeline.explorationRange} <strong>{startYear}—{endYear}</strong></span>
+            <span>{t.timeline.currentSpeed} <strong>{playback.speed}x ({1200 / playback.speed}{t.timeline.msPerYr})</strong></span>
           </div>
         </div>
       </div>

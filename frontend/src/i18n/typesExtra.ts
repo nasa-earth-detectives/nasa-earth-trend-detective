@@ -1,0 +1,257 @@
+import type { ClimateVariable } from '../types/climate.types';
+import type {
+  CommonTranslations,
+  GlossaryItemCopy,
+  MilestoneCopy,
+  ScienceTranslations,
+  VariableGlossaryCopy,
+} from './types';
+
+export interface ReadoutAndWizardTranslations {
+  readouts: {
+    observationAria: string;
+    scopeLand: string;
+    scopeGlobal: string;
+    modeHeat: string;
+    modeHex: string;
+    modeNone: string;
+    partialYearTooltip: string;
+    throughMonth: string;
+    monthsShort: readonly string[];
+    receivedValueTitle: string;
+    preparing: string;
+    noResponse: string;
+    annualSamples: string;
+    noObservations: string;
+    relativeBaseline: string;
+    baselineFallback: string;
+    methodHeat: string;
+    methodHex: string;
+    simulatedFooter: string;
+    apiFallbackFooter: string;
+    officialSource: string;
+    interimSource: string;
+    pickerChoose: string;
+    pickerOther: string;
+    pickerChange: string;
+    pickerAriaObs: string;
+    pickerAriaTrend: string;
+    pickerSelect: string;
+    pickerCurrentSel: string;
+    pickerPrev: string;
+    pickerNext: string;
+    pickerOf: string;
+    zeroSlope: string;
+    defaultHeading: string;
+    surfaceTrends: string;
+    outOfScale: string;
+    preparingLayer: string;
+    layerUnavailable: string;
+    noCellsPeriod: string;
+    sampleCells: string;
+    analysisCells: string;
+    rateOfChange: string;
+    decrease: string;
+    noChange: string;
+    increase: string;
+    heightMagnitude: string;
+    noVisibleData: string;
+    sigAria: string;
+    sigUncorrected: string;
+    sigPersistence: string;
+    sigFdr: string;
+    verdictRobust: string;
+    verdictFragile: string;
+    verdictNone: string;
+    queryHeadingAria: string;
+    queryHeadingTitle: string;
+    recordsReceived: string;
+    queryingYear: string;
+    queryFailed: string;
+    emptyResponse: string;
+    responseReceived: string;
+    apiAvailable: string;
+    localMode: string;
+    compass: { north: string; south: string; east: string; west: string };
+  };
+  wizard: {
+    brand: string;
+    eventBadge: string;
+    stepsAria: string;
+    stepVariable: string;
+    stepVariableQuestion: string;
+    stepVariableHint: string;
+    stepLocation: string;
+    stepLocationQuestion: string;
+    stepLocationHint: string;
+    stepPeriod: string;
+    stepPeriodQuestion: string;
+    stepPeriodHint: string;
+    variableGroupAria: string;
+    realNasaData: string;
+    checkingData: string;
+    demoOnlyGroup: string;
+    demoTag: string;
+    noDataTag: string;
+    unitLabel: string;
+    guidingQuestion: string;
+    regionGroupAria: string;
+    customGlobeNote: string;
+    regionSuggestIntro: string;
+    switchToVariable: string;
+    yearsOfData: string;
+    demoScenario: string;
+    periodGroupAria: string;
+    yearsSuffix: string;
+    shortPeriodWarning: string;
+    longPeriodExplanation: string;
+    exploreWithoutGuide: string;
+    back: string;
+    continue: string;
+    openDossier: string;
+  };
+  inspection: {
+    cellCenter: string;
+    selectedLocation: string;
+    title: string;
+    closeAria: string;
+    latitude: string;
+    longitude: string;
+    nearestSample: string;
+    nearestSampleDisclaimer: string;
+    referenceProduct: string;
+    queryingObservations: string;
+    noNearbySample: string;
+    simulatedSeries: string;
+    observedSeries: string;
+    availableObservation: string;
+    queryingSelectedYear: string;
+    noSamplesWithinRadius: string;
+    syntheticFooter: string;
+    noSampleForLocation: string;
+    gistempScaleNote: string;
+    mannKendallLabel: string;
+    notCalculated: string;
+    calculating: string;
+    unavailable: string;
+    significant: string;
+    notSignificant: string;
+    noTimeObservations: string;
+    seriesYearAria: string;
+    yearLabel: string;
+    downloadCsv: string;
+    downloadCsvTitle: string;
+    share: string;
+    shareTitle: string;
+    shareAria: string;
+    copied: string;
+    copiedAria: string;
+    copyPrompt: string;
+    intervalLabel: string;
+    toConnector: string;
+    linearTestLabel: string;
+    persistenceLabel: string;
+    holdsUpLabel: string;
+    r1Negligible: string;
+    afterRemoval: string;
+    remainsSignificant: string;
+    noLongerSignificant: string;
+    agreeNeither: string;
+    agreeCaveat: string;
+    agreeBothAndPrewhitened: string;
+    agreeBoth: string;
+    disagreeMethods: string;
+    verdictTriggerAria: string;
+    locationInstrumentAria: string;
+    locationSelected: string;
+    locationCloseAria: string;
+    locationNotAvailable: string;
+    locationPickAnother: string;
+  };
+}
+
+export interface GlossaryAndModalTranslations {
+  variableGlossary: Record<ClimateVariable, VariableGlossaryCopy>;
+  glossaryItems: readonly GlossaryItemCopy[];
+  milestones: Record<number, MilestoneCopy>;
+  modals: {
+    glossaryEyebrow: string;
+    glossaryCount: string;
+    glossaryTitle: string;
+    glossaryLead: string;
+    glossaryPlainLabel: string;
+    closeAria: string;
+    casesEyebrow: string;
+    casesTitle: string;
+    casesLead: string;
+    casesCaption: string;
+    casesColVariable: string;
+    casesColReading: string;
+    casesInconclusive: string;
+    casesSameDirection: string;
+    casesOpposing: string;
+    casesFootnote: string;
+    cellUnavailable: string;
+    cellComputing: string;
+    cellRising: string;
+    cellFalling: string;
+    cellNoConclusive: string;
+    cellPerDecade: string;
+    cellViewOnGlobe: string;
+    cellViewAria: string;
+    casesPlaceConnector: string;
+  };
+  tour: {
+    next: string;
+    previous: string;
+    finish: string;
+    closeGuideAria: string;
+    steps: {
+      launchTitle: string;
+      launchBody: string;
+      contextTitle: string;
+      contextBody: string;
+      variableTitle: string;
+      variableBody: string;
+      sceneTitle: string;
+      sceneBody: string;
+      timeTitle: string;
+      timeBody: string;
+      inspectorTitle: string;
+      inspectorBody: string;
+    };
+  };
+  significance: {
+    inconclusiveLabel: string;
+    inconclusiveClaim: string;
+    inconclusiveCaveat: string;
+    unconfirmedLabel: string;
+    unconfirmedClaim: string;
+    unconfirmedCaveat: string;
+    sustainedIncrease: string;
+    sustainedDecrease: string;
+    sustainedCaveat: string;
+    signPositive: string;
+    signNegative: string;
+    signZero: string;
+    increaseWord: string;
+    decreaseWord: string;
+    overPeriod: string;
+    perLabel: string;
+    undeclaredUnit: string;
+    zeroSlope: string;
+    positiveSlope: string;
+    negativeSlope: string;
+    undeclaredNotice: string;
+    betweenYears: string;
+    increasesVerb: string;
+    decreasesVerb: string;
+    slopeConnector: string;
+  };
+}
+
+export type Translations =
+  & CommonTranslations
+  & ReadoutAndWizardTranslations
+  & ScienceTranslations
+  & GlossaryAndModalTranslations;

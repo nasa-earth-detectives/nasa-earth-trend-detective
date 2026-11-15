@@ -1,4 +1,5 @@
 import { Compass, Search, Scale, BookOpen } from 'lucide-react';
+import { useI18n } from '../../i18n';
 
 interface MissionHeaderProps {
   edition?: string;
@@ -10,33 +11,37 @@ interface MissionHeaderProps {
 }
 
 export function MissionHeader({
-  edition = 'NASA Space Apps · 2026',
-  projectName = 'Trend Detective',
+  edition,
+  projectName,
   onStartTour,
   onOpenWizard,
   onOpenMissions,
   onOpenGlossary,
 }: MissionHeaderProps) {
+  const { locale, setLocale, t } = useI18n();
+  const displayName = projectName ?? t.header.projectName;
+  const displayEdition = edition ?? t.header.edition;
+
   return (
-    <header id="tour-mission-header" className="mission-signature" aria-label="Project identity">
+    <header id="tour-mission-header" className="mission-signature" aria-label={t.header.projectIdentityAria}>
       <div className="mission-identity">
-        <p className="mission-domain">Earth System</p>
-        <h1>{projectName}</h1>
-        <p className="mission-edition">{edition}</p>
+        <p className="mission-domain">{t.header.domain}</p>
+        <h1>{displayName}</h1>
+        <p className="mission-edition">{displayEdition}</p>
       </div>
 
-      <nav className="mission-actions" aria-label="Project actions">
+      <nav className="mission-actions" aria-label={t.header.actionsAria}>
         {onOpenMissions && (
           <button
             type="button"
             onClick={onOpenMissions}
             className="mission-action-btn focus-ring"
             data-ui-control
-            aria-label="Case studies with opposing trends"
-            title="Case studies: two regions, opposite directions"
+            aria-label={t.header.casesAria}
+            title={t.header.casesTitle}
           >
             <Scale size={14} strokeWidth={1.8} aria-hidden="true" />
-            <span className="mission-btn-text">Cases</span>
+            <span className="mission-btn-text">{t.header.casesLabel}</span>
           </button>
         )}
 
@@ -46,11 +51,11 @@ export function MissionHeader({
             onClick={onOpenGlossary}
             className="mission-action-btn focus-ring"
             data-ui-control
-            aria-label="Student glossary"
-            title="Glossary for students and reviewers"
+            aria-label={t.header.glossaryAria}
+            title={t.header.glossaryTitle}
           >
             <BookOpen size={14} strokeWidth={1.8} aria-hidden="true" />
-            <span className="mission-btn-text">Glossary</span>
+            <span className="mission-btn-text">{t.header.glossaryLabel}</span>
           </button>
         )}
 
@@ -60,11 +65,11 @@ export function MissionHeader({
             onClick={onOpenWizard}
             className="mission-action-btn focus-ring wizard-reopen-btn"
             data-ui-control
-            aria-label="Investigation wizard"
-            title="Detective: open guided wizard"
+            aria-label={t.header.investigateAria}
+            title={t.header.investigateTitle}
           >
             <Search size={14} strokeWidth={1.8} aria-hidden="true" />
-            <span className="mission-btn-text">Investigate</span>
+            <span className="mission-btn-text">{t.header.investigateLabel}</span>
           </button>
         )}
 
@@ -75,13 +80,34 @@ export function MissionHeader({
             onClick={onStartTour}
             className="mission-action-btn focus-ring"
             data-ui-control
-            aria-label="Start mission tour"
-            title="Interactive guide"
+            aria-label={t.header.tourAria}
+            title={t.header.tourTitle}
           >
             <Compass size={14} strokeWidth={1.8} aria-hidden="true" />
-            <span className="mission-btn-text">Tour</span>
+            <span className="mission-btn-text">{t.header.tourLabel}</span>
           </button>
         )}
+
+        <div className="mission-lang-switch" role="group" aria-label={t.header.langGroupAria} data-ui-control>
+          <button
+            type="button"
+            className="mission-lang-btn focus-ring"
+            aria-pressed={locale === 'en'}
+            aria-label={t.header.langEnAria}
+            onClick={() => setLocale('en')}
+          >
+            EN
+          </button>
+          <button
+            type="button"
+            className="mission-lang-btn focus-ring"
+            aria-pressed={locale === 'es'}
+            aria-label={t.header.langEsAria}
+            onClick={() => setLocale('es')}
+          >
+            ES
+          </button>
+        </div>
       </nav>
     </header>
   );
