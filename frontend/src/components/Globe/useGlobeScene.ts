@@ -10,6 +10,7 @@ import { createEarthDetailTiles } from './earthDetailTiles';
 import { createEarthObservationLayers } from './earthObservationLayers';
 import { createEarthLiveSystem } from './earthLiveSystem';
 import { createEarthUserLocation } from './earthUserLocation';
+import { createEarthAnalysisArea } from './earthAnalysisArea';
 import { buildGlobeSceneApi } from './globeApiBuilder';
 import type { EarthSurfaceStatus } from './earthConfig';
 import { createFocusOffsetController, extendCameraFarPlane, resolveInitialAltitude } from './globeSetup';
@@ -64,6 +65,7 @@ export function useGlobeScene(
     const analysis = createEarthObservationLayers(globe, location => locationSelectHandler?.(location));
     const liveSystem = createEarthLiveSystem(globe, surface.sunDirection);
     const userLocation = createEarthUserLocation(globe.scene());
+    const analysisArea = createEarthAnalysisArea(globe);
     const disposeSelection = createSurfaceSelection(globe, location => {
       analysis.select(null);
       locationSelectHandler?.(location);
@@ -153,7 +155,7 @@ export function useGlobeScene(
 
     if (apiRef) {
       const sceneApi = buildGlobeSceneApi({
-        analysis, surface, liveSystem, userLocation, globe, starLayers, focusOffset,
+        analysis, surface, liveSystem, userLocation, analysisArea, globe, starLayers, focusOffset,
         setAutoRotatePreferred: (val) => { autoRotatePreferred = val; },
         syncAutoRotate,
         setCameraOwned: (val) => { cameraOwnedByUser = val; },
@@ -188,6 +190,7 @@ export function useGlobeScene(
       locationSelectHandler = null;
       disposeSelection();
       userLocation.dispose();
+      analysisArea.dispose();
       liveSystem.dispose();
       analysis.dispose();
       detailTiles.dispose();

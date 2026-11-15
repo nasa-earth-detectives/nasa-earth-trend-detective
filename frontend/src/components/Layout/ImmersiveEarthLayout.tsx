@@ -28,7 +28,7 @@ import { DetectiveCard } from '../Detective/DetectiveCard';
 import { DetectiveMissionsModal, type MissionPreset } from '../Detective/DetectiveMissionsModal';
 import { DetectiveGlossaryModal } from '../Detective/DetectiveGlossaryModal';
 import { TimeNavigator } from '../Controls/TimeNavigator';
-import { useCoverageTimeline, useFocusLocation, useFocusOffset, useTrendReadingSync } from './useLayoutSceneSync';
+import { useAnalysisArea, useCoverageTimeline, useFocusLocation, useFocusOffset, useTrendReadingSync } from './useLayoutSceneSync';
 import { guidedTourService } from '../../services/guidedTourService';
 import { useI18n } from '../../i18n';
 import '../../styles/workspace.css';
@@ -48,6 +48,8 @@ interface ImmersiveEarthLayoutProps {
   focusLocation?: SelectedLocation | null;
   /** Location shown by the wizard while choosing: the globe turns toward it without opening inspection. */
   previewLocation?: SelectedLocation | null;
+  /** Years asked for in the briefing; null analyses the whole record. */
+  analysisPeriod?: { startYear: number; endYear: number } | null;
   /** Startup briefing occupies the left side: the globe shifts so it is not covered. */
   briefingOpen?: boolean;
   onVariableChange: (variable: ClimateVariable) => void;
@@ -58,7 +60,7 @@ interface ImmersiveEarthLayoutProps {
 /** A single WebGL viewport; each intent reorganizes DOM instruments. */
 export function ImmersiveEarthLayout({
   observations, loading, observationError, source, provenance, filter,
-  initialLocation = null, focusLocation = null, previewLocation = null, briefingOpen = false,
+  initialLocation = null, focusLocation = null, previewLocation = null, analysisPeriod = null, briefingOpen = false,
   onVariableChange, onYearChange, onOpenWizard,
 }: ImmersiveEarthLayoutProps) {
   const sceneApiRef = useRef<GlobeSceneApi | null>(null);
@@ -108,6 +110,7 @@ export function ImmersiveEarthLayout({
   }, [initialLocation]);
   useFocusOffset(sceneApiRef, panelOpen, briefingOpen);
   useFocusLocation(sceneApiRef, focusLocation, previewLocation, ui.selectLocation);
+  useAnalysisArea(sceneApiRef, ui.location, previewLocation);
   const timeline = useCoverageTimeline(provenance, loading, filter.endYear, onYearChange);
 
   const { locale, t } = useI18n();
@@ -194,7 +197,7 @@ export function ImmersiveEarthLayout({
       <DetectiveCard open={ui.mode === 'inspection'} location={ui.location} variable={filter.variable}
         year={filter.endYear} source={source} provenance={provenance} observation={inspectionMatch?.observation ?? null}
         observationDistanceDegrees={inspectionMatch?.distanceDegrees ?? null} supportRadiusDegrees={EARTH_HEAT_CONFIG.radiusDegrees}
-        loading={loading} onClose={handleCloseInspector} onYearChange={onYearChange} />
+        loading={loading} period={analysisPeriod} onClose={handleCloseInspector} onYearChange={onYearChange} />
           <DetectiveMissionsModal open={missionsOpen} onClose={() => setMissionsOpen(false)} onSelectMission={handleSelectMission} />
       <DetectiveGlossaryModal open={glossaryOpen} onClose={() => setGlossaryOpen(false)} />
     </main>

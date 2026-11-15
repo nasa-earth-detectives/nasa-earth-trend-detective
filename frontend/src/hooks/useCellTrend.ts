@@ -86,20 +86,35 @@ export function adaptCellTrend(payload: unknown): CellTrend {
     prewhitened: prewhitenedTrend(row.prewhitened) };
 }
 
-/** Only queries when a cell with known provenance is selected; otherwise returns null without fetching. */
+/** What to analyse besides the place: the box of a whole region and the period asked for in the briefing. */
+export interface TrendScope { latRadius?: number; lngRadius?: number; startYear?: number; endYear?: number }
+
+/** The period of the briefing, trimmed to what the dataset covers; an empty overlap falls back to the whole record. */
+function analysedYears(provenance: DatasetProvenance | null, scope: TrendScope): { startYear: number; endYear: number } {
+  if (!provenance) return { startYear: 0, endYear: 0 };
+  const startYear = Math.max(provenance.coverageStart, scope.startYear ?? provenance.coverageStart);
+  const endYear = Math.min(provenance.coverageEnd, scope.endYear ?? provenance.coverageEnd);
+  return startYear <= endYear ? { startYear, endYear }
+    : { startYear: provenance.coverageStart, endYear: provenance.coverageEnd };
+}
+
+/** Only queries when a place with known provenance is selected; otherwise returns null without fetching. */
 export function useCellTrend(variable: ClimateVariable, provenance: DatasetProvenance | null,
-  cell: { latitude: number; longitude: number } | null) {
+  cell: { latitude: number; longitude: number } | null, scope: TrendScope = {}) {
   const latitude = cell?.latitude ?? null;
   const longitude = cell?.longitude ?? null;
-  const key = provenance && latitude !== null && longitude !== null ? `${variable}:${latitude}:${longitude}` : null;
+  const { latRadius, lngRadius } = scope;
+  const { startYear, endYear } = analysedYears(provenance, scope);
+  const key = provenance && latitude !== null && longitude !== null
+    ? `${variable}:${latitude}:${longitude}:${latRadius ?? ''}:${lngRadius ?? ''}:${startYear}:${endYear}` : null;
   const [state, setState] = useState<CellTrendState>({ key: null, data: null, loading: false, error: null });
 
   useEffect(() => {
     if (!key || !provenance || latitude === null || longitude === null) return;
     const controller = new AbortController();
     setState({ key, data: null, loading: true, error: null });
-    trendService.getCellTrend({ variable, startYear: provenance.coverageStart, endYear: provenance.coverageEnd,
-      latitude, longitude }, controller.signal)
+    trendService.getCellTrend({ variable, startYear, endYear, latitude, longitude,
+      latitudeRadius: latRadius, longitudeRadius: lngRadius }, controller.signal)
       .then(payload => {
         if (!controller.signal.aborted) setState({ key, data: adaptCellTrend(payload), loading: false, error: null });
       })
@@ -109,7 +124,7 @@ export function useCellTrend(variable: ClimateVariable, provenance: DatasetProve
           error: error instanceof Error ? error.message : 'Could not calculate the trend.' });
       });
     return () => controller.abort();
-  }, [key, provenance, variable, latitude, longitude]);
+  }, [key, provenance, variable, latitude, longitude, latRadius, lngRadius, startYear, endYear]);
 
   const current = key !== null && state.key === key;
   return { data: current ? state.data : null, loading: key !== null && (!current || state.loading),

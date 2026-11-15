@@ -8,6 +8,9 @@ export interface CellTrendQuery {
   endYear: number;
   latitude: number;
   longitude: number;
+  /** Half-sizes of the box of a whole region; left out, the API analyses the 2° around the point. */
+  latitudeRadius?: number;
+  longitudeRadius?: number;
 }
 
 export const trendService = {
@@ -26,7 +29,13 @@ export const trendService = {
 
   /** Annual series and verdict for a cell (GET /api/trends with latitude and longitude). */
   async getCellTrend(query: CellTrendQuery, signal?: AbortSignal): Promise<unknown> {
-    return getJson<unknown>('/trends', { ...query }, { signal });
+    const { latitudeRadius, longitudeRadius, ...point } = query;
+    const params: Record<string, string | number> = { ...point };
+    if (latitudeRadius !== undefined && longitudeRadius !== undefined) {
+      params.latitudeRadius = latitudeRadius;
+      params.longitudeRadius = longitudeRadius;
+    }
+    return getJson<unknown>('/trends', params, { signal });
   },
 
   async getObservations(variable: ClimateVariable, year: number, signal?: AbortSignal): Promise<ClimateObservation[]> {

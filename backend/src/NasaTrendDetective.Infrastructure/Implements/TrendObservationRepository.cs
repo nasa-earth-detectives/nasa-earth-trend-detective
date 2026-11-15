@@ -28,8 +28,18 @@ public class TrendObservationRepository : ITrendObservationRepository
         double? latitude = null,
         double? longitude = null,
         double toleranceDegrees = 1.0,
+        double? longitudeToleranceDegrees = null,
         CancellationToken cancellationToken = default)
     {
+        var longitudeTolerance = longitudeToleranceDegrees ?? toleranceDegrees;
+        // A box larger than the 2° around a point is a region: its cells are weighted by area (cosine of
+        // the latitude), or the cells near the poles, which are smaller, would count as much as the rest.
+        // The point window keeps the plain mean it always had, so its published figures do not move.
+        var regional = latitude.HasValue && longitude.HasValue && (toleranceDegrees > 1.0 || longitudeTolerance > 1.0);
+        const string Weight = "cos(radians(CAST(latitude AS DOUBLE)))";
+        string Mean(string column) => regional
+            ? $"sum({column} * {Weight}) / NULLIF(sum(CASE WHEN {column} IS NOT NULL THEN {Weight} END), 0)"
+            : $"avg({column})";
         var parameters = new Dictionary<string, object?>
         {
             ["varId"] = (byte)variable,
@@ -45,8 +55,8 @@ public class TrendObservationRepository : ITrendObservationRepository
             where += " AND latitude BETWEEN $minLat AND $maxLat AND longitude BETWEEN $minLng AND $maxLng";
             parameters["minLat"] = latitude.Value - toleranceDegrees;
             parameters["maxLat"] = latitude.Value + toleranceDegrees;
-            parameters["minLng"] = longitude.Value - toleranceDegrees;
-            parameters["maxLng"] = longitude.Value + toleranceDegrees;
+            parameters["minLng"] = longitude.Value - longitudeTolerance;
+            parameters["maxLng"] = longitude.Value + longitudeTolerance;
         }
 
         // count(DISTINCT month): the window may span multiple cells, and what matters is how many
@@ -54,8 +64,8 @@ public class TrendObservationRepository : ITrendObservationRepository
         var sql = $"""
             SELECT
                 CAST(year AS INTEGER) AS obs_year,
-                avg(observation_value) AS avg_val,
-                avg(anomaly_value) AS avg_anom
+                {Mean("observation_value")} AS avg_val,
+                {Mean("anomaly_value")} AS avg_anom
             FROM fact_climate_observations
             {where}
               AND COALESCE(anomaly_value, observation_value) IS NOT NULL
