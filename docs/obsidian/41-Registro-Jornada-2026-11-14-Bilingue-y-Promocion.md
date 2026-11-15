@@ -42,3 +42,21 @@ Durante la jornada de cierre previo a la entrega oficial del **NASA Internationa
 
 1. **Aprobaciones por Ruleset `23708910`:** al ser `brayancortes22` el autor de `#77`, `#78`, `#79` y `#80`, GitHub bloquea la autoaprobación; se requiere **1 aprobación de un compañero** (`@July173`, `@emilsecc`, `@DiegoArias32` o `@reivyng`) en cada PR siguiendo el orden `#77`, `#78`, `#79` → nuevo PR `development` a `qa` → `#80` (o promover `#80` primero y luego el lote `#77`–`#79`).
 2. **Espejo automático a Vercel ([mirror-to-personal.yml](../../.github/workflows/mirror-to-personal.yml)):** el run `43661505111` en `qa` falló en `actions/checkout` usando `PERSONAL_REPO_SYNC_TOKEN` (`fatal: could not read Username for 'https://github.com'`). Aunque el secreto existe en GitHub Actions, requiere **regeneración/permisos vigentes** para que el merge a `production` dispare automáticamente Vercel.
+
+---
+
+## 🛠️ Corrección Crítica de Memoria en Render Free Tier (`fix/render-memory-limit`)
+
+Durante el despliegue de `nasa-trend-detective-api` en Render (`512 MB` RAM), la API sufrió reinicios OOM durante la ingesta inicial de `gistemp_v4.parquet` (`5.14 M` filas) y bajo tráfico consecutivo de `/api/trends/grid`.
+
+### Diagnóstico raíz verificado
+1. **Pérdida de límites en DuckDB en modo archivo (`DuckDbConnectionFactory`):** al cerrar la primera conexión (`DuckDbSchemaHostedService`), `_memoryAnchor` permanecía `null` en modo archivo (`DUCKDB_DATABASE_PATH`), por lo que DuckDB cerraba la instancia configurada y todas las conexiones posteriores (`DatasetSeedHostedService` y consultas HTTP) abrían una instancia nueva sin límites (`80%` de RAM física del host y todos los hilos).
+2. **Acumulación de memoria nativa y administrada:** `IMemoryCache` sin `SizeLimit`, materialización completa de filas en `GridTrendRepository` antes de agrupar en memoria, ausencia de `CHECKPOINT` tras cada dataset importado, `ANTI JOIN` global sin acotar por variable cuando la tabla ya contenía datos, y configuración Server GC sin tope en contenedor.
+
+### Cambios aplicados y validación local
+- **Persistencia real de límites en DuckDB (`DuckDbConnectionFactory` + test en `DuckDbResourceLimitTests`):** ancla de conexión en modo archivo (`_fileAnchor`) con sincronización thread-safe y `SET preserve_insertion_order = false` cuando hay límites activos, verificando en prueba automatizada que una segunda conexión mantiene `memory_limit`, `threads = 1` y `preserve_insertion_order = false`.
+- **Ingesta y consultas acotadas:** `CHECKPOINT` posterior a cada dataset importado (`DatasetSeeder`), verificación condicional de duplicados acotada por `variable_id` (`ParquetImportSql` / `ParquetIngestion`), streaming directo de filas en `GridTrendRepository` vía `StreamQueryAsync`, caché acotada (`SizeLimit = 64` en `Program.cs` y entradas con tamaño/expiración en `TrendsController`), cancelación limpia `499` en `ExceptionHandlingMiddleware` y ajustes en `backend/Dockerfile` (`DOTNET_gcServer=0`, `DOTNET_GCConserveMemory=9`, `DOTNET_GCHeapHardLimit=0x8000000`, `MALLOC_ARENA_MAX=2`, `DuckDb__MemoryLimit=110MB`, `DuckDb__Threads=1`).
+- **Resultados medidos:**
+  - `dotnet build backend/NasaTrendDetective.slnx -c Release -warnaserror`: `0` advertencias, `0` errores.
+  - `dotnet test backend/NasaTrendDetective.slnx -c Release --filter "Category!=LiveNasaApi"`: **`210/210` pruebas en verde** (incluidas `RealSeededTrends2000To2025Tests` y `ParquetImporterTests`).
+  - **Perfilado Release local (con las variables de `backend/Dockerfile`):** pico inicial durante sembrado GISTEMP reducido de `619.7 MB` WS (`598.1 MB` privados) a **`389.9 MB` PeakWS** (`369.6 MB` máx. muestreado), sembrado completo `9/9` (`10 M` filas) en `53.7 s`, y estabilidad entre **`176.2–232.0 MB` WS** tras consultar los `9` grids (`/api/trends/grid`), observaciones, punto individual, `/api/trends/opposing` y ráfaga concurrente de 4 peticiones (`200 OK`).
