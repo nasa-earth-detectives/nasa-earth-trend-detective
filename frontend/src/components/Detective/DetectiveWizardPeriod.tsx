@@ -6,8 +6,9 @@
 import type { CSSProperties } from 'react';
 import type { ClimateVariable } from '../../types/climate.types';
 import type { DatasetCatalog } from '../../types/dataset.types';
-import { CLIMATE_VARIABLES, EARLIEST_RECORD_YEAR, SATELLITE_TIMELINE } from '../../config/climateLayers';
+import { EARLIEST_RECORD_YEAR, SATELLITE_TIMELINE } from '../../config/climateLayers';
 import { WIZARD_PERIODS, type WizardPeriod } from '../../config/wizardOptions';
+import { formatTemplate, useI18n } from '../../i18n';
 
 /** Same minimum applied by the backend per cell (GridTrendService.MinYearsPerCell). */
 const MIN_YEARS_FOR_TEST = 10;
@@ -29,6 +30,7 @@ interface PeriodStepProps {
 }
 
 export function PeriodStep({ period, variable, catalog, onSelect }: PeriodStepProps) {
+  const { t } = useI18n();
   const provenance = catalog?.get(variable) ?? null;
   const coverage = provenance
     ? { start: provenance.coverageStart, end: provenance.coverageEnd }
@@ -40,14 +42,14 @@ export function PeriodStep({ period, variable, catalog, onSelect }: PeriodStepPr
     return { start, end, years: Math.max(0, end - start + 1) };
   };
   const chosen = clamp(period);
-  const name = CLIMATE_VARIABLES.find(item => item.id === variable)?.name ?? variable;
-  const source = provenance ? provenance.product.split('·')[0].trim() : 'demo scenario';
+  const name = t.variables[variable]?.name ?? variable;
+  const source = provenance ? provenance.product.split('·')[0].trim() : t.wizard.demoScenario;
 
   return (
     <>
       <div className="briefing-readout" aria-live="polite">
         <strong>{chosen.years}</strong>
-        <p><span>years of data</span>{chosen.start} — {chosen.end} · {name} ({source})</p>
+        <p><span>{t.wizard.yearsOfData}</span>{chosen.start} — {chosen.end} · {name} ({source})</p>
       </div>
 
       <div className="briefing-ruler" aria-hidden="true">
@@ -57,15 +59,16 @@ export function PeriodStep({ period, variable, catalog, onSelect }: PeriodStepPr
         {TICKS.map(tick => <span key={tick.year} className="briefing-ruler__tick" style={tick.style}>{tick.year}</span>)}
       </div>
 
-      <div role="radiogroup" aria-label="Analysis period" className="briefing-periods">
+      <div role="radiogroup" aria-label={t.wizard.periodGroupAria} className="briefing-periods">
         {WIZARD_PERIODS.map((item) => {
           const { years } = clamp(item);
+          const label = t.periods[item.id]?.label ?? item.label;
           return (
             <button key={item.id} type="button" role="radio" aria-checked={period.id === item.id}
               className="briefing-period focus-ring" data-selected={period.id === item.id}
               data-short={years < MIN_YEARS_FOR_TEST} onClick={() => onSelect(item)}>
-              <span className="briefing-period__label">{item.label}</span>
-              <span className="briefing-period__years">{years} years</span>
+              <span className="briefing-period__label">{label}</span>
+              <span className="briefing-period__years">{years} {t.wizard.yearsSuffix}</span>
             </button>
           );
         })}
@@ -73,9 +76,8 @@ export function PeriodStep({ period, variable, catalog, onSelect }: PeriodStepPr
 
       <p className="briefing-note">
         {chosen.years < MIN_YEARS_FOR_TEST
-          ? `With fewer than ${MIN_YEARS_FOR_TEST} years the Mann-Kendall test is unreliable: choose a longer period.`
-          : 'The Mann-Kendall test compares every year against all others. A trend that is not '
-            + 'significant is also a result: sometimes it just needs more years.'}
+          ? formatTemplate(t.wizard.shortPeriodWarning, { min: MIN_YEARS_FOR_TEST })
+          : t.wizard.longPeriodExplanation}
       </p>
     </>
   );

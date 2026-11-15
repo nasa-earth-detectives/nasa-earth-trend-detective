@@ -1,6 +1,7 @@
 import type { KeyboardEvent } from 'react';
 import { InstrumentSwitch } from '../UI/InstrumentSwitch';
 import type { GlobeReading, ObservationCoverage, ObservationLayerMode } from '../../types/observationLayer.types';
+import { useI18n } from '../../i18n';
 
 interface RadioOption<T extends string> { id: T; label: string }
 
@@ -38,17 +39,6 @@ function RadioGroup<T extends string>({ label, options, value, disabled = false,
   );
 }
 
-const READINGS: readonly RadioOption<GlobeReading>[] = [
-  { id: 'annual', label: 'Annual value' },
-  { id: 'trend', label: 'Trend (Sen)' },
-];
-
-const MODES: readonly RadioOption<ObservationLayerMode>[] = [
-  { id: 'hex', label: '3D Hexagons' },
-  { id: 'heat', label: 'Heatmap' },
-  { id: 'none', label: 'No layer' },
-];
-
 interface ReadingModeControlProps {
   reading: GlobeReading;
   onReadingChange: (value: GlobeReading) => void;
@@ -59,27 +49,31 @@ interface ReadingModeControlProps {
   showCoverage: boolean;
 }
 
-/**
- * Two distinct questions about the same planet: the value in a specific year
- * versus the rate of change across the entire period. Representation only applies to the former.
- */
 export function ReadingModeControl({
   reading, onReadingChange, observationMode, onObservationModeChange,
   coverage, onCoverageChange, showCoverage,
 }: ReadingModeControlProps) {
+  const { t } = useI18n();
+  const readings: readonly RadioOption<GlobeReading>[] = [
+    { id: 'annual', label: t.layers.readingAnnual },
+    { id: 'trend', label: t.layers.readingTrend },
+  ];
+  const modes: readonly RadioOption<ObservationLayerMode>[] = [
+    { id: 'hex', label: t.layers.repHex },
+    { id: 'heat', label: t.layers.repHeat },
+    { id: 'none', label: t.layers.repNone },
+  ];
   return (
     <div className="hex-layer-control">
-      <h3 className="instrument-kicker">Reading</h3>
-      <RadioGroup label="What question the globe answers" options={READINGS}
+      <h3 className="instrument-kicker">{t.layers.readingHeading}</h3>
+      <RadioGroup label={t.layers.readingAria} options={readings}
         value={reading} onChange={onReadingChange} />
       <h3 className="instrument-kicker" style={{ marginTop: '0.85rem' }}
-        title={reading === 'trend' ? 'Trend is always drawn as columns' : undefined}>Representation</h3>
-      <RadioGroup label="Observation representation" options={MODES}
+        title={reading === 'trend' ? t.layers.repTitleDisabled : undefined}>{t.layers.repHeading}</h3>
+      <RadioGroup label={t.layers.repAria} options={modes}
         value={observationMode} disabled={reading === 'trend'} onChange={onObservationModeChange} />
-      {reading === 'trend' && <p className="instrument-note">
-        Trend mode uses a single column geometry; height represents rate of change, not the annual value.
-      </p>}
-      {showCoverage && <InstrumentSwitch label="Include oceans" description="Initial view shows land only"
+      {reading === 'trend' && <p className="instrument-note">{t.layers.trendNote}</p>}
+      {showCoverage && <InstrumentSwitch label={t.layers.oceansLabel} description={t.layers.oceansDesc}
         checked={coverage === 'global'} onChange={enabled => onCoverageChange(enabled ? 'global' : 'land')} />}
     </div>
   );

@@ -29,6 +29,7 @@ import { DetectiveGlossaryModal } from '../Detective/DetectiveGlossaryModal';
 import { TimeNavigator } from '../Controls/TimeNavigator';
 import { useCoverageTimeline, useFocusLocation, useFocusOffset, useTrendReadingSync } from './useLayoutSceneSync';
 import { guidedTourService } from '../../services/guidedTourService';
+import { useI18n } from '../../i18n';
 import '../../styles/workspace.css';
 import '../../styles/instrument-chrome.css';
 import '../../styles/guided-tour.css';
@@ -108,6 +109,7 @@ export function ImmersiveEarthLayout({
   useFocusLocation(sceneApiRef, focusLocation, previewLocation, ui.selectLocation);
   const timeline = useCoverageTimeline(source, provenance, loading, filter.endYear, onYearChange);
 
+  const { locale, t } = useI18n();
   const mission = CLIMATE_VARIABLES.find(item => item.id === filter.variable)?.satelliteMission ?? '';
   const handleCloseInspector = useCallback(() => {
     ui.observe();
@@ -137,7 +139,7 @@ export function ImmersiveEarthLayout({
       else sceneApiRef.current?.inspectCenter();
     },
     onRunningChange: setTourRunning,
-  });
+  }, locale);
 
   return (
     <main className="earth-workspace" data-mode={ui.mode} data-idle={isIdle}
@@ -167,10 +169,10 @@ export function ImmersiveEarthLayout({
           collapsed={ui.mode !== 'time'} onToggleCollapsed={() => ui.toggleMode('time')} onPlaybackChange={setIsPlaying} />
       </div>
       <p className="scene-guidance quiet-instrument">
-        <span className="guidance-desktop">Drag to orbit · Scroll to zoom</span>
-        <span className="guidance-touch">Drag to orbit · Pinch to zoom</span>
-        <span>{trendReading ? 'Each column shows a cell’s rate of change; select one to read it'
-          : observationMode === 'hex' ? 'Select a column to inspect its observation' : 'Select the surface to inspect'}</span>
+        <span className="guidance-desktop">{t.workspace.dragDesktop}</span>
+        <span className="guidance-touch">{t.workspace.dragTouch}</span>
+        <span>{trendReading ? t.workspace.guidanceTrend
+          : observationMode === 'hex' ? t.workspace.guidanceHex : t.workspace.guidanceSurface}</span>
       </p>
       <LayerPanel id="layer-panel" open={panelOpen} onClose={ui.observe}
         activeTab={ui.mode === 'view' ? 'view' : 'data'} onTabChange={ui.setLayerTab}

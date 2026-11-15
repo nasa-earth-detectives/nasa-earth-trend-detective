@@ -1,4 +1,5 @@
 import { InstrumentSwitch } from '../UI/InstrumentSwitch';
+import { useI18n } from '../../i18n';
 
 export interface LiveSystemSwitchesProps {
   oceanFlowVisible: boolean;
@@ -25,29 +26,30 @@ export function LiveSystemSwitches({
   onRadarRipplesChange,
   onSatellitesChange,
 }: LiveSystemSwitchesProps) {
+  const { t } = useI18n();
   return (
     <div className="live-systems-switches space-y-2">
       <InstrumentSwitch
-        label="Ocean currents"
-        description="Animated 3D marine flows (NASA ECCO/OSCAR)"
+        label={t.layers.oceanLabel}
+        description={t.layers.oceanDesc}
         checked={oceanFlowVisible}
         onChange={onOceanFlowChange}
       />
       <InstrumentSwitch
-        label="3D Teleconnections"
-        description="Orbital transport arcs (ENSO, AMOC, Sahara)"
+        label={t.layers.teleLabel}
+        description={t.layers.teleDesc}
         checked={teleconnectionsVisible}
         onChange={onTeleconnectionsChange}
       />
       <InstrumentSwitch
-        label="Hotspot radar ripples"
-        description="Expanding pulses over extreme climate anomalies"
+        label={t.layers.radarLabel}
+        description={t.layers.radarDesc}
         checked={radarRipplesVisible}
         onChange={onRadarRipplesChange}
       />
       <InstrumentSwitch
-        label="Satellite constellation"
-        description="Illustrative accelerated orbits of Terra, Aqua, GRACE-FO, and OCO-2"
+        label={t.layers.satLabel}
+        description={t.layers.satDesc}
         checked={satellitesVisible}
         onChange={onSatellitesChange}
       />

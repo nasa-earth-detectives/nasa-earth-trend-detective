@@ -2,6 +2,7 @@ import { useRef, useState, type RefObject } from 'react';
 import { useGlobeScene, type GlobeSceneApi, type ScenePreferences } from './useGlobeScene';
 import type { EarthSurfaceStatus } from './earthConfig';
 import { EARTH_TILE_ATTRIBUTION } from './earthTileConfig';
+import { useI18n } from '../../i18n';
 
 interface GlobeViewerProps {
   /** Allows instruments to interact with the mounted scene. */
@@ -18,6 +19,7 @@ interface GlobeViewerProps {
  * by system readouts, not this component.
  */
 export function GlobeViewer({ apiRef, preferencesRef }: GlobeViewerProps) {
+  const { t } = useI18n();
   const containerRef = useRef<HTMLDivElement>(null);
   const [surfaceStatus, setSurfaceStatus] = useState<EarthSurfaceStatus>('loading');
   useGlobeScene(containerRef, apiRef, preferencesRef, setSurfaceStatus);
@@ -34,7 +36,7 @@ export function GlobeViewer({ apiRef, preferencesRef }: GlobeViewerProps) {
       </p>
       {(surfaceStatus === 'fallback' || surfaceStatus === 'degraded') &&
         <p role="status" className="absolute bottom-2 right-5 text-[11px] text-[color:var(--text-tertiary)] pointer-events-none">
-          {surfaceStatus === 'fallback' ? 'Earth imagery unavailable · fallback view' : 'Earth surface · partial detail'}
+          {surfaceStatus === 'fallback' ? t.workspace.globeFallback : t.workspace.globeDegraded}
         </p>}
     </div>
   );

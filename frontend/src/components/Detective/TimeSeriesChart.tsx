@@ -1,5 +1,6 @@
 import { useState, type CSSProperties } from 'react';
 import type { TimeSeriesDataPoint } from '../../types/detective.types';
+import { intlLocale, useI18n } from '../../i18n';
 import '../../styles/inspection-chart.css';
 
 interface TimeSeriesChartProps {
@@ -21,12 +22,14 @@ export function TimeSeriesChart({
   accentColor = 'var(--active-accent)',
   senSlope,
 }: TimeSeriesChartProps) {
+  const { locale, t } = useI18n();
+  const localeTag = intlLocale(locale);
   const [hoveredYear, setHoveredYear] = useState<number | null>(null);
   const [localYear, setLocalYear] = useState<number | null>(null);
   const observations = [...data].sort((a, b) => a.year - b.year);
 
   if (observations.length === 0) {
-    return <p className="inspection-chart__empty">No time observations available.</p>;
+    return <p className="inspection-chart__empty">{t.inspection.noTimeObservations}</p>;
   }
 
   const width = 320;
@@ -57,7 +60,7 @@ export function TimeSeriesChart({
     Math.abs(point.year - requestedYear) < Math.abs(observations[nearest].year - requestedYear) ? index : nearest, 0);
   const selectedPoint = observations[selectedIndex];
   const activePoint = observations.find(point => point.year === hoveredYear) ?? selectedPoint;
-  const formatValue = (value: number) => value.toLocaleString('en-US', {
+  const formatValue = (value: number) => value.toLocaleString(localeTag, {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   });
@@ -70,7 +73,7 @@ export function TimeSeriesChart({
             <g key={value}>
               <line className="inspection-chart__guide" x1={plot.left} y1={getY(value)} x2={plot.right} y2={getY(value)} />
               <text className="inspection-chart__axis" x={plot.left - 7} y={getY(value) + 3} textAnchor="end">
-                {value.toLocaleString('en-US', { maximumFractionDigits: 1 })}
+                {value.toLocaleString(localeTag, { maximumFractionDigits: 1 })}
               </text>
             </g>
           ))}
@@ -112,7 +115,7 @@ export function TimeSeriesChart({
           step="1"
           value={selectedIndex}
           disabled={observations.length === 1}
-          aria-label="Series year"
+          aria-label={t.inspection.seriesYearAria}
           aria-valuetext={`${selectedPoint.year}: ${formatValue(selectedPoint.value)} ${unit}`}
           onFocus={() => setHoveredYear(null)}
           onChange={event => {
@@ -124,7 +127,7 @@ export function TimeSeriesChart({
         />
       </div>
       <div className="inspection-chart__readout">
-        <span>Year <strong>{activePoint.year}</strong></span>
+        <span>{t.inspection.yearLabel} <strong>{activePoint.year}</strong></span>
         <span><strong>{formatValue(activePoint.value)}</strong> {unit}</span>
       </div>
     </div>
