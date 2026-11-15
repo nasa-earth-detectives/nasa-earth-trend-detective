@@ -107,14 +107,14 @@ Lun 21 Sep 17:00 - Mar 22 Sep 22:00   Mié 23 Sep 17:00 - Vie 25 Sep 21:00   Sá
   - Subtareas: S4-T2.1 `[complete]` (9/9 datasets reales NASA en Parquet), S4-T2.2 `[complete]` (`backend/seed/*.parquet` ~34.7 MB + procedencia), S4-T2.3 `[complete]` (modo offline sin credenciales + PR #77 2000–2025)
 - **[S4-T3] Validación Estadística Cruzada vs NASA** (6h) ➔ **Johan** `[complete 🟢]`
   - Subtareas: S4-T3.1 (Validación Ártico GISTEMP), S4-T3.2 (Masa hielo GRACE-FO), S4-T3.3 (Anexo jurado)
-- **[S4-T4] Ajustes UI Frontend (fuentes NASA/CSA, responsivo), WebGL 60 FPS y capturas demo** (6h) ➔ **Diego** `[desarrollando 🟡]`
-  - Subtareas: S4-T4.1 `[complete]` (UI base EN PR #75 + soporte bilingüe completo EN/ES con toggle en cabecera PR #79 y React Doctor 0 issues + QA 1440/390 px), S4-T4.2 (Anti-leaks y 60 FPS), S4-T4.3 (Capturas 1080p para 7 slides)
+- **[S4-T4] Ajustes UI Frontend (fuentes NASA/CSA, responsivo), WebGL 60 FPS y capturas demo** (6h) ➔ **Diego** `[Review 🟣]`
+  - Subtareas: S4-T4.1 `[complete]` (UI base EN PR #75 + soporte bilingüe EN/ES PR #79 + corrección de solapamiento vertical `.workspace-left-rail` y tableta verificada sin solapamientos en `1280x720`, `1440x900`, `768x1024`, `390x844`), S4-T4.2 (Anti-leaks y 60 FPS), S4-T4.3 (Capturas 1080p para 7 slides)
 - **[S4-T5] Guion, Presentación Oficial (máx. 7 diapositivas EN — Opción A) y Envío NASA** (8h) ➔ **Brayan** `[desarrollando 🟡]`
-  - Subtareas: S4-T5.1 `[desarrollando]` (dossier EN [[35-NASA-Space-Apps-Official-Submission-En]] con campos del portal `DB-Runtime` listos + bitácora [[41-Registro-Jornada-2026-11-14-Bilingue-y-Promocion]]; falta volcar resumen al Google Doc maestro y validar bio de 6 integrantes), S4-T5.2 (Presentación 7 slides en inglés + enlace público), S4-T5.3 (renovar `PERSONAL_REPO_SYNC_TOKEN`, fusionar `#77`–`#80` hasta `production` y ejecutar `Submit for Judging`)
+  - Subtareas: S4-T5.1 `[desarrollando]` (dossier EN [[35-NASA-Space-Apps-Official-Submission-En]] + bitácora [[41-Registro-Jornada-2026-11-14-Bilingue-y-Promocion]]; falta volcar resumen al Google Doc maestro y validar bio de 6 integrantes), S4-T5.2 (Presentación 7 slides en inglés + enlace público), S4-T5.3 (`production` + Render 512 MB + espejo `personal` ya verificados tras PR #77–#84; resta optimizar workflows CI/CD y ejecutar `Submit for Judging`)
 - **[S4-T6] Validación Cruzada KNMI Climate Explorer y Metodología SeaWiFS (NTRS 20090042747)** (4h) ➔ **Johan** `[en pruebas 🟣 — Review]`
   - Subtareas: S4-T6.1 (Contraste KNMI), S4-T6.2 (Ficha SeaWiFS), S4-T6.3 `[en pruebas]` (SciPy 1.18.1 + preblanqueo iterativo + PR #77 2000–2025; resta aval conjunto con Emilse)
-- **[S4-T7] Exposición de Metadatos NASA/CSA/KNMI y Ajuste de Catálogo en API .NET 10** (4h) ➔ **July (Daniela)** `[en pruebas 🟣 — Review]`
-  - Subtareas: S4-T7.1 `[complete]` (`NasaDatasetCatalog` + DTOs + `UpdateProvenance`), S4-T7.2 `[complete]` (DuckDB 256 MB/Brotli + ventana `2000–2025`), S4-T7.3 (Smoke tests Render/Swagger)
+- **[S4-T7] Exposición de Metadatos NASA/CSA/KNMI y Ajuste de Catálogo en API .NET 10** (4h) ➔ **July (Daniela)** `[complete 🟢 — Done]`
+  - Subtareas: S4-T7.1 `[complete]` (`NasaDatasetCatalog` + DTOs + `UpdateProvenance`), S4-T7.2 `[complete]` (DuckDB `110MB` / GC `128MB` + Brotli + ventana `2000–2025`), S4-T7.3 `[complete]` (Render en vivo verificado `200 OK` en `/health`, `/api/datasets` `9/9`, `/api/trends`, `/api/trends/grid` y `/api/trends/opposing`; Issue `#65` cerrada)
 - **[PHYS-T1..T5] Módulo Paralelo de Física Climática y QA Científico (38h)** ➔ **Emilse Cabrera** `[ClickUp: to do ⚪ | GitHub Project #1: Review / In Progress]`
   - Ver inventario actualizado en [[34-Trazabilidad-ClickUp-Fisica-y-Dinamica-Climatica]], fórmulas en [[39-Formulas-y-Supuestos-para-QA-Fisico]] y preblanqueamiento/GRACE/OCO-2 en [[40-GRACE-OCO2-Reales-y-Correcciones-de-Significancia]].
 

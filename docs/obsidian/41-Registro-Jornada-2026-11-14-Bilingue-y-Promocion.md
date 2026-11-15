@@ -60,3 +60,29 @@ Durante el despliegue de `nasa-trend-detective-api` en Render (`512 MB` RAM), la
   - `dotnet build backend/NasaTrendDetective.slnx -c Release -warnaserror`: `0` advertencias, `0` errores.
   - `dotnet test backend/NasaTrendDetective.slnx -c Release --filter "Category!=LiveNasaApi"`: **`210/210` pruebas en verde** (incluidas `RealSeededTrends2000To2025Tests` y `ParquetImporterTests`).
   - **Perfilado Release local (con las variables de `backend/Dockerfile`):** pico inicial durante sembrado GISTEMP reducido de `619.7 MB` WS (`598.1 MB` privados) a **`389.9 MB` PeakWS** (`369.6 MB` máx. muestreado), sembrado completo `9/9` (`10 M` filas) en `53.7 s`, y estabilidad entre **`176.2–232.0 MB` WS** tras consultar los `9` grids (`/api/trends/grid`), observaciones, punto individual, `/api/trends/opposing` y ráfaga concurrente de 4 peticiones (`200 OK`).
+
+---
+
+## 🚀 Despliegue en Render (`a7c6469`), Corrección UI Responsiva y Sincronización Project #1
+
+### 1. Promoción y Verificación en Producción (Render + Vercel Mirror)
+- **PR `#82` (`48aa06d` → `36823fa`), PR `#83` (`fbeb0e8` en `qa`), PR `#84` (`a7c6469` en `production`):** flujo completo validado en CI + Docker Build, y ramas `development`, `qa`, `production` y `main` sincronizadas en el remoto `personal` (`brayancortes22/nasa-earth-trend-detective`).
+- **Smoke tests en vivo (`https://nasa-trend-detective-api-72rq.onrender.com`):**
+  - `/health`: `200 OK` (`444 ms`)
+  - `/api/datasets`: `200 OK` (`281 ms`, `9/9` datasets `observed`)
+  - `/api/trends`: `200 OK` (`Gistemp` `2000–2025`, Mann-Kendall/Sen + preblanqueamiento + regresión lineal)
+  - `/api/trends/opposing`: `200 OK` (`1279 ms`, `4` pares dinámicos reales MERRA-2)
+  - `/api/trends/grid`: `Oco2` (`200 OK`, `2227 ms`, `3,139` celdas), `Gistemp` (`200 OK`, `2554 ms`, `16,021` celdas) y `Merra2Temperature` (`200 OK`, `2746 ms`, `16,200` celdas). *(Nota: [Program.cs](../../backend/src/NasaTrendDetective.Api/Program.cs) expone controladores REST JSON directos sin middleware de UI Swagger en tiempo de ejecución).*
+
+### 2. Corrección de Solapamiento Vertical y Tableta en UI (`fix/ui-readout-overlap`)
+- **Causa raíz:** `.observation-position` (`top: clamp(130px, 16vh, 200px)`) y `.system-position` (`bottom: 38px`) se posicionaban de forma independiente en escritorio, montándose `.system-position` sobre `Fuente` / `Unidad` en alturas de portátil (`~720 px`) y en modo tendencia; además, en tableta (`601–820 px`) `.mission-signature` pasaba a columna (~`117 px` de alto) mientras `.observation-position` permanecía en `top: 86px`.
+- **Solución:**
+  - En [ImmersiveEarthLayout.tsx](../../frontend/src/components/Layout/ImmersiveEarthLayout.tsx) y [workspace.css](../../frontend/src/styles/workspace.css): agrupación en `.workspace-left-rail` como columna flex vertical (`>= 1024px`) con `justify-content: space-between` (`display: contents` en `<= 1023px` para preservar tableta/móvil) y ajuste `.observation-position { top: 148px }` en `601–960 px`.
+  - En [instrument-chrome.css](../../frontend/src/styles/instrument-chrome.css) y [hex-instrument.css](../../frontend/src/styles/hex-instrument.css): compactación progresiva por altura (`max-height: 860px / 750px / 660px`) y apilamiento temprano de `.mission-signature` (`<= 960 px`).
+- **Verificación headless en Chromium contra API viva de Render:** `1280x720` anual ES con celda seleccionada (`116 px` de separación), `1280x720` tendencia ES con celda seleccionada (`190 px` de separación), `1440x900` tendencia ES y anual EN, `768x1024` tableta ES (`15 px` libres bajo `.mission-position`) y `390x844` móvil ES: **`0` solapamientos**, **`0` recortes**, **`0` errores de consola** y **`0` errores HTTP**, más `type-check` y validadores locales en verde.
+
+### 3. Sincronización de Tareas y Tablero en GitHub Project `#1`
+- **Cerrada y movida a `Done`:** Issue `#65` (`[S4-T7]`) tras validar el despliegue estable y los endpoints reales en Render.
+- **Actualizada a `Review`:** Issue `#61` (`[S4-T4]`, pendiente solo la auditoría de 60 FPS WebGL y capturas 1080p para las 7 diapositivas).
+- **Actualizadas en curso:** Issues `#62` (`[S4-T5]`) y `#70` (`[PHYS-T5]`) con el estado real de producción.
+- **Siguiente bloque acordado con usuario:** consolidar/simplificar los workflows redundantes de `.github/workflows/*.yml`.
