@@ -108,9 +108,9 @@ Lun 21 Sep 17:00 - Mar 22 Sep 22:00   Mié 23 Sep 17:00 - Vie 25 Sep 21:00   Sá
 - **[S4-T3] Validación Estadística Cruzada vs NASA** (6h) ➔ **Johan** `[complete 🟢]`
   - Subtareas: S4-T3.1 (Validación Ártico GISTEMP), S4-T3.2 (Masa hielo GRACE-FO), S4-T3.3 (Anexo jurado)
 - **[S4-T4] Ajustes UI Frontend (fuentes NASA/CSA, responsivo), WebGL 60 FPS y capturas demo** (6h) ➔ **Diego** `[desarrollando 🟡]`
-  - Subtareas: S4-T4.1 `[complete]` (UI/procedencia 100 % en inglés + QA 1440/390 px tras PR #75), S4-T4.2 (Anti-leaks y 60 FPS), S4-T4.3 (Capturas 1080p para 7 slides)
+  - Subtareas: S4-T4.1 `[complete]` (UI base EN PR #75 + soporte bilingüe completo EN/ES con toggle en cabecera PR #79 y React Doctor 0 issues + QA 1440/390 px), S4-T4.2 (Anti-leaks y 60 FPS), S4-T4.3 (Capturas 1080p para 7 slides)
 - **[S4-T5] Guion, Presentación Oficial (máx. 7 diapositivas EN — Opción A) y Envío NASA** (8h) ➔ **Brayan** `[desarrollando 🟡]`
-  - Subtareas: S4-T5.1 `[desarrollando]` (dossier EN [[35-NASA-Space-Apps-Official-Submission-En]] listo; sincronizar Google Doc y equipo de 6), S4-T5.2 (Presentación 7 slides en inglés + enlace público), S4-T5.3 (Submit for Judging)
+  - Subtareas: S4-T5.1 `[desarrollando]` (dossier EN [[35-NASA-Space-Apps-Official-Submission-En]] con campos del portal `DB-Runtime` listos + bitácora [[41-Registro-Jornada-2026-11-14-Bilingue-y-Promocion]]; falta volcar resumen al Google Doc maestro y validar bio de 6 integrantes), S4-T5.2 (Presentación 7 slides en inglés + enlace público), S4-T5.3 (renovar `PERSONAL_REPO_SYNC_TOKEN`, fusionar `#77`–`#80` hasta `production` y ejecutar `Submit for Judging`)
 - **[S4-T6] Validación Cruzada KNMI Climate Explorer y Metodología SeaWiFS (NTRS 20090042747)** (4h) ➔ **Johan** `[en pruebas 🟣 — Review]`
   - Subtareas: S4-T6.1 (Contraste KNMI), S4-T6.2 (Ficha SeaWiFS), S4-T6.3 `[en pruebas]` (SciPy 1.18.1 + preblanqueo iterativo + PR #77 2000–2025; resta aval conjunto con Emilse)
 - **[S4-T7] Exposición de Metadatos NASA/CSA/KNMI y Ajuste de Catálogo en API .NET 10** (4h) ➔ **July (Daniela)** `[en pruebas 🟣 — Review]`
