@@ -3,20 +3,43 @@ import type { DatasetCatalog, DatasetProvenance, ResolvedSource } from '../types
 import { VARIABLE_IDS } from '../config/climateLayers';
 import { getJson } from './apiClient';
 
-export type DataSourceMode = 'auto' | 'demo' | 'api';
+/** One attempt may sit behind a host that is waking up: give it time before asking again. */
+const CATALOG_TIMEOUT_MS = 20_000;
+/** While the API is unreachable or still loading a variable, ask again this often. */
+const RETRY_EVERY_MS = 4_000;
+/** After this long without the variable, stop waiting and say so. */
+const GIVE_UP_AFTER_MS = 180_000;
 
-/** A sleeping backend (free Render tier) must not leave Earth without data: fall back to demo after timeout. */
-const CATALOG_TIMEOUT_MS = 6000;
-/** Retry after failure, but not on every year change. */
-const RETRY_AFTER_MS = 60_000;
+/**
+ * What the app is waiting for. There is no simulated fallback any more: when the API cannot be
+ * reached, or has not finished loading a dataset, the interface says so and keeps asking.
+ */
+export type DataConnection = 'idle' | 'connecting' | 'loading' | 'ready' | 'failed';
 
-let cached: { promise: Promise<DatasetCatalog>; failedAt: number | null } | null = null;
+/** The API has no data for a variable. The interface reports it instead of drawing invented values. */
+export class DataUnavailableError extends Error {
+  constructor(readonly reason: 'unreachable' | 'not-loaded') {
+    super(reason === 'unreachable'
+      ? 'The data server did not answer. No simulated data is shown in its place.'
+      : 'The data server has no dataset loaded for this variable.');
+    this.name = 'DataUnavailableError';
+  }
+}
 
-/** auto: API for variables with real datasets and demo for the rest. demo/api force a single source. */
-export function readDataSourceMode(value: unknown, name: string): DataSourceMode {
-  const mode = value ?? 'auto';
-  if (mode !== 'auto' && mode !== 'demo' && mode !== 'api') throw new Error(`${name} must be auto, demo, or api.`);
-  return mode;
+let connection: DataConnection = 'idle';
+const listeners = new Set<() => void>();
+
+function setConnection(next: DataConnection): void {
+  if (next === connection) return;
+  connection = next;
+  listeners.forEach(listener => listener());
+}
+
+export const getDataConnection = (): DataConnection => connection;
+
+export function subscribeDataConnection(listener: () => void): () => void {
+  listeners.add(listener);
+  return () => { listeners.delete(listener); };
 }
 
 function text(row: Record<string, unknown>, field: string): string {
@@ -52,34 +75,93 @@ export function adaptDatasetCatalog(payload: unknown): DatasetCatalog {
   return catalog;
 }
 
-async function fetchCatalog(): Promise<DatasetCatalog> {
+/** Variables the API declares it will never have ("unavailable"): waiting for them is pointless. */
+function readMissing(payload: unknown): ReadonlySet<string> {
+  const missing = new Set<string>();
+  if (!Array.isArray(payload)) return missing;
+  for (const entry of payload) {
+    const row = (entry ?? {}) as Record<string, unknown>;
+    if (row.status === 'unavailable' && typeof row.code === 'string') missing.add(row.code);
+  }
+  return missing;
+}
+
+interface CatalogSnapshot {
+  catalog: DatasetCatalog;
+  missing: ReadonlySet<string>;
+  reachable: boolean;
+  complete: boolean;
+  fetchedAt: number;
+}
+
+let latest: Promise<CatalogSnapshot> | null = null;
+
+async function fetchSnapshot(): Promise<CatalogSnapshot> {
   const controller = new AbortController();
   const timer = window.setTimeout(() => controller.abort(), CATALOG_TIMEOUT_MS);
   try {
-    return adaptDatasetCatalog(await getJson<unknown>('/datasets', undefined, { signal: controller.signal }));
+    const payload = await getJson<unknown>('/datasets', undefined, { signal: controller.signal });
+    const catalog = adaptDatasetCatalog(payload);
+    return { catalog, missing: readMissing(payload), reachable: true,
+      complete: VARIABLE_IDS.every(id => catalog.has(id)), fetchedAt: Date.now() };
+  } catch (error) {
+    console.warn('Dataset catalog not available yet; asking again shortly.', error);
+    return { catalog: new Map(), missing: new Set(), reachable: false, complete: false, fetchedAt: Date.now() };
   } finally {
     window.clearTimeout(timer);
   }
 }
 
-/** Never rejects: without an API, the catalog stays empty and everything falls back to the demo scenario. */
-export function getDatasetCatalog(): Promise<DatasetCatalog> {
-  if (cached && (cached.failedAt === null || Date.now() - cached.failedAt < RETRY_AFTER_MS)) return cached.promise;
-  const entry: { promise: Promise<DatasetCatalog>; failedAt: number | null } = { promise: Promise.resolve(new Map()), failedAt: null };
-  entry.promise = fetchCatalog().catch((error: unknown) => {
-    entry.failedAt = Date.now();
-    console.warn('Dataset catalog unavailable; falling back to demo scenario.', error);
-    return new Map();
+/** A complete catalog is kept for the session; a partial or failed one is asked again once it is stale. */
+function snapshot(): Promise<CatalogSnapshot> {
+  const current = latest;
+  if (!current) {
+    latest = fetchSnapshot();
+    return latest;
+  }
+  return current.then(value => {
+    if (value.complete || Date.now() - value.fetchedAt < RETRY_EVERY_MS) return value;
+    // Several callers can reach this point together: only the first one starts the new request.
+    if (latest === current) latest = fetchSnapshot();
+    return latest ?? value;
   });
-  cached = entry;
-  return entry.promise;
 }
 
-export async function resolveVariableSource(mode: DataSourceMode, variable: ClimateVariable): Promise<ResolvedSource> {
-  if (mode === 'demo') return { source: 'demo', provenance: null };
-  const provenance = (await getDatasetCatalog()).get(variable) ?? null;
-  if (mode === 'api') return { source: 'api', provenance };
-  return provenance ? { source: 'api', provenance } : { source: 'demo', provenance: null };
+/** Never rejects. Empty while the API is unreachable; partial while it is still loading datasets. */
+export async function getDatasetCatalog(): Promise<DatasetCatalog> {
+  return (await snapshot()).catalog;
+}
+
+function wait(milliseconds: number, signal?: AbortSignal): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const abort = () => { window.clearTimeout(timer); reject(new DOMException('Query aborted.', 'AbortError')); };
+    const timer = window.setTimeout(() => { signal?.removeEventListener('abort', abort); resolve(); }, milliseconds);
+    if (signal?.aborted) abort();
+    else signal?.addEventListener('abort', abort, { once: true });
+  });
+}
+
+/**
+ * Provenance of a variable, waiting for it if needed. A free host takes up to a minute to wake up and,
+ * right after booting, can still be loading datasets: both are waited out with the interface saying what
+ * is going on. If the variable never arrives the call rejects; nothing is drawn in its place.
+ */
+export async function resolveVariableSource(variable: ClimateVariable, signal?: AbortSignal): Promise<ResolvedSource> {
+  const startedAt = Date.now();
+  for (;;) {
+    const current = await snapshot();
+    const provenance = current.catalog.get(variable);
+    if (provenance) {
+      setConnection('ready');
+      return { source: 'api', provenance };
+    }
+    if (current.missing.has(variable) || Date.now() - startedAt > GIVE_UP_AFTER_MS) {
+      setConnection('failed');
+      throw new DataUnavailableError(current.reachable ? 'not-loaded' : 'unreachable');
+    }
+    setConnection(current.reachable ? 'loading' : 'connecting');
+    await wait(RETRY_EVERY_MS, signal);
+  }
 }
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];

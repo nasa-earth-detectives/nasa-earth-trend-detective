@@ -9,7 +9,7 @@ import { EARTH_HEAT_CONFIG, rasterizeEarthHeat } from './earthHeatRaster';
 import type { HeatWorkerResponse } from './earthHeatWorker';
 
 /** Value map, not density KDE: Globe.gl sums weights and applies abs to color. */
-export function createEarthHeatLayer(globe: GlobeInstance) {
+export function createEarthHeatLayer(globe: GlobeInstance, onAsyncChange?: () => void) {
   const root = acquireEarthAnalysisRoot(globe);
   const { width, height, transitionMs, opacity } = EARTH_HEAT_CONFIG;
   const createTexture = (pixels: Uint8Array): DataTexture => {
@@ -88,6 +88,8 @@ export function createEarthHeatLayer(globe: GlobeInstance) {
     material.uniforms.progress.value = reducedMotion.matches ? 1 : 0;
     started = performance.now();
     dirty = false;
+    // The raster comes back from a worker: by then an idle scene may have stopped drawing.
+    onAsyncChange?.();
   };
   const applyData = (): void => {
     if (!dirty || !pending || disposed || busy || !mesh.visible) return;

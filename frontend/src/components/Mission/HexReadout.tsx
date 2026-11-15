@@ -118,7 +118,7 @@ export function HexReadout({ data, provenance = null, loading, error, selectedCe
         </> : <div className="hex-readout__count">
           <strong>{loading || error ? '—' : formatNumber(count, 'whole', locale)}</strong>
           <span>{loading ? t.readouts.preparingLayer : error ? t.readouts.layerUnavailable :
-            count === 0 ? t.readouts.noCellsPeriod : data?.source === 'demo' ? t.readouts.sampleCells : t.readouts.analysisCells}</span>
+            count === 0 ? t.readouts.noCellsPeriod : t.readouts.analysisCells}</span>
         </div>}
         {!cell && ready && data.significance && <HexSignificanceSummary significance={data.significance} />}
         {error && <p className="hex-readout__error">{error}</p>}
@@ -154,8 +154,7 @@ export function HexReadout({ data, provenance = null, loading, error, selectedCe
       </>}
       <p className="hex-readout__source">
         <span aria-hidden="true" />
-        {!data ? t.readouts.noVisibleData : data.source === 'api'
-          ? provenanceLabelLocalized(provenance, locale) : t.readouts.simulatedFooter}
+        {!data ? t.readouts.noVisibleData : provenanceLabelLocalized(provenance, locale)}
       </p>
       {ready && count > 0 && <CellPicker key={`${data.variable}:${data.source}`} data={data} cell={cell} onSelectCell={onSelectCell} />}
     </section>

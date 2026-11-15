@@ -11,9 +11,9 @@ import { createEarthTrendLayer } from './earthTrendLayer';
  * two representations. The raster is only computed when needed.
  */
 export function createEarthObservationLayers(globe: GlobeInstance,
-  onSelectLocation: (location: { lat: number; lng: number }) => void) {
+  onSelectLocation: (location: { lat: number; lng: number }) => void, onAsyncChange?: () => void) {
   const hex = createEarthHexLayer(globe, onSelectLocation);
-  const heat = createEarthHeatLayer(globe);
+  const heat = createEarthHeatLayer(globe, onAsyncChange);
   const trend = createEarthTrendLayer(globe, onSelectLocation);
   let mode: ObservationLayerMode = 'hex';
   let reading: GlobeReading = 'annual';

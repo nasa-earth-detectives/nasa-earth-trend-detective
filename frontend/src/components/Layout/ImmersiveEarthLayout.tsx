@@ -18,6 +18,7 @@ import { GlobeViewer } from '../Globe/GlobeViewer';
 import { EARTH_HEAT_CONFIG } from '../Globe/earthHeatRaster';
 import type { GlobeSceneApi } from '../Globe/useGlobeScene';
 import { MissionHeader } from '../Mission/MissionHeader';
+import { DataConnectionNotice } from '../Mission/DataConnectionNotice';
 import { ObservationReadout } from '../Mission/ObservationReadout';
 import { HexReadout } from '../Mission/HexReadout';
 import { ObservationContext } from '../Mission/ObservationContext';
@@ -76,7 +77,7 @@ export function ImmersiveEarthLayout({
   const [selectedTrendCell, setSelectedTrendCell] = useState<HexCell | null>(null);
   const trendReading = reading === 'trend';
   const hexData = useHexData(filter, trendReading);
-  const visibleObservations = useVisibleObservations(observations, source, coverage, provenance);
+  const visibleObservations = useVisibleObservations(observations, coverage, provenance);
   const inspectionMatch = useMemo(() => loading || observationError ? null : findNearbyObservation(
     visibleObservations, ui.location, filter.variable, EARTH_HEAT_CONFIG.radiusDegrees,
   ), [visibleObservations, ui.location, filter.variable, loading, observationError]);
@@ -107,7 +108,7 @@ export function ImmersiveEarthLayout({
   }, [initialLocation]);
   useFocusOffset(sceneApiRef, panelOpen, briefingOpen);
   useFocusLocation(sceneApiRef, focusLocation, previewLocation, ui.selectLocation);
-  const timeline = useCoverageTimeline(source, provenance, loading, filter.endYear, onYearChange);
+  const timeline = useCoverageTimeline(provenance, loading, filter.endYear, onYearChange);
 
   const { locale, t } = useI18n();
   const mission = CLIMATE_VARIABLES.find(item => item.id === filter.variable)?.satelliteMission ?? '';
@@ -145,6 +146,7 @@ export function ImmersiveEarthLayout({
     <main className="earth-workspace" data-mode={ui.mode} data-idle={isIdle}
       data-hex-visible={layerVisible} data-hex-selected={selectedObservation !== null} data-observation-layer={observationMode} data-reading={reading}>
       <GlobeViewer apiRef={sceneApiRef} preferencesRef={scene.preferencesRef} />
+      <DataConnectionNotice />
       <div className="mission-position quiet-instrument"><MissionHeader onStartTour={handleStartTour} onOpenWizard={onOpenWizard} onOpenMissions={() => setMissionsOpen(true)} onOpenGlossary={() => setGlossaryOpen(true)} /></div>
       <div className="workspace-left-rail">
         <div className="observation-position quiet-instrument"><ObservationContext variable={filter.variable} /></div>

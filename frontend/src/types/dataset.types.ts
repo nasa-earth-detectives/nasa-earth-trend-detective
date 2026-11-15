@@ -18,7 +18,8 @@ export interface DatasetProvenance {
   citation: string;
 }
 
-export type DataSource = 'demo' | 'api';
+/** Only the API feeds the app. The simulated scenario was removed: without data nothing is drawn. */
+export type DataSource = 'api';
 
 /** Which source serves a variable and, if the API, with what provenance. */
 export interface ResolvedSource {
