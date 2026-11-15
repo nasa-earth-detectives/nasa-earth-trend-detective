@@ -53,18 +53,18 @@ To https://github.com/nasa-earth-detectives/nasa-earth-trend-detective.git
 👉 **Tablero Kanban Oficial:** [https://github.com/orgs/nasa-earth-detectives/projects/1](https://github.com/orgs/nasa-earth-detectives/projects/1)  
 👉 **Vínculos Activos:** Enlazado oficialmente al repositorio `nasa-earth-detectives/nasa-earth-trend-detective` y a los equipos [`frontend-team`](https://github.com/orgs/nasa-earth-detectives/teams/frontend-team/projects), [`backend-team`](https://github.com/orgs/nasa-earth-detectives/teams/backend-team/projects) y [`developers`](https://github.com/orgs/nasa-earth-detectives/teams/developers/projects).
 
-Columnas configuradas en el campo **Status** para los 4 Sprints y el módulo de Física & QA:
+Columnas configuradas en el campo **Status** para los 4 Sprints y el módulo de Física & QA (sincronizadas el **2026-11-14**):
 1. **Backlog:** Ideas, requerimientos futuros y datasets NASA/CSA adicionales.
-2. **To Do:** Tareas atómicas priorizadas del sprint o módulo activo (`#59` S4-T2, `#62` S4-T5, `#64` S4-T6, `#65` S4-T7, `#66`–`#70` PHYS-T1..T5).
-3. **In Progress:** Tareas en desarrollo activo (`#61` `[S4-T4]` a cargo de `@DiegoArias32`).
-4. **Review:** Pendiente de QA físico, pruebas integrales o revisión `CODEOWNERS` en Pull Request.
-5. **Done:** Tareas entregadas, verificadas y cerradas (`#42`–`#58`, `#60`, `#63` — Sprints 1–3, S4-T1, S4-T3 y S4-T5 Extra).
+2. **To Do:** Tareas priorizadas aún no iniciadas *(actualmente `0` pendientes en tablero Sprint 4 / Física)*.
+3. **In Progress:** Tareas en desarrollo activo (`#61` `[S4-T4]` a cargo de `@DiegoArias32`, `#62` `[S4-T5]` a cargo de `@brayancortes22` y `#70` `[PHYS-T5]` auditoría en vivo de `@emilsecc`).
+4. **Review:** Tareas listas para verificación externa, smoke tests en Render o aval físico final (`#64` `[S4-T6]`, `#65` `[S4-T7]`, `#66`–`#69` `[PHYS-T1..T4]`).
+5. **Done:** Tareas entregadas, verificadas y cerradas (`#42`–`#60`, `#63` — Sprints 1–3, `S4-T1`, `S4-T2` 9/9 datasets reales offline, `S4-T3` y `S4-T5` Extra).
 
 ### Vistas, Campos Personalizados y Milestones Sincronizados con ClickUp
 - **Campos personalizados en Project #1:** `Sprint`, `Equipo` (`Frontend & 3D`, `Backend & API`, `Datos & ETL`, `Ciencia de Datos`, `Física & QA`, `Equipo Completo`), `Responsable`, `Prioridad`, `Código ClickUp` y `Horas`.
 - **Vistas configuradas:** `Lista General (ClickUp)`, `Tablero Kanban`, `Sprint 4 · Hackathon Neiva`, `Frontend Team`, `Física & QA (Emilse)` y `Backend, Datos & Ciencia`.
 - **Milestones del repositorio:** `#1 Sprint 1` (cerrado), `#2 Sprint 2` (cerrado), `#3 Sprint 3` (cerrado), `#4 Sprint 4: Hackathon Neiva, Datos Reales y Entrega NASA` (abierto) y `#5 Física Climática, Dinámica Atmosférica y QA` (abierto).
-- **Total de Issues sincronizados 1:1 con ClickUp:** **29 Issues** (`#42`–`#70`: 19 cerrados en `Done`, 1 abierto en `In Progress`, 9 abiertos en `To Do`), cada uno con el checklist completo de sus subtareas y enlaces directos a ClickUp.
+- **Total de Issues sincronizados 1:1 con ClickUp:** **29 Issues** (`#42`–`#70`: **20** cerrados en `Done`, **3** abiertos en `In Progress`, **6** abiertos en `Review`, **0** en `To Do`), cada uno con checklists actualizados y enlaces directos a ClickUp.
 
 ---
 

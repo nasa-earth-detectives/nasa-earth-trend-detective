@@ -69,8 +69,8 @@ as a result too, with the reason (often, not enough years).
                            │
 ┌──────────────────────────▼─────────────────────────────┐
 │          DuckDB (embedded, 256 MB memory limit)        │
-│ Parquet seeds: GISTEMP, MERRA-2 (4), GPM, MODIS NDVI   │
-│   Each seed ships with a provenance manifest           │
+│ Parquet seeds: GISTEMP, MERRA-2 (4), GPM, MODIS NDVI,  │
+│ GRACE, OCO-2. Each seed ships with a provenance file   │
 └────────────────────────────────────────────────────────┘
 ```
 
@@ -95,7 +95,7 @@ as a result too, with the reason (often, not enough years).
 - **Cross-validation:** Sen's slope, its interval, the regression slope, standard error, $t$ and
   interval match SciPy 1.18.1 to 6 decimals on three series, one of them real MERRA-2 data; the
   $p$-value matches within a relative error of $10^{-6}$. The Benjamini-Hochberg adjustment matches
-  SciPy to 9 decimals. 194 automated backend tests pass.
+  SciPy to 9 decimals. 195 automated backend tests pass on `development` (expanded in PR #77 with 14 seeded `2000–2025` checks and 3 live NASA API validation tests).
 
 ### Measured Results (2° grid)
 Cells with a significant trend: Mann-Kendall at 95 % with no correction, then after discounting
