@@ -1,28 +1,45 @@
 using NasaTrendDetective.Application.Interfaces;
 using NasaTrendDetective.Application.Statistics;
 using NasaTrendDetective.Domain.Entities;
-using NasaTrendDetective.Domain.Enums;
 
 namespace NasaTrendDetective.Application.Implements;
 
+/// <summary>
+/// Pairs of regions where the same variable moves in opposite directions: the central idea of the challenge. Each
+/// pair is computed from the real series of its two cells. Without a loaded dataset, without enough years, or if
+/// both slopes have the same sign, the pair is not returned: nothing is fabricated here.
+/// </summary>
 public class OpposingTrendsService : IOpposingTrendsService
 {
-    public Task<IReadOnlyList<OpposingTrendPair>> GetPredefinedPairsAsync(CancellationToken cancellationToken = default)
-    {
-        var pairs = new List<OpposingTrendPair>
-        {
-            BuildArcticAtlanticPair(),
-            BuildAmazonChinaPair(),
-            BuildGreenlandAntarcticaPair()
-        };
+    private readonly ITrendObservationRepository _repository;
+    private readonly IDatasetCatalogRepository _catalog;
 
-        return Task.FromResult<IReadOnlyList<OpposingTrendPair>>(pairs);
+    public OpposingTrendsService(ITrendObservationRepository repository, IDatasetCatalogRepository catalog)
+    {
+        _repository = repository ?? throw new ArgumentNullException(nameof(repository));
+        _catalog = catalog ?? throw new ArgumentNullException(nameof(catalog));
+    }
+
+    public async Task<IReadOnlyList<OpposingTrendPair>> GetPredefinedPairsAsync(CancellationToken cancellationToken = default)
+    {
+        var pairs = new List<OpposingTrendPair>();
+        foreach (var definition in OpposingPairCatalog.Pairs)
+        {
+            var pair = await BuildAsync(definition, cancellationToken).ConfigureAwait(false);
+            if (pair is not null)
+            {
+                pairs.Add(pair);
+            }
+        }
+
+        return pairs;
     }
 
     public async Task<OpposingTrendPair?> GetPairByIdAsync(string pairId, CancellationToken cancellationToken = default)
     {
-        var all = await GetPredefinedPairsAsync(cancellationToken);
-        return all.FirstOrDefault(p => string.Equals(p.PairId, pairId, StringComparison.OrdinalIgnoreCase));
+        var definition = OpposingPairCatalog.Pairs
+            .FirstOrDefault(p => string.Equals(p.Id, pairId, StringComparison.OrdinalIgnoreCase));
+        return definition is null ? null : await BuildAsync(definition, cancellationToken).ConfigureAwait(false);
     }
 
     public OpposingTrendPair EvaluatePair(
@@ -43,10 +60,8 @@ public class OpposingTrendsService : IOpposingTrendsService
             (1.0 + Math.Abs(increasing.Stats.SensSlope - decreasing.Stats.SensSlope)),
             3);
 
-        var pairId = $"dynamic-{regionA.RegionId}-{regionB.RegionId}";
-
         return new OpposingTrendPair(
-            pairId,
+            $"dynamic-{regionA.RegionId}-{regionB.RegionId}",
             driverProcess,
             increasing,
             decreasing,
@@ -54,72 +69,41 @@ public class OpposingTrendsService : IOpposingTrendsService
             notes);
     }
 
-    private static OpposingTrendPair BuildArcticAtlanticPair()
+    private async Task<OpposingTrendPair?> BuildAsync(OpposingPairDefinition definition, CancellationToken ct)
     {
-        var years = Enumerable.Range(2000, 25).ToList();
-        var arcticObs = years.Select(y => new AnnualObservation(y, Math.Round(0.065 * (y - 2000) + 0.15, 3), Math.Round(0.07 * (y - 2000) - 0.5, 3))).ToList();
-        var atlanticObs = years.Select(y => new AnnualObservation(y, Math.Round(-0.018 * (y - 2000) + 0.10, 3), Math.Round(-0.02 * (y - 2000) + 0.2, 3))).ToList();
+        var provenance = await _catalog.GetAsync(definition.Variable, ct).ConfigureAwait(false);
+        if (provenance is null)
+        {
+            return null;
+        }
 
-        var arcticStats = TrendStatisticsEngine.Analyze(arcticObs);
-        var atlanticStats = TrendStatisticsEngine.Analyze(atlanticObs);
+        var first = await SummarizeAsync(definition, definition.First, provenance, ct).ConfigureAwait(false);
+        var second = await SummarizeAsync(definition, definition.Second, provenance, ct).ConfigureAwait(false);
+        // "Opposing" is determined by today's data, not the pair definition.
+        if (first is null || second is null || Math.Sign(first.Stats.SensSlope) * Math.Sign(second.Stats.SensSlope) >= 0)
+        {
+            return null;
+        }
 
-        var arctic = new RegionalTrendSummary("arctic-polar", "Ártico (Svalbard)", 78.22, 15.63, ClimateVariable.Gistemp, 2000, 2024, arcticObs, arcticStats);
-        var atlantic = new RegionalTrendSummary("subpolar-gyre", "Atlántico Norte Subpolar", 55.0, -30.0, ClimateVariable.Gistemp, 2000, 2024, atlanticObs, atlanticStats);
-
-        var divergence = Math.Round(Math.Abs(arcticStats.ZScore - atlanticStats.ZScore), 3);
-
-        return new OpposingTrendPair(
-            "arctic-atlantic-thermal",
-            "Desaceleración de la AMOC y Amplificación Térmica Ártica",
-            arctic,
-            atlantic,
-            divergence,
-            "Calentamiento polar acelerado (+0.7°C/década) en contraste con la 'burbuja de enfriamiento' del Atlántico Norte debida a la desaceleración del transporte meridional de calor.");
+        var notes = $"Computed from {provenance.Product}, {provenance.CoverageStart}-{provenance.CoverageEnd}: "
+            + "Mann-Kendall test and Sen's slope over the observed annual series of each "
+            + $"{provenance.ResolutionDegrees:0.#}° cell. Describes what the data show; does not assert causality.";
+        return EvaluatePair(first, second, definition.Title, notes) with { PairId = definition.Id };
     }
 
-    private static OpposingTrendPair BuildAmazonChinaPair()
+    private async Task<RegionalTrendSummary?> SummarizeAsync(
+        OpposingPairDefinition definition, OpposingRegion region, DatasetProvenance provenance, CancellationToken ct)
     {
-        var years = Enumerable.Range(2000, 25).ToList();
-        var chinaObs = years.Select(y => new AnnualObservation(y, Math.Round(0.0028 * (y - 2000) + 0.62, 3), Math.Round(0.003 * (y - 2000) - 0.03, 3))).ToList();
-        var amazonObs = years.Select(y => new AnnualObservation(y, Math.Round(-0.0022 * (y - 2000) + 0.81, 3), Math.Round(-0.0025 * (y - 2000) + 0.04, 3))).ToList();
+        var series = await _repository.GetAnnualSeriesAsync(
+            definition.Variable, provenance.CoverageStart, provenance.CoverageEnd,
+            region.Latitude, region.Longitude, toleranceDegrees: 1.0, ct).ConfigureAwait(false);
+        if (series.Count < GridTrendService.MinYearsPerCell)
+        {
+            return null;
+        }
 
-        var chinaStats = TrendStatisticsEngine.Analyze(chinaObs);
-        var amazonStats = TrendStatisticsEngine.Analyze(amazonObs);
-
-        var china = new RegionalTrendSummary("south-china", "Sur de China", 25.0, 115.0, ClimateVariable.ModisNdvi, 2000, 2024, chinaObs, chinaStats);
-        var amazon = new RegionalTrendSummary("amazon-basin", "Cuenca Amazónica", -3.46, -62.21, ClimateVariable.ModisNdvi, 2000, 2024, amazonObs, amazonStats);
-
-        var divergence = Math.Round(Math.Abs(chinaStats.ZScore - amazonStats.ZScore), 3);
-
-        return new OpposingTrendPair(
-            "amazon-china-ndvi",
-            "Reforestación Antropogénica vs Estrés y Fragmentación Tropical",
-            china,
-            amazon,
-            divergence,
-            "Reverdecimiento sostenido en el sur de China impulsado por programas de forestación frente a la reducción del dosel vegetal y sequías recurrentes en la Amazonía.");
-    }
-
-    private static OpposingTrendPair BuildGreenlandAntarcticaPair()
-    {
-        var years = Enumerable.Range(2002, 23).ToList();
-        var greenlandObs = years.Select(y => new AnnualObservation(y, Math.Round(-260.0 * (y - 2002) - 100.0, 1), Math.Round(-260.0 * (y - 2002), 1))).ToList();
-        var antarcticaObs = years.Select(y => new AnnualObservation(y, Math.Round(15.0 * (y - 2002) + 20.0, 1), Math.Round(15.0 * (y - 2002), 1))).ToList();
-
-        var greenlandStats = TrendStatisticsEngine.Analyze(greenlandObs);
-        var antarcticaStats = TrendStatisticsEngine.Analyze(antarcticaObs);
-
-        var greenland = new RegionalTrendSummary("greenland-ice", "Manto de Hielo de Groenlandia", 72.0, -40.0, ClimateVariable.GraceMass, 2002, 2024, greenlandObs, greenlandStats);
-        var antarctica = new RegionalTrendSummary("east-antarctica", "Meseta Antártica Oriental", -75.0, 100.0, ClimateVariable.GraceMass, 2002, 2024, antarcticaObs, antarcticaStats);
-
-        var divergence = Math.Round(Math.Abs(antarcticaStats.ZScore - greenlandStats.ZScore), 3);
-
-        return new OpposingTrendPair(
-            "polar-ice-divergence",
-            "Divergencia de Masa Glaciar Polar (GRACE / GRACE-FO)",
-            antarctica,
-            greenland,
-            divergence,
-            "Groenlandia registra una pérdida acelerada de masa de ~260 Gt/año por fusión estival y flujo glaciar, en marcado contraste con la estabilidad de la meseta antártica oriental.");
+        return new RegionalTrendSummary(
+            region.Id, region.Name, region.Latitude, region.Longitude, definition.Variable,
+            series[0].Year, series[^1].Year, series, TrendStatisticsEngine.Analyze(series));
     }
 }

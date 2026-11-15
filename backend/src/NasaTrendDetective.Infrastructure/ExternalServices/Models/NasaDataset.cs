@@ -1,14 +1,14 @@
 namespace NasaTrendDetective.Infrastructure.ExternalServices.Models;
 
 /// <summary>
-/// Entrada del catálogo de datasets NASA soportados.
+/// Catalog entry for supported NASA datasets.
 /// </summary>
-/// <param name="Key">Identificador interno estable (p.ej. "gistemp-v4").</param>
-/// <param name="ShortName">Short name en CMR o nombre del producto.</param>
-/// <param name="Version">Versión del producto en CMR, si aplica.</param>
-/// <param name="Provider">DAAC / proveedor responsable.</param>
-/// <param name="RequiresAuthentication">Si la descarga necesita token de Earthdata Login.</param>
-/// <param name="DirectUrl">URL pública directa cuando el dataset no se busca vía CMR.</param>
+/// <param name="Key">Stable internal identifier (e.g. "gistemp-v4").</param>
+/// <param name="ShortName">CMR short name or product name.</param>
+/// <param name="Version">Product version in CMR, if applicable.</param>
+/// <param name="Provider">Responsible DAAC / provider.</param>
+/// <param name="RequiresAuthentication">Whether downloading requires an Earthdata Login token.</param>
+/// <param name="DirectUrl">Direct public URL when the dataset is not queried via CMR.</param>
 public sealed record NasaDataset(
     string Key,
     string Title,

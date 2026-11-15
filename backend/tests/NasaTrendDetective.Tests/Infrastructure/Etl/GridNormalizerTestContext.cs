@@ -8,7 +8,7 @@ using NasaTrendDetective.Infrastructure.Interfaces;
 namespace NasaTrendDetective.Tests.Infrastructure.Etl;
 
 /// <summary>
-/// Contexto de prueba: DuckDB en memoria, directorio temporal para CSV/Parquet y normalizador real.
+/// Test context: in-memory DuckDB, temporary directory for CSV/Parquet, and real normalizer.
 /// </summary>
 internal sealed class GridNormalizerTestContext : IDisposable
 {
@@ -66,7 +66,7 @@ internal sealed class GridNormalizerTestContext : IDisposable
     }
 
     /// <summary>
-    /// Devuelve (latitude, longitude) del Parquet como decimales, en el orden físico del archivo.
+    /// Returns (latitude, longitude) from the Parquet as decimals, in the physical order of the file.
     /// </summary>
     public async Task<List<(decimal Lat, decimal Lon)>> ReadCoordinatesAsync(string parquetPath)
     {

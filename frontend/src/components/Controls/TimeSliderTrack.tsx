@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { CLIMATE_MILESTONES, MILESTONE_YEARS } from '../../config/climateMilestones';
 import { ClimateMilestoneTooltip } from './ClimateMilestoneTooltip';
+import { useI18n } from '../../i18n';
 
 interface TimeSliderTrackProps {
   startYear: number;
@@ -19,6 +20,7 @@ export function TimeSliderTrack({
   onSelectYear,
   onPausePlayback,
 }: TimeSliderTrackProps) {
+  const { t } = useI18n();
   const [dismissedMilestoneYear, setDismissedMilestoneYear] = useState<number | null>(null);
   const span = Math.max(endYear - startYear, 0);
   const years = Array.from({ length: span + 1 }, (_, index) => startYear + index);
@@ -40,14 +42,14 @@ export function TimeSliderTrack({
           disabled={span === 0}
           onChange={(event) => onSelectYear(Number(event.target.value))}
           onPointerDown={onPausePlayback}
-          aria-label="Año de consulta"
+          aria-label={t.timeline.eyebrow}
           aria-valuetext={`${currentYear}, ${missionLabel}`}
           className="time-range"
         />
 
         <span className="time-axis" aria-hidden="true" />
 
-        {/* Marcas de años (Ticks) */}
+        {/* Year tick marks */}
         <div className="time-ticks" aria-hidden="true">
           {years.map((year) => {
             const isMilestone = Boolean(CLIMATE_MILESTONES[year]);
@@ -63,12 +65,12 @@ export function TimeSliderTrack({
           })}
         </div>
 
-        {/* Balizas interactivas de hitos históricos */}
+        {/* Interactive historical milestone beacons */}
         <div className="time-milestone-beacons">
           {MILESTONE_YEARS.filter((yr) => yr >= startYear && yr <= endYear).map((year) => {
             const position = ((year - startYear) / (span || 1)) * 100;
             const isSelected = year === currentYear;
-            const milestone = CLIMATE_MILESTONES[year];
+            const localizedTitle = t.milestones[year]?.title ?? CLIMATE_MILESTONES[year].title;
 
             return (
               <button
@@ -77,8 +79,8 @@ export function TimeSliderTrack({
                 className={`milestone-beacon ${isSelected ? 'selected' : ''}`}
                 style={{ left: `${position}%` }}
                 onClick={() => { setDismissedMilestoneYear(null); onSelectYear(year); }}
-                aria-label={`Hito de ${year}: ${milestone.title}`}
-                title={`${year}: ${milestone.title}`}
+                aria-label={`${year} ${t.timeline.milestoneSuffix}: ${localizedTitle}`}
+                title={`${year}: ${localizedTitle}`}
               >
                 <span className="beacon-dot" />
               </button>
@@ -90,7 +92,7 @@ export function TimeSliderTrack({
         <span className="time-cursor" aria-hidden="true" />
       </div>
 
-      {/* Etiquetas anuales */}
+      {/* Year labels */}
       <div className="time-mark-labels" aria-hidden="true">
         {marks.map((year) => {
           const position = ((year - startYear) / (span || 1)) * 100;
@@ -105,7 +107,7 @@ export function TimeSliderTrack({
         })}
       </div>
 
-      {/* Detalle del hito seleccionado; no desplaza los controles al pasar el puntero. */}
+      {/* Selected milestone detail; does not shift controls on hover. */}
       {activeMilestone && (
         <div className="milestone-tooltip-container">
           <ClimateMilestoneTooltip

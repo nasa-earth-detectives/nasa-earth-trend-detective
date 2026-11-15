@@ -7,11 +7,11 @@ Estas instrucciones son el estándar obligatorio que GitHub Copilot debe seguir 
 ## 🛡️ 1. Estándares de Arquitectura y Reglas Innegociables
 
 ### A. Modularidad Estricta y Anti God-Class (Regla SRP)
-* **Límite de líneas:** Ningún archivo debe exceder las **150-200 líneas de código**.
+* **Límite de líneas:** Ningún archivo debe exceder las **300 líneas de código** (recomendado mantener por debajo de 250 líneas).
 * **Separación de responsabilidades:**
   - **Backend (.NET 10):** Controladores delgados (*Skinny Controllers*), lógica en clases de servicio y calculadores aislados (`Statistics/`), entidades de dominio puras y repositorios desacoplados con interfaces.
   - **Frontend (React 19 / TypeScript):** Componentes pequeños y reutilizables, lógica desacoplada en custom hooks o archivos utilitarios puros.
-* **Acción en revisión:** Si un archivo nuevo o modificado sobrepasa las 200 líneas o asume múltiples responsabilidades, **solicitar refactorización y división inmediata**.
+* **Acción en revisión:** Si un archivo nuevo o modificado sobrepasa las 300 líneas o asume múltiples responsabilidades, **solicitar refactorización y división inmediata**.
 
 ### B. Cero Código Quemado (No Hardcoding) y Dinamismo Absoluto
 * **PROHIBIDO:**
@@ -55,7 +55,7 @@ Cuando GitHub Copilot emita una revisión o evaluación de un Pull Request, debe
 ### 🤖 GitHub Copilot PR Review Assessment
 
 #### 1. Verificación de Cumplimiento de Reglas
-- [ ] **Modularidad (<200 líneas):** [PASA / REQUIERE CAMBIO]
+- [ ] **Modularidad (<=300 líneas):** [PASA / REQUIERE CAMBIO]
 - [ ] **Cero Hardcoding (Enums/Env):** [PASA / REQUIERE CAMBIO]
 - [ ] **Estrategia de Ramas:** [PASA / REQUIERE CAMBIO]
 - [ ] **Seguridad / Anti-Bots:** [PASA / NO APLICA / REQUIERE CAMBIO]

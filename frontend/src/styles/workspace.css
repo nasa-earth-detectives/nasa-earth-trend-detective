@@ -1,4 +1,4 @@
-/* El planeta es el espacio de trabajo; sólo el instrumento elegido gana superficie. */
+/* The planet is the workspace; only the chosen instrument gains surface area. */
 .earth-workspace { position: fixed; inset: 0; overflow: hidden; --gutter: clamp(28px, 3.5vw, 88px); }
 .observation-position, .mission-position, .system-position, .intent-position, .time-position,
 .scene-guidance { position: absolute; z-index: 10; }
@@ -77,12 +77,12 @@
   .intent-position { top: 34%; width: 190px; }
   .scene-guidance { display: none; }
 }
-/* Tableta: instrumentos a la derecha y hoja inferior; reserva superior para el planeta. */
+/* Tablet: instruments on the right and bottom sheet; upper area reserved for the planet. */
 @media (max-width: 1023px) {
   .earth-workspace { --gutter: 20px; }
   .mission-position { top: 16px; left: var(--gutter); }
   .time-position { top: 16px; right: var(--gutter); }
-  .observation-position { top: 76px; left: var(--gutter); }
+  .observation-position { top: 86px; left: var(--gutter); }
   .scene-guidance { display: none; }
   .intent-position { top: auto; bottom: 162px; left: 40px; right: 40px; width: auto; }
   .scene-guidance { bottom: 46px; right: 30px; left: auto; transform: none; text-align: right; }
@@ -93,12 +93,12 @@
   [data-mode='inspection'] .system-position { opacity: 0; }
   [data-mode='layers'] .system-position, [data-mode='view'] .system-position { opacity: 0; }
 }
-/* Teléfono: contexto superior, globo central, índice horizontal abierto bajo la órbita. */
+/* Phone: top context, central globe, horizontal index open beneath orbit. */
 @media (max-width: 600px) {
   .earth-workspace { --gutter: 14px; }
   .mission-position { top: max(12px, env(safe-area-inset-top)); left: var(--gutter); }
   .time-position { top: max(12px, env(safe-area-inset-top)); right: var(--gutter); }
-  .observation-position { top: 62px; left: var(--gutter); right: auto; max-width: calc(100vw - 28px); }
+  .observation-position { top: 72px; left: var(--gutter); right: auto; max-width: calc(100vw - 28px); }
   .scene-guidance { display: none; }
   .system-position { bottom: max(23px, env(safe-area-inset-bottom)); right: 22px; }
   .intent-position { left: 22px; right: 22px; bottom: 152px; width: auto; }

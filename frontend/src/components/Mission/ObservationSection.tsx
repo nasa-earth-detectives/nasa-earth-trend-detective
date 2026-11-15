@@ -1,7 +1,7 @@
 import type { ClimateVariable } from '../../types/climate.types';
 import { OBSERVATION_LENSES } from '../../config/observationLenses';
 
-/** Esquema de los ámbitos terrestres, sin escala ni valores de medición. */
+/** Schematic of terrestrial spheres, without scale or measured values. */
 export function ObservationSection({ variable }: { variable: ClimateVariable }) {
   const { band } = OBSERVATION_LENSES[variable];
   return (

@@ -6,8 +6,8 @@ const { performance } = require('node:perf_hooks');
 const ts = require('typescript');
 const { validatePickingRays, validateGlobalPicking, validateDistanceBrightness } = require('./hex-picking-cases.cjs');
 
-// Sin navegador ni WebGL: contrasta la selección con la geometría real de Three.
-// Ejecutar: node scripts/validate-hex-picking.cjs
+// Without browser or WebGL: compares picking against actual Three.js geometry.
+// Run: node scripts/validate-hex-picking.cjs
 async function main() {
   const three = await import('three');
   const root = path.resolve(__dirname, '../frontend/src');
@@ -81,17 +81,17 @@ async function main() {
   columns.setDataset(null);
   assert.equal(mesh.visible, false);
   assert.equal(selections.at(-1), null);
-  assert.equal(selectedCells.at(-1), null, 'Durante la consulta no se conserva la lectura del año anterior.');
+  assert.equal(selectedCells.at(-1), null, 'During query, previous year reading is not retained.');
   const beganUpdate = performance.now();
   columns.setDataset(changed);
   const cachedUpdateMs = performance.now() - beganUpdate;
   assert.equal(mesh, scene.getObjectByName('earth-analysis-hex-columns'));
   assert.equal(mesh.instanceMatrix.array, array);
-  assert.equal(coordinateCalls, 6211, 'Cambiar año tras null no vuelve a calcular coordenadas/BVH.');
-  assert.equal(selectedCells.at(-1), changed.cells[10], 'La selección se restaura por ID con la celda del nuevo año.');
-  assert.notEqual(selectedCells.at(-1).slope, dataset.cells[10].slope, 'La lectura seleccionada actualiza su magnitud.');
-  assert.equal(Math.hypot(array[4], array[5], array[6]), oldHeight, 'La transición arranca de la altura previa, no de cero.');
-  assert.notDeepEqual(mesh.instanceColor.array, palette, 'La paleta responde a los nuevos valores.');
+  assert.equal(coordinateCalls, 6211, 'Changing year after null does not recompute coordinates/BVH.');
+  assert.equal(selectedCells.at(-1), changed.cells[10], 'Selection is restored by ID using the new year cell.');
+  assert.notEqual(selectedCells.at(-1).slope, dataset.cells[10].slope, 'Selected readout updates its magnitude.');
+  assert.equal(Math.hypot(array[4], array[5], array[6]), oldHeight, 'Transition starts from previous height, not zero.');
+  assert.notDeepEqual(mesh.instanceColor.array, palette, 'Palette responds to new values.');
   reducedMotion = true;
   scene.updateMatrixWorld(true);
   scene.onBeforeRender({}, scene, camera, null, null, null);
@@ -103,7 +103,7 @@ async function main() {
   columns.select(changed.cells[10].id);
   assert.deepEqual(Array.from(mesh.instanceColor.updateRanges, r => ({ ...r })), [{ start: 30, count: 3 }]);
   columns.select(changed.cells[20].id);
-  assert(mesh.instanceColor.updateRanges.every(range => range.count === 3), 'Seleccionar no sube todos los colores.');
+  assert(mesh.instanceColor.updateRanges.every(range => range.count === 3), 'Selecting does not upload all colors.');
 
   const picking = validatePickingRays({ three, mesh, radius, scene, camera });
   const { nearest, measurements, comparisons, positiveHits } = picking;
@@ -111,41 +111,41 @@ async function main() {
   columns.select(selectedId);
   columns.setDataset(null);
   columns.setDataset({ ...changed, cells: changed.cells.filter(cell => cell.id !== selectedId) });
-  assert.equal(selections.at(-1), null, 'La siguiente cobertura ya no contiene la celda seleccionada.');
-  assert.equal(scene.getObjectByName('earth-analysis-hex-columns'), mesh, 'Una cobertura menor reutiliza la capacidad del mismo InstancedMesh.');
+  assert.equal(selections.at(-1), null, 'Next coverage no longer contains selected cell.');
+  assert.equal(scene.getObjectByName('earth-analysis-hex-columns'), mesh, 'Smaller coverage reuses capacity of the same InstancedMesh.');
   columns.setDataset(changed);
-  assert.equal(selections.at(-1), null, 'Una selección invalidada no reaparece al recuperar cobertura.');
+  assert.equal(selections.at(-1), null, 'Invalidated selection does not reappear when coverage is restored.');
   columns.select(selectedId);
   columns.setDataset(null);
   columns.select(null);
   columns.setDataset(changed);
-  assert.equal(selections.at(-1), null, 'La deselección explícita durante la espera cancela la intención.');
+  assert.equal(selections.at(-1), null, 'Explicit deselection while awaiting query cancels intent.');
   columns.select(selectedId);
   columns.setDataset(null);
   assert.equal(columns.pick(0, 0), false);
   columns.setDataset(changed);
-  assert.equal(selections.at(-1), null, 'Un clic sin impacto cancela la intención.');
+  assert.equal(selections.at(-1), null, 'Missed click cancels intent.');
   columns.select(selectedId);
   columns.setDataset(null);
   columns.setVisible(false);
   columns.setDataset(changed);
   columns.setVisible(true);
-  assert.equal(selections.at(-1), null, 'Ocultar la capa cancela la selección incluso durante la espera.');
+  assert.equal(selections.at(-1), null, 'Hiding layer cancels selection even while awaiting query.');
   columns.select(selectedId);
   columns.setDataset({ ...changed, cells: [] });
   columns.setDataset(changed);
-  assert.equal(selections.at(-1), null, 'Una respuesta válida vacía invalida la selección.');
+  assert.equal(selections.at(-1), null, 'Valid empty response invalidates selection.');
   assert.equal(scene.getObjectByName('earth-analysis-hex-columns'), mesh);
   columns.setVisible(false);
   assert.equal(nearest(false), undefined);
-  // Perfil global real: polos, antimeridiano y hemisferios distribuidos en 8.192 centros.
+  // Real global profile: poles, antimeridian, and hemispheres distributed across 8192 centers.
   columns.setVisible(true);
   const globalData = createDemoHexDataset(filter, 'global');
   assert.equal(globalData.cells.length, 8192);
   columns.setDataset(globalData);
   const globalMesh = scene.getObjectByName('earth-analysis-hex-columns');
   assert.equal(globalMesh.count, 8192);
-  assert.equal(globalMesh.material.transparent, false, 'El detalle por distancia mantiene oclusión opaca estable.');
+  assert.equal(globalMesh.material.transparent, false, 'Distance detail maintains stable opaque occlusion.');
   assert.equal(globalMesh.material.depthWrite, true);
   assert.equal(globalMesh.material.opacity, 1);
   const globalComparisons = validateGlobalPicking({ three, globalMesh, scene, camera, picking });

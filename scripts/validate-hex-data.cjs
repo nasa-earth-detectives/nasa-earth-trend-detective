@@ -140,18 +140,18 @@ function distance(a, b) {
   const row = { variable: 'Gistemp', latitude: 4.711, longitude: -74.0721, startYear: 2002, endYear: 2024, sensSlope: 0.025 };
   const api = adaptApiHexDataset([row], filter);
   assert.equal(api.cells[0].slope, row.sensSlope);
-  assert.equal(api.unit, 'pendiente · unidad no declarada');
+  assert.equal(api.unit, 'slope · undeclared unit');
   assert.equal(api.source, 'api');
   assert.equal(api.heightDomain, 1);
   assert.equal(adaptApiHexDataset([{ ...row, variable: 1 }], filter).cells.length, 1);
   assert.throws(() => adaptApiHexDataset([{ ...row, variable: 2 }], filter));
-  const envelope = adaptApiHexDataset({ cells: [row], variable: 1, unit: '°C / década', heightDomain: 0.5,
+  const envelope = adaptApiHexDataset({ cells: [row], variable: 1, unit: '°C / decade', heightDomain: 0.5,
     resolutionDegrees: 1 }, filter);
-  assert.equal(envelope.unit, '°C / década');
+  assert.equal(envelope.unit, '°C / decade');
   assert.equal(envelope.heightDomain, 0.5);
   assert.equal(envelope.resolutionDegrees, 1);
   assert.throws(() => adaptApiHexDataset({ cells: [row], heightDomain: -1 }, filter));
-  assert.throws(() => adaptApiHexDataset([{ ...row, unit: '°C / año' }, { ...row, latitude: 5 }], filter));
+  assert.throws(() => adaptApiHexDataset([{ ...row, unit: '°C / year' }, { ...row, latitude: 5 }], filter));
   assert.throws(() => adaptApiHexDataset([{ ...row, resolutionDegrees: 1 }, { ...row, latitude: 5 }], filter));
   assert.equal(adaptApiHexDataset([], filter).cells.length, 0);
   for (const patch of [{ latitude: 91 }, { longitude: -181 }, { sensSlope: NaN }, { sensSlope: Infinity },
@@ -171,8 +171,8 @@ function distance(a, b) {
   runningController.abort();
   resolveRequest([row]);
   await assert.rejects(request, { name: 'AbortError' });
-  config.getTrends = () => Promise.reject(new Error('servidor de prueba no disponible'));
-  await assert.rejects(getHexDataset(filter), /servidor de prueba no disponible/);
+  config.getTrends = () => Promise.reject(new Error('test server unavailable'));
+  await assert.rejects(getHexDataset(filter), /test server unavailable/);
   config.source = 'invalid';
   await assert.rejects(getHexDataset(filter), /VITE_HEX_DATA_SOURCE/);
   console.log(JSON.stringify({ result: 'PASS', cells: first.cells.length, minAngularSeparation: minDistance,

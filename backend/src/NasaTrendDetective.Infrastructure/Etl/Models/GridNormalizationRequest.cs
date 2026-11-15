@@ -3,12 +3,12 @@ using NasaTrendDetective.Domain.Enums;
 namespace NasaTrendDetective.Infrastructure.Etl.Models;
 
 /// <summary>
-/// Solicitud de normalización de un archivo crudo a la grilla canónica WGS84.
+/// Normalization request for a raw dataset file into canonical WGS84 grid.
 /// </summary>
-/// <param name="SourcePath">Ruta del archivo crudo (CSV hoy; NetCDF/HDF5 son punto de extensión).</param>
-/// <param name="Variable">Variable climática; define el variable_id de salida.</param>
-/// <param name="Mapping">Mapeo explícito; si es null se usa el configurado para la variable.</param>
-/// <param name="OutputFileName">Nombre del Parquet de salida; por defecto "{variable}_{origen}.parquet".</param>
+/// <param name="SourcePath">Path to raw file (currently CSV; NetCDF/HDF5 are extension points).</param>
+/// <param name="Variable">Climate variable; defines the output variable_id.</param>
+/// <param name="Mapping">Explicit column mapping; if null, configured mapping for the variable is used.</param>
+/// <param name="OutputFileName">Output Parquet file name; defaults to "{variable}_{origin}.parquet".</param>
 public sealed record GridNormalizationRequest(
     string SourcePath,
     ClimateVariable Variable,

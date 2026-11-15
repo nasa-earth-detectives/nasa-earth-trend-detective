@@ -1,10 +1,10 @@
-/** Ejecutar con playwright-cli run-code. Instrumentación temporal, sin cambiar producción. */
+/** Run with playwright-cli run-code. Temporary instrumentation without modifying production. */
 async (page) => {
   await page.unroute('**/src/components/Globe/useGlobeScene.ts*');
   await page.route('**/src/components/Globe/useGlobeScene.ts*', async route => {
     const response = await route.fetch();
     const body = await response.text();
-    if (!body.includes('globe.backgroundColor(')) throw new Error('No se encontró Globe');
+    if (!body.includes('globe.backgroundColor(')) throw new Error('Globe not found');
     await route.fulfill({ response, body: body.replace('globe.backgroundColor(', 'window.__hexBenchmarkGlobe = globe; globe.backgroundColor(') });
   });
   await page.setViewportSize({ width: 1920, height: 1080 });
@@ -15,7 +15,7 @@ async (page) => {
   await page.evaluate(() => { window.__hexBenchmarkCanvas = document.querySelector('canvas'); });
   const results = [];
   for (const mode of ['idle', 'hover', 'orbit', 'zoom', 'variable', 'timeline']) {
-    await page.getByRole('button', { name: 'Recentrar la Tierra' }).click();
+    await page.getByRole('button', { name: 'Recenter Earth' }).click();
     await page.waitForTimeout(1000);
     await page.evaluate(() => {
       const renderer = window.__hexBenchmarkGlobe.renderer();
@@ -41,15 +41,15 @@ async (page) => {
       for (let i = 0; i < 4; i++) { await page.mouse.wheel(0, i % 2 ? 110 : -110); await page.waitForTimeout(550); }
     } else if (mode === 'variable') {
       await page.getByRole('button', { name: 'Variables', exact: true }).click();
-      for (const name of ['Vegetación', 'Masa de agua', 'Dióxido', 'Temperatura']) {
+      for (const name of ['Vegetation', 'Water', 'Dioxide', 'Temperature']) {
         await page.getByRole('radio', { name: new RegExp(name) }).click();
         await page.waitForTimeout(500);
       }
       await page.keyboard.press('Escape');
     } else if (mode === 'timeline') {
-      await page.getByRole('button', { name: 'Tiempo', exact: true }).click();
+      await page.getByRole('button', { name: 'Time', exact: true }).click();
       for (const year of ['2010', '2020', '2015', '2024']) {
-        await page.getByRole('slider', { name: 'Año de consulta' }).fill(year);
+        await page.getByRole('slider', { name: 'Query year' }).fill(year);
         await page.waitForTimeout(500);
       }
       await page.keyboard.press('Escape');
@@ -70,5 +70,5 @@ async (page) => {
     return { gpu: ext ? gl.getParameter(ext.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER), pixelRatio: renderer.getPixelRatio(), calls: renderer.info.render.calls, triangles: renderer.info.render.triangles, memory: renderer.info.memory, totalCells: g.scene().getObjectByName('earth-analysis-hex-columns').count, sameCanvas: window.__hexBenchmarkCanvas === document.querySelector('canvas'), canvasCount: document.querySelectorAll('canvas').length };
   });
   await page.unroute('**/src/components/Globe/useGlobeScene.ts*');
-  return { fixture: 'global', cells: 8192, note: 'Las 8192 celdas están distribuidas sobre toda la esfera; no son 8192 celdas simultáneamente visibles.', viewport: page.viewportSize(), secondsPerMode: 6, results, scene };
+  return { fixture: 'global', cells: 8192, note: 'All 8192 cells are distributed across the entire sphere; they are not 8192 simultaneously visible cells.', viewport: page.viewportSize(), secondsPerMode: 6, results, scene };
 }

@@ -1,8 +1,8 @@
 namespace NasaTrendDetective.Infrastructure.Etl;
 
 /// <summary>
-/// Esquema canónico que produce el normalizador (variable_id, latitude, longitude, timestamp, value,
-/// anomaly) y validación de las columnas devueltas por DESCRIBE SELECT * FROM read_parquet(...).
+/// Canonical schema produced by the normalizer (variable_id, latitude, longitude, timestamp, value,
+/// anomaly) and validation of columns returned by DESCRIBE SELECT * FROM read_parquet(...).
 /// </summary>
 internal static class CanonicalParquetSchema
 {
@@ -37,7 +37,7 @@ internal static class CanonicalParquetSchema
     public static IEnumerable<string> ColumnNames => Columns.Select(column => column.Name);
 
     /// <summary>
-    /// Lanza <see cref="ParquetImportException"/> si faltan columnas, sobran o tienen tipos incompatibles.
+    /// Throws <see cref="ParquetImportException"/> if columns are missing, unexpected, or have incompatible types.
     /// </summary>
     public static void Validate(IReadOnlyList<(string Name, string Type)> described, string sourceGlob)
     {
@@ -49,22 +49,22 @@ internal static class CanonicalParquetSchema
         {
             if (!actual.TryGetValue(name, out var type))
             {
-                errors.Add($"falta la columna '{name}'");
+                errors.Add($"missing column '{name}'");
             }
             else if (!IsCompatible(type, kind))
             {
-                errors.Add($"la columna '{name}' es {type} y se esperaba un tipo {Describe(kind)}");
+                errors.Add($"column '{name}' is {type}, expected type {Describe(kind)}");
             }
         }
 
         var expected = ColumnNames.ToHashSet(StringComparer.OrdinalIgnoreCase);
         errors.AddRange(actual.Keys.Where(name => !expected.Contains(name))
-            .Select(name => $"columna no canónica '{name}'"));
+            .Select(name => $"non-canonical column '{name}'"));
 
         if (errors.Count > 0)
         {
             throw new ParquetImportException(
-                $"El Parquet '{sourceGlob}' no cumple el esquema canónico "
+                $"Parquet '{sourceGlob}' does not match canonical schema "
                 + $"({string.Join(", ", ColumnNames)}): {string.Join("; ", errors)}.");
         }
     }
@@ -85,8 +85,8 @@ internal static class CanonicalParquetSchema
 
     private static string Describe(ColumnKind kind) => kind switch
     {
-        ColumnKind.Integer => "entero",
-        ColumnKind.Numeric => "numérico",
+        ColumnKind.Integer => "integer",
+        ColumnKind.Numeric => "numeric",
         _ => "DATE/TIMESTAMP",
     };
 }

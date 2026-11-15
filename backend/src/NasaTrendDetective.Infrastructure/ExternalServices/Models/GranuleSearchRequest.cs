@@ -1,9 +1,9 @@
 namespace NasaTrendDetective.Infrastructure.ExternalServices.Models;
 
 /// <summary>
-/// Parámetros de búsqueda de granules en CMR (search/granules.json).
+/// Granule search parameters for CMR (search/granules.json).
 /// </summary>
-/// <param name="BoundingBox">Formato CMR "oeste,sur,este,norte".</param>
+/// <param name="BoundingBox">CMR format "west,south,east,north".</param>
 public sealed record GranuleSearchRequest(
     string ShortName,
     string? Version = null,

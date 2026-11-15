@@ -46,7 +46,7 @@ public sealed class DuckDbSchemaInitializerTests : IDisposable
         await _initializer.InitializeAsync();
         await _initializer.InitializeAsync();
 
-        Assert.Equal(4L, await CountAsync("dim_variable"));
+        Assert.Equal(9L, await CountAsync("dim_variable"));
         Assert.Equal((2100L - 1880L + 1L) * 12L, await CountAsync("dim_time"));
     }
 
@@ -61,6 +61,46 @@ public sealed class DuckDbSchemaInitializerTests : IDisposable
 
         var expected = Enum.GetValues<ClimateVariable>().Select(v => ((int)v, v.ToString()));
         Assert.Equal(expected, variables.Select(v => (v.Id, v.Code)));
+    }
+
+    [Fact]
+    public async Task InitializeAsync_LegacyDatabaseLimitedToFourVariables_IsRebuiltAndAcceptsNewOnes()
+    {
+        // Database created by a previous version: dim_variable with CHECK 1..4 and an already loaded fact.
+        await _repository.ExecuteAsync("""
+            CREATE TABLE dim_variable (
+                variable_id TINYINT PRIMARY KEY, variable_code VARCHAR NOT NULL UNIQUE,
+                variable_name VARCHAR NOT NULL, unit VARCHAR NOT NULL, mission VARCHAR NOT NULL,
+                CHECK (variable_id BETWEEN 1 AND 4));
+            INSERT INTO dim_variable VALUES (1, 'Gistemp', 'x', 'degC', 'GISS');
+            CREATE TABLE fact_climate_observations (
+                observation_id BIGINT PRIMARY KEY,
+                variable_id TINYINT NOT NULL REFERENCES dim_variable (variable_id),
+                latitude DECIMAL(6,3) NOT NULL, longitude DECIMAL(6,3) NOT NULL, year SMALLINT NOT NULL,
+                month TINYINT NOT NULL, observation_value DOUBLE, anomaly_value DOUBLE);
+            INSERT INTO fact_climate_observations VALUES (1, 1, 10, 20, 2020, 1, 0.5, 0.5);
+            """);
+
+        await _initializer.InitializeAsync();
+
+        Assert.Equal(9L, await CountAsync("dim_variable"));
+        // Legacy facts are intentionally dropped: seeding reloads them from the Parquet files.
+        Assert.Equal(0L, await CountAsync("fact_climate_observations"));
+        await _repository.ExecuteAsync(
+            "INSERT INTO fact_climate_observations VALUES (1, 8, 10, 20, 2020, 1, 0.5, 0.1)");
+        Assert.Equal(1L, await CountAsync("fact_climate_observations"));
+    }
+
+    [Fact]
+    public async Task InitializeAsync_CurrentDatabase_KeepsTheFactsAlreadyLoaded()
+    {
+        await _initializer.InitializeAsync();
+        await _repository.ExecuteAsync(
+            "INSERT INTO fact_climate_observations VALUES (1, 5, 10, 20, 2020, 1, 0.5, 0.1)");
+
+        await _initializer.InitializeAsync();
+
+        Assert.Equal(1L, await CountAsync("fact_climate_observations"));
     }
 
     [Fact]

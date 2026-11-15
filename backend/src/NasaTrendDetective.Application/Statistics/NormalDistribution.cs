@@ -1,8 +1,8 @@
 namespace NasaTrendDetective.Application.Statistics;
 
 /// <summary>
-/// Funciones de distribución normal estándar y cálculo numérico de significancia (valor p).
-/// Implementación de alta precisión basada en aproximación de Abramowitz & Stegun (error < 1.5e-7).
+/// Standard normal distribution functions and numerical significance (p-value) calculation.
+/// High-precision implementation based on Abramowitz & Stegun approximation (error &lt; 1.5e-7).
 /// </summary>
 public static class NormalDistribution
 {
@@ -15,7 +15,7 @@ public static class NormalDistribution
     private static readonly double InvSqrt2Pi = 1.0 / Math.Sqrt(2.0 * Math.PI);
 
     /// <summary>
-    /// Función de distribución acumulada estándar Φ(z).
+    /// Standard cumulative distribution function Φ(z).
     /// </summary>
     public static double Cdf(double z)
     {
@@ -28,7 +28,7 @@ public static class NormalDistribution
     }
 
     /// <summary>
-    /// Calcula el valor p bilateral para una puntuación Z estandarizada.
+    /// Computes the two-tailed p-value for a standardized Z-score.
     /// </summary>
     public static double CalculateTwoTailedPValue(double z)
     {

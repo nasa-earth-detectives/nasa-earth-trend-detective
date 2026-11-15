@@ -9,9 +9,9 @@ import { filterLandCells, loadLandMask, type LandMask } from '../utils/landMask'
 const EMPTY: ClimateObservation[] = [];
 
 /**
- * Lo que se dibuja de verdad. La demo trae su propia cartografía; la grilla de la API se aclara en
- * los polos y, con cobertura "tierra" (la vista inicial), se recorta con la máscara del globo:
- * cubrir también los océanos llena el planeta de columnas y tapa la Tierra.
+ * What is actually rendered. The demo brings its own cartography; the API grid is thinned at
+ * the poles and, with "land" coverage (initial view), is clipped using the globe mask:
+ * covering the oceans as well covers the planet with columns and obscures the Earth.
  */
 export function useVisibleObservations(observations: ClimateObservation[], source: ObservationSource,
   coverage: ObservationCoverage, provenance: DatasetProvenance | null) {
@@ -23,7 +23,7 @@ export function useVisibleObservations(observations: ClimateObservation[], sourc
     if (!needsMask || mask) return;
     let active = true;
     loadLandMask().then(loaded => { if (active) setMask(loaded); }, (error: unknown) => {
-      console.warn('Máscara de tierra no disponible; se muestra la grilla completa.', error);
+      console.warn('Land mask not available; displaying full grid.', error);
       if (active) setMaskFailed(true);
     });
     return () => { active = false; };

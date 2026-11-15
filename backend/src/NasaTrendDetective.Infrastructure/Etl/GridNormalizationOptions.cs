@@ -3,7 +3,7 @@ using NasaTrendDetective.Infrastructure.Etl.Models;
 namespace NasaTrendDetective.Infrastructure.Etl;
 
 /// <summary>
-/// Opciones del normalizador de grilla (sección "GridNormalization").
+/// Grid normalizer configuration options ("GridNormalization" section).
 /// </summary>
 public sealed class GridNormalizationOptions
 {
@@ -11,18 +11,18 @@ public sealed class GridNormalizationOptions
     public const string DefaultOutputDirectory = "data/nasa/normalized";
 
     /// <summary>
-    /// Directorio donde se escriben los Parquet normalizados (relativo al directorio de trabajo).
+    /// Directory where normalized Parquet files are written (relative to working directory).
     /// </summary>
     public string OutputDirectory { get; set; } = DefaultOutputDirectory;
 
     /// <summary>
-    /// Mapeo de columnas por variable, con clave = nombre del enum ClimateVariable (p.ej. "Gistemp").
+    /// Column mapping per variable, keyed by ClimateVariable enum name (e.g. "Gistemp").
     /// </summary>
     public Dictionary<string, GridColumnMapping> Mappings { get; set; } =
         new(StringComparer.OrdinalIgnoreCase);
 
     /// <summary>
-    /// Reglas de limpieza (fill values y rangos físicos válidos) por variable.
+    /// Cleaning rules (fill values and valid physical ranges) per variable.
     /// </summary>
     public DataCleaningOptions Cleaning { get; set; } = new();
 

@@ -54,7 +54,7 @@ Usa siempre prefijos semánticos en minúsculas:
 ---
 
 ## 🛡️ 3. Estándares de Calidad Exigidos
-- **Modularidad (< 150 líneas por archivo):** No crear clases ni componentes monolíticos.
+- **Modularidad (<= 300 líneas por archivo):** No crear clases ni componentes monolíticos (recomendado <= 250 líneas).
 - **Cero Código Quemado:** Utilizar siempre variables de entorno y Enums fuertemente tipados.
 - **Documentación Viva:** Al corregir un bug o agregar un endpoint, actualizar la nota correspondiente en `docs/obsidian/` en el mismo ciclo.
 

@@ -1,4 +1,5 @@
 import { OBSERVATION_LENSES } from '../../config/observationLenses';
+import { intlLocale, useI18n } from '../../i18n';
 import type { ClimateVariable } from '../../types/climate.types';
 
 interface SystemReadoutProps {
@@ -10,21 +11,22 @@ interface SystemReadoutProps {
   variable: ClimateVariable;
 }
 
-/** Distingue respuesta vacía, consulta fallida y carga; el contador no implica cobertura. */
+/** Distinguishes empty response, failed query, and loading; the count does not imply coverage. */
 export function SystemReadout({ connected, observationCount, loading, error, year, variable }: SystemReadoutProps) {
+  const { locale, t } = useI18n();
   const state = loading ? 'loading' : error ? 'error' : 'ready';
   return (
-    <section className="system-readout" aria-label="Estado de la consulta" data-state={state}>
-      <div className="query-heading"><span>Consulta de observaciones</span>
+    <section className="system-readout" aria-label={t.readouts.queryHeadingAria} data-state={state}>
+      <div className="query-heading"><span>{t.readouts.queryHeadingTitle}</span>
         <span className="query-key">{OBSERVATION_LENSES[variable].symbol} / {year}</span></div>
       <div className="readout-values" role="status" aria-live="polite" aria-atomic="true">
-        <strong>{loading || error ? '—' : observationCount.toLocaleString('es-CO')}</strong>
-        <p><span>Registros recibidos</span>
-          <small>{loading ? 'Consultando el año seleccionado…' : error ? 'Consulta sin respuesta' :
-            observationCount === 0 ? 'Respuesta vacía para esta consulta' : 'Respuesta recibida de la API'}</small></p>
+        <strong>{loading || error ? '—' : observationCount.toLocaleString(intlLocale(locale))}</strong>
+        <p><span>{t.readouts.recordsReceived}</span>
+          <small>{loading ? t.readouts.queryingYear : error ? t.readouts.queryFailed :
+            observationCount === 0 ? t.readouts.emptyResponse : t.readouts.responseReceived}</small></p>
       </div>
       <p className="connection-state" data-connected={connected}><span aria-hidden="true" />
-        {connected ? 'API disponible' : 'Modo local · API no disponible'}</p>
+        {connected ? t.readouts.apiAvailable : t.readouts.localMode}</p>
     </section>
   );
 }

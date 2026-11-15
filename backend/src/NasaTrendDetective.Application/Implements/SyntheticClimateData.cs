@@ -4,15 +4,28 @@ using NasaTrendDetective.Domain.Enums;
 namespace NasaTrendDetective.Application.Implements;
 
 /// <summary>
-/// Datos de demostración deterministas para las variables SIN dataset real cargado. Vive en la capa
-/// de aplicación para que sea el servicio, que conoce el catálogo, quien decida usarlos y lo declare
-/// (Source = "synthetic"); el repositorio solo devuelve lo que hay en DuckDB.
+/// Deterministic demonstration data for variables WITHOUT a loaded real dataset. Lives in the application
+/// layer so the service, knowing the catalog, decides when to use them and explicitly declares it
+/// (Source = "synthetic"); the repository returns only what actually exists in DuckDB.
 /// </summary>
 internal static class SyntheticClimateData
 {
+    /// <summary>
+    /// Only the four original variables have a demonstration scenario. For any other
+    /// (MERRA-2), there is nothing to show without its dataset: an empty list is returned instead of
+    /// reusing the CO2 slope, which was the default branch.
+    /// </summary>
+    public static bool HasDemoScenario(ClimateVariable variable) => variable is
+        ClimateVariable.Gistemp or ClimateVariable.ModisNdvi or ClimateVariable.GraceMass or ClimateVariable.Oco2;
+
     public static IReadOnlyList<AnnualObservation> AnnualSeries(
         ClimateVariable variable, int startYear, int endYear, double lat, double lng)
     {
+        if (!HasDemoScenario(variable))
+        {
+            return [];
+        }
+
         var count = Math.Max(1, endYear - startYear + 1);
         var list = new List<AnnualObservation>(count);
         var baseSeed = (int)Math.Abs(lat * 100 + lng * 10 + (int)variable);
@@ -39,14 +52,19 @@ internal static class SyntheticClimateData
 
     public static IReadOnlyList<TrendObservation> GridSnapshot(ClimateVariable variable, int year)
     {
+        if (!HasDemoScenario(variable))
+        {
+            return [];
+        }
+
         var points = new[]
         {
-            (78.22, 15.63, 0.85, 1.42),   // Ártico
-            (55.0, -30.0, -0.22, -0.45),  // Atlántico Norte
-            (-3.46, -62.21, 0.72, -0.08), // Amazonía
-            (25.0, 115.0, 0.65, 0.12),    // Sur de China
-            (72.0, -40.0, -180.0, -210.0),// Groenlandia
-            (4.71, -74.07, 1.10, 0.40)    // Bogotá
+            (78.22, 15.63, 0.85, 1.42),   // Arctic
+            (55.0, -30.0, -0.22, -0.45),  // North Atlantic
+            (-3.46, -62.21, 0.72, -0.08), // Amazon
+            (25.0, 115.0, 0.65, 0.12),    // South China
+            (72.0, -40.0, -180.0, -210.0),// Greenland
+            (4.71, -74.07, 1.10, 0.40)    // Bogota
         };
 
         return points.Select((p, idx) => new TrendObservation

@@ -40,7 +40,7 @@ public class TrendsControllerIntegrationTests : IClassFixture<WebApplicationFact
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         var content = await response.Content.ReadAsStringAsync();
-        Assert.Contains("Parámetros temporales inválidos", content);
+        Assert.Contains("Invalid temporal parameters", content);
     }
 
     [Fact]
@@ -69,15 +69,15 @@ public class TrendsControllerIntegrationTests : IClassFixture<WebApplicationFact
     }
 
     [Fact]
-    public async Task GetOpposingTrends_ReturnsPredefinedCases()
+    public async Task GetOpposingTrends_WithoutLoadedDatasets_ReturnsNoPairsInsteadOfFabricatedOnes()
     {
+        // In the test directory there are no seeded datasets: previously three invented pairs were returned.
         var response = await _client.GetAsync("/api/trends/opposing");
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var pairs = await response.Content.ReadFromJsonAsync<List<OpposingTrendPair>>();
         Assert.NotNull(pairs);
-        Assert.Equal(3, pairs.Count);
-        Assert.Contains(pairs, p => p.PairId == "arctic-atlantic-thermal");
+        Assert.Empty(pairs);
     }
 
     [Fact]

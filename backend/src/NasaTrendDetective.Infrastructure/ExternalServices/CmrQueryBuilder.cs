@@ -5,7 +5,7 @@ using NasaTrendDetective.Infrastructure.ExternalServices.Models;
 namespace NasaTrendDetective.Infrastructure.ExternalServices;
 
 /// <summary>
-/// Construye la URL de búsqueda de granules de CMR a partir de <see cref="GranuleSearchRequest"/>.
+/// Constructs the CMR granule search URL from a <see cref="GranuleSearchRequest"/>.
 /// </summary>
 internal static class CmrQueryBuilder
 {
@@ -17,7 +17,7 @@ internal static class CmrQueryBuilder
         ArgumentNullException.ThrowIfNull(request);
         if (string.IsNullOrWhiteSpace(request.ShortName))
         {
-            throw new ArgumentException("ShortName es obligatorio para buscar en CMR.", nameof(request));
+            throw new ArgumentException("ShortName is required to search in CMR.", nameof(request));
         }
 
         var query = new StringBuilder();

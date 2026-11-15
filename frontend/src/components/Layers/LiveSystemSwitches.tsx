@@ -1,4 +1,5 @@
 import { InstrumentSwitch } from '../UI/InstrumentSwitch';
+import { useI18n } from '../../i18n';
 
 export interface LiveSystemSwitchesProps {
   oceanFlowVisible: boolean;
@@ -12,8 +13,8 @@ export interface LiveSystemSwitchesProps {
 }
 
 /**
- * Controles interactivos para las dinámicas vivas del planeta y capas avanzadas.
- * Sustituye marcadores estáticos por controles operativos en tiempo real.
+ * Interactive controls for live planetary dynamics and advanced layers.
+ * Replaces static placeholders with real-time operational toggles.
  */
 export function LiveSystemSwitches({
   oceanFlowVisible,
@@ -25,29 +26,30 @@ export function LiveSystemSwitches({
   onRadarRipplesChange,
   onSatellitesChange,
 }: LiveSystemSwitchesProps) {
+  const { t } = useI18n();
   return (
     <div className="live-systems-switches space-y-2">
       <InstrumentSwitch
-        label="Corrientes oceánicas"
-        description="Flujos marinos animados en 3D (NASA ECCO/OSCAR)"
+        label={t.layers.oceanLabel}
+        description={t.layers.oceanDesc}
         checked={oceanFlowVisible}
         onChange={onOceanFlowChange}
       />
       <InstrumentSwitch
-        label="Teleconexiones 3D"
-        description="Arcos orbitales de transporte (ENSO, AMOC, Sahara)"
+        label={t.layers.teleLabel}
+        description={t.layers.teleDesc}
         checked={teleconnectionsVisible}
         onChange={onTeleconnectionsChange}
       />
       <InstrumentSwitch
-        label="Ondas radar en hotspots"
-        description="Pulsos expansivos sobre anomalías climáticas extremas"
+        label={t.layers.radarLabel}
+        description={t.layers.radarDesc}
         checked={radarRipplesVisible}
         onChange={onRadarRipplesChange}
       />
       <InstrumentSwitch
-        label="Constelación satelital"
-        description="Órbitas reales de Terra, Aqua, GRACE-FO y OCO-2"
+        label={t.layers.satLabel}
+        description={t.layers.satDesc}
         checked={satellitesVisible}
         onChange={onSatellitesChange}
       />

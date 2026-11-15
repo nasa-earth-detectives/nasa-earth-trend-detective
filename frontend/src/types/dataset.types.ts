@@ -1,11 +1,11 @@
 import type { ClimateVariable } from './climate.types';
 
-/** Procedencia declarada por la API (tabla dataset_provenance); la interfaz la muestra tal cual. */
+/** Provenance declared by the API (dataset_provenance table); displayed as-is by the UI. */
 export interface DatasetProvenance {
   provider: string;
   product: string;
   unit: string;
-  /** Unidad de la pendiente de Sen por año, p. ej. "°C / año". */
+  /** Sen's slope unit per year, e.g. "°C / year". */
   trendUnit: string;
   baseline: string | null;
   resolutionDegrees: number;
@@ -13,14 +13,14 @@ export interface DatasetProvenance {
   coverageStart: number;
   coverageEnd: number;
   lastMonth: string;
-  /** Fuente provisional hasta recibir la oficial del reto. */
+  /** Interim source pending official challenge data. */
   interim: boolean;
   citation: string;
 }
 
 export type DataSource = 'demo' | 'api';
 
-/** Qué fuente atiende una variable y, si es la API, con qué procedencia. */
+/** Which source serves a variable and, if the API, with what provenance. */
 export interface ResolvedSource {
   source: DataSource;
   provenance: DatasetProvenance | null;

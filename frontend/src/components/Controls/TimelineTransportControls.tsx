@@ -1,6 +1,7 @@
 import type { RefObject } from 'react';
 import { Play, Pause, RotateCcw, ChevronUp, Repeat, Zap } from 'lucide-react';
 import type { PlaybackSpeed } from '../../hooks/useTimelinePlayback';
+import { formatTemplate, useI18n } from '../../i18n';
 
 interface TimelineTransportControlsProps {
   playButtonRef: RefObject<HTMLButtonElement | null>;
@@ -35,17 +36,18 @@ export function TimelineTransportControls({
   onToggleLoop,
   onCloseArchive,
 }: TimelineTransportControlsProps) {
+  const { t } = useI18n();
   const span = Math.max(endYear - startYear, 0);
 
   return (
-    <div className="time-transport" role="group" aria-label="Controles temporales y de reproducción">
+    <div className="time-transport" role="group" aria-label={t.timeline.transportAria}>
       <button
         className="time-control time-step"
         type="button"
         onClick={() => onSelectYear(currentYear - 1)}
         disabled={currentYear <= startYear}
-        aria-label="Seleccionar año anterior"
-        title="Año anterior (-1)"
+        aria-label={t.timeline.prevYearAria}
+        title={t.timeline.prevYearTitle}
       >
         −1
       </button>
@@ -57,11 +59,11 @@ export function TimelineTransportControls({
         onClick={onTogglePlayback}
         disabled={span === 0}
         aria-pressed={isPlaying}
-        aria-label={isPlaying ? 'Pausar recorrido temporal' : 'Reproducir recorrido temporal'}
-        title={isPlaying ? 'Pausar recorrido' : 'Iniciar recorrido'}
+        aria-label={isPlaying ? t.timeline.pauseAria : t.timeline.playAria}
+        title={isPlaying ? t.timeline.pauseTitle : t.timeline.playTitle}
       >
         {isPlaying ? <Pause size={14} /> : <Play size={14} className="ml-0.5" />}
-        <span className="time-play-label">{isPlaying ? 'Pausar' : 'Recorrer'}</span>
+        <span className="time-play-label">{isPlaying ? t.timeline.pause : t.timeline.play}</span>
       </button>
 
       <button
@@ -69,8 +71,8 @@ export function TimelineTransportControls({
         type="button"
         onClick={() => onSelectYear(currentYear + 1)}
         disabled={currentYear >= endYear}
-        aria-label="Seleccionar año siguiente"
-        title="Año siguiente (+1)"
+        aria-label={t.timeline.nextYearAria}
+        title={t.timeline.nextYearTitle}
       >
         +1
       </button>
@@ -79,8 +81,8 @@ export function TimelineTransportControls({
         className={`time-control time-speed ${speed > 1 ? 'active-speed' : ''}`}
         type="button"
         onClick={onCycleSpeed}
-        aria-label={`Velocidad de reproducción: ${speed}x. Clic para cambiar.`}
-        title="Cambiar velocidad (1x, 2x, 5x)"
+        aria-label={formatTemplate(t.timeline.speedAria, { speed })}
+        title={t.timeline.speedTitle}
       >
         <Zap size={13} aria-hidden="true" />
         <span>{speed}x</span>
@@ -91,8 +93,8 @@ export function TimelineTransportControls({
         type="button"
         onClick={onToggleLoop}
         aria-pressed={isLooping}
-        aria-label={isLooping ? 'Bucle temporal activado' : 'Bucle desactivado'}
-        title={isLooping ? 'Bucle activado (repite al finalizar)' : 'Bucle desactivado'}
+        aria-label={isLooping ? t.timeline.loopOnAria : t.timeline.loopOffAria}
+        title={isLooping ? t.timeline.loopOnTitle : t.timeline.loopOffTitle}
       >
         <Repeat size={14} aria-hidden="true" />
       </button>
@@ -102,8 +104,8 @@ export function TimelineTransportControls({
         type="button"
         onClick={onResetPlayback}
         disabled={!isPlaying && currentYear === startYear}
-        aria-label={`Reiniciar en ${startYear}`}
-        title={`Reiniciar en ${startYear}`}
+        aria-label={formatTemplate(t.timeline.resetTo, { year: startYear })}
+        title={formatTemplate(t.timeline.resetTo, { year: startYear })}
       >
         <RotateCcw size={14} aria-hidden="true" />
       </button>
@@ -112,10 +114,10 @@ export function TimelineTransportControls({
         className="time-control time-collapse"
         type="button"
         onClick={onCloseArchive}
-        aria-label="Cerrar archivo temporal"
+        aria-label={t.timeline.closeArchiveAria}
         aria-expanded={true}
         aria-controls={scaleId}
-        title="Cerrar panel temporal"
+        title={t.timeline.closeArchiveTitle}
       >
         <ChevronUp size={16} aria-hidden="true" />
       </button>

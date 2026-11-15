@@ -20,7 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!-- Mismas reglas de limpieza y rutas que la API: una sola fuente de configuración. -->
+    <!-- Same cleaning rules and paths as the API: a single configuration source. -->
     <None Include="..\..\src\NasaTrendDetective.Api\appsettings.json" Link="appsettings.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 

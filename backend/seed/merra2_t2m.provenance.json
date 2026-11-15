@@ -1,0 +1,20 @@
+{
+  "variable": "Merra2Temperature",
+  "provider": "nasa-power-merra2",
+  "product": "MERRA-2 · 2 m air temperature (NASA POWER v10, annual mean)",
+  "baseline": "1991-2020",
+  "unit": "°C",
+  "trendUnit": "°C / year",
+  "interim": false,
+  "resolutionDegrees": 2.0,
+  "sourceUrl": "https://nasa-power.s3.amazonaws.com/merra2/temporal/power_merra2_annual_temporal_utc.zarr/T2M",
+  "sourceFile": "power_merra2_annual_temporal_utc.zarr/T2M",
+  "sourceSha256": "0877f2d237cb9bc614d89e0070ded6cda9eb912a69911f0226e76027b800e6d9",
+  "retrievedAt": "2026-11-14T15:44:44+00:00",
+  "coverageStart": 1981,
+  "coverageEnd": 2025,
+  "lastMonth": "2025-12",
+  "rows": 729000,
+  "processing": "POWER annual mean regridded from 0.5° x 0.625° to 2° using area-weighted averaging; cells with less than 50 percent of their area covered are omitted. anomaly = value - cell mean over the baseline period.",
+  "citation": "NASA POWER Project: NASA POWER Data v10. NASA Langley Research Center. https://power.larc.nasa.gov/ (CC BY 4.0). Derived from MERRA-2: Gelaro et al. (2017), J. Climate 30, 5419-5454, doi:10.1175/JCLI-D-16-0758.1"
+}

@@ -1,12 +1,13 @@
 import type { ClimateObservation, ClimateVariable } from '../../types/climate.types';
 import { HEX_GLOBAL_COVERAGE, HEX_GLOBAL_FLAGS } from './hexGlobalCoverage';
+import { hasDemoScenario } from './demoScenario';
 
 const RADIANS = Math.PI / 180;
 const VARIABLES: readonly ClimateVariable[] = ['Gistemp', 'ModisNdvi', 'GraceMass', 'Oco2'];
 const demoCoverage = new WeakMap<ClimateObservation, number>();
 export type ObservationCoverage = 'land' | 'global';
 
-// Geometría estática compartida. Nunca se entregan referencias mutables de esta caché.
+// Shared static geometry. Never return mutable references from this cache.
 const locations = Array.from({ length: HEX_GLOBAL_COVERAGE.count }, (_, index) => ({
   id: `demo:observation:${index}`,
   latitude: Math.asin(1 - 2 * (index + 0.5) / HEX_GLOBAL_COVERAGE.count) / RADIANS,
@@ -16,15 +17,15 @@ const locations = Array.from({ length: HEX_GLOBAL_COVERAGE.count }, (_, index) =
 
 function validateContext(variable: ClimateVariable, year: number): void {
   if (!VARIABLES.includes(variable) || !Number.isInteger(year) || year < 1 || year > 9999) {
-    throw new RangeError('La variable o el año de observación no son válidos.');
+    throw new RangeError('Observation variable or year is invalid.');
   }
 }
 
-/** Campo ficticio continuo sobre la esfera. No representa datos ni climatologías NASA. */
+/** Continuous synthetic field over the sphere. Does not represent NASA data or climatologies. */
 export function sampleDemoObservation(variable: ClimateVariable, year: number, latitude: number, longitude: number): ClimateObservation {
   validateContext(variable, year);
   if (!Number.isFinite(latitude) || !Number.isFinite(longitude) || Math.abs(latitude) > 90 || Math.abs(longitude) > 180) {
-    throw new RangeError('Las coordenadas de observación no son válidas.');
+    throw new RangeError('Observation coordinates are invalid.');
   }
   const lat = latitude * RADIANS;
   const lng = longitude * RADIANS;
@@ -52,6 +53,8 @@ export function sampleDemoObservation(variable: ClimateVariable, year: number, l
 }
 
 export function createDemoObservations(variable: ClimateVariable, year: number): ClimateObservation[] {
+  // MERRA-2 has no synthetic scenario: without the API there are no observations to display.
+  if (!hasDemoScenario(variable)) return [];
   validateContext(variable, year);
   return locations.filter(location => variable === 'ModisNdvi' ? location.flags === 3
     : variable === 'GraceMass' ? (location.flags & 1) !== 0 : true).map(location => {
@@ -61,7 +64,7 @@ export function createDemoObservations(variable: ClimateVariable, year: number):
   });
 }
 
-/** Sólo aplica cartografía demo a objetos demo. La API requiere su propia cobertura declarada. */
+/** Only applies demo cartography to demo objects. The API requires its own declared coverage. */
 export function filterObservationCoverage(observations: ClimateObservation[], coverage: ObservationCoverage): ClimateObservation[] {
   return coverage === 'global' ? observations : observations.filter(observation => {
     const flags = demoCoverage.get(observation);

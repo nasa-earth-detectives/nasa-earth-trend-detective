@@ -3,7 +3,7 @@ using NasaTrendDetective.Domain.Enums;
 namespace NasaTrendDetective.Tests.Infrastructure.Etl;
 
 /// <summary>
-/// Casos límite de la imputación: periodos ausentes del archivo y lecturas duplicadas por celda.
+/// Imputation edge cases: periods absent from the file and duplicate readings per cell.
 /// </summary>
 public class DataCleaningGapTests
 {
@@ -41,7 +41,7 @@ public class DataCleaningGapTests
 
         Assert.Equal(3, values.Count);
         Assert.Equal(402.0, values[0]!.Value, 10);
-        // 31 de 60 días entre el 1-ene y el 1-mar de 2020 (bisiesto), partiendo del promedio 402.
+        // 31 out of 60 days between Jan 1 and Mar 1, 2020 (leap year), starting from average 402.
         Assert.Equal(402 + (8.0 * 31 / 60), values[1]!.Value, 10);
         Assert.Equal(1, result.Quality.ImputedValues);
     }

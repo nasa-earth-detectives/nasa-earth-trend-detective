@@ -1,8 +1,8 @@
-"""Genera texturas locales a partir de imágenes verificadas de NASA; requiere Pillow.
+"""Generates local textures from verified NASA images; requires Pillow.
 
-Ejecutar desde cualquier directorio: python scripts/build-earth-assets.py
-Las fuentes originales se guardan fuera de public, en output/earth-source.
-Sin generación ni ajuste global de color; cierre acotado del relleno polar BMNG.
+Run from any directory: python scripts/build-earth-assets.py
+Original sources are stored outside public, in output/earth-source.
+No procedural generation or global color adjustments; bounded closure of BMNG polar fill.
 """
 from __future__ import annotations
 
@@ -20,7 +20,7 @@ DESTINATION = ROOT / "frontend/public/earth"
 DOCUMENTATION = ROOT / "docs/obsidian/earth-assets"
 NASA_ASSETS = "https://assets.science.nasa.gov/content/dam/science/esd/eo/images/bmng/"
 DAY_8K_SOURCE = "world.200407.3x21600x10800.jpg"
-# Permite inspeccionar la cabecera de la fuente verificada; nunca se carga a este tamaño.
+# Allows inspecting the header of the verified source; never loaded at this full size.
 Image.MAX_IMAGE_PIXELS = 21600 * 10800
 WATER_URL = (
     "https://gibs.earthdata.nasa.gov/wms/epsg4326/best/wms.cgi?SERVICE=WMS"
@@ -66,20 +66,20 @@ def fetch_sources() -> dict:
             with urllib.request.urlopen(request, timeout=90) as response:
                 path.write_bytes(response.read())
         if digest(path) != spec["sha256"]:
-            raise ValueError(f"La fuente cambió; revisar antes de continuar: {path}")
+            raise ValueError(f"Source has changed; review before proceeding: {path}")
         with Image.open(path) as image:
             if list(image.size) != spec["dimensions"]:
-                raise ValueError(f"Dimensiones inesperadas: {path}")
+                raise ValueError(f"Unexpected dimensions: {path}")
         records[name] = {**spec, "bytes": path.stat().st_size}
     return records
 
 
 def close_polar_fill(image: Image.Image) -> dict:
-    """Cierra únicamente la contaminación gris conectada al empalme +180° polar."""
+    """Closes only the gray fill contamination connected to the +180° polar seam."""
     width, height = image.size
     left, bottom = 2 * width // 3, int(height * 6.5 / 180)
     pixel, fill, rows, changed = image.load(), (2, 5, 20), [], 0
-    # Hashes de dos regiones disjuntas que abarcan TODO lo exterior a la guarda.
+    # Hashes of two disjoint regions covering EVERYTHING outside the guard area.
     regions = [(0, 0, left, bottom), (0, bottom, width, height)]
     before = [hashlib.sha256(image.crop(box).tobytes()).hexdigest() for box in regions]
     for y in range(bottom):
@@ -90,14 +90,14 @@ def close_polar_fill(image: Image.Image) -> dict:
         while x > left + 8 and any(difference(k) > 6 for k in range(x - 8, x)):
             x -= 1
         if x <= left + 8:
-            raise ValueError("La franja polar excede el océano de relleno verificado")
-        start = x - 4  # Halo JPEG mínimo alrededor de la cola conectada.
+            raise ValueError("Polar band exceeds the verified fill ocean")
+        start = x - 4  # Minimal JPEG halo around the connected artifact tail.
         changed += sum(pixel[k, y] != fill for k in range(start, width))
-        rows.append([y, start, width])  # Intervalo horizontal [inicio, fin).
+        rows.append([y, start, width])  # Horizontal interval [start, end).
         image.paste(fill, (start, y, width, y + 1))
     after = [hashlib.sha256(image.crop(box).tobytes()).hexdigest() for box in regions]
     if before != after:
-        raise ValueError("La reparación polar alteró píxeles fuera de su guarda")
+        raise ValueError("Polar fix altered pixels outside its guard area")
     return {"working_dimensions": [width, height], "fill_rgb": list(fill),
             "guard": "longitude >= 60 E; latitude > 83.5 N",
             "threshold_per_channel": 6, "background_run": 8, "jpeg_halo_pixels": 4,
@@ -122,10 +122,10 @@ def main() -> None:
             image.save(DESTINATION / name, quality=quality, subsampling=0, optimize=True, progressive=True)
 
     with Image.open(CACHE / DAY_8K_SOURCE) as source:
-        # IDCT JPEG reducida: 58,32 MP decodificados, no los 233,28 MP originales.
+        # Reduced JPEG IDCT: 58.32 MP decoded, not the original 233.28 MP.
         source.draft("RGB", (10800, 5400))
         if source.size != (10800, 5400) or source.mode != "RGB":
-            raise ValueError("El decoder no aceptó la reducción JPEG 1/2; se cancela antes de load")
+            raise ValueError("Decoder rejected 1/2 JPEG downscaling; aborting before load")
         source.load()
         polar_10800 = close_polar_fill(source)
         source.resize((8192, 4096), Image.Resampling.LANCZOS).save(
@@ -134,15 +134,15 @@ def main() -> None:
         )
 
     with Image.open(CACHE / "elevation-source.tif") as source:
-        # Conserva intensidad lineal: 0–255 codifica la escala NASA de 0–6400 m.
+        # Preserves linear intensity: 0–255 encodes the NASA scale of 0–6400 m.
         for width in (2048, 1024):
             source.convert("L").resize((width, width // 2), Image.Resampling.LANCZOS).save(
                 DESTINATION / f"elevation/gebco-elevation-{width // 1024}k.png", optimize=True
             )
 
     with Image.open(CACHE / "water-mask-source.png") as source:
-        # El colormap NASA declara Water opaco y No Data transparente.
-        # BOX agrega cobertura de 2×2/4×4 píxeles, sin inferir agua por color RGB.
+        # NASA colormap declares Water as opaque and No Data as transparent.
+        # BOX aggregates 2×2/4×4 pixel coverage without inferring water from RGB color.
         for width in (2048, 1024):
             source.getchannel("A").resize((width, width // 2), Image.Resampling.BOX).save(
                 DESTINATION / f"masks/modis-water-{width // 1024}k.png", optimize=True

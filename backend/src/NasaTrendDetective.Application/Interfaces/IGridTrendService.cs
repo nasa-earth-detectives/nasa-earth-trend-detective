@@ -5,8 +5,8 @@ namespace NasaTrendDetective.Application.Interfaces;
 public interface IGridTrendService
 {
     /// <summary>
-    /// Mann-Kendall / Sen en cada celda observada. Devuelve null si la variable no tiene un dataset
-    /// real cargado: no se fabrica una grilla sintética.
+    /// Mann-Kendall / Sen on each observed cell. Returns null if the variable has no
+    /// real loaded dataset: a synthetic grid is not fabricated.
     /// </summary>
     Task<GridTrendResultDto?> AnalyzeGridAsync(GridTrendQueryDto query, CancellationToken cancellationToken = default);
 }

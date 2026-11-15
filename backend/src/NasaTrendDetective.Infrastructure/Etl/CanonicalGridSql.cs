@@ -3,11 +3,11 @@ using NasaTrendDetective.Infrastructure.Etl.Models;
 namespace NasaTrendDetective.Infrastructure.Etl;
 
 /// <summary>
-/// Genera el SQL DuckDB que transforma las columnas crudas en tuplas canónicas WGS84:
-/// latitud validada en [-90, 90], longitud cruda aceptada en [-180, 360] y llevada a [-180, 180),
-/// ambas redondeadas a 2 decimales (DECIMAL(5,2)) para que celdas de misiones distintas coincidan.
-/// El valor y la anomalía se exponen tipados pero sin filtrar: la etapa <see cref="DataCleaningSql"/>
-/// los convierte en NULL analítico e imputa, en lugar de descartar la fila.
+/// Generates DuckDB SQL transforming raw columns into canonical WGS84 tuples:
+/// latitude validated in [-90, 90], raw longitude accepted in [-180, 360] and wrapped to [-180, 180),
+/// both rounded to 2 decimals (DECIMAL(5,2)) so cells from different missions align.
+/// Value and anomaly are exposed typed without filtering: the <see cref="DataCleaningSql"/> stage
+/// converts invalid entries into analytical NULLs and imputes them, rather than dropping the row.
 /// </summary>
 internal static class CanonicalGridSql
 {
@@ -22,9 +22,9 @@ internal static class CanonicalGridSql
             ? "TRY_CAST(raw_time AS TIMESTAMP)"
             : $"TRY_STRPTIME(raw_time, {DuckDbSqlText.Literal(mapping.TimeFormat)})";
 
-        // Doble módulo: en DuckDB '%' conserva el signo del dividendo (fmod), así que se suma 360
-        // antes del segundo módulo. Se redondea antes y después para evitar residuos binarios
-        // (359.99 - 360 = -0.0100000000000193) y el CASE final cubre el borde 179.995 -> 180.00.
+        // Double modulo: in DuckDB '%' preserves the sign of the dividend (fmod), so 360 is added
+        // before the second modulo. Rounding before and after prevents binary residue
+        // (359.99 - 360 = -0.0100000000000193) and the final CASE handles the boundary 179.995 -> 180.00.
         return $"""
             WITH src AS (
             {rawSelectSql}
@@ -65,7 +65,7 @@ internal static class CanonicalGridSql
     }
 
     /// <summary>
-    /// Exporta la tabla limpia a Parquet SNAPPY con la tupla canónica, ordenada para el data skipping.
+    /// Exports the cleaned table to SNAPPY-compressed Parquet with canonical tuples, sorted for data skipping.
     /// </summary>
     public static string BuildCopy(string cleanTable, string outputPath) =>
         $"""

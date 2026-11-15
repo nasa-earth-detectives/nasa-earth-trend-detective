@@ -32,8 +32,8 @@ public class OpposingTrendsController : ControllerBase
         {
             return NotFound(new ProblemDetails
             {
-                Title = "Caso no encontrado",
-                Detail = $"No se encontró un par teleconectado con el identificador '{pairId}'.",
+                Title = "Case not found",
+                Detail = $"No teleconnected pair was found with identifier '{pairId}'.",
                 Status = StatusCodes.Status404NotFound
             });
         }

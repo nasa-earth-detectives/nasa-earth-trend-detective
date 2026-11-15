@@ -17,32 +17,40 @@ Proporcionar solidez y validación biofísica irrefutable a las tendencias detec
 
 ## 📐 Inventario Verificado de Fórmulas Integradas en el Proyecto (Estado Real del Código)
 
-Todas estas ecuaciones están documentadas directamente dentro de las tarjetas `[PHYS-T1]` a `[PHYS-T5]` en ClickUp (`npm run sync:physics`):
+> **Actualización verificada del 2026-11-14 (`development` + PR #75 + PR #77):**
+> - **9 de 9 variables** ya operan con datos reales observados en Parquet (`backend/seed/`, incluyendo **GRACE/GRACE-FO** mascons GSFC `RL06v2.0` y **OCO-2 XCO₂** GIBS `V11.2r`), sin fallbacks sintéticos ni series de referencia lineales en `OpposingTrendsService`.
+> - El backend ya ejecuta **preblanqueamiento iterativo lag-1** (`PrewhiteningTrendTest`, Zhang 2000 / Wang & Swail 2001 — elegido mediante simulación AR(1) frente a TFPW), **control FDR Benjamini-Hochberg al 5 %** (`BenjaminiHochberg`) y **prueba t de regresión lineal** (`LinearTrendTest`), además de pruebas automáticas `2000–2025` sobre datos locales y APIs vivas de la NASA (`PR #77`).
+> - La interfaz está 100 % en **inglés** (`PR #75`). Detalles y puntos abiertos para revisión final de física en [[39-Formulas-y-Supuestos-para-QA-Fisico]] y [[40-GRACE-OCO2-Reales-y-Correcciones-de-Significancia]].
+
+Todas estas ecuaciones están sincronizadas dentro de las tarjetas `[PHYS-T1]` a `[PHYS-T5]` en ClickUp y en GitHub Issues `#66`–`#70`:
 
 1. **Núcleo Estadístico en C# (`backend/src/NasaTrendDetective.Application/Statistics/`):**
-   - **Mann-Kendall (`MannKendallCalculator.cs`):** $S = \sum_{k < j} \operatorname{sgn}(x_j - x_k)$ con umbral de empate $|x_j - x_k| \le 10^{-7}$ ($n \ge 3$); $\operatorname{Var}(S) = \frac{n(n-1)(2n+5) - \sum t_i(t_i-1)(2t_i+5)}{18}$ (redondeo a 6 decimales); estandarización $Z = \frac{S \mp 1}{\sqrt{\operatorname{Var}(S)}}$ y criterio bilateral $|Z| > 1.95996398454$ ($p < 0.05$). *(Nota: aún no implementa pre-blanqueamiento lag-1 Yue-Pilon).*
+   - **Mann-Kendall (`MannKendallCalculator.cs`):** $S = \sum_{k < j} \operatorname{sgn}(x_j - x_k)$ con umbral de empate $|x_j - x_k| \le 10^{-7}$ ($n \ge 3$); $\operatorname{Var}(S) = \frac{n(n-1)(2n+5) - \sum t_i(t_i-1)(2t_i+5)}{18}$ (redondeo a 6 decimales); estandarización $Z = \frac{S \mp 1}{\sqrt{\operatorname{Var}(S)}}$ y criterio bilateral $|Z| > 1.95996398454$ ($p < 0.05$).
+   - **Preblanqueamiento Iterativo lag-1 (`PrewhiteningTrendTest.cs`) + FDR (`BenjaminiHochberg.cs`) + Prueba t (`LinearTrendTest.cs`):** corrección iterativa contra persistencia serial $r_1$ con ajuste $(n-1)/|P|$ y control de falsos descubrimientos al 5 % en grilla.
    - **Normal Estándar (`NormalDistribution.cs`):** aproximación de **Abramowitz & Stegun** (error $< 1.5 \times 10^{-7}$): $t = \frac{1}{1 + 0.2316419 |z|}$, $\Phi(|z|) = 1 - \frac{1}{\sqrt{2\pi}} e^{-z^2/2}\sum_{m=1}^{5} B_m t^m$, $p = 2(1 - \Phi(|z|))$ ($0.0$ si $|z| \ge 8.0$).
-   - **Pendiente de Sen (`SensSlopeEstimator.cs`):** mediana de $Q_{kj} = \frac{x_j - x_k}{t_j - t_k}$ ($\Delta t \ne 0$, $n \ge 2$), `SlopePerDecade = medianSlope * 10`, e IC 95 % con $C_\alpha = Z_{0.975}\sqrt{\operatorname{Var}(S)}$ en índices $\lfloor(N \mp C_\alpha)/2\rfloor$.
-2. **Teleconexiones y Geometría Geodésica (`OpposingTrendsService.cs`, `teleconnectionService.ts`, `observationLookup.ts`):**
-   - **Índice de divergencia (`EvaluatePair`):** $|Z_{\text{inc}} - Z_{\text{dec}}|\cdot(1 + |\text{SensSlope}_{\text{inc}} - \text{SensSlope}_{\text{dec}}|)$ *(los 3 pares predefinidos usan $|Z_A - Z_B|$ sobre series lineales de referencia sin lag temporal)*.
+   - **Pendiente de Sen (`SensSlopeEstimator.cs`):** mediana de $Q_{kj} = \frac{x_j - x_k}{t_j - t_k}$ ($\Delta t \ne 0$, $n \ge 2$), `SlopePerDecade = medianSlope * 10`, e IC 95 % con $C_\alpha = Z_{0.975}\sqrt{\operatorname{Var}(S)}$ en índices $\lfloor(N \mp C_\alpha)/2\rfloor$ *(con ajuste de rango índice superior corregido frente a SciPy)*.
+2. **Teleconexiones y Geometría Geodésica (`OpposingTrendsService.cs`, `OpposingPairCatalog.cs`, `teleconnectionService.ts`, `observationLookup.ts`):**
+   - **4 pares dinámicos reales MERRA-2 (`1981–2025`):** Centro-Oeste de Brasil vs. Bangladés, Gansu vs. Sureste de Brasil y Lejano Oriente Ruso vs. Ontario/Quebec, evaluados con `DivergenceIndex = |Z_inc - Z_dec| · (1 + |SensSlope_inc - SensSlope_dec|)` y verificados tras preblanqueo. *(Pendiente revisar con Física el uso del $Z$ clásico frente al preblanqueado en `DivergenceIndex` — Nota 40 §8.8).*
    - **Arcos 3D y Haversine:** $\delta = \arccos(\sin\phi_1\sin\phi_2 + \cos\phi_1\cos\phi_2\cos(\lambda_2-\lambda_1))$, altitud $= 0.12 + 0.13\,\delta$; Haversine en grados con soporte $< 4^\circ$.
-3. **ETL DuckDB, Calor 3D y Mecánica Orbital (`CanonicalGridSql.cs`, `DataCleaningSql.cs`, `GridTrendService.cs`, `earthHeatRaster.ts`, `solarPosition.ts`, `lunarPosition.ts`, `satelliteMissions.ts`):**
-   - **WGS84 e imputación lineal ETL:** envoltura longitudinal a $[-180, 180)$ (`DECIMAL(5,2)`), fill values `[-9999, 9999]` y relleno lineal únicamente para huecos de **1 periodo** ($\Delta t \le 2.5\,\Delta t_{\text{min}}$); grilla con `MinMonthsPerYear = 9` y `MinYearsPerCell = 10`.
+3. **ETL DuckDB, Mascons GRACE, OCO-2, Calor 3D y Mecánica Orbital (`CanonicalGridSql.cs`, `DataCleaningSql.cs`, `GridTrendService.cs`, `earthHeatRaster.ts`, `solarPosition.ts`, `lunarPosition.ts`, `satelliteMissions.ts`):**
+   - **WGS84 e imputación lineal ETL:** envoltura longitudinal a $[-180, 180)$ (`DECIMAL(5,2)`), fill values `[-9999, 9999]` y relleno lineal únicamente para huecos de **1 periodo** ($\Delta t \le 2.5\,\Delta t_{\text{min}}$); grilla con `MinMonthsPerYear = 9` y `MinYearsPerCell = 10` (mascons GRACE GSFC `RL06v2.0` regrillados por área de solape; rango validado `±2,000 cm EWH`).
    - **Mapa de calor esférico y aclareo polar:** kernel cuadrático $w_i = \left(\frac{\cos\theta_i - \cos 4^\circ}{1 - \cos 4^\circ}\right)^2$ y aclareo `round(1 / max(cos φ, 1e-6))`.
-   - **Astronomía y órbitas:** posición subsolar USNO (1800–2200), serie lunar analítica (ecuación del centro, evección, variación) y parámetros nominales de Terra, Aqua, OCO-2 (`705 km`, `98.2°`) y GRACE-FO (`490 km`, `89°`) con exageración radial $R_{\text{vis}} = R_{\text{globo}}(1 + 3 h_{\text{km}}/6371)$ y `timeScale = 90×`.
-4. **Pendiente / NO codificado aún en backend (objetivo de revisión científica):** rezagos `lag 1–6` dinámicos, conversión gravimétrica $\text{EWH}=\Delta\sigma/\rho_w$ / filtrado GRACE externo, forzamiento radiativo $\Delta F = 5.35 \ln(C/C_0)$ y pre-blanqueamiento lag-1 (`TFPW`).
+   - **Astronomía y órbitas:** posición subsolar USNO (1800–2200), serie lunar analítica y parámetros nominales de Terra, Aqua, OCO-2 (`705 km`, `98.2°`) y GRACE-FO (`490 km`, `89°`) *(etiquetadas como órbitas ilustrativas aceleradas en UI)*.
+4. **Pendiente de decisión / revisión física final de Emilse (ver Nota 40 §8):** rezagos `lag 1–6` dinámicos, conversión externa/sesgo estacional GRACE 2013–2016 + hueco 2017–2018 + GIA ICE-6G_D, si el forzamiento radiativo $\Delta F = 5.35 \ln(C/C_0)$ requiere cálculo en UI/API o queda como marco documental, umbrales (`|r1| < 0.05`, tope `0.95`) y correlación espacial vecina (Wilks, 2016).
 
 ---
 
 ## 📊 Matriz General de Tareas en ClickUp para la Especialista en Física
 
-| Código | Tarea Principal | Estimación | Prioridad | Estado | ClickUp Task | Enfoque Físico & Testing |
+> *Nota operativa:* La lista `PhysicsModule` en ClickUp solo dispone de los estados `to do` y `complete`, por lo que permanecen en `to do ⚪` con sus descripciones actualizadas hasta que Emilse cierre el aval final; en **GitHub Project #1**, `#66`–`#69` (`PHYS-T1..T4`) ya figuran en **`Review`** y `#70` (`PHYS-T5`) en **`In Progress`**.
+
+| Código | Tarea Principal | Estimación | Prioridad | Estado ClickUp / GitHub | ClickUp Task | Enfoque Físico & Testing |
 | :--- | :--- | :---: | :---: | :---: | :---: | :--- |
-| **[PHYS-T1]** | Validación y testing físico de teleconexiones climáticas y arcos 3D | 8h | Alta (2) 🟠 | `to do` ⚪ | [`1dfmnrzd7ug`](https://app.clickup.com/t/1dfmnrzd7ug) | Consistencia y pruebas de correlaciones remotas ENSO, NAO, IOD y PDO. |
-| **[PHYS-T2]** | Testing de modelado de masa de agua equivalente y gravedad (GRACE/GRACE-FO) | 10h | Alta (2) 🟠 | `to do` ⚪ | [`1dfmnrzd7um`](https://app.clickup.com/t/1dfmnrzd7um) | Verificación geofísica de armónicos esféricos a altura equivalente de agua (EWH en cm). |
-| **[PHYS-T3]** | Testing de forzamiento radiativo y balance térmico ($CO_2$ OCO-2 vs. GISTEMP) | 8h | Normal (3) 🔵 | `to do` ⚪ | [`1dfmnrzd7ur`](https://app.clickup.com/t/1dfmnrzd7ur) | Pruebas del forzamiento radiativo instantáneo $\Delta F = 5.35 \ln(C/C_0) \text{ W/m}^2$. |
-| **[PHYS-T4]** | Testing de pre-blanqueamiento físico de autocorrelación lag-1 en Mann-Kendall | 6h | Alta (2) 🟠 | `to do` ⚪ | [`1dfmnrzd7uw`](https://app.clickup.com/t/1dfmnrzd7uw) | Pruebas de mitigación de falsos positivos en series geofísicas con persistencia roja (Yue-Pilon). |
-| **[PHYS-T5]** | Auditoría integral y testing de consistencia termodinámica y unidades en UI | 6h | Normal (3) 🔵 | `to do` ⚪ | [`1dfmnrzd7v0`](https://app.clickup.com/t/1dfmnrzd7v0) | Validación en producción de casos guiados, unidades físicas y rigor para el jurado NASA. |
+| **[PHYS-T1]** | Validación y testing físico de teleconexiones climáticas y arcos 3D | 8h | Alta (2) 🟠 | `to do ⚪` / `Review` | [`1dfmnrzd7ug`](https://app.clickup.com/t/1dfmnrzd7ug) | Pares dinámicos reales MERRA-2 listos; revisar `DivergenceIndex` y lag temporal (`#66`). |
+| **[PHYS-T2]** | Testing de modelado de masa de agua equivalente y gravedad (GRACE/GRACE-FO) | 10h | Alta (2) 🟠 | `to do ⚪` / `Review` | [`1dfmnrzd7um`](https://app.clickup.com/t/1dfmnrzd7um) | Mascons reales `RL06v2.0` (`2002–2025`) integrados; revisar Nota 40 §8.6 (`#67`). |
+| **[PHYS-T3]** | Testing de forzamiento radiativo y balance térmico ($CO_2$ OCO-2 vs. GISTEMP) | 8h | Normal (3) 🔵 | `to do ⚪` / `Review` | [`1dfmnrzd7ur`](https://app.clickup.com/t/1dfmnrzd7ur) | OCO-2 `V11.2r` (`2015–2025`) + GISTEMP real + API viva GISS en CI (`#68`). |
+| **[PHYS-T4]** | Testing de pre-blanqueamiento físico de autocorrelación lag-1 en Mann-Kendall | 6h | Alta (2) 🟠 | `to do ⚪` / `Review` | [`1dfmnrzd7uw`](https://app.clickup.com/t/1dfmnrzd7uw) | Preblanqueo iterativo, BH FDR y tests `2000–2025` integrados; revisar §8.1–8.5 (`#69`). |
+| **[PHYS-T5]** | Auditoría integral y testing de consistencia termodinámica y unidades en UI | 6h | Normal (3) 🔵 | `to do ⚪` / `In Progress` | [`1dfmnrzd7v0`](https://app.clickup.com/t/1dfmnrzd7v0) | UI inglés + unidades verificadas (PR #75, #77); pendiente auditoría en vivo (`#70`). |
 
 ---
 
@@ -82,13 +90,13 @@ Todas estas ecuaciones están documentadas directamente dentro de las tarjetas `
 ---
 
 ### 📉 [PHYS-T4] Pre-blanqueamiento físico de autocorrelación lag-1 en Mann-Kendall
-* **Descripción:** Los datos geofísicos y climáticos presentan inercia térmica y memoria de estado (autocorrelación serial $\rho_1 > 0$), lo que infla artificialmente la significancia estadística del test de Mann-Kendall. Implementar o validar el filtro de pre-blanqueamiento (*Trend-Free Pre-Whitening* - TFPW).
+* **Descripción:** Los datos geofísicos y climáticos presentan inercia térmica y memoria de estado (autocorrelación serial $\rho_1 > 0$), lo que infla artificialmente la significancia estadística del test de Mann-Kendall. Evaluar el pre-blanqueamiento iterativo adoptado frente a *Trend-Free Pre-Whitening* (TFPW).
 * **Prioridad:** Alta (2) 🟠
 * **Subtareas:**
-  - **PHYS-T4.1:** Formular el cálculo del coeficiente de autocorrelación lag-1 $r_1 = \frac{\sum (x_t - \bar{x})(x_{t+1} - \bar{x})}{\sum (x_t - \bar{x})^2}$.
-  - **PHYS-T4.2:** Definir el protocolo Yue-Pilon (1998): sustracción de pendiente de Sen preliminar, filtrado autorregresivo $y'_t = y_t - r_1 y_{t-1}$, y reincorporación de la pendiente real.
-  - **PHYS-T4.3:** Contrastar los p-valores antes y después del pre-whitening para descartar falsas tendencias inducidas por ruido rojo.
-* **Criterio de Aceptación:** Algoritmo documentado y probado con series sintéticas y reales de GISTEMP con $\rho_1 > 0.2$.
+  - **PHYS-T4.1:** Auditar el cálculo del coeficiente de autocorrelación lag-1 $r_1 = \frac{\sum (x_t - \bar{x})(x_{t+1} - \bar{x})}{\sum (x_t - \bar{x})^2}$ y su compensación por huecos.
+  - **PHYS-T4.2:** Revisar el benchmark comparativo entre **preblanqueamiento iterativo** (Zhang 2000 / Wang & Swail 2001, adoptado en `PrewhiteningTrendTest.cs`) y TFPW (Yue-Pilon), donde la simulación de 2,000 series AR(1) mostró menor tasa de falsos positivos con el enfoque iterativo.
+  - **PHYS-T4.3:** Contrastar los p-valores preblanqueados + FDR Benjamini-Hochberg frente a KNMI Climate Explorer y definir criterios finales de [[40-GRACE-OCO2-Reales-y-Correcciones-de-Significancia]] (§8.1–8.5).
+* **Criterio de Aceptación:** Algoritmo documentado y probado con series sintéticas y reales de GISTEMP (`PR #77` + aval final de Física).
 
 ---
 

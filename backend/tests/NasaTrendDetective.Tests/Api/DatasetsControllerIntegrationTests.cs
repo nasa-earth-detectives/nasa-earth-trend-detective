@@ -2,12 +2,13 @@ using System.Net;
 using System.Net.Http.Json;
 using Microsoft.AspNetCore.Mvc.Testing;
 using NasaTrendDetective.Application.DTOs;
+using NasaTrendDetective.Domain.Entities;
 
 namespace NasaTrendDetective.Tests.Api;
 
 /// <summary>
-/// Sin datasets sembrados (la carpeta de semillas no existe en el directorio de pruebas): la API
-/// debe declarar todo como sintético y negarse a inventar una grilla.
+/// Without seeded datasets (the seed directory does not exist in the test execution folder):
+/// the API must declare everything as synthetic and refuse to invent a grid.
 /// </summary>
 [Collection(ApiHostCollection.Name)]
 public class DatasetsControllerIntegrationTests : IClassFixture<WebApplicationFactory<Program>>
@@ -26,7 +27,11 @@ public class DatasetsControllerIntegrationTests : IClassFixture<WebApplicationFa
         var datasets = await _client.GetFromJsonAsync<List<DatasetStatusDto>>("/api/datasets");
 
         Assert.NotNull(datasets);
-        Assert.Equal(["Gistemp", "ModisNdvi", "GraceMass", "Oco2"], datasets.Select(d => d.Code));
+        Assert.Equal(
+            ["Gistemp", "ModisNdvi", "GraceMass", "Oco2",
+             "Merra2Temperature", "Merra2Precipitation", "Merra2Evaporation", "Merra2SoilMoisture",
+             "GpmPrecipitation"],
+            datasets.Select(d => d.Code));
         Assert.All(datasets, d => Assert.Equal(d.Provenance is null ? "synthetic" : "observed", d.Status));
     }
 
@@ -36,7 +41,7 @@ public class DatasetsControllerIntegrationTests : IClassFixture<WebApplicationFa
         var response = await _client.GetAsync("/api/trends/grid?variable=Oco2&startYear=2000&endYear=2025");
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
-        Assert.Contains("Sin datos observados", await response.Content.ReadAsStringAsync());
+        Assert.Contains("No observed data", await response.Content.ReadAsStringAsync());
     }
 
     [Fact]
@@ -45,5 +50,29 @@ public class DatasetsControllerIntegrationTests : IClassFixture<WebApplicationFa
         var response = await _client.GetAsync("/api/trends/grid?variable=Gistemp&startYear=2025&endYear=2000");
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task GetTrends_MerraVariableWithoutDataset_ReturnsAnEmptySeriesInsteadOfAnInventedOne()
+    {
+        var result = await _client.GetFromJsonAsync<TrendResultDto>(
+            "/api/trends?variable=Merra2Precipitation&startYear=1981&endYear=2025&latitude=1&longitude=1");
+
+        Assert.NotNull(result);
+        Assert.Equal("synthetic", result.Source);
+        Assert.NotNull(result.Observations);
+        Assert.Empty(result.Observations);
+        Assert.False(result.IsSignificant);
+        Assert.Equal(0.0, result.SensSlope);
+    }
+
+    [Fact]
+    public async Task GetObservations_MerraVariableWithoutDataset_ReturnsAnEmptyList()
+    {
+        var observations = await _client.GetFromJsonAsync<List<TrendObservation>>(
+            "/api/trends/observations?variable=Merra2Temperature&year=2020");
+
+        Assert.NotNull(observations);
+        Assert.Empty(observations);
     }
 }

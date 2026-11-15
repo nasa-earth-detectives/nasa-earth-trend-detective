@@ -1,11 +1,12 @@
 import type { GlobeInstance } from 'globe.gl';
 import { Color } from 'three';
 import type { Teleconnection, TeleconnectionEndpoint } from '../../types/teleconnection.types';
+import { getActiveLocale, getTranslations } from '../../i18n';
 
 /**
- * Arcos finos y continuos entre regiones conectadas, con degradado del origen (tenue) al destino
- * (pleno) y un punto en cada extremo. Sin guiones ni pulsos: cortados, parecían líneas rotas.
- * Los datos llegan de la API (/api/trends/opposing) más dos procesos físicos ilustrativos.
+ * Thin continuous arcs between connected regions, with a gradient from origin (faint) to target
+ * (full) and a point at each endpoint. No dashes or pulses: dashed lines looked broken.
+ * Data arrives from the API (/api/trends/opposing) plus two illustrative physical processes.
  */
 interface ArcDatum {
   connection: Teleconnection;
@@ -52,7 +53,8 @@ export function createEarthTeleconnectionArcs(globe: GlobeInstance) {
       .arcCurveResolution(96)
       .arcLabel((d: object) => {
         const { connection } = d as ArcDatum;
-        const note = connection.source === 'local' ? '<br/><i>Proceso físico · ilustrativo</i>' : '';
+        const t = getTranslations(getActiveLocale());
+        const note = connection.source === 'local' ? `<br/><i>${escapeHtml(t.workspace.teleconnectionIllustrative)}</i>` : '';
         return `<b>${escapeHtml(connection.name)}</b><br/>${escapeHtml(connection.from.label)} → ${escapeHtml(connection.to.label)}${note}`;
       })
       .pointsMerge(false)

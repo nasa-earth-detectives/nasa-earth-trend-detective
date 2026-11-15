@@ -1,85 +1,139 @@
 /**
- * Catálogo único de capas científicas de la plataforma.
+ * Single catalog of scientific layers for the platform.
  *
- * Fuente de verdad compartida por el Layer Drawer y cualquier futura capa 3D.
- * Evita duplicar la metadatos de variables en varios componentes.
+ * Shared source of truth for the Layer Drawer and any future 3D layer.
+ * Avoids duplicating variable metadata across components.
  */
-import { VariableMetadata } from '../types/climate.types';
+import type { ClimateVariable, VariableMetadata } from '../types/climate.types';
 
 /**
- * Rango de navegación: desde 2000 hasta el año en curso (UTC), siempre el actual. El año en
- * curso es parcial: la interfaz muestra hasta qué mes llegan los datos (DatasetProvenance.lastMonth).
+ * Navigation range: from 2000 to the current year (UTC), always up to date. The current
+ * year is partial: the UI shows the latest available month (DatasetProvenance.lastMonth).
  */
 export const SATELLITE_TIMELINE = { startYear: 2000, endYear: new Date().getUTCFullYear() } as const;
 
-/** Variables soportadas hoy de extremo a extremo (tipo `ClimateVariable`). */
+/**
+ * Earliest year with real data across all sources (MERRA-2). Default start of the trend
+ * period: the challenge calls for a long series, and each source trims it to its own coverage.
+ */
+export const EARLIEST_RECORD_YEAR = 1981;
+
+/** Variables currently supported end-to-end (`ClimateVariable` type). */
 export const CLIMATE_VARIABLES: VariableMetadata[] = [
   {
     id: 'Gistemp',
-    name: 'Temperatura superficial',
+    name: 'Surface temperature',
     satelliteMission: 'NASA GISTEMP v4',
-    unit: '°C anomalía',
-    description: 'Anomalías de temperatura combinadas tierra-océano.',
+    unit: '°C anomaly',
+    description: 'Combined land-ocean temperature anomalies.',
+    colorScheme: 'Thermal',
+  },
+  // MERRA-2: NASA reanalysis named in the challenge. Annual mean served by NASA POWER, 1981-2025.
+  {
+    id: 'Merra2Temperature',
+    name: 'Air temperature (2 m)',
+    satelliteMission: 'MERRA-2 · NASA POWER',
+    unit: '°C · anomaly',
+    description: 'Annual mean 2 m air temperature, as difference relative to 1991–2020.',
     colorScheme: 'Thermal',
   },
   {
+    id: 'GpmPrecipitation',
+    name: 'Precipitation (satellite)',
+    satelliteMission: 'GPM IMERG · NASA POWER',
+    unit: 'mm/day · anomaly',
+    description: 'Satellite-estimated rain and snow, as difference relative to 2001–2020.',
+    colorScheme: 'Hydrology',
+  },
+  {
+    id: 'Merra2Precipitation',
+    name: 'Precipitation (model)',
+    satelliteMission: 'MERRA-2 · NASA POWER',
+    unit: 'mm/day · anomaly',
+    description: 'Annual mean rain and snow, as difference relative to 1991–2020.',
+    colorScheme: 'Hydrology',
+  },
+  {
+    id: 'Merra2Evaporation',
+    name: 'Land evaporation',
+    satelliteMission: 'MERRA-2 · NASA POWER',
+    unit: 'mm/day · anomaly',
+    description: 'Water moving from soil and plants into the air. Over land only.',
+    colorScheme: 'Hydrology',
+  },
+  {
+    id: 'Merra2SoilMoisture',
+    name: 'Soil moisture',
+    satelliteMission: 'MERRA-2 · NASA POWER',
+    unit: '0–1 fraction · anomaly',
+    description: 'Water available to plants in the root zone. Over land only.',
+    colorScheme: 'Hydrology',
+  },
+  {
     id: 'ModisNdvi',
-    name: 'Vegetación · NDVI',
-    satelliteMission: 'Terra/Aqua MODIS',
-    unit: 'NDVI −1 a 1',
-    description: 'Vigor fotosintético y cobertura de biomasa vegetal.',
+    name: 'Vegetation · NDVI',
+    satelliteMission: 'MODIS Terra · NASA GIBS',
+    unit: 'NDVI 0 to 1',
+    description: 'Vegetation index: how much live vegetation is present. Monthly mean since 2000.',
     colorScheme: 'Vegetation',
   },
   {
     id: 'GraceMass',
-    name: 'Masa de agua y hielo',
+    name: 'Water & ice mass',
     satelliteMission: 'GRACE / GRACE-FO',
     unit: 'cm H₂O eq.',
-    description: 'Anomalías gravitatorias de reservas de agua y hielo.',
+    description: 'Water and ice on land, weighed from space: monthly anomaly relative to 2004-2009. Since 2002.',
     colorScheme: 'Hydrology',
   },
   {
     id: 'Oco2',
-    name: 'Dióxido de carbono',
-    satelliteMission: 'OCO-2 / OCO-3',
+    name: 'Carbon dioxide',
+    satelliteMission: 'OCO-2',
     unit: 'ppm XCO₂',
-    description: 'Fracción molar de CO₂ en columna atmosférica total.',
+    description: 'Column-averaged CO₂ measured by the OCO-2 satellite: annual mean. Since 2015.',
     colorScheme: 'Atmospheric',
   },
 ];
 
-/** Fila de estado del instrumento: capacidad presente o anunciada. */
+/** Single list of variable codes; both the API catalog and shared URLs validate against it. */
+export const VARIABLE_IDS: readonly ClimateVariable[] = CLIMATE_VARIABLES.map(variable => variable.id);
+
+/** Variables that also cover the ocean: only for these does choosing between land and land + ocean apply. */
+export const OCEAN_COVERING_VARIABLES: ReadonlySet<ClimateVariable> =
+  new Set<ClimateVariable>(['Gistemp', 'Oco2', 'Merra2Temperature', 'Merra2Precipitation', 'GpmPrecipitation']);
+
+/** Instrument status row: current or planned capability. */
 export interface StatusRow {
   id: string;
   name: string;
   detail?: string;
-  /** Marcador corto de disponibilidad. */
+  /** Short availability marker. */
   status: string;
-  /** Capacidad implementada; no representa el estado de carga de sus assets. */
+  /** Implemented capability; does not represent asset loading state. */
   active?: boolean;
 }
 
 /**
- * Nivel del Mar figura en el roadmap, pero `ClimateVariable` y la API .NET
- * todavía no lo contemplan. Se declara desactivado en vez de simular soporte.
+ * Sea Level is on the roadmap, but `ClimateVariable` and the .NET API
+ * do not support it yet. Declared as upcoming rather than simulating support.
  */
 export const UPCOMING_VARIABLES: StatusRow[] = [
-  { id: 'sentinel6', name: 'Nivel del mar', detail: 'Sentinel-6 / ECCO', status: 'Altimetría', active: true },
+  { id: 'sentinel6', name: 'Sea level', detail: 'Sentinel-6 / ECCO', status: 'Altimetry', active: true },
 ];
 
-/** Capas de análisis y dinámicas globales del planeta operativas. */
+/** Operational global planetary dynamics and analysis overlays. */
 export const SCIENTIFIC_OVERLAYS: StatusRow[] = [
-  { id: 'ocean-flow', name: 'Corrientes marinas 3D (ECCO/OSCAR)', status: 'Operativo', active: true },
-  { id: 'teleconnections', name: 'Teleconexiones climáticas (ENSO/AMOC)', status: 'Operativo', active: true },
-  { id: 'hotspots', name: 'Ondas radar en hotspots extremos', status: 'Operativo', active: true },
-  { id: 'opposing', name: 'Motor de tendencias opuestas', status: 'Algoritmo', active: true },
-  { id: 'satellites', name: 'Constelación satelital orbital', status: 'Operativo', active: true },
+  { id: 'ocean-flow', name: '3D ocean currents (ECCO/OSCAR)', status: 'Operational', active: true },
+  { id: 'teleconnections', name: 'Climate teleconnections (ENSO/AMOC)', status: 'Operational', active: true },
+  { id: 'hotspots', name: 'Extreme hotspot radar waves', status: 'Operational', active: true },
+  { id: 'opposing', name: 'Opposing trends engine', status: 'Algorithm', active: true },
+  { id: 'satellites', name: 'Orbital satellite constellation', status: 'Operational', active: true },
 ];
 
-/** Capacidades integradas en earthSurface; los interruptores se muestran sólo si existe API real. */
+/** Capabilities built into earthSurface; toggles are shown only when a real API exists. */
 export const VISUAL_SYSTEM_ROWS: StatusRow[] = [
-  { id: 'atmosphere', name: 'Atmósfera', status: 'Integrado', active: true },
-  { id: 'clouds', name: 'Capa de nubes', status: 'Integrado', active: true },
-  { id: 'night-lights', name: 'Luces nocturnas', status: 'Integrado', active: true },
-  { id: 'terminator', name: 'Terminador día/noche', status: 'Hora actual', active: true },
+  { id: 'atmosphere', name: 'Atmosphere', status: 'Built-in', active: true },
+  { id: 'clouds', name: 'Cloud layer', status: 'Built-in', active: true },
+  { id: 'night-lights', name: 'Night lights', status: 'Built-in', active: true },
+  { id: 'terminator', name: 'Day/night terminator', status: 'Current time', active: true },
 ];

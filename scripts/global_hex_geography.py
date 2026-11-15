@@ -1,4 +1,4 @@
-"""Fuentes Natural Earth verificadas y rasterización de tierra y glaciares."""
+"""Verified Natural Earth sources and rasterization of land and glaciers."""
 from __future__ import annotations
 
 import hashlib
@@ -27,18 +27,18 @@ def verified_source(name: str) -> dict:
         with urllib.request.urlopen(request, timeout=45) as response:
             content = response.read()
     if hashlib.sha256(content).hexdigest() != SOURCES[name]:
-        raise ValueError(f"La fuente Natural Earth cambió: {name}; revisar antes de reemplazarla")
+        raise ValueError(f"Natural Earth source has changed: {name}; review before replacing")
     if not path.exists():
         CACHE.mkdir(parents=True, exist_ok=True)
         path.write_bytes(content)
     dataset = json.loads(content)
     if dataset.get("type") != "FeatureCollection":
-        raise ValueError(f"GeoJSON inválido: {name}")
+        raise ValueError(f"Invalid GeoJSON: {name}")
     return dataset
 
 
 def rasterize(dataset: dict, size: tuple[int, int]) -> Image.Image:
-    """Rasterización equirectangular de polígonos y huecos, respetando su unión."""
+    """Equirectangular rasterization of polygons and holes, respecting their union."""
     width, height = size
     image = Image.new("L", size)
     for feature in dataset["features"]:
@@ -48,11 +48,11 @@ def rasterize(dataset: dict, size: tuple[int, int]) -> Image.Image:
         elif geometry["type"] == "MultiPolygon":
             polygons = geometry["coordinates"]
         else:
-            raise ValueError("Se requieren Polygon o MultiPolygon")
+            raise ValueError("Polygon or MultiPolygon required")
         for rings in polygons:
             for ring in rings:
                 if any(abs(a[0] - b[0]) > 180 for a, b in zip(ring, ring[1:])):
-                    raise ValueError("Una geometría nueva cruza el antimeridiano sin dividirse")
+                    raise ValueError("A new geometry crosses the antimeridian without splitting")
             projected = [[((lng + 180) / 360 * width, (90 - lat) / 180 * height)
                           for lng, lat in ring] for ring in rings]
             outer = projected[0]

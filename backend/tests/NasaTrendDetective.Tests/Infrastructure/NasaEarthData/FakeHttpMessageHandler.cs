@@ -4,8 +4,8 @@ using System.Net.Http.Headers;
 namespace NasaTrendDetective.Tests.Infrastructure.NasaEarthData;
 
 /// <summary>
-/// HttpMessageHandler simulado: responde con una cola de respuestas y registra cada request.
-/// Nunca sale a internet.
+/// Mocked HttpMessageHandler: responds with a queue of responses and records every request.
+/// Never reaches out to the internet.
 /// </summary>
 internal sealed class FakeHttpMessageHandler : HttpMessageHandler
 {
@@ -60,7 +60,7 @@ internal sealed class FakeHttpMessageHandler : HttpMessageHandler
             Requests.Add(new RecordedRequest(request.RequestUri!, request.Headers.Authorization));
             if (!_responses.TryDequeue(out next!))
             {
-                throw new InvalidOperationException($"Request inesperado a {request.RequestUri}.");
+                throw new InvalidOperationException($"Unexpected request to {request.RequestUri}.");
             }
         }
 

@@ -4,8 +4,8 @@ using NasaTrendDetective.Domain.Enums;
 namespace NasaTrendDetective.Application.DTOs;
 
 /// <summary>
-/// Estado de una variable: "observed" si hay un dataset real cargado (con su procedencia) o
-/// "synthetic" si la API solo puede ofrecer series de demostración.
+/// Status of a variable: "observed" if a real dataset is loaded (with its provenance) or
+/// "synthetic" if the API can only provide demonstration time series.
 /// </summary>
 public class DatasetStatusDto
 {

@@ -19,8 +19,8 @@ interface TimelinePlaybackParams {
 }
 
 /**
- * Hook para control de reproducción temporal con velocidad regulable (1x, 2x, 5x)
- * y modo bucle (loop) para simulación histórica continua.
+ * Hook for timeline playback control with adjustable speed (1x, 2x, 5x)
+ * and loop mode for continuous historical simulation.
  */
 export function useTimelinePlayback({
   startYear, endYear, currentYear, onChange, onPlaybackChange,

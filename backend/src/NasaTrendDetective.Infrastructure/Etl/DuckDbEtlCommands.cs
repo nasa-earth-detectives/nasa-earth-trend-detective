@@ -6,7 +6,7 @@ using NasaTrendDetective.Infrastructure.Etl.Models;
 namespace NasaTrendDetective.Infrastructure.Etl;
 
 /// <summary>
-/// Comandos DuckDB reutilizados por el pipeline ETL (escalares, DDL y lectura de métricas de calidad).
+/// DuckDB commands reused across the ETL pipeline (scalars, DDL, and quality metric reads).
 /// </summary>
 internal static class DuckDbEtlCommands
 {
@@ -26,7 +26,7 @@ internal static class DuckDbEtlCommands
     }
 
     /// <summary>
-    /// Calcula las métricas de calidad sobre la tabla limpia (columnas is_valid, is_imputed, value).
+    /// Computes quality metrics on the cleaned table (columns is_valid, is_imputed, value).
     /// </summary>
     public static async Task<DataQualityMetrics> ReadQualityAsync(
         DuckDBConnection connection,

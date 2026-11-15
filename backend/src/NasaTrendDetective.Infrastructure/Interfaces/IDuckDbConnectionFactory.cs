@@ -3,7 +3,7 @@ using DuckDB.NET.Data;
 namespace NasaTrendDetective.Infrastructure.Interfaces;
 
 /// <summary>
-/// Crea conexiones DuckDB aisladas (una por operación) listas para usarse.
+/// Creates isolated DuckDB connections (one per operation) ready for use.
 /// </summary>
 public interface IDuckDbConnectionFactory
 {

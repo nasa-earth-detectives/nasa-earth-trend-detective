@@ -29,7 +29,7 @@ public class NasaDatasetCatalogTests
     [Fact]
     public void TryGet_UnknownKey_ReturnsFalseAndGetThrows()
     {
-        Assert.False(NasaDatasetCatalog.TryGet("desconocido", out _));
-        Assert.Throws<KeyNotFoundException>(() => NasaDatasetCatalog.Get("desconocido"));
+        Assert.False(NasaDatasetCatalog.TryGet("unknown", out _));
+        Assert.Throws<KeyNotFoundException>(() => NasaDatasetCatalog.Get("unknown"));
     }
 }

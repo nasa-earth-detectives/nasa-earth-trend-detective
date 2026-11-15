@@ -9,8 +9,8 @@ const FLOW_COLORS: Record<OceanCurrentPath['temperature'], string> = {
 };
 
 /**
- * Módulo de renderizado de corrientes oceánicas fluidas en 3D (Globe.gl).
- * Representa la circulación termohalina y giros eólicos (NASA ECCO/OSCAR).
+ * 3D fluid ocean current rendering module (Globe.gl).
+ * Visualizes thermohaline circulation and wind-driven gyres (NASA ECCO/OSCAR).
  */
 export function createEarthOceanFlow(globe: GlobeInstance) {
   let visible = true;
@@ -21,8 +21,8 @@ export function createEarthOceanFlow(globe: GlobeInstance) {
       .pathsData(visible ? activePaths : [])
       .pathPoints((d: object) => (d as OceanCurrentPath).coords)
       .pathPointAlt(0.0035)
-      // Corriente = flujo suave sobre el mar, no un rótulo de neón: trazo fino, color por
-      // temperatura con transparencia y guiones más lentos que los arcos.
+      // Current = gentle flow over the sea, not a neon sign: thin stroke, color by
+      // temperature with transparency, and dashes slower than teleconnection arcs.
       .pathColor((d: object) => FLOW_COLORS[(d as OceanCurrentPath).temperature])
       .pathStroke((d: object) => (d as OceanCurrentPath).stroke * 0.38)
       .pathDashLength((d: object) => (d as OceanCurrentPath).dashLength * 0.6)

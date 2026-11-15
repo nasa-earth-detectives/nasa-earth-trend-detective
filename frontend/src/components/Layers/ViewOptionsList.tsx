@@ -1,6 +1,7 @@
 import { VISUAL_SYSTEM_ROWS } from '../../config/climateLayers';
 import { InstrumentSwitch } from '../UI/InstrumentSwitch';
 import { StatusRowList } from './StatusRowList';
+import { useI18n } from '../../i18n';
 
 interface ViewOptionsListProps {
   autoRotate: boolean;
@@ -13,28 +14,29 @@ interface ViewOptionsListProps {
   onAtmosphereChange: (value: boolean) => void;
 }
 
-/** Cada interruptor expuesto controla una capacidad presente de la escena. */
+/** Each exposed switch controls an active scene capability. */
 export function ViewOptionsList({
   autoRotate, starsVisible, gridVisible, atmosphereVisible,
   onAutoRotateChange, onStarsChange, onGridChange, onAtmosphereChange,
 }: ViewOptionsListProps) {
+  const { t } = useI18n();
   return (
     <div className="scene-instrument">
-      <h3 className="instrument-kicker">Movimiento y referencias</h3>
-      <InstrumentSwitch label="Rotación automática" description="Giro de cámara en reposo"
+      <h3 className="instrument-kicker">{t.layers.motionHeading}</h3>
+      <InstrumentSwitch label={t.layers.autoRotateLabel} description={t.layers.autoRotateDesc}
         checked={autoRotate} onChange={onAutoRotateChange} />
-      <InstrumentSwitch label="Campo estelar" description="Referencia del espacio exterior"
+      <InstrumentSwitch label={t.layers.starsLabel} description={t.layers.starsDesc}
         checked={starsVisible} onChange={onStarsChange} />
-      <InstrumentSwitch label="Retícula geográfica" description="Meridianos y paralelos"
+      <InstrumentSwitch label={t.layers.gridLabel} description={t.layers.gridDesc}
         checked={gridVisible} onChange={onGridChange} />
-      <h3 className="instrument-kicker scene-instrument__section">Visibilidad del planeta</h3>
-      <InstrumentSwitch label="Atmósfera" description="Contorno atmosférico"
+      <h3 className="instrument-kicker scene-instrument__section">{t.layers.visibilityHeading}</h3>
+      <InstrumentSwitch label={t.layers.atmosphereLabel} description={t.layers.atmosphereDesc}
         checked={atmosphereVisible} onChange={onAtmosphereChange} />
       <details className="instrument-future">
-        <summary className="focus-ring" title="Capacidades incluidas en la escena. Integrado no indica el estado de carga de sus mapas.">
-          Sistema visual integrado <span aria-hidden="true">+</span>
+        <summary className="focus-ring" title={t.layers.integratedTitle}>
+          {t.layers.integratedSummary} <span aria-hidden="true">+</span>
         </summary>
-        <StatusRowList title="Capacidades integradas del planeta" rows={VISUAL_SYSTEM_ROWS.filter((row) => row.id !== 'atmosphere')} />
+        <StatusRowList title={t.layers.integratedAria} rows={VISUAL_SYSTEM_ROWS.filter((row) => row.id !== 'atmosphere')} />
       </details>
     </div>
   );

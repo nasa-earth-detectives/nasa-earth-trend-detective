@@ -1,14 +1,29 @@
 import type { ClimateVariable } from './climate.types';
 
-/** Una columna representa una tendencia en una ubicación, nunca elevación del terreno. */
+/** A column represents a trend at a location, never terrain elevation. */
 export interface HexCell {
   id: string;
   latitude: number;
   longitude: number;
   slope: number;
+  /** Uncorrected Mann-Kendall p-value. Only present with API data. */
+  pValue?: number;
+  /** q-value: prewhitened p-value, Benjamini-Hochberg adjusted across all cells in the map. */
+  adjustedPValue?: number;
+  /** The trend passes persistence correction and false discovery rate control. */
+  robust?: boolean;
 }
 
-/** Frontera entre la fuente de datos y la escena. No contiene objetos de Three.js. */
+/** Map cells passing each significance filter, from most permissive to strictest. */
+export interface HexSignificance {
+  analyzed: number;
+  uncorrected: number;
+  persistent: number;
+  corrected: number;
+  falseDiscoveryRate: number;
+}
+
+/** Boundary between data source and scene. Contains no Three.js objects. */
 export interface HexDataset {
   cells: HexCell[];
   variable: ClimateVariable;
@@ -16,8 +31,10 @@ export interface HexDataset {
   endYear: number;
   unit: string;
   source: 'demo' | 'api';
-  /** Magnitud que llena la escala vertical; permanece fija al cambiar las fechas. */
+  /** Magnitude that fills the vertical scale; remains fixed when dates change. */
   heightDomain: number;
-  /** Separación nominal de centros; la huella visual no implica una cobertura NASA. */
+  /** Nominal center spacing; visual footprint does not imply NASA coverage. */
   resolutionDegrees: number;
+  /** Count of significant cells; absent with sample data or an API that does not declare it. */
+  significance?: HexSignificance;
 }

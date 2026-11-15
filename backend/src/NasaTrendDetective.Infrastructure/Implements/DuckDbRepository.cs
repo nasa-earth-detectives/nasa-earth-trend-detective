@@ -8,8 +8,8 @@ using NasaTrendDetective.Infrastructure.Queries.Models;
 namespace NasaTrendDetective.Infrastructure.Implements;
 
 /// <summary>
-/// Repositorio real sobre DuckDB embebido. Abre una conexión aislada por operación y la libera
-/// al terminar para evitar bloqueos entre peticiones concurrentes.
+/// Embedded DuckDB repository. Opens an isolated connection per operation and disposes it
+/// upon completion to prevent blocking between concurrent requests.
 /// </summary>
 public sealed class DuckDbRepository : IDuckDbRepository
 {

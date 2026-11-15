@@ -1,32 +1,32 @@
 /**
- * Amplía el material Lambert que three-slippy-map-globe crea para cada mosaico.
+ * Extends the MeshLambertMaterial that three-slippy-map-globe creates for each tile.
  *
- * Por qué Lambert y no un ShaderMaterial propio: la librería ya lo crea y responde a
- * las luces de la escena, de modo que el sol UTC real ilumina los mosaicos sin código
- * adicional. Aquí sólo se añade lo que el material no sabe hacer:
- * - relieve: normales perturbadas con la pendiente de la elevación Terrarium;
- * - noche: el mosaico se vuelve transparente y deja ver las luces de Black Marble;
- * - relleno sin dato: Landsat WELD rellena el océano de negro puro y se descarta;
- * - aparición gradual compartida por capa.
+ * Why Lambert rather than a custom ShaderMaterial: the library already sets it up and responds to
+ * scene lights, so real UTC sunlight naturally illuminates tiles with no additional code.
+ * Only missing capabilities are added here:
+ * - relief: perturbed normals using Terrarium elevation slopes;
+ * - night: tile becomes transparent to reveal Black Marble lights;
+ * - no-data fill: Landsat WELD fills ocean with pure black, which is keyed out;
+ * - shared gradual fade-in per layer.
  */
 import type { MeshLambertMaterial, Texture, Vector3 } from 'three';
 
-/** Uniformes compartidos por todos los mosaicos de una capa: un cambio los mueve a todos. */
+/** Uniforms shared across all tiles in a layer: updating them alters all tiles at once. */
 export interface TileShaderShared {
   fade: { value: number };
   sunDirection: { value: Vector3 };
   exaggeration: { value: number };
 }
 
-/** Uniformes propios de un mosaico. */
+/** Tile-specific uniforms. */
 export interface TileShaderOwn {
   keyBlack: boolean;
-  /** Capa emisiva de luces nocturnas en lugar de imagen diurna iluminada. */
+  /** Emissive nocturnal lights layer instead of illuminated daytime imagery. */
   night: boolean;
   nightIntensity: number;
-  /** Visible en las dos caras: de noche, oscurecida como con luz de luna (Esri al acercar). */
+  /** Visible on both hemispheres: dimmed at night like moonlight (Esri upon zoom). */
   allSides: boolean;
-  /** Capa nocturna sobre imagen de detalle: sólo las luces son opacas. */
+  /** Night layer over detail imagery: only lights are opaque. */
   lightsOnly: boolean;
   level: number;
   terrain: { value: Texture | null };
@@ -40,8 +40,8 @@ varying vec3 vTileEastView;
 varying vec3 vTileNorthView;
 `;
 
-// Convención de three-globe: Y es el eje polar y el meridiano cero mira hacia +Z,
-// así que el este local es la derivada respecto a la longitud: (z, 0, -x).
+// three-globe convention: Y is the polar axis and the prime meridian faces +Z,
+// so local east is the derivative with respect to longitude: (z, 0, -x).
 const VERTEX_MAIN = /* glsl */ `
 vTileUv = uv;
 vTileWorldNormal = normalize(mat3(modelMatrix) * objectNormal);
@@ -68,35 +68,35 @@ varying vec3 vTileWorldNormal;
 varying vec3 vTileEastView;
 varying vec3 vTileNorthView;
 
-// Terrarium: altura = R·256 + G + B/256 − 32768 metros. El océano se deja a nivel del mar.
+// Terrarium: height = R·256 + G + B/256 − 32768 meters. Ocean is clamped to sea level.
 float tileHeight(vec2 uv) {
   vec3 c = texture2D(tileTerrain, uv).rgb * 255.0;
   return max(c.r * 256.0 + c.g + c.b / 256.0 - 32768.0, 0.0);
 }
 `;
 
-// Umbral lineal 0.004 ≈ 13/255 en sRGB: por encima del ruido JPEG del relleno negro y
-// por debajo de los bosques más oscuros del mosaico.
+// Linear threshold 0.004 ≈ 13/255 in sRGB: above JPEG noise of black fill and
+// below the darkest forests in the mosaic.
 const FRAGMENT_ALPHA = /* glsl */ `
 #ifdef USE_MAP
   if (tileKeyBlack > 0.5 && max(sampledDiffuseColor.r, max(sampledDiffuseColor.g, sampledDiffuseColor.b)) < 0.004) discard;
-  // Luces de ciudad sobre la imagen de detalle: el azul oscuro de fondo (≈0,02 lineal) desaparece
-  // y las luces (0,3-1) quedan opacas. Los niveles superpuestos ya no acumulan brillo.
+  // City lights over detail imagery: dark blue background (≈0.02 linear) vanishes
+  // and lights (0.3-1) remain opaque. Overlapping levels no longer accumulate brightness.
   if (tileLightsOnly > 0.5) diffuseColor.a *= smoothstep(0.03, 0.2, max(sampledDiffuseColor.r, max(sampledDiffuseColor.g, sampledDiffuseColor.b)));
 #endif
 float tileSunCosine = dot(normalize(vTileWorldNormal), normalize(tileSunDirection));
 float tileDayMask = smoothstep(-0.14, 0.04, tileSunCosine);
-// Las capas diurnas se apagan de noche; la nocturna, de día. Mismo terminador para ambas.
-// allSides: la imagen de detalle se mantiene de noche (se oscurece en FRAGMENT_SKY_FILL).
+// Daytime layers fade out at night; nocturnal layer fades out during the day. Same terminator for both.
+// allSides: detail imagery is retained at night (darkened in FRAGMENT_SKY_FILL).
 diffuseColor.a *= tileFade * (tileAllSides > 0.5 ? 1.0 : mix(tileDayMask, 1.0 - tileDayMask, tileNight));
 if (diffuseColor.a < 0.003) discard;
 `;
 
-// Mercator es conforme: un texel mide lo mismo en este-oeste que en norte-sur,
-// 40 075 016,686 m · cos(lat) / (256 · 2^nivel).
-// La exageración baja con el nivel: hasta 8 el muestreo grueso suaviza las pendientes y
-// hace falta realzarlas; en 11-12 ya son reales y la foto Landsat trae sus propias
-// sombras, así que la exageración plena dejaba laderas negras (verificado en el Everest).
+// Mercator is conformal: a texel measures the same east-west as north-south,
+// 40 075 016.686 m · cos(lat) / (256 · 2^level).
+// Exaggeration decreases with zoom level: up to 8 coarse sampling flattens slopes
+// requiring enhancement; by 11-12 slopes are true scale and Landsat imagery includes
+// natural shadows, so full exaggeration yielded pitch-black slopes (verified on Mt. Everest).
 const FRAGMENT_RELIEF = /* glsl */ `
 if (tileTerrainReady > 0.5) {
   float reliefScale = clamp(1.0 - (tileLevel - 8.0) * 0.1, 0.6, 1.0);
@@ -113,16 +113,16 @@ if (tileTerrainReady > 0.5) {
 }
 `;
 
-// Luz de cielo sólo en la cara diurna. La ambiental de la escena (0,12) es baja a propósito
-// para la noche, pero de día dejaba las laderas a la sombra en ≈4 % del lado soleado, casi
-// negras. 0,15/π del albedo las sube a una fracción plausible sin aplanar el relieve.
-// La capa nocturna no recibe luz: emite la radiancia de Black Marble tal cual.
+// Sky light only on the daytime face. Scene ambient light (0.12) is deliberately low
+// for night, but during the day left shaded slopes at ≈4% of the sunlit side, almost
+// pitch black. 0.15/π of albedo lifts them to a plausible fraction without flattening relief.
+// Night layer receives no illumination: emits Black Marble radiance directly.
 const FRAGMENT_SKY_FILL = /* glsl */ `
 if (tileNight > 0.5) {
   outgoingLight = diffuseColor.rgb * tileNightIntensity;
 } else {
   outgoingLight += diffuseColor.rgb * (0.15 * RECIPROCAL_PI) * smoothstep(-0.05, 0.25, tileSunCosine);
-  // Noche con luz de luna: azulada y tenue, suficiente para distinguir calles y costas.
+  // Moonlight night: faint blue tint, enough to discern coastlines and road grids.
   if (tileAllSides > 0.5) outgoingLight += diffuseColor.rgb * vec3(0.12, 0.14, 0.2) * (1.0 - tileDayMask);
 }
 `;
@@ -136,11 +136,11 @@ export function patchTileMaterial(
   material.polygonOffset = true;
   material.polygonOffsetFactor = -1;
   material.polygonOffsetUnits = -4;
-  // Los mosaicos son una película sobre la esfera base, que ya escribe profundidad. Si escribieran
-  // la suya, el polygonOffset (que crece con la inclinación del triángulo) los adelantaba a la capa
-  // de nubes (1,0012 R) y la recortaba en triángulos oscuros a media altura.
-  // La librería vuelve a poner depthWrite = true en cada cambio de nivel (lo sacaba a la luz el
-  // regreso de los triángulos): se bloquea la propiedad para que siempre valga false.
+  // Tiles form a thin skin over the base sphere, which already writes depth. If they wrote
+  // depth, polygonOffset (which grows with triangle inclination) pushed them ahead of the
+  // cloud layer (1.0012 R), slicing through it in dark triangular artifacts at mid altitude.
+  // The library resets depthWrite = true on level changes (causing triangles to return):
+  // locking the property ensures it always returns false.
   Object.defineProperty(material, 'depthWrite', { get: () => false, set: () => {}, configurable: true });
   material.onBeforeCompile = (shader) => {
     Object.assign(shader.uniforms, {
@@ -165,7 +165,7 @@ export function patchTileMaterial(
       .replace('#include <normal_fragment_maps>', `#include <normal_fragment_maps>\n${FRAGMENT_RELIEF}`)
       .replace('#include <opaque_fragment>', `${FRAGMENT_SKY_FILL}\n#include <opaque_fragment>`);
   };
-  // Clave dinámica según características estructurales del material (textura activa).
+  // Dynamic cache key reflecting structural material features (active texture map).
   material.customProgramCacheKey = () => `earth-detail-tile-v6_${material.map ? 'map' : 'nomap'}`;
   material.needsUpdate = true;
 }

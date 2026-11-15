@@ -13,17 +13,17 @@ export interface EarthLiveSystemApi {
   setRipplesVisible(visible: boolean): void;
   setSatellitesVisible(visible: boolean): void;
   setOceanFlowVisible(visible: boolean): void;
-  /** Arcos y anillos comparten los mismos extremos. */
+  /** Arcs and ripples share the same endpoints. */
   setConnections(connections: Teleconnection[]): void;
-  /** Sol, destello y Luna van con el interruptor de estrellas: son el mismo fondo espacial. */
+  /** Sun, lens flare, and Moon follow the star field toggle: they are part of the same celestial background. */
   setSunVisible(visible: boolean): void;
   dispose(): void;
 }
 
 /**
- * Fachada modular para los sistemas dinámicos vivos de la Tierra:
- * Arcos 3D de teleconexiones, ondas de radar en hotspots, constelación de satélites NASA
- * y corrientes oceánicas fluidas (NASA ECCO/OSCAR).
+ * Modular facade for Earth's dynamic living systems:
+ * 3D teleconnection arcs, hotspot radar ripples, NASA satellite constellation,
+ * and fluid ocean currents (NASA ECCO/OSCAR).
  */
 export function createEarthLiveSystem(globe: GlobeInstance, sunDirection: Vector3): EarthLiveSystemApi {
   const arcs = createEarthTeleconnectionArcs(globe);
@@ -33,8 +33,8 @@ export function createEarthLiveSystem(globe: GlobeInstance, sunDirection: Vector
   const sun = createEarthSunGlare(globe.scene(), sunDirection);
   const moon = createEarthMoon(globe.scene());
 
-  // Cerca del suelo los arcos (tubos de ~14 km) y los anillos se veían como barras gruesas que
-  // cruzaban la pantalla: por debajo de 0,15 radios se ocultan, respetando lo que elija el usuario.
+  // Close to ground, arcs (~14 km tubes) and rings appeared as thick bars crossing
+  // the screen: below 0.15 radii they are hidden, respecting user preference.
   const NEAR_GROUND_ALTITUDE = 0.15;
   const controls = globe.controls();
   let arcsWanted = true;

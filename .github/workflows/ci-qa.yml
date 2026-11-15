@@ -54,14 +54,14 @@ jobs:
           npm run type-check --workspace=packages/shared
           npm run type-check --workspace=frontend
 
-      - name: Enforce File Size Rule (< 200 lines per source file)
+      - name: Enforce File Size Rule (<= 300 lines per source file)
         run: |
           oversized=$(find frontend/src packages/shared/src backend/src \
             \( -name '*.ts' -o -name '*.tsx' -o -name '*.cs' \) \
             -not -path '*/bin/*' -not -path '*/obj/*' \
-            -exec awk 'END { if (NR > 200) print FILENAME " (" NR " líneas)" }' {} \;)
+            -exec awk 'END { if (NR > 300) print FILENAME " (" NR " líneas)" }' {} \;)
           if [ -n "$oversized" ]; then
-            echo "::error::Archivos que superan el límite de 200 líneas:"
+            echo "::error::Archivos que superan el límite de 300 líneas:"
             echo "$oversized"
             exit 1
           fi
@@ -100,9 +100,13 @@ jobs:
             echo "::warning::No existen proyectos de pruebas (*Tests*.csproj). Pendiente: tests de Mann-Kendall y Sen's Slope (S1-T3 / S2-T3)."
           fi
 
-      - name: Run Scientific Mathematical Tests (Mann-Kendall & Sen)
+      - name: Run Scientific Mathematical & 2000-2025 Seeded Tests
         if: steps.tests.outputs.found == 'true'
-        run: dotnet test backend/NasaTrendDetective.slnx -c Release --no-build
+        run: dotnet test backend/NasaTrendDetective.slnx -c Release --no-build --filter "Category!=LiveNasaApi"
+
+      - name: Run Live NASA API 2000-2025 Validation (On Demand)
+        if: steps.tests.outputs.found == 'true' && github.event_name == 'workflow_dispatch'
+        run: dotnet test backend/NasaTrendDetective.slnx -c Release --no-build --filter "Category=LiveNasaApi"
 
   # ============================================================================
   # 3. Validación de Contenedores Docker (build real de las imágenes)

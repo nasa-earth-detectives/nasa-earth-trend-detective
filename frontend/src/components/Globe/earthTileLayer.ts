@@ -1,9 +1,9 @@
 /**
- * Una capa de mosaicos satelitales sobre la escena existente de Globe.gl.
+ * A satellite tile layer on top of Globe.gl's existing scene.
  *
- * No usa `globe.globeTileEngineUrl()`: three-globe ocultaría la esfera base y con ella
- * el material diurno/nocturno, las nubes y la atmósfera ya calibrados. Esta capa vive
- * aparte, encima de la superficie, y sólo aparece al acercar la cámara.
+ * Does not use `globe.globeTileEngineUrl()`: three-globe would hide the base sphere and with it
+ * the calibrated day/night material, clouds, and atmosphere. This layer lives separately,
+ * above the surface, appearing only when the camera zooms in.
  */
 import SlippyMapGlobe from 'three-slippy-map-globe';
 import {
@@ -22,16 +22,16 @@ interface EarthTileLayerOptions {
 }
 
 export interface EarthTileLayer {
-  /** `fade` en [0,1]; con 0 la capa se oculta. Barato: se puede llamar en cada frame. */
+  /** `fade` in [0,1]; at 0 the layer is hidden. Cheap: can be called every frame. */
   setFade(fade: number): void;
-  /** Recalcula qué mosaicos pedir. Costoso: el orquestador lo limita en el tiempo. */
+  /** Recalculates tile requests. Expensive: throttled over time by the orchestrator. */
   refresh(camera: Camera): void;
   dispose(): void;
 }
 
 /**
- * Las URL acaban en /nivel/fila/columna: es la única forma de saber qué mosaico llegó. GIBS
- * añade extensión (.jpeg/.png); Esri no la lleva y termina en ?token=….
+ * URLs end in /level/row/column: the only reliable way to know which tile arrived. GIBS
+ * appends an extension (.jpeg/.png); Esri does not and ends with ?token=….
  */
 const TILE_URL_PATTERN = /\/(\d+)\/(\d+)\/(\d+)(?:\.(?:jpe?g|png))?(?:\?[^/]*)?$/;
 
@@ -47,7 +47,7 @@ export function createEarthTileLayer(scene: Scene, options: EarthTileLayerOption
   layer.thresholds = layer.thresholds.map((threshold) => threshold * EARTH_TILE_CONFIG.thresholdScale);
   layer.visible = false;
 
-  // Sin gestión de color ni premultiplicado: los bytes de la elevación deben llegar intactos.
+  // No color management or premultiplication: elevation bytes must arrive unaltered.
   const loader = new ImageBitmapLoader().setOptions({
     imageOrientation: 'flipY',
     premultiplyAlpha: 'none',
@@ -76,7 +76,7 @@ export function createEarthTileLayer(scene: Scene, options: EarthTileLayerOption
     const [level, row, column] = [Number(match[1]), Number(match[2]), Number(match[3])];
 
     tile.raycast = () => {};
-    // Niveles superiores encima de los inferiores que la librería conserva debajo.
+    // Higher zoom levels above lower ones preserved underneath by the library.
     tile.renderOrder = options.renderOrder + level * 0.001;
     material.map.anisotropy = anisotropy;
 
@@ -94,14 +94,14 @@ export function createEarthTileLayer(scene: Scene, options: EarthTileLayerOption
     });
     if (!source.terrain) return;
 
-    // ImageBitmap decodifica fuera del hilo principal: en giro continuo llegan decenas de
-    // mosaicos y decodificarlos en el hilo de render compite con el dibujo de cada frame.
+    // ImageBitmap decodes off the main thread: continuous rotation brings dozens of
+    // tiles; decoding them on the render thread stutters frame drawing.
     loader.load(terrainTileUrl(column, row, level), (bitmap) => {
       if (disposed || tile.parent !== layer) { bitmap.close(); return; }
       const texture = new Texture(bitmap);
-      // Alturas codificadas en bytes: interpolar canales mezclaría centenas con unidades.
+      // Heights encoded as bytes: channel interpolation would blend hundreds with units.
       texture.colorSpace = NoColorSpace;
-      texture.flipY = false; // ya volteado al decodificar
+      texture.flipY = false; // already flipped during decoding
       texture.magFilter = NearestFilter;
       texture.minFilter = NearestFilter;
       texture.generateMipmaps = false;
@@ -109,7 +109,7 @@ export function createEarthTileLayer(scene: Scene, options: EarthTileLayerOption
       terrain.value = texture;
       terrainReady.value = 1;
       terrainByTile.set(tile, texture);
-    }, undefined, () => { /* Sin relieve: el mosaico se ve igual, sólo sin sombreado. */ });
+    }, undefined, () => { /* Without relief: tile still renders, just without hillshading. */ });
   };
 
   const forgetTile = ({ child }: { child: Object3D }): void => releaseTerrain(child);
@@ -135,7 +135,7 @@ export function createEarthTileLayer(scene: Scene, options: EarthTileLayerOption
       layer.removeEventListener('childremoved', forgetTile);
       terrainByTile.forEach(releaseTexture);
       terrainByTile.clear();
-      // Lo que queda es la esfera de respaldo interna de la librería.
+      // What remains is the library's internal fallback sphere.
       layer.traverse((object) => {
         if (object instanceof Mesh) {
           object.geometry.dispose();

@@ -13,7 +13,9 @@ interface DetectiveExportActionsProps {
   isObserved: boolean;
 }
 
-/** Acciones de exportación de datos (CSV) y enlace compartible regional. */
+/** Data export actions (CSV) and regional shareable link. */
+import { useI18n } from '../../i18n';
+
 export function DetectiveExportActions({
   seriesData,
   variable,
@@ -22,6 +24,7 @@ export function DetectiveExportActions({
   unit,
   isObserved,
 }: DetectiveExportActionsProps) {
+  const { locale, t } = useI18n();
   const [copied, setCopied] = useState(false);
 
   const handleDownloadCsv = useCallback(() => {
@@ -48,15 +51,17 @@ export function DetectiveExportActions({
     url.searchParams.set('lat', location.lat.toFixed(4));
     url.searchParams.set('lng', location.lng.toFixed(4));
     url.searchParams.set('year', String(year));
+    if (locale !== 'en') url.searchParams.set('lang', locale);
+    else url.searchParams.delete('lang');
 
     navigator.clipboard.writeText(url.toString()).then(() => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2500);
     }).catch(() => {
-      // Fallback si clipboard API no tiene permisos
-      prompt('Copia este enlace de análisis:', url.toString());
+      // Fallback if Clipboard API lacks permissions
+      prompt(t.inspection.copyPrompt, url.toString());
     });
-  }, [variable, location, year]);
+  }, [variable, location, year, locale, t.inspection.copyPrompt]);
 
   return (
     <div className="inspection-actions">
@@ -65,29 +70,29 @@ export function DetectiveExportActions({
         className="inspection-action-btn focus-ring"
         onClick={handleDownloadCsv}
         disabled={!seriesData.length}
-        title="Descargar serie temporal en formato CSV"
-        aria-label="Descargar serie temporal en formato CSV"
+        title={t.inspection.downloadCsvTitle}
+        aria-label={t.inspection.downloadCsvTitle}
       >
         <Download size={14} strokeWidth={2} aria-hidden="true" />
-        <span>Descargar CSV</span>
+        <span>{t.inspection.downloadCsv}</span>
       </button>
 
       <button
         type="button"
         className={`inspection-action-btn focus-ring ${copied ? 'is-copied' : ''}`}
         onClick={handleShareUrl}
-        title="Copiar enlace compartible con esta región y variable"
-        aria-label={copied ? 'Enlace copiado al portapapeles' : 'Copiar enlace compartible'}
+        title={t.inspection.shareTitle}
+        aria-label={copied ? t.inspection.copiedAria : t.inspection.shareAria}
       >
         {copied ? (
           <>
             <Check size={14} strokeWidth={2} aria-hidden="true" />
-            <span aria-live="polite">¡Copiado!</span>
+            <span aria-live="polite">{t.inspection.copied}</span>
           </>
         ) : (
           <>
             <Share2 size={14} strokeWidth={2} aria-hidden="true" />
-            <span>Compartir</span>
+            <span>{t.inspection.share}</span>
           </>
         )}
       </button>

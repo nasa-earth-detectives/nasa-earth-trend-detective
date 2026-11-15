@@ -1,17 +1,17 @@
 /**
- * Utilidades puras de configuración de la escena.
+ * Pure scene configuration utilities.
  *
- * Se mantienen fuera de `useGlobeScene` para que el hook conserve un tamaño
- * legible y para poder razonar sobre el encuadre de forma aislada.
+ * Kept outside `useGlobeScene` so the hook maintains a readable size
+ * and scene framing can be reasoned about in isolation.
  */
 import type { GlobeInstance } from 'globe.gl';
 import { PerspectiveCamera } from 'three';
 import { GLOBE_CONFIG } from './globeConfig';
 
 /**
- * Conserva estrellas dentro del frustum y precisión entre superficie y nubes.
- * near=1 queda muy por debajo de los 50 de separación mínima cámara/superficie;
- * evita z-fighting de nubes lejanas sin cambiar encuadre ni límites de órbita.
+ * Keeps stars inside frustum and preserves depth precision between surface and clouds.
+ * near=1 is far below the 50 minimum camera/surface separation;
+ * prevents distant cloud z-fighting without altering framing or orbit limits.
  */
 export function extendCameraFarPlane(globe: GlobeInstance): void {
   const camera = globe.camera();
@@ -26,11 +26,11 @@ export function extendCameraFarPlane(globe: GlobeInstance): void {
 }
 
 /**
- * Desplaza el encuadre de la escena sin mover el lienzo ni recrear nada.
+ * Shifts scene framing without moving canvas or recreating objects.
  *
- * Usa `setViewOffset` de la cámara: la proyección se desplaza para dejar
- * sitio al instrumento lateral o a la hoja móvil, mientras el
- * campo estelar sigue cubriendo todo el viewport.
+ * Uses camera `setViewOffset`: projection is offset to make room
+ * for side inspector or mobile bottom sheet, while
+ * starfield continues covering entire viewport.
  */
 export function createFocusOffsetController(globe: GlobeInstance, container: HTMLElement) {
   type Offset = [number, number];
@@ -65,7 +65,7 @@ export function createFocusOffsetController(globe: GlobeInstance, container: HTM
     camera.setViewOffset(clientWidth, clientHeight, -x, -y, clientWidth, clientHeight);
   };
 
-  // Duración temporal constante a 60/120 Hz; nunca actualiza estado de React.
+  // Constant temporal duration at 60/120 Hz; never triggers React state updates.
   const step = (now: number): void => {
     const progress = Math.min(1, (now - startedAt) / GLOBE_CONFIG.focusOffsetMs);
     const eased = 1 - Math.pow(1 - progress, 3);
@@ -113,7 +113,7 @@ export function createFocusOffsetController(globe: GlobeInstance, container: HTM
   };
 }
 
-/** Compensa el campo vertical en móvil y da algo más de presencia en panorámico. */
+/** Compensates vertical field on mobile and gives slightly more presence in widescreen. */
 export function resolveInitialAltitude(width: number, height: number): number {
   if (width === 0 || height === 0) return GLOBE_CONFIG.initialAltitude;
 

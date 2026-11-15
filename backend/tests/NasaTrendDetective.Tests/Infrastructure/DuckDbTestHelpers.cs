@@ -23,7 +23,7 @@ internal static class DuckDbTestHelpers
         }
         catch (IOException)
         {
-            // El archivo puede seguir retenido brevemente por el runtime nativo; no es crítico.
+            // The file may still be briefly held by the native runtime; this is non-critical.
         }
         catch (UnauthorizedAccessException)
         {

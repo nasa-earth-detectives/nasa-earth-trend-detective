@@ -4,7 +4,7 @@ export type InstrumentMode = 'observation' | 'layers' | 'time' | 'view' | 'inspe
 export type LayerTab = 'data' | 'view';
 export interface SelectedLocation { lat: number; lng: number }
 
-/** La intención cambia la composición; el estado científico permanece independiente. */
+/** Intent alters layout composition; scientific state remains independent. */
 export function useImmersiveUi(initialLocation: SelectedLocation | null = null) {
   const [mode, setMode] = useState<InstrumentMode>(initialLocation ? 'inspection' : 'observation');
   const [location, setLocation] = useState<SelectedLocation | null>(initialLocation);

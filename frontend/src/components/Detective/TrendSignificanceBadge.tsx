@@ -1,8 +1,10 @@
 import { useId, useState } from 'react';
 import { CircleHelp, TrendingDown, TrendingUp } from 'lucide-react';
 import type { ClimateVariable } from '../../types/climate.types';
-import { describeSignificance, type SignificanceInput } from '../../utils/detectiveAnalysis';
+import type { SignificanceInput } from '../../utils/detectiveAnalysis';
 import '../../styles/significance-badge.css';
+
+import { describeSignificanceLocalized, formatNumber, formatTemplate, useI18n } from '../../i18n';
 
 interface TrendSignificanceBadgeProps {
   result: SignificanceInput;
@@ -10,24 +12,22 @@ interface TrendSignificanceBadgeProps {
   unit?: string;
 }
 
-const frequency = new Intl.NumberFormat('es', { maximumSignificantDigits: 2 });
-const slope = new Intl.NumberFormat('es', { maximumFractionDigits: 3, signDisplay: 'exceptZero' });
-
 /**
- * Semáforo del veredicto estadístico. Distingue "aumento sostenido" de
- * "sin cambio concluyente": el backend marca `Stable` cuando no hay significancia,
- * aunque la pendiente sea positiva, y eso se lee mal en un aula.
+ * Statistical verdict indicator. Distinguishes "sustained increase" from
+ * "inconclusive change": the backend marks `Stable` when there is no significance,
+ * even if the slope is positive, which is misleading in a classroom.
  */
 export function TrendSignificanceBadge({ result, variable, unit = '' }: TrendSignificanceBadgeProps) {
+  const { locale, t } = useI18n();
   const [open, setOpen] = useState(false);
   const tooltipId = useId();
-  const info = describeSignificance(variable, result);
+  const info = describeSignificanceLocalized(variable, result, locale);
   const Icon = info.tone === 'increase' ? TrendingUp : info.tone === 'decrease' ? TrendingDown : CircleHelp;
 
   return (
     <span className="significance-badge" data-tone={info.tone}>
       <button type="button" className="significance-badge__trigger focus-ring"
-        aria-expanded={open} aria-controls={tooltipId} aria-label={`Veredicto estadístico: ${info.label}. Ver detalle`}
+        aria-expanded={open} aria-controls={tooltipId} aria-label={formatTemplate(t.inspection.verdictTriggerAria, { label: info.label })}
         onMouseEnter={() => setOpen(true)} onMouseLeave={() => setOpen(false)}
         onFocus={() => setOpen(true)} onBlur={() => setOpen(false)}
         onClick={() => setOpen(value => !value)}>
@@ -39,9 +39,9 @@ export function TrendSignificanceBadge({ result, variable, unit = '' }: TrendSig
           <strong>{info.claim}</strong>
           <span>{info.caveat}</span>
           <span className="significance-badge__figures">
-            {result.zScore !== undefined && <span>Z = {result.zScore >= 0 ? '+' : ''}{frequency.format(result.zScore)}</span>}
-            <span>p = {result.pValue < 0.001 ? '< 0,001' : frequency.format(result.pValue)}</span>
-            <span>Sen = {slope.format(result.sensSlope)} {unit}</span>
+            {result.zScore !== undefined && <span>Z = {result.zScore >= 0 ? '+' : ''}{formatNumber(result.zScore, 'sig2', locale)}</span>}
+            <span>p = {result.pValue < 0.001 ? '< 0.001' : formatNumber(result.pValue, 'sig2', locale)}</span>
+            <span>Sen = {formatNumber(result.sensSlope, 'signedMaxDec3', locale)} {unit}</span>
           </span>
         </span>
       )}
