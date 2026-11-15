@@ -70,6 +70,16 @@ export const WIZARD_REGIONS: WizardRegion[] = [
     suggestedVariables: ['Merra2Precipitation', 'ModisNdvi', 'Merra2SoilMoisture'],
   },
   {
+    // A city, not a region: it has no box and is always analysed as a point.
+    id: 'neiva',
+    label: 'Neiva, Huila',
+    description: 'City on the upper Magdalena, Colombia · where this project was built',
+    lat: 2.93,
+    lng: -75.28,
+    box: null,
+    suggestedVariables: ['Merra2Temperature', 'Merra2Precipitation', 'GpmPrecipitation'],
+  },
+  {
     id: 'custom',
     label: 'Pick on the globe',
     description: 'Click any point on the globe to select it',

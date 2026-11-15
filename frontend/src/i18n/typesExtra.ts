@@ -175,6 +175,29 @@ export interface ReadoutAndWizardTranslations {
     locationNotAvailable: string;
     locationPickAnother: string;
   };
+  places: {
+    placeholder: string;
+    searchAria: string;
+    resultsAria: string;
+    searching: string;
+    noResults: string;
+    unavailable: string;
+    credit: string;
+    kinds: { country: string; state: string; county: string; city: string; place: string };
+    eyebrow: string;
+    areaPoint: string;
+    areaBox: string;
+    variableAria: string;
+    noData: string;
+    failed: string;
+    retry: string;
+    openDossier: string;
+    projectionTitle: string;
+    projectionRange: string;
+    projectionNote: string;
+    projectionWeak: string;
+    projectionTooShort: string;
+  };
 }
 
 export type Translations =
