@@ -27,6 +27,9 @@ import { LayerPanel } from '../Layers/LayerPanel';
 import { DetectiveCard } from '../Detective/DetectiveCard';
 import { DetectiveMissionsModal, type MissionPreset } from '../Detective/DetectiveMissionsModal';
 import { DetectiveGlossaryModal } from '../Detective/DetectiveGlossaryModal';
+import { PlaceForecast } from '../Places/PlaceForecast';
+import { placeLocation, type Place } from '../../services/placeSearch';
+import { framingAltitude } from '../../config/wizardOptions';
 import { TimeNavigator } from '../Controls/TimeNavigator';
 import { useAnalysisArea, useCoverageTimeline, useFocusLocation, useFocusOffset, useTrendReadingSync } from './useLayoutSceneSync';
 import { guidedTourService } from '../../services/guidedTourService';
@@ -72,6 +75,9 @@ export function ImmersiveEarthLayout({
   const [tourRunning, setTourRunning] = useState(false);
   const [missionsOpen, setMissionsOpen] = useState(false);
   const [glossaryOpen, setGlossaryOpen] = useState(false);
+  // A place found by name: while its outlook is open the globe turns to it and marks what is analysed.
+  const [place, setPlace] = useState<Place | null>(null);
+  const placePreview = useMemo(() => (place ? placeLocation(place) : null), [place]);
   const [observationMode, setObservationMode] = useState<ObservationLayerMode>('hex');
   const [reading, setReading] = useState<GlobeReading>('annual');
   const [coverage, setCoverage] = useState<ObservationCoverage>('land');
@@ -109,8 +115,8 @@ export function ImmersiveEarthLayout({
     if (initialLocation) sceneApiRef.current?.setUserLocation?.(initialLocation);
   }, [initialLocation]);
   useFocusOffset(sceneApiRef, panelOpen, briefingOpen);
-  useFocusLocation(sceneApiRef, focusLocation, previewLocation, ui.selectLocation);
-  useAnalysisArea(sceneApiRef, ui.location, previewLocation);
+  useFocusLocation(sceneApiRef, focusLocation, placePreview ?? previewLocation, ui.selectLocation);
+  useAnalysisArea(sceneApiRef, ui.location, placePreview ?? previewLocation);
   const timeline = useCoverageTimeline(provenance, loading, filter.endYear, onYearChange);
 
   const { locale, t } = useI18n();
@@ -136,6 +142,14 @@ export function ImmersiveEarthLayout({
     ui.selectLocation(mission.location);
   }, [onVariableChange, onYearChange, ui.selectLocation]);
 
+  const handleOpenPlaceDossier = useCallback((variable: ClimateVariable) => {
+    if (!placePreview) return;
+    onVariableChange(variable);
+    sceneApiRef.current?.flyToGodsEye?.(placePreview.lat, placePreview.lng, framingAltitude(placePreview, 0.45), 1500);
+    ui.selectLocation(placePreview);
+    setPlace(null);
+  }, [placePreview, onVariableChange, ui.selectLocation]);
+
   const handleStartTour = () => guidedTourService.startMissionTour({
     onResetView: ui.observe, onOpenTime: () => ui.openMode('time'),
     onOpenInspector: () => {
@@ -150,7 +164,7 @@ export function ImmersiveEarthLayout({
       data-hex-visible={layerVisible} data-hex-selected={selectedObservation !== null} data-observation-layer={observationMode} data-reading={reading}>
       <GlobeViewer apiRef={sceneApiRef} preferencesRef={scene.preferencesRef} />
       <DataConnectionNotice />
-      <div className="mission-position quiet-instrument"><MissionHeader onStartTour={handleStartTour} onOpenWizard={onOpenWizard} onOpenMissions={() => setMissionsOpen(true)} onOpenGlossary={() => setGlossaryOpen(true)} /></div>
+      <div className="mission-position quiet-instrument"><MissionHeader onStartTour={handleStartTour} onOpenWizard={onOpenWizard} onOpenMissions={() => setMissionsOpen(true)} onOpenGlossary={() => setGlossaryOpen(true)} onPlaceSelect={setPlace} /></div>
       <div className="workspace-left-rail">
         <div className="observation-position quiet-instrument"><ObservationContext variable={filter.variable} /></div>
         <div className="system-position quiet-instrument" data-hex-active={true}>
@@ -200,6 +214,8 @@ export function ImmersiveEarthLayout({
         loading={loading} period={analysisPeriod} onClose={handleCloseInspector} onYearChange={onYearChange} />
           <DetectiveMissionsModal open={missionsOpen} onClose={() => setMissionsOpen(false)} onSelectMission={handleSelectMission} />
       <DetectiveGlossaryModal open={glossaryOpen} onClose={() => setGlossaryOpen(false)} />
+      {place && <PlaceForecast key={place.id} place={place} initialVariable={filter.variable}
+        onClose={() => setPlace(null)} onOpenDossier={handleOpenPlaceDossier} />}
     </main>
   );
 }
