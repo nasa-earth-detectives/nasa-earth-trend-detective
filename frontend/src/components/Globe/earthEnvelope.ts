@@ -7,10 +7,10 @@ import { GLOBE_RADIUS } from './globeConfig';
 import { createEarthAtmosphere } from './earthAtmosphere';
 
 export interface EarthEnvelope {
-  /** El propietario de los assets conserva la responsabilidad de liberar esta textura. */
+  /** The asset owner remains responsible for releasing this texture. */
   setCloudTexture(texture: Texture): void;
   setAtmosphereVisible(visible: boolean): void;
-  /** 1 en órbita; 0 al acercar, donde la textura 2K sería una mancha borrosa. */
+  /** 1 in orbit; 0 when zooming in, where the 2K texture would be a blurry smudge. */
   setCloudFade(fade: number): void;
   dispose(): void;
 }
@@ -24,7 +24,7 @@ void main() {
   vSurfaceUv = uv;
   vec4 worldPosition = modelMatrix * vec4(position, 1.0);
   vWorldPosition = worldPosition.xyz;
-  // Las capas sólo usan rotación y escala uniforme; el vector queda en espacio mundo.
+  // Layers only use rotation and uniform scale; vector remains in world space.
   vWorldNormal = normalize(mat3(modelMatrix) * normal);
   gl_Position = projectionMatrix * viewMatrix * worldPosition;
 }
@@ -46,7 +46,7 @@ void main() {
   float sunCosine = dot(normalize(vWorldNormal), normalize(sunDirection));
   float daylight = max(0.0, sunCosine);
   float twilight = smoothstep(-0.09, 0.16, sunCosine);
-  // Un pequeño término ambiental deja nubes tenues de noche, nunca blancas de día.
+  // A small ambient term leaves faint clouds at night, never daytime white.
   vec3 radiance = cloudColor * (0.014 + 0.085 * twilight + 1.28 * daylight);
   gl_FragColor = vec4(radiance, opacity);
   #include <tonemapping_fragment>
@@ -54,15 +54,15 @@ void main() {
 }
 `;
 
-/** Capas ligeras sobre la misma escena: sin renderer, bucle o textura propios. */
+/** Lightweight layers on the same scene: no separate renderer, loop, or texture. */
 export function createEarthEnvelope(
   globe: GlobeInstance,
   sunDirection: Vector3,
   quality: 'desktop' | 'mobile',
 ): EarthEnvelope {
   const scene = globe.scene();
-  // La malla base de three-globe usa 90×45 por defecto. Igualar sus caras evita
-  // que una esfera de nubes menos subdividida atraviese la superficie a esta altura.
+  // The base mesh of three-globe uses 90×45 by default. Matching its faces prevents
+  // a less subdivided cloud sphere from clipping through the surface at this altitude.
   const cloudGeometry = new SphereGeometry(GLOBE_RADIUS * 1.0012, 90, 45);
   const cloudMaterial = new ShaderMaterial({
     name: 'earth-cloud-coverage',
@@ -81,13 +81,13 @@ export function createEarthEnvelope(
   });
   const clouds = new Mesh(cloudGeometry, cloudMaterial);
   clouds.name = 'earth-cloud-envelope';
-  // Coincide con globeObj.rotation.y en three-globe: meridiano cero sobre +Z.
+  // Matches globeObj.rotation.y in three-globe: prime meridian along +Z.
   clouds.rotation.y = -Math.PI / 2;
   clouds.visible = false;
   clouds.renderOrder = 1;
   clouds.raycast = () => {};
 
-  // La atmósfera vive en su módulo (halo + bruma, conscientes del sol); aquí sólo se monta.
+  // Atmosphere lives in its module (halo + haze, sun-aware); here it is only mounted.
   const atmosphere = createEarthAtmosphere(sunDirection, quality === 'desktop' ? 96 : 48);
   scene.add(clouds, atmosphere.group);
   let disposed = false;

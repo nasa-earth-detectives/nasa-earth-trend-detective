@@ -1,15 +1,15 @@
-"""Prepara los modelos 3D oficiales de la NASA (NASA-3D-Resources) para la escena web.
+"""Prepares official NASA 3D models (NASA-3D-Resources) for the web scene.
 
-Por qué existe: los GLB originales son fieles a cada misión pero no sirven tal cual en el globo.
-- Cada uno viene en su escala (Terra en milímetros) y orientación, con el origen lejos del cuerpo.
-- Sus materiales son planos (dorado sin brillo, panel azul liso) o rotos: a Terra le faltan las
-  texturas (solarpanels.tga llega vacía) y GRACE trae una textura rosa de relleno.
-- Aqua y Terra pasan de 115.000 triángulos cada uno: demasiado para un detalle de la escena.
+Rationale: original GLBs are faithful to each mission but unsuitable as-is for the globe.
+- Each model has its own scale (Terra in millimeters) and orientation, with origins far from the body.
+- Materials are flat (matte gold, plain blue panels) or broken: Terra lacks textures
+  (solarpanels.tga is empty) and GRACE includes a placeholder pink texture.
+- Aqua and Terra exceed 115,000 triangles each: too high for a scene detail element.
 
-El script no renderiza nada (sólo procesa mallas), así que no necesita GPU. Las reglas de
-materiales están en satellite_materials.py, en la misma carpeta.
+The script renders nothing (mesh processing only), requiring no GPU. Material rules
+are in satellite_materials.py within the same folder.
 
-Uso:
+Usage:
     blender -b --factory-startup --python scripts/satellites/prepare_nasa_satellites.py -- \
         data/nasa/raw/models frontend/public/models/satellites
 """
@@ -21,26 +21,26 @@ import bpy
 import numpy as np
 from mathutils import Matrix, Vector
 
-# Blender ejecuta el script con --python sin añadir su carpeta a sys.path: sin esto no encuentra
-# el módulo hermano de materiales.
+# Blender runs the script with --python without adding its directory to sys.path: without this
+# it cannot find the sibling materials module.
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from satellite_materials import aplicar_material, categoria, textura_celdas  # noqa: E402
 
-# Rotación (grados, eje Z de Blender) para dejar las alas solares sobre +X. El glTF exportado
-# convierte el Z-arriba de Blender en Y-arriba: en three.js las alas quedan en X.
+# Rotation (degrees, Blender Z-axis) to align solar wings along +X. Exported glTF
+# converts Blender Z-up to Y-up: in three.js the wings align with X.
 MODELOS = {
     'terra': {'archivo': 'terra.glb', 'rot_z': 90},
     'aqua': {'archivo': 'aqua.glb', 'rot_z': -90},
     'oco2': {'archivo': 'oco2.glb', 'rot_z': 90},
-    # GRACE vuela a lo largo de su eje largo: se deja como viene (eje largo = avance).
+    # GRACE flies along its long axis: left as-is (long axis = forward direction).
     'grace': {'archivo': 'grace.glb', 'rot_z': 0},
 }
 MAX_TRIANGULOS = 45000
 
 
 def centro_del_cuerpo(mallas) -> Vector:
-    """Centro de las caras que no son paneles solares: el origen queda en el cuerpo, no en
-    mitad del ala (Aqua tiene una sola ala larga y su caja envolvente cae lejos del satélite)."""
+    """Center of faces that are not solar panels: origin stays on the body, not midway
+    along the wing (Aqua has a single long wing and its bounding box falls far from the satellite)."""
     puntos = []
     for objeto in mallas:
         datos = objeto.data
@@ -67,18 +67,18 @@ def preparar(nombre: str, origen: str, destino: str) -> None:
         if cat and aplicar_material(material, cat, celdas):
             con_celdas.add(material.name)
 
-    # Los GLB traen nodos padre con su propia escala (Terra en mm bajo un vacío). Primero se
-    # suelta cada malla de su padre conservando su transformación en el mundo; si no, al borrar
-    # los vacíos la escala de los hijos queda descompensada (salían más grandes que la Tierra).
+    # Original GLBs have parent nodes with custom scales (Terra in mm under an empty). First,
+    # unparent each mesh while preserving world transforms; otherwise removing empties leaves
+    # child scales uncompensated (producing satellites larger than Earth).
     for objeto in mallas:
         mundo = objeto.matrix_world.copy()
         objeto.parent = None
         objeto.matrix_world = mundo
         if objeto.data.users > 1:
-            objeto.data = objeto.data.copy()  # instancias: no transformar dos veces la misma malla
+            objeto.data = objeto.data.copy()  # instances: do not transform the same mesh twice
     bpy.context.view_layer.update()
 
-    # Transformaciones a los vértices: rotar alas a +X, centrar en el cuerpo, escala unitaria.
+    # Vertex transformations: rotate wings to +X, center on body, unit scale.
     rot = Matrix.Rotation(math.radians(MODELOS[nombre]['rot_z']), 4, 'Z')
     for objeto in mallas:
         objeto.data.transform(rot @ objeto.matrix_world)
@@ -96,8 +96,8 @@ def preparar(nombre: str, origen: str, destino: str) -> None:
         objeto.data.transform(ajuste)
         objeto.data.update()
 
-    # Mallas con celdas generadas: el original no trae UV útiles (salía azul liso). Proyección
-    # cúbica en espacio unitario: ~12 baldosas de 8x8 celdas a lo largo de un ala.
+    # Meshes with procedural cells: original lacks usable UVs (appeared plain blue). Cube
+    # projection in unit space: ~12 tiles of 8x8 cells along a wing.
     for objeto in mallas:
         if any(s.material and s.material.name in con_celdas for s in objeto.material_slots):
             bpy.context.view_layer.objects.active = objeto
@@ -113,8 +113,8 @@ def preparar(nombre: str, origen: str, destino: str) -> None:
         objeto.data.calc_loop_triangles()
         triangulos += len(objeto.data.loop_triangles)
     if triangulos > MAX_TRIANGULOS:
-        # Sólo se reducen las mallas pesadas: aplicado a todas por igual, el panel solar de Terra
-        # (pocos polígonos, planos y grandes) se deshacía en franjas con huecos.
+        # Decimate only dense meshes: applied uniformly, Terra's solar panel (few large,
+        # flat polygons) broke into banded gaps.
         pesadas = [o for o in mallas if len(o.data.loop_triangles) > 8000]
         ligeras = triangulos - sum(len(o.data.loop_triangles) for o in pesadas)
         total_pesadas = sum(len(o.data.loop_triangles) for o in pesadas)
@@ -123,7 +123,7 @@ def preparar(nombre: str, origen: str, destino: str) -> None:
             modificador = objeto.modifiers.new('reducir', 'DECIMATE')
             modificador.ratio = min(1.0, proporcion)
 
-    # Los objetos vacíos de la jerarquía original (con transformaciones) ya no aportan nada.
+    # Empty objects from the original hierarchy (with transforms) are no longer needed.
     for objeto in [o for o in bpy.context.scene.objects if o.type != 'MESH']:
         bpy.data.objects.remove(objeto, do_unlink=True)
     bpy.ops.export_scene.gltf(
@@ -143,9 +143,9 @@ def preparar(nombre: str, origen: str, destino: str) -> None:
             for esquina in objeto.bound_box:
                 w = np.array(tuple(objeto.matrix_world @ Vector(esquina)))
                 caja = np.minimum(caja[0], w), np.maximum(caja[1], w)
-    print(f'{nombre}: caja final {np.round(caja[0], 3)} .. {np.round(caja[1], 3)}')
-    print(f'{nombre}: {triangulos} -> {final} triángulos, escala {escala:.6g}, '
-          f'centro {tuple(round(c, 2) for c in centro)}, {os.path.getsize(destino) / 1024:.0f} KB')
+    print(f'{nombre}: final bounding box {np.round(caja[0], 3)} .. {np.round(caja[1], 3)}')
+    print(f'{nombre}: {triangulos} -> {final} triangles, scale {escala:.6g}, '
+          f'center {tuple(round(c, 2) for c in centro)}, {os.path.getsize(destino) / 1024:.0f} KB')
 
 
 def main() -> None:

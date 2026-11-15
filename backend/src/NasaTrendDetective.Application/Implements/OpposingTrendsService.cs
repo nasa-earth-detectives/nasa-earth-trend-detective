@@ -5,9 +5,9 @@ using NasaTrendDetective.Domain.Entities;
 namespace NasaTrendDetective.Application.Implements;
 
 /// <summary>
-/// Pares de regiones donde una misma variable va en sentidos opuestos: la idea central del reto. Cada
-/// par se calcula con la serie real de sus dos celdas. Sin dataset cargado, sin años suficientes o si
-/// las dos pendientes tienen el mismo signo, el par no se devuelve: aquí no se fabrica nada.
+/// Pairs of regions where the same variable moves in opposite directions: the central idea of the challenge. Each
+/// pair is computed from the real series of its two cells. Without a loaded dataset, without enough years, or if
+/// both slopes have the same sign, the pair is not returned: nothing is fabricated here.
 /// </summary>
 public class OpposingTrendsService : IOpposingTrendsService
 {
@@ -79,15 +79,15 @@ public class OpposingTrendsService : IOpposingTrendsService
 
         var first = await SummarizeAsync(definition, definition.First, provenance, ct).ConfigureAwait(false);
         var second = await SummarizeAsync(definition, definition.Second, provenance, ct).ConfigureAwait(false);
-        // "Opuestas" lo dicen los datos de hoy, no la definición del par.
+        // "Opposing" is determined by today's data, not the pair definition.
         if (first is null || second is null || Math.Sign(first.Stats.SensSlope) * Math.Sign(second.Stats.SensSlope) >= 0)
         {
             return null;
         }
 
-        var notes = $"Calculado con {provenance.Product}, {provenance.CoverageStart}-{provenance.CoverageEnd}: "
-            + "prueba de Mann-Kendall y pendiente de Sen sobre la serie anual real de cada celda de "
-            + $"{provenance.ResolutionDegrees:0.#}°. Describe lo que muestran los datos; no afirma la causa.";
+        var notes = $"Computed from {provenance.Product}, {provenance.CoverageStart}-{provenance.CoverageEnd}: "
+            + "Mann-Kendall test and Sen's slope over the observed annual series of each "
+            + $"{provenance.ResolutionDegrees:0.#}° cell. Describes what the data show; does not assert causality.";
         return EvaluatePair(first, second, definition.Title, notes) with { PairId = definition.Id };
     }
 

@@ -1,7 +1,7 @@
 namespace NasaTrendDetective.Infrastructure.Implements;
 
 /// <summary>
-/// Acceso al script SQL del esquema estrella embebido en el ensamblado (Scripts/init_schema.sql).
+/// Access to the star schema SQL script embedded in the assembly (Scripts/init_schema.sql).
 /// </summary>
 public static class DuckDbSchemaScript
 {
@@ -15,7 +15,7 @@ public static class DuckDbSchemaScript
     {
         var assembly = typeof(DuckDbSchemaScript).Assembly;
         using var stream = assembly.GetManifestResourceStream(ResourceName)
-            ?? throw new InvalidOperationException($"No se encontró el recurso embebido '{ResourceName}'.");
+            ?? throw new InvalidOperationException($"Embedded resource '{ResourceName}' was not found.");
         using var reader = new StreamReader(stream);
         return reader.ReadToEnd();
     }

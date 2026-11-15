@@ -54,7 +54,7 @@ public class DataCleaningTests
         var result = await context.Normalizer.NormalizeAsync(new(csv, ClimateVariable.GraceMass));
         var values = await ReadCellsAsync(context, result);
 
-        // 31 días de enero sobre 60 días entre el 1-ene y el 1-mar de 2020 (bisiesto).
+        // 31 days in January over 60 days between Jan 1 and Mar 1, 2020 (leap year).
         Assert.Equal(0.2 + (0.2 * 31 / 60), values[1].Value!.Value, 10);
         Assert.Equal(2.0, values[4].Value!.Value, 10);
         Assert.Equal(2, result.Quality.ImputedValues);
@@ -113,8 +113,8 @@ public class DataCleaningTests
         var (level, message) = Assert.Single(logger.Entries);
         Assert.Equal(LogLevel.Information, level);
         Assert.Contains("Oco2", message);
-        Assert.Contains("50% válidos antes", message);
-        Assert.Contains("66.67% después", message);
+        Assert.Contains("50% valid before imputation", message);
+        Assert.Contains("66.67% after", message);
     }
 
     [Fact]

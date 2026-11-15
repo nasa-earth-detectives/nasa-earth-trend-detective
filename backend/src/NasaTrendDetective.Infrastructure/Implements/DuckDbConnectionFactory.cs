@@ -6,9 +6,9 @@ using NasaTrendDetective.Infrastructure.Interfaces;
 namespace NasaTrendDetective.Infrastructure.Implements;
 
 /// <summary>
-/// Fábrica de conexiones DuckDB embebidas. En modo archivo cada operación abre su propia
-/// conexión (DuckDB.NET comparte la instancia de base por ruta). En modo ":memory:" se mantiene
-/// una conexión ancla privada y se entregan duplicados para que todas vean la misma base.
+/// Factory for embedded DuckDB connections. In file mode, each operation opens its own
+/// connection (DuckDB.NET shares the underlying database instance per path). In ":memory:" mode,
+/// a private anchor connection is kept and duplicated so all connections see the same database.
 /// </summary>
 public sealed class DuckDbConnectionFactory : IDuckDbConnectionFactory, IDisposable, IAsyncDisposable
 {
@@ -34,7 +34,7 @@ public sealed class DuckDbConnectionFactory : IDuckDbConnectionFactory, IDisposa
 
     public string ConnectionString { get; }
 
-    /// <summary>SQL de límites de recursos, validado (el valor va interpolado: SET no acepta parámetros).</summary>
+    /// <summary>Validated resource limit SQL statements (interpolated value: SET does not accept parameters).</summary>
     public static string? BuildSettingsSql(DuckDbOptions options)
     {
         ArgumentNullException.ThrowIfNull(options);
@@ -45,7 +45,7 @@ public sealed class DuckDbConnectionFactory : IDuckDbConnectionFactory, IDisposa
             if (!System.Text.RegularExpressions.Regex.IsMatch(limit, @"^\d+(\.\d+)?\s*(KB|MB|GB|KiB|MiB|GiB)$",
                     System.Text.RegularExpressions.RegexOptions.IgnoreCase))
             {
-                throw new ArgumentException($"DuckDb:MemoryLimit inválido: '{limit}'. Ejemplo: 256MB.", nameof(options));
+                throw new ArgumentException($"Invalid DuckDb:MemoryLimit: '{limit}'. Example: 256MB.", nameof(options));
             }
 
             statements.Add($"SET memory_limit = '{limit}'");
@@ -111,8 +111,8 @@ public sealed class DuckDbConnectionFactory : IDuckDbConnectionFactory, IDisposa
     }
 
     /// <summary>
-    /// SET memory_limit/temp_directory/threads son a nivel de instancia DuckDB.
-    /// Solo deben ejecutarse en la primera conexión para evitar errores de 'Cannot switch temporary directory'.
+    /// SET memory_limit/temp_directory/threads apply at DuckDB instance level.
+    /// They must only execute on the first connection to avoid 'Cannot switch temporary directory' errors.
     /// </summary>
     private async Task ApplyResourceLimitsAsync(DuckDBConnection connection, CancellationToken cancellationToken)
     {
@@ -129,7 +129,7 @@ public sealed class DuckDbConnectionFactory : IDuckDbConnectionFactory, IDisposa
         }
         catch (DuckDBException ex) when (ex.Message.Contains("temporary directory", StringComparison.OrdinalIgnoreCase))
         {
-            // Ignorar si el directorio temporal ya había sido inicializado previamente por otra conexión/instancia.
+            // Ignore if temporary directory was already initialized by another connection/instance.
         }
     }
 

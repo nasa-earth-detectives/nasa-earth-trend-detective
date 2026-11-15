@@ -3,8 +3,8 @@ import { useEffect, type RefObject } from 'react';
 const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
 /**
- * Mantiene el foco dentro de un diálogo modal: sin esto, Tab sale del diálogo y recorre los controles
- * del globo que quedan tapados detrás. Al cerrar devuelve el foco a quien lo tenía.
+ * Keeps focus inside a modal dialog: without this, Tab leaves the dialog and cycles through
+ * globe controls hidden behind it. On close, restores focus to the previous element.
  */
 export function useFocusTrap(containerRef: RefObject<HTMLElement | null>, active = true) {
   useEffect(() => {

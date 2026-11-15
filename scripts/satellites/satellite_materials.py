@@ -1,14 +1,14 @@
-"""Materiales físicos para los modelos de la NASA (lo usa prepare_nasa_satellites.py).
+"""Physically based materials for NASA models (used by prepare_nasa_satellites.py).
 
-Por qué existe aparte: los materiales originales son planos o están rotos, y las reglas para
-sustituirlos (qué nombre es lámina dorada, qué nombre es celda solar) son lo que más se toca al
-añadir un satélite nuevo. Separadas del procesado de mallas se revisan sin leer lo demás.
+Rationale: original materials are flat or broken, and substitution rules
+(which name maps to gold foil, which maps to solar cell) are the most frequently tweaked
+when adding a new satellite. Separating them from mesh processing keeps them easy to inspect.
 """
 import bpy
 import numpy as np
 
-# Materiales físicos por categoría. Valores de referencia de materiales espaciales reales:
-# la lámina dorada (MLI) es metal muy reflectante, las celdas solares son vidrio oscuro brillante.
+# Physically based materials by category. Reference values from real aerospace materials:
+# gold foil (MLI) is highly reflective metal, solar cells are glossy dark glass.
 CATEGORIAS = {
     'oro': {'color': (1.0, 0.72, 0.30), 'metal': 1.0, 'rugosidad': 0.32},
     'bronce': {'color': (0.78, 0.55, 0.28), 'metal': 1.0, 'rugosidad': 0.38},
@@ -20,7 +20,7 @@ CATEGORIAS = {
     'negro': {'color': (0.04, 0.04, 0.045), 'metal': 0.2, 'rugosidad': 0.6},
 }
 
-# Orden importa: la primera regla que coincide gana (p. ej. "SolarPanelBack" antes que "solar").
+# Order matters: first matching rule wins (e.g. "SolarPanelBack" before "solar").
 REGLAS = [
     (('solarpanelback', 'solarbak'), 'solar_dorso'),
     (('solar', 'panelfaces'), 'solar'),
@@ -37,7 +37,7 @@ REGLAS = [
 
 def categoria(nombre: str) -> str | None:
     bajo = nombre.lower()
-    # La textura "UV" de GRACE son sus celdas solares (cara superior del prisma).
+    # The "UV" texture on GRACE represents its solar cells (top face of prism).
     if bajo == 'uv':
         return 'solar'
     for claves, cat in REGLAS:
@@ -47,7 +47,7 @@ def categoria(nombre: str) -> str | None:
 
 
 def textura_celdas() -> bpy.types.Image:
-    """Celdas fotovoltaicas generadas: sustituyen a las texturas que faltan en el original."""
+    """Procedural photovoltaic cells: substitute for missing textures in original model."""
     lado, celdas = 256, 8
     pixeles = np.zeros((lado, lado, 4), dtype=np.float32)
     pixeles[..., :3] = (0.05, 0.08, 0.22)
@@ -68,14 +68,14 @@ def textura_celdas() -> bpy.types.Image:
 
 
 def aplicar_material(material: bpy.types.Material, cat: str, celdas: bpy.types.Image) -> bool:
-    """Devuelve True si el material usa las celdas generadas (la malla necesitará UV propias)."""
+    """Returns True if material uses procedural cells (mesh will require its own UVs)."""
     valores = CATEGORIAS[cat]
     material.use_nodes = True
     nodos = material.node_tree.nodes
     bsdf = next((n for n in nodos if n.type == 'BSDF_PRINCIPLED'), None)
     if bsdf is None:
         return False
-    # Opaco: algunos originales traen transparencia y el panel dejaba ver el cuerpo detrás.
+    # Opaque: some originals have transparency, allowing the body to show through the panel.
     material.surface_render_method = 'DITHERED'
     for enlace in list(bsdf.inputs['Alpha'].links):
         material.node_tree.links.remove(enlace)
@@ -85,7 +85,7 @@ def aplicar_material(material: bpy.types.Material, cat: str, celdas: bpy.types.I
     textura = next((l.from_node for l in entrada_color.links if l.from_node.type == 'TEX_IMAGE'), None)
     textura_valida = textura is not None and textura.image is not None and textura.image.size[0] > 0
     if cat == 'solar' and not textura_valida:
-        # Sin textura válida: celdas generadas, mapeadas con las UV que traiga la malla.
+        # No valid texture: procedural cells, mapped with whatever UVs the mesh provides.
         textura = nodos.new('ShaderNodeTexImage')
         textura.image = celdas
         material.node_tree.links.new(textura.outputs['Color'], entrada_color)

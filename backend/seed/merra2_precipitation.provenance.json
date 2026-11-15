@@ -1,10 +1,10 @@
 {
   "variable": "Merra2Precipitation",
   "provider": "nasa-power-merra2",
-  "product": "MERRA-2 · precipitación total corregida (NASA POWER v10, media anual)",
+  "product": "MERRA-2 · corrected total precipitation (NASA POWER v10, annual mean)",
   "baseline": "1991-2020",
   "unit": "mm/day",
-  "trendUnit": "mm/día / año",
+  "trendUnit": "mm/day / year",
   "interim": false,
   "resolutionDegrees": 2.0,
   "sourceUrl": "https://nasa-power.s3.amazonaws.com/merra2/temporal/power_merra2_annual_temporal_utc.zarr/PRECTOTCORR",
@@ -15,6 +15,6 @@
   "coverageEnd": 2025,
   "lastMonth": "2025-12",
   "rows": 729000,
-  "processing": "Media anual de POWER regrillada de 0,5° x 0,625° a 2° con promedio ponderado por área; celdas con menos del 50 por ciento de su área con dato, sin fila. anomaly = valor - media de la celda en el periodo base.",
-  "citation": "NASA POWER Project: NASA POWER Data v10. NASA Langley Research Center. https://power.larc.nasa.gov/ (CC BY 4.0). Datos derivados de MERRA-2: Gelaro et al. (2017), J. Climate 30, 5419-5454, doi:10.1175/JCLI-D-16-0758.1"
+  "processing": "POWER annual mean regridded from 0.5° x 0.625° to 2° using area-weighted averaging; cells with less than 50 percent of their area covered are omitted. anomaly = value - cell mean over the baseline period.",
+  "citation": "NASA POWER Project: NASA POWER Data v10. NASA Langley Research Center. https://power.larc.nasa.gov/ (CC BY 4.0). Derived from MERRA-2: Gelaro et al. (2017), J. Climate 30, 5419-5454, doi:10.1175/JCLI-D-16-0758.1"
 }

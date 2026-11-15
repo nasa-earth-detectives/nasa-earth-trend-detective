@@ -1,7 +1,7 @@
 namespace NasaTrendDetective.Infrastructure.Interfaces;
 
 /// <summary>
-/// Crea (de forma idempotente) el esquema estrella analítico en DuckDB.
+/// Initializes (idempotently) the analytical star schema in DuckDB.
 /// </summary>
 public interface IDuckDbSchemaInitializer
 {

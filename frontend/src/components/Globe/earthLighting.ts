@@ -3,9 +3,9 @@ import type { GlobeInstance } from 'globe.gl';
 import { EARTH_MATERIAL_CONFIG, EARTH_SOLAR_CONFIG } from './earthConfig';
 import { getSubsolarPoint } from './solarPosition';
 
-/** Reloj UTC real, independiente del timeline climático y del recorrido de cámara. */
+/** Real UTC clock, independent of the climate timeline and camera travel. */
 export function createEarthLighting(globe: GlobeInstance) {
-  // La misma referencia llega al material, Black Marble, nubes y atmósfera.
+  // The same reference feeds the material, Black Marble, clouds, and atmosphere.
   const sunDirection = new Vector3();
   const ambient = new AmbientLight(0xffffff, EARTH_MATERIAL_CONFIG.ambientIntensity);
   const key = new DirectionalLight(0xffffff, EARTH_MATERIAL_CONFIG.keyIntensity);
@@ -24,8 +24,8 @@ export function createEarthLighting(globe: GlobeInstance) {
   synchronize();
   globe.lights([ambient, key]);
 
-  // Un cálculo por segundo (≈0,004°), sin trabajo ni asignaciones por frame.
-  // El tiempo absoluto evita deriva y recupera inmediatamente una pestaña suspendida.
+  // One calculation per second (≈0.004°), with zero work or allocations per frame.
+  // Absolute time prevents drift and immediately recovers suspended tabs.
   const refreshIfVisible = (): void => { if (!document.hidden) synchronize(); };
   const timer = window.setInterval(refreshIfVisible, EARTH_SOLAR_CONFIG.updateIntervalMs);
   document.addEventListener('visibilitychange', refreshIfVisible);

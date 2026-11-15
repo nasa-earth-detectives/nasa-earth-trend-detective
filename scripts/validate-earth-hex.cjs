@@ -60,7 +60,7 @@ async function main() {
   const layer = createEarthHexLayer(globe, location => locations.push(location));
   layer.setOnObservationSelect(observation => readings.push(observation));
   const shared = acquireEarthAnalysisRoot(globe);
-  assert.equal(rootsCreated, 1, 'Hex y calor comparten una única raíz pública.');
+  assert.equal(rootsCreated, 1, 'Hex and heat share a single public root.');
   const observations = [-1, 0.5, 1.8].map((value, index) => ({
     id: `cell:${index}`, variable: 'Gistemp', latitude: index * 4, longitude: (index - 1) * 12,
     value, anomaly: value, unit: '°C', timestamp: '2024-01-01T00:00:00Z',
@@ -95,12 +95,12 @@ async function main() {
   const buffer = mesh.instanceMatrix.array;
   layer.updateData(next, 'Gistemp');
   assert.equal(readings.at(-1), next[0]);
-  assert.equal(locations.length, 1, 'Un cambio de año actualiza lectura sin abrir inspector.');
+  assert.equal(locations.length, 1, 'A year change updates reading without opening inspector.');
   assert.equal(mesh, scene.getObjectByName('earth-analysis-hex-columns'));
   assert.equal(buffer, mesh.instanceMatrix.array);
-  assert.equal(coordCalls, 3, 'Año nuevo conserva coordenadas y BVH.');
+  assert.equal(coordCalls, 3, 'New year preserves coordinates and BVH.');
   assert.equal(height(1), oldHeight);
-  assert.deepEqual(rgba(1), oldColor, 'Color comienza desde el estado visual previo.');
+  assert.deepEqual(rgba(1), oldColor, 'Color starts from previous visual state.');
   frame(400);
   const halfwayHeight = height(1);
   const halfwayColor = rgba(1);
@@ -119,7 +119,7 @@ async function main() {
   for (let index = 0; index < 60; index++) frame(16.7);
   assert.equal(mesh.instanceMatrix.version, matrixVersion);
   assert.equal(mesh.instanceColor.version, colorVersion);
-  assert.equal(readings.length, readingCount, 'Sin estado React por frame.');
+  assert.equal(readings.length, readingCount, 'No React state per frame.');
   mesh.getMatrixAt(2, matrix);
   const point = new three.Vector3(0, 0.5, 0).applyMatrix4(matrix).applyMatrix4(mesh.matrixWorld).project(camera);
   assert(layer.pick((point.x + 1) / 2 * 1920, (1 - point.y) / 2 * 1080));
@@ -137,9 +137,9 @@ async function main() {
     { ...observations[1], variable: 'Oco2', latitude: NaN },
     { ...observations[2], variable: 'Gistemp' },
   ], 'Oco2');
-  assert.equal(mesh.count, 1, 'Rechaza coordenadas inválidas y observaciones de otra variable.');
+  assert.equal(mesh.count, 1, 'Rejects invalid coordinates and observations from another variable.');
   const co2Height = observationMagnitude('Oco2', 420) * 100 * HEX_COLUMN_CONFIG.maxHeightRatio;
-  assert(Math.abs(height(0) - co2Height) < 1e-5, 'CO₂ usa concentración absoluta y no una anomalía accidental.');
+  assert(Math.abs(height(0) - co2Height) < 1e-5, 'CO2 uses absolute concentration and not an accidental anomaly.');
   assert.equal(globe.renderer(), renderer);
   assert.equal(globe.renderer().domElement, canvas);
   let materialDisposed = false;
@@ -150,7 +150,7 @@ async function main() {
   layer.dispose();
   assert(materialDisposed && geometryDisposed);
   assert.equal(listeners.size, 0);
-  assert.equal(rootsCleared, 0, 'Disponer hex no elimina la capa de calor.');
+  assert.equal(rootsCleared, 0, 'Disposing hex does not remove heat layer.');
   assert.equal(scene.getObjectByName('earth-analysis-hex-columns'), undefined);
   shared.release();
   assert.equal(rootsCleared, 1);

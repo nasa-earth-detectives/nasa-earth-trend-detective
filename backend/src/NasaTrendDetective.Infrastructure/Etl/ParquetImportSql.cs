@@ -1,8 +1,8 @@
 namespace NasaTrendDetective.Infrastructure.Etl;
 
 /// <summary>
-/// SQL nativo DuckDB del importador: todo ocurre en el motor (INSERT ... SELECT FROM read_parquet),
-/// sin deserializar filas en .NET.
+/// Native DuckDB importer SQL: executes fully inside the engine (INSERT ... SELECT FROM read_parquet),
+/// without deserializing rows into .NET.
 /// </summary>
 internal static class ParquetImportSql
 {
@@ -21,10 +21,10 @@ internal static class ParquetImportSql
         $"SELECT count(*) FROM read_parquet({DuckDbSqlText.Literal(glob)})";
 
     /// <summary>
-    /// Inserta los hechos nuevos: year/month salen de timestamp, NaN/Infinito pasan a NULL (los NULL de
-    /// la limpieza se respetan, no se reimputa), varias filas del mismo mes y celda se consolidan con avg,
-    /// se omiten celdas/meses ya cargados (reimportar es idempotente) y observation_id es determinista:
-    /// max previo + row_number() en el orden físico (variable_id, year, latitude, longitude).
+    /// Inserts new facts: year/month are extracted from timestamp, NaN/Infinity become NULL (cleaned NULLs
+    /// are preserved without re-imputing), multiple rows for the same month and cell are consolidated using avg,
+    /// previously loaded cells/months are skipped (re-import is idempotent), and observation_id is deterministic:
+    /// previous max + row_number() in physical order (variable_id, year, latitude, longitude).
     /// </summary>
     public static string InsertFacts(string glob, long previousMaxId) =>
         $"""
@@ -61,7 +61,7 @@ internal static class ParquetImportSql
         """;
 
     /// <summary>
-    /// Registra en dim_location las celdas observadas por los hechos recién insertados.
+    /// Populates dim_location with observed cells from newly inserted facts.
     /// </summary>
     public static string InsertLocations(long previousMaxId) =>
         $"""

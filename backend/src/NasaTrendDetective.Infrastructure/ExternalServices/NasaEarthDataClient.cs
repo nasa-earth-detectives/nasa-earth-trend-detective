@@ -9,8 +9,8 @@ using NasaTrendDetective.Infrastructure.Interfaces;
 namespace NasaTrendDetective.Infrastructure.ExternalServices;
 
 /// <summary>
-/// Cliente HTTP tipado de NASA EarthData. Los reintentos (429/5xx/timeouts) los aplica el
-/// pipeline de resiliencia registrado en DI; aquí solo se arma cada request y se gestiona la caché.
+/// Typed HTTP client for NASA EarthData. Retries (429/5xx/timeouts) are handled by the
+/// resilience pipeline registered in DI; request building and file caching occur here.
 /// </summary>
 public sealed class NasaEarthDataClient : INasaEarthDataClient
 {
@@ -44,7 +44,7 @@ public sealed class NasaEarthDataClient : INasaEarthDataClient
         using var document = await JsonDocument.ParseAsync(body, cancellationToken: cancellationToken)
             .ConfigureAwait(false);
         var granules = CmrGranuleParser.Parse(document);
-        _logger.LogInformation("CMR devolvió {Count} granules para {ShortName}", granules.Count, request.ShortName);
+        _logger.LogInformation("CMR returned {Count} granules for {ShortName}", granules.Count, request.ShortName);
         return granules;
     }
 
@@ -58,7 +58,7 @@ public sealed class NasaEarthDataClient : INasaEarthDataClient
         var path = _cache.ResolvePath(url, fileName);
         if (_cache.TryGetCached(path, out var cachedSize))
         {
-            _logger.LogDebug("Caché NASA: {Path} ya existe, se omite la descarga", path);
+            _logger.LogDebug("NASA cache: {Path} already exists, skipping download", path);
             return new NasaDownloadResult(path, cachedSize, FromCache: true);
         }
 
@@ -68,7 +68,7 @@ public sealed class NasaEarthDataClient : INasaEarthDataClient
         var size = await _cache.WriteAtomicAsync(path, body, response.Content.Headers.ContentLength, cancellationToken)
             .ConfigureAwait(false);
 
-        _logger.LogInformation("Descargado {Host}{Path} ({Size} bytes) en caché", url.Host, url.AbsolutePath, size);
+        _logger.LogInformation("Downloaded {Host}{Path} ({Size} bytes) into cache", url.Host, url.AbsolutePath, size);
         return new NasaDownloadResult(path, size, FromCache: false);
     }
 
@@ -80,7 +80,7 @@ public sealed class NasaEarthDataClient : INasaEarthDataClient
         if (dataset.DirectUrl is null)
         {
             throw new InvalidOperationException(
-                $"El dataset '{dataset.Key}' no tiene URL directa; busca sus granules con SearchGranulesAsync.");
+                $"Dataset '{dataset.Key}' does not have a direct URL; search for its granules using SearchGranulesAsync.");
         }
 
         return DownloadFileAsync(dataset.DirectUrl, dataset.RequiresAuthentication, null, cancellationToken);
@@ -104,7 +104,7 @@ public sealed class NasaEarthDataClient : INasaEarthDataClient
         {
             message.Dispose();
             throw new NasaEarthDataException(
-                $"El host {url.Host} no es un dominio Earthdata de confianza (HTTPS); no se envía el token.");
+                $"Host {url.Host} is not a trusted Earthdata HTTPS domain; token will not be transmitted.");
         }
 
         message.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _options.Token!.Trim());
@@ -122,11 +122,11 @@ public sealed class NasaEarthDataClient : INasaEarthDataClient
         }
         catch (HttpRequestException ex)
         {
-            throw new NasaEarthDataException($"Error de red al consultar {message.RequestUri?.Host}.", ex);
+            throw new NasaEarthDataException($"Network error when querying {message.RequestUri?.Host}.", ex);
         }
         catch (TimeoutRejectedException ex)
         {
-            throw new NasaEarthDataException($"Tiempo de espera agotado con {message.RequestUri?.Host}.", ex);
+            throw new NasaEarthDataException($"Request timed out for {message.RequestUri?.Host}.", ex);
         }
 
         if (response.IsSuccessStatusCode)
@@ -137,7 +137,7 @@ public sealed class NasaEarthDataClient : INasaEarthDataClient
         var status = (int)response.StatusCode;
         response.Dispose();
         throw status is 401 or 403
-            ? new NasaEarthDataException($"NASA EarthData rechazó la autenticación ({status}). Revisa el token.")
-            : new NasaEarthDataException($"NASA EarthData respondió {status} para {message.RequestUri?.Host}.");
+            ? new NasaEarthDataException($"NASA EarthData rejected authentication ({status}). Check your token.")
+            : new NasaEarthDataException($"NASA EarthData returned {status} for {message.RequestUri?.Host}.");
     }
 }

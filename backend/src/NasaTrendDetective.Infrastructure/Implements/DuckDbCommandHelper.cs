@@ -5,7 +5,7 @@ using DuckDB.NET.Data;
 namespace NasaTrendDetective.Infrastructure.Implements;
 
 /// <summary>
-/// Utilidades internas para construir comandos DuckDB seguros y convertir resultados.
+/// Internal utilities to build secure DuckDB commands and convert scalar results.
 /// </summary>
 internal static partial class DuckDbCommandHelper
 {
@@ -52,7 +52,7 @@ internal static partial class DuckDbCommandHelper
         if (string.IsNullOrWhiteSpace(identifier) || !IdentifierPattern().IsMatch(identifier))
         {
             throw new ArgumentException(
-                $"Nombre de tabla inválido: '{identifier}'. Solo se permiten letras, dígitos y '_'.",
+                $"Invalid table identifier: '{identifier}'. Only letters, digits, and '_' are permitted.",
                 nameof(identifier));
         }
 

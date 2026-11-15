@@ -1,9 +1,9 @@
 import { Color, MeshStandardMaterial, ShaderChunk, Vector2, Vector3 } from 'three';
 import { EARTH_MATERIAL_CONFIG, EARTH_SOLAR_CONFIG } from './earthConfig';
 
-/** GGX de Three, con rugosidad e índice óptico distintos para agua y terreno.
- * La máscara ocupa roughnessMap: se muestrea una vez, sin otro mapa ni otro pase.
- * Conserva iluminación, normales, gestión de color y tone mapping nativos.
+/** Three.js GGX with distinct roughness and index of refraction for water and land.
+ * The mask occupies roughnessMap: sampled once, without an extra map or pass.
+ * Preserves native lighting, normals, color management, and tone mapping.
  */
 export function createEarthMaterial(sunDirection: Vector3): MeshStandardMaterial {
   const config = EARTH_MATERIAL_CONFIG;
@@ -17,7 +17,7 @@ export function createEarthMaterial(sunDirection: Vector3): MeshStandardMaterial
   });
   material.name = 'earth-orbital-surface';
   material.onBeforeCompile = shader => {
-    // Fallar explícitamente si cambia el contrato del chunk al actualizar Three.
+    // Fail explicitly if chunk contract changes when updating Three.js.
     if (!ShaderChunk.lights_physical_fragment.includes('material.specularColor = vec3( 0.04 );')
       || !shader.vertexShader.includes('#include <beginnormal_vertex>')
       || !shader.fragmentShader.includes('#include <emissivemap_fragment>')
@@ -62,23 +62,23 @@ float earthWater = 0.0;
   earthWater = texture2D(roughnessMap, vRoughnessMapUv).g;
 #endif
 float roughnessFactor = mix(earthLandRoughness, earthOceanRoughness, earthWater);
-// Corrige el nivel del relleno sin borrar la variación costera de la fuente.
+// Adjusts fill level without erasing coastal variation from the source.
 float earthPlaceholder = 1.0 - smoothstep(earthFillTolerance.x, earthFillTolerance.y,
   length(diffuseColor.rgb - earthSourceOcean));
 diffuseColor.rgb += (earthDeepWater - earthSourceOcean) * earthWater * earthPlaceholder;
 `)
       .replace('#include <lights_physical_fragment>', ShaderChunk.lights_physical_fragment
-        // Three.js v0.186+: la rama #else (sin IOR) contiene:
+        // Three.js v0.186+: the #else branch (without IOR) contains:
         //   material.specularColor = vec3( 0.04 );
         //   material.specularColorBlended = mix( material.specularColor, diffuseColor.rgb, metalnessFactor );
-        // specularColorBlended utiliza este F0 sin modificar energía del terreno.
+        // specularColorBlended uses this F0 without altering land energy.
         .replace(
           'material.specularColor = vec3( 0.04 );',
           'material.specularColor = vec3(mix(0.04, earthOceanF0, earthWater));',
         ));
   };
-  // Three incluye las variantes map/bump/roughnessMap en su clave nativa.
-  // Esta versión distingue únicamente nuestra modificación del shader GGX.
+  // Three includes map/bump/roughnessMap variants in its native key.
+  // This version only distinguishes our GGX shader modification.
   material.customProgramCacheKey = () => 'earth-orbital-ggx-v5';
   return material;
 }

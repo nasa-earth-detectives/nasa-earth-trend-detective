@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Un color interpolable transmite el cambio de instrumento a todo el chasis. */
+/* An interpolable color propagates the instrument change across the entire chassis. */
 @property --active-accent {
   syntax: '<color>';
   inherits: true;

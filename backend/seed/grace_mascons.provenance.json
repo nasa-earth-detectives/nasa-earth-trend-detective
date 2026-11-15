@@ -1,10 +1,10 @@
 {
   "variable": "GraceMass",
   "provider": "nasa-gsfc-grace-mascons",
-  "product": "GRACE y GRACE-FO · mascons de NASA GSFC RL06v2.0 (agua y hielo en tierra, cm de agua equivalente)",
+  "product": "GRACE and GRACE-FO · NASA GSFC RL06v2.0 mascons (land water and ice, cm equivalent water height)",
   "baseline": "2004-2009",
   "unit": "cm EWH",
-  "trendUnit": "cm EWH / año",
+  "trendUnit": "cm EWH / year",
   "interim": false,
   "resolutionDegrees": 2.0,
   "sourceUrl": "https://earth.gsfc.nasa.gov/sites/default/files/geo/GSFC.glb_.200204_202606_RL06v2.0_OBP-ICE6GD.zip",
@@ -15,6 +15,6 @@
   "coverageEnd": 2025,
   "lastMonth": "2025-12",
   "rows": 1469664,
-  "processing": "12896 mascons de tierra y hielo apoyado (de 41168), repartidos en la grilla de 2° por área de solape; celdas con menos del 50% de su área en tierra, sin fila. 252 soluciones mensuales, cada una en el mes de su día central; los meses sin solución no se imputan. Corrección de rebote posglacial ICE-6G_D incluida en el producto. La media de tierra cambia como máximo 0.0292 cm al regrillar.",
-  "citation": "Loomis, B. D., Luthcke, S. B., Sabaka, T. J. (2019). Regularization and error characterization of GRACE mascons. Journal of Geodesy, 93, 1381-1398. doi:10.1007/s00190-019-01252-y. Solución RL06v2.0 (OBP-ICE6GD) de NASA Goddard Space Flight Center, Geodesy and Geophysics Laboratory."
+  "processing": "12896 land and grounded-ice mascons (out of 41168), distributed onto the 2° grid by overlap area; cells with less than 50% of their area on land are omitted. 252 monthly solutions, each assigned to the month of its midpoint day; missing months are not imputed. ICE-6G_D glacial isostatic adjustment correction included in the product. Land mean drifts at most 0.0292 cm upon regridding.",
+  "citation": "Loomis, B. D., Luthcke, S. B., Sabaka, T. J. (2019). Regularization and error characterization of GRACE mascons. Journal of Geodesy, 93, 1381-1398. doi:10.1007/s00190-019-01252-y. RL06v2.0 (OBP-ICE6GD) solution from NASA Goddard Space Flight Center, Geodesy and Geophysics Laboratory."
 }

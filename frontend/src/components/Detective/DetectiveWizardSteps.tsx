@@ -1,7 +1,7 @@
 /**
- * Pasos "variable" y "lugar" del expediente. No guardan la selección: el asistente decide y ellos la
- * pintan. Van como listas con filas, no como rejilla de tarjetas iguales: así una variable con datos
- * reales de la NASA no pesa lo mismo que un escenario de demostración.
+ * "Variable" and "Location" steps of the briefing. They do not hold selection state: the wizard
+ * decides and they render it. Laid out as row lists rather than equal cards so a variable with
+ * real NASA data does not carry the same weight as a demonstration scenario.
  */
 import { Crosshair } from 'lucide-react';
 import type { ClimateVariable, VariableMetadata } from '../../types/climate.types';
@@ -12,12 +12,12 @@ import { WIZARD_REGIONS, type WizardRegion } from '../../config/wizardOptions';
 import { hasDemoScenario } from '../../services/demo/demoScenario';
 import { VARIABLE_ACCENT_STYLE, VARIABLE_ICONS } from './variableIcons';
 
-/** Nombre corto de la fuente ("MERRA-2", "GISTEMP v4") o por qué no hay datos reales. */
+/** Short source name ("MERRA-2", "GISTEMP v4") or why real data are missing. */
 function sourceTag(catalog: DatasetCatalog | null, variable: ClimateVariable): string {
   const provenance = catalog?.get(variable);
   if (provenance) return provenance.product.split('·')[0].trim();
   if (!catalog) return '';
-  return hasDemoScenario(variable) ? 'Demostración' : 'Sin datos';
+  return hasDemoScenario(variable) ? 'Demo' : 'No data';
 }
 
 interface VariableRowProps {
@@ -42,8 +42,8 @@ function VariableRow({ meta, selected, real, tag, onSelect }: VariableRowProps) 
         <div className="briefing-item__detail">
           <p>{entry.plain}</p>
           <dl>
-            <div><dt>Unidad</dt><dd>{entry.unit}</dd></div>
-            <div><dt>Pregunta guía</dt><dd>{entry.askAbout}</dd></div>
+            <div><dt>Unit</dt><dd>{entry.unit}</dd></div>
+            <div><dt>Guiding question</dt><dd>{entry.askAbout}</dd></div>
           </dl>
         </div>
       )}
@@ -63,17 +63,17 @@ export function VariableStep({ variable, catalog, onSelect }: VariableStepProps)
       tag={sourceTag(catalog, meta.id)} onSelect={onSelect} />
   );
   return (
-    <div role="radiogroup" aria-label="Variable científica">
+    <div role="radiogroup" aria-label="Scientific variable">
       {real.length > 0 && (
         <section className="briefing-group">
-          <h2 className="briefing-group__title">Datos reales de la NASA<span>{real.length}</span></h2>
+          <h2 className="briefing-group__title">Real NASA data<span>{real.length}</span></h2>
           {real.map(meta => row(meta, true))}
         </section>
       )}
       {others.length > 0 && (
         <section className="briefing-group" data-quiet={catalog !== null}>
           <h2 className="briefing-group__title">
-            {!catalog ? 'Comprobando qué datos hay…' : 'Sin datos reales · sólo demostración'}<span>{others.length}</span>
+            {!catalog ? 'Checking available data…' : 'No real data · demonstration only'}<span>{others.length}</span>
           </h2>
           {others.map(meta => row(meta, false))}
         </section>
@@ -95,7 +95,7 @@ export function RegionStep({ region, variable, onSelect, onSuggest }: RegionStep
     ? region.suggestedVariables : [];
   return (
     <>
-      <div role="radiogroup" aria-label="Región de estudio" className="briefing-group">
+      <div role="radiogroup" aria-label="Study region" className="briefing-group">
         {WIZARD_REGIONS.map((item) => (
           <div key={item.id} className="briefing-item" data-selected={region.id === item.id}>
             <button type="button" role="radio" aria-checked={region.id === item.id} className="briefing-row focus-ring"
@@ -106,23 +106,23 @@ export function RegionStep({ region, variable, onSelect, onSuggest }: RegionStep
               </span>
               {item.id === 'custom'
                 ? <span className="briefing-row__coords" aria-hidden="true"><Crosshair size={15} strokeWidth={1.5} /></span>
-                : <span className="briefing-row__coords">{coordinate(item.lat, 'N', 'S')}<br />{coordinate(item.lng, 'E', 'O')}</span>}
+                : <span className="briefing-row__coords">{coordinate(item.lat, 'N', 'S')}<br />{coordinate(item.lng, 'E', 'W')}</span>}
             </button>
           </div>
         ))}
       </div>
 
       {region.id === 'custom' && (
-        <p className="briefing-note">Al abrir el expediente podrás tocar cualquier punto del globo para investigarlo.</p>
+        <p className="briefing-note">Once you open the dossier you can tap any point on the globe to investigate it.</p>
       )}
       {suggestions.length > 0 && (
         <div className="briefing-note">
-          <p>En {region.label} suele decir más otra variable:</p>
+          <p>In {region.label} another variable often reveals more:</p>
           <div className="briefing-note__chips">
             {suggestions.map(id => (
               <button key={id} type="button" className="briefing-chip focus-ring" style={VARIABLE_ACCENT_STYLE[id]}
                 onClick={() => onSuggest(id)}>
-                Cambiar a {CLIMATE_VARIABLES.find(meta => meta.id === id)?.name}
+                Switch to {CLIMATE_VARIABLES.find(meta => meta.id === id)?.name}
               </button>
             ))}
           </div>

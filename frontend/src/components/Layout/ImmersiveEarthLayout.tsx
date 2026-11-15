@@ -42,18 +42,18 @@ interface ImmersiveEarthLayoutProps {
   provenance: DatasetProvenance | null;
   filter: TrendFilterParams;
   initialLocation?: SelectedLocation | null;
-  /** Lugar pedido desde fuera de la escena (asistente): el globo vuela hasta él y lo inspecciona. */
+  /** Location requested from outside the scene (wizard): the globe flies to it and inspects it. */
   focusLocation?: SelectedLocation | null;
-  /** Lugar que el asistente enseña mientras se elige: el globo gira hacia él sin abrir la inspección. */
+  /** Location shown by the wizard while choosing: the globe turns toward it without opening inspection. */
   previewLocation?: SelectedLocation | null;
-  /** El expediente de inicio ocupa el lado izquierdo: el globo se desplaza para no quedar tapado. */
+  /** Startup briefing occupies the left side: the globe shifts so it is not covered. */
   briefingOpen?: boolean;
   onVariableChange: (variable: ClimateVariable) => void;
   onYearChange: (year: number) => void;
   onOpenWizard?: () => void;
 }
 
-/** Un único espacio WebGL; cada intención reorganiza los instrumentos DOM. */
+/** A single WebGL viewport; each intent reorganizes DOM instruments. */
 export function ImmersiveEarthLayout({
   observations, loading, observationError, source, provenance, filter,
   initialLocation = null, focusLocation = null, previewLocation = null, briefingOpen = false,
@@ -167,10 +167,10 @@ export function ImmersiveEarthLayout({
           collapsed={ui.mode !== 'time'} onToggleCollapsed={() => ui.toggleMode('time')} onPlaybackChange={setIsPlaying} />
       </div>
       <p className="scene-guidance quiet-instrument">
-        <span className="guidance-desktop">Arrastra para orbitar · Desplaza para acercar</span>
-        <span className="guidance-touch">Arrastra para orbitar · Pellizca para acercar</span>
-        <span>{trendReading ? 'Cada columna es el ritmo de cambio de una celda; selecciónala para leerla'
-          : observationMode === 'hex' ? 'Selecciona una columna para inspeccionar su observación' : 'Selecciona la superficie para inspeccionar'}</span>
+        <span className="guidance-desktop">Drag to orbit · Scroll to zoom</span>
+        <span className="guidance-touch">Drag to orbit · Pinch to zoom</span>
+        <span>{trendReading ? 'Each column shows a cell’s rate of change; select one to read it'
+          : observationMode === 'hex' ? 'Select a column to inspect its observation' : 'Select the surface to inspect'}</span>
       </p>
       <LayerPanel id="layer-panel" open={panelOpen} onClose={ui.observe}
         activeTab={ui.mode === 'view' ? 'view' : 'data'} onTabChange={ui.setLayerTab}

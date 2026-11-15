@@ -6,8 +6,8 @@ const count = (value: unknown): number | undefined =>
   typeof value === 'number' && Number.isInteger(value) && value >= 0 ? value : undefined;
 
 /**
- * Significancia de una celda de /trends/grid. Son campos añadidos al DTO: si la API es anterior y no
- * los envía, la celda queda sin ellos y la interfaz sencillamente no los muestra.
+ * Significance of a cell from /trends/grid. These fields were added to the DTO: if an older API
+ * does not send them, the cell omits them and the UI simply does not display them.
  */
 export function readCellSignificance(row: Record<string, unknown>): Pick<HexCell, 'pValue' | 'adjustedPValue' | 'robust'> {
   const pValue = probability(row.pValue);
@@ -16,7 +16,7 @@ export function readCellSignificance(row: Record<string, unknown>): Pick<HexCell
   return { pValue, adjustedPValue, robust: row.isSignificantCorrected };
 }
 
-/** Resumen del mapa: cuántas celdas superan cada filtro. Undefined si la API no lo declara completo. */
+/** Map summary: how many cells pass each filter. Undefined if the API does not declare it in full. */
 export function readGridSignificance(metadata: Record<string, unknown>, analyzed: number): HexSignificance | undefined {
   const uncorrected = count(metadata.significantCells);
   const persistent = count(metadata.prewhitenedSignificantCells);

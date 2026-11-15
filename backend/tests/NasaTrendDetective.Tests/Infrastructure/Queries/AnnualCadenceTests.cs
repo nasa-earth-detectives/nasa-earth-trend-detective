@@ -8,9 +8,9 @@ using NasaTrendDetective.Infrastructure.Implements;
 namespace NasaTrendDetective.Tests.Infrastructure.Queries;
 
 /// <summary>
-/// MERRA-2 entra como una fila por celda y año (month = 1). Con la regla mensual de 9 meses esas
-/// series quedarían vacías: estas pruebas fijan que la cadencia anual las conserva y que la regla
-/// mensual de GISTEMP sigue descartando un año en curso.
+/// MERRA-2 enters as one row per cell and year (month = 1). With the monthly 9-month rule those
+/// series would be empty: these tests pin down that annual cadence preserves them and that GISTEMP's
+/// monthly rule still drops an incomplete year in progress.
 /// </summary>
 public sealed class AnnualCadenceTests : IAsyncLifetime
 {
@@ -22,15 +22,15 @@ public sealed class AnnualCadenceTests : IAsyncLifetime
         _repository = new DuckDbRepository(_factory);
         await new DuckDbSchemaInitializer(_factory).InitializeAsync();
 
-        // Merra2Temperature (id 5): dos celdas, 2001-2012, una fila por año. Valor = año - 2000 y
-        // anomalía = año - 2010, distintos para comprobar que cada columna llega a su sitio.
+        // Merra2Temperature (id 5): two cells, 2001-2012, one row per year. Value = year - 2000 and
+        // anomaly = year - 2010, distinct to verify that each column lands in its place.
         await _repository.ExecuteAsync("""
             INSERT INTO fact_climate_observations
             SELECT row_number() OVER (), 5, lat, 20, y, 1, y - 2000, y - 2010
             FROM (VALUES (10.0), (-10.0)) c(lat), range(2001, 2013) t(y)
             """);
 
-        // Gistemp (id 1) mensual en la misma celda: 2020 completo y 2021 con solo 8 meses.
+        // Monthly Gistemp (id 1) in the same cell: complete 2020 and 2021 with only 8 months.
         await _repository.ExecuteAsync("""
             INSERT INTO fact_climate_observations
             SELECT 1000 + row_number() OVER (), 1, 10.0, 20, y, m, y - 2000, y - 2000
@@ -94,7 +94,7 @@ public sealed class AnnualCadenceTests : IAsyncLifetime
         Assert.Equal(1, result.MinMonthsPerYear);
         Assert.Equal(2, result.Cells.Count);
         Assert.All(result.Cells, cell => Assert.Equal(12, cell.Years));
-        // La serie sube exactamente 1 por año: la pendiente de Sen tiene que ser 1.
+        // The series increases by exactly 1 per year: Sen's slope must be 1.
         Assert.All(result.Cells, cell => Assert.Equal(1.0, cell.SensSlope, precision: 9));
         Assert.All(result.Cells, cell => Assert.True(cell.IsSignificant));
     }
@@ -133,7 +133,7 @@ public sealed class AnnualCadenceTests : IAsyncLifetime
         Assert.All(observations, o => Assert.Equal(-5.0, o.Anomaly));
     }
 
-    /// <summary>Catálogo mínimo: declara cargada la variable que se le pida, sin tocar DuckDB.</summary>
+    /// <summary>Minimal catalog: declares the requested variable as loaded without touching DuckDB.</summary>
     private sealed class SingleDatasetCatalog : IDatasetCatalogRepository
     {
         public Task<IReadOnlyList<DatasetProvenance>> GetAllAsync(CancellationToken cancellationToken = default) =>
@@ -141,8 +141,8 @@ public sealed class AnnualCadenceTests : IAsyncLifetime
 
         public Task<DatasetProvenance?> GetAsync(ClimateVariable variable, CancellationToken cancellationToken = default) =>
             Task.FromResult<DatasetProvenance?>(new DatasetProvenance(
-                variable, "nasa-power-merra2", "MERRA-2 de prueba", "°C", "°C / año", "1991-2020", 2.0,
-                "https://example.test/fuente", "fuente", "sha", DateTimeOffset.UnixEpoch, 2001, 2012,
-                "2012-12", false, "cita", 24, DateTimeOffset.UnixEpoch));
+                variable, "nasa-power-merra2", "Test MERRA-2", "°C", "°C / year", "1991-2020", 2.0,
+                "https://example.test/source", "source", "sha", DateTimeOffset.UnixEpoch, 2001, 2012,
+                "2012-12", false, "citation", 24, DateTimeOffset.UnixEpoch));
     }
 }

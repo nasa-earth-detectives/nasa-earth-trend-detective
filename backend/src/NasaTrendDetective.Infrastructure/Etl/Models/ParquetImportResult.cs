@@ -1,9 +1,9 @@
 namespace NasaTrendDetective.Infrastructure.Etl.Models;
 
 /// <summary>
-/// Resultado de una importación: archivos que casaron con el glob, filas leídas del Parquet
-/// y filas nuevas insertadas en fact_climate_observations (las ya existentes o con coordenadas
-/// fuera de rango no se insertan; varias filas del mismo mes y celda se consolidan en una).
+/// Import result: files matched by the glob, rows read from Parquet,
+/// and new rows inserted into fact_climate_observations (existing rows or out-of-range
+/// coordinates are skipped; multiple rows for the same month and cell are consolidated into one).
 /// </summary>
 public sealed record ParquetImportResult(
     string SourceGlob,

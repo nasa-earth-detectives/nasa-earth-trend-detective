@@ -1,17 +1,17 @@
-"""Convierte el netCDF de GISTEMP v4 al CSV que consume el normalizador del ETL.
+"""Converts GISTEMP v4 netCDF to the CSV consumed by the ETL normalizer.
 
-Por qué existe: el normalizador (`SpatialGridNormalizer`) lee CSV con DuckDB y GISTEMP sólo se
-publica con grilla en netCDF. Este paso es la única pieza específica de la fuente: cuando el
-equipo reciba otra fuente oficial, basta con otro conversor que produzca el mismo CSV y el
-mismo manifiesto; ni la API ni el frontend cambian.
+Rationale: the normalizer (`SpatialGridNormalizer`) reads CSV via DuckDB, but GISTEMP is only
+published as gridded netCDF. This step is the only source-specific component: when the
+team receives another official source, a converter producing the same CSV and
+manifest suffices; neither the API nor frontend changes.
 
-Uso (desde la raíz del repo):
+Usage (from repository root):
     python scripts/etl/gistemp_netcdf_to_csv.py \
         --source data/nasa/raw/gistemp1200_GHCNv4_ERSSTv5.nc.gz --start-year 2000
 
-Salida:
-    data/nasa/raw/gistemp_v4.csv              lat, lon, time (AAAA-MM-01), value, anomaly
-    backend/seed/gistemp_v4.provenance.json   procedencia que la API expone (se versiona)
+Output:
+    data/nasa/raw/gistemp_v4.csv              lat, lon, time (YYYY-MM-01), value, anomaly
+    backend/seed/gistemp_v4.provenance.json   provenance exposed by the API (versioned)
 """
 from __future__ import annotations
 
@@ -30,7 +30,7 @@ import numpy as np
 from scipy.io import netcdf_file
 
 SOURCE_URL = "https://data.giss.nasa.gov/pub/gistemp/gistemp1200_GHCNv4_ERSSTv5.nc.gz"
-EPOCH = dt.date(1800, 1, 1)  # unidades del archivo: "days since 1800-01-01"
+EPOCH = dt.date(1800, 1, 1)  # file units: "days since 1800-01-01"
 
 
 def sha256(path: Path) -> str:
@@ -42,11 +42,11 @@ def sha256(path: Path) -> str:
 
 
 def open_netcdf(source: Path) -> tuple[netcdf_file, Path | None]:
-    """scipy no lee .gz: se descomprime a un temporal que se borra al terminar."""
+    """scipy does not read .gz: decompressed to a temporary file deleted upon completion."""
     if source.suffix != ".gz":
         return netcdf_file(source, "r", mmap=False), None
     descriptor, name = tempfile.mkstemp(suffix=".nc")
-    os.close(descriptor)  # en Windows un descriptor abierto impide borrar el temporal
+    os.close(descriptor)  # On Windows an open descriptor prevents deleting the temp file
     tmp = Path(name)
     with gzip.open(source, "rb") as packed, tmp.open("wb") as plain:
         shutil.copyfileobj(packed, plain)
@@ -75,7 +75,7 @@ def main() -> None:
         months = [EPOCH + dt.timedelta(days=int(d)) for d in days]
         keep = [i for i, m in enumerate(months) if m.year >= args.start_year]
         if not keep:
-            raise SystemExit(f"No hay meses desde {args.start_year} en el archivo.")
+            raise SystemExit(f"No months from {args.start_year} found in file.")
 
         lon_grid, lat_grid = np.meshgrid(lon, lat)
         lat_flat, lon_flat = lat_grid.ravel(), lon_grid.ravel()
@@ -87,10 +87,10 @@ def main() -> None:
             for index in keep:
                 stamp = f"{months[index].year:04d}-{months[index].month:02d}-01"
                 values = raw[index].ravel()
-                valid = values != fill  # sin dato: no se inventa ni se imputa aquí
+                valid = values != fill  # missing data: neither fabricated nor imputed here
                 anomaly = np.round(values[valid].astype(float) * scale, 2)
                 for la, lo, a in zip(lat_flat[valid], lon_flat[valid], anomaly):
-                    # GISTEMP sólo publica anomalías (°C respecto a 1951-1980): valor = anomalía.
+                    # GISTEMP only publishes anomalies (°C relative to 1951-1980): value = anomaly.
                     writer.writerow([f"{la:.1f}", f"{lo:.1f}", stamp, f"{a:.2f}", f"{a:.2f}"])
                 rows += int(valid.sum())
 
@@ -98,14 +98,14 @@ def main() -> None:
         manifest = {
             "variable": "Gistemp",
             "provider": "nasa-giss-gistemp-v4",
-            "product": "GISTEMP v4 · anomalía de temperatura tierra-océano (GHCNv4 + ERSSTv5, 1200 km)",
+            "product": "GISTEMP v4 · land-ocean temperature anomaly (GHCNv4 + ERSSTv5, 1200 km)",
             "baseline": "1951-1980",
             "unit": "°C Anomaly",
-            # La API reporta la pendiente de Sen por año: la unidad de la tendencia viaja con el
-            # dataset para que otra fuente (otra unidad o base temporal) no obligue a tocar código.
-            "trendUnit": "°C / año",
-            # Descarga pública de GISTEMP mientras el reto entrega su fuente oficial: la interfaz lo
-            # muestra como fuente provisional y se reemplaza con otro manifiesto + Parquet.
+            # The API reports Sen's slope per year: the trend unit travels with the
+            # dataset so another source (different unit or time base) requires no code changes.
+            "trendUnit": "°C / year",
+            # Public GISTEMP download while the challenge provides its official source: the UI
+            # displays it as an interim source and it is replaced with another manifest + Parquet.
             "interim": True,
             "resolutionDegrees": float(abs(lat[1] - lat[0])),
             "sourceUrl": SOURCE_URL,
@@ -122,9 +122,9 @@ def main() -> None:
         }
         args.manifest.parent.mkdir(parents=True, exist_ok=True)
         args.manifest.write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8")
-        print(f"{rows} filas | {first:%Y-%m} a {last:%Y-%m} | {args.output}")
-        print(f"manifiesto: {args.manifest}")
-        print("siguiente paso: dotnet run --project backend/tools/NasaTrendDetective.EtlCli -- "
+        print(f"{rows} rows | {first:%Y-%m} to {last:%Y-%m} | {args.output}")
+        print(f"manifest: {args.manifest}")
+        print("next step: dotnet run --project backend/tools/NasaTrendDetective.EtlCli -- "
               f"normalize --source {args.output} --variable Gistemp --output {args.manifest.name.split('.')[0]}.parquet")
     finally:
         nc.close()

@@ -1,9 +1,9 @@
 /**
  * detective-modals.css
  *
- * Expedientes que se abren sobre el globo: casos de estudio y glosario. Mismo lenguaje que el resto
- * del instrumento: grafito, filetes finos, esquinas casi rectas y un solo color saturado por variable.
- * Nada de paletas por tarjeta ni de sombras de colores.
+ * Dossiers that open over the globe: case studies and glossary. Same language as the rest of
+ * the instrument: graphite, hairline borders, nearly sharp corners, and one saturated color per variable.
+ * No per-card palettes or colored shadows.
  */
 
 .dossier-backdrop {
@@ -21,8 +21,8 @@
   display: flex;
   flex-direction: column;
   width: min(680px, 100%);
-  /* Sin esto el ancho minimo del tablero (760 px) ensancha el dialogo entero en el movil, en vez de dejar
-     que el tablero se desplace por dentro. */
+  /* Without this the board's minimum width (760px) widens the whole dialog on mobile instead of
+     letting the board scroll inside. */
   min-width: 0;
   max-height: min(820px, calc(100svh - 48px));
   outline: none;
@@ -48,9 +48,9 @@
 .dossier__close:hover { color: var(--text-primary); border-color: var(--edge-highlight); }
 .dossier__foot { margin: 0; padding: 16px 32px 22px; font-size: 12px; line-height: 1.55; color: var(--text-tertiary); border-top: 1px solid var(--edge-subtle); }
 
-/* ── Tablero de casos ──────────────────────────────────────── */
+/* ── Case board ────────────────────────────────────────────── */
 .case-board { overflow: auto; padding: 0 32px; }
-/* Tabla HTML con su disposición nativa: los anchos salen de la fila de cabecera (22,6 / 32,2 / 32,2 / 13 %). */
+/* Native HTML table layout: column widths come from the header row (22.6 / 32.2 / 32.2 / 13%). */
 .case-board__table { width: 100%; min-width: 760px; table-layout: fixed; border-collapse: collapse; }
 .case-board__table th, .case-board__table td { padding: 15px 22px 15px 0; font-weight: 400; text-align: left; vertical-align: middle; }
 .case-board__table th:last-child, .case-board__table td:last-child { padding-right: 0; }
@@ -65,7 +65,7 @@
 .case-board__variable small { display: block; font-family: var(--font-readout); font-size: 10px; letter-spacing: .06em; color: var(--text-tertiary); }
 .case-board__icon { display: grid; place-items: center; flex: none; width: 34px; height: 34px; color: var(--row-accent); background: rgba(var(--row-rgb), .08); border: 1px solid rgba(var(--row-rgb), .45); border-radius: 3px; }
 
-/* El color de cada celda es el sentido del cambio, con la misma paleta que las columnas del globo. */
+/* Each cell's color matches the direction of change, using the same palette as the globe columns. */
 .case-cell { --tone: var(--text-tertiary); display: grid; grid-template-columns: auto 1fr; grid-template-areas: 'spark slope' 'spark verdict' 'open open'; gap: 2px 14px; align-items: center; min-height: 76px; }
 .case-cell[data-tone='up'] { --tone: #d08172; }
 .case-cell[data-tone='down'] { --tone: #6f9fc8; }
@@ -86,7 +86,7 @@
 .case-board__reading[data-tone='opposite'] { color: var(--text-primary); border-color: var(--text-secondary); background: linear-gradient(90deg, rgba(208, 129, 114, .22), rgba(111, 159, 200, .22)); }
 .case-board__reading[data-tone='pending'] { border-color: transparent; }
 
-/* ── Glosario ──────────────────────────────────────────────── */
+/* ── Glossary ──────────────────────────────────────────────── */
 .glossary-list { overflow-y: auto; margin: 0; padding: 0 32px 12px; list-style: none; }
 .glossary-entry { display: grid; grid-template-columns: 34px 1fr; gap: 0 12px; padding: 20px 0; border-bottom: 1px solid var(--edge-subtle); }
 .glossary-entry:last-child { border-bottom: 0; }

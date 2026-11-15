@@ -3,7 +3,7 @@ import type { Camera } from 'three';
 import { HEX_COLUMN_CONFIG } from './hexColumnState';
 import type { HexColumnAppearance, HexColumnResources, HexColumnState } from './hexColumnState';
 
-/** Interpola buffers existentes y regula el brillo sin crear objetos por frame. */
+/** Interpolates existing buffers and regulates brightness without allocating objects per frame. */
 export function createHexColumnAnimation(
   resources: HexColumnResources, state: HexColumnState, appearance: HexColumnAppearance,
 ) {
@@ -16,7 +16,7 @@ export function createHexColumnAnimation(
 
   const paint = (index: number, upload = true) => {
     if (!state.mesh || !state.data?.cells[index]) return;
-    // El foco aclara el propio color divergente, sin convertir azul/rojo en ámbar.
+    // Focus highlights the diverging color itself without turning blue/red into amber.
     mixed.fromArray(state.baseColors, index * 3).lerp(highlight, index === state.selectedIndex ? 0.2 : index === state.hoverIndex ? 0.1 : 0);
     state.mesh.setColorAt(index, mixed);
     if (upload && state.mesh.instanceColor) {
@@ -30,12 +30,12 @@ export function createHexColumnAnimation(
     const elements = state.mesh.instanceMatrix.array;
     for (let i = 0; i < state.mesh.count; i++) {
       if (eased !== undefined) state.heights[i] = state.from[i] + (state.target[i] - state.from[i]) * eased;
-      // Valor cero = sin columna; la base de 0.001 sólo evita una matriz singular.
+      // Zero value = no column; 0.001 baseline only prevents singular matrix.
       const height = Math.max(0.001, state.heights[i]);
       const center = baseRadius + height / 2;
       const direction = i * 3;
       const matrix = i * 16;
-      // X/Z y la orientación son constantes. Sólo cambian altura y posición radial.
+      // X/Z and orientation are constant. Only height and radial position change.
       elements[matrix + 4] = state.directions[direction] * height;
       elements[matrix + 5] = state.directions[direction + 1] * height;
       elements[matrix + 6] = state.directions[direction + 2] * height;
@@ -80,9 +80,9 @@ export function createHexColumnAnimation(
     const brightness = HEX_COLUMN_CONFIG.farBrightness
       + (HEX_COLUMN_CONFIG.nearBrightness - HEX_COLUMN_CONFIG.farBrightness) * smooth;
     if (Math.abs(brightness - lastBrightness) > 0.0001) {
-      // Un uniform para toda la capa: nunca altera datos, matrices ni signos.
-      // Mantener opacidad evita ordenar miles de columnas transparentes y
-      // preserva la oclusión de la Tierra/nubes en una única InstancedMesh.
+      // One uniform for the entire layer: never alters data, matrices, or signs.
+      // Keeping full opacity avoids sorting thousands of transparent columns and
+      // preserves Earth/cloud occlusion within a single InstancedMesh.
       material.color.setRGB(brightness, brightness, brightness, SRGBColorSpace);
       lastBrightness = brightness;
     }

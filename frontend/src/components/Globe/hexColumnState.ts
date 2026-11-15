@@ -5,7 +5,7 @@ import type { createHexPicking } from './hexPicking';
 
 export type HexColumnDataset = Pick<HexDataset, 'cells' | 'variable' | 'heightDomain' | 'resolutionDegrees'>;
 
-/** La geometría desconoce unidades: el adaptador aporta color y magnitud normalizada. */
+/** Geometry is unit-agnostic: adapter provides color and normalized magnitude. */
 export interface HexColumnAppearance {
   transitionMs?: number;
   transitionColors?: boolean;
@@ -13,13 +13,13 @@ export interface HexColumnAppearance {
   magnitude?: (cell: HexCell, data: HexColumnDataset) => number;
 }
 
-/** Escala analítica exagerada para lectura; nunca representa elevación del terreno. */
+/** Exaggerated analytical scale for readout; never represents terrain elevation. */
 export const HEX_COLUMN_CONFIG = {
   maxHeightRatio: 0.03, footprintRatio: 0.25, baseRatio: 1.0018, transitionMs: 440,
   nearAltitude: 0.65, farAltitude: 2.6, nearBrightness: 0.94, farBrightness: 0.55,
 } as const;
 
-/** Recursos estables propiedad del coordinador; los módulos auxiliares no los liberan. */
+/** Stable resources owned by coordinator; helper modules do not dispose them. */
 export interface HexColumnResources {
   globe: GlobeInstance;
   layer: Group;
@@ -33,14 +33,14 @@ export interface HexColumnResources {
   maxHeight: number;
 }
 
-/** Estado de datos y buffers que comparten selección, animación y actualizaciones. */
+/** Data state and buffers shared across selection, animation, and updates. */
 export function createHexColumnState() {
   return {
     mesh: null as InstancedMesh | null,
     picking: null as ReturnType<typeof createHexPicking> | null,
     data: null as HexColumnDataset | null,
-    // Una consulta puede vaciar data mientras carga el siguiente año; la malla
-    // geográfica y las alturas previas siguen siendo válidas durante esa espera.
+    // A query may empty data while loading next year; geographical mesh
+    // and previous heights remain valid during that wait.
     layoutDataset: null as HexColumnDataset | null,
     visible: true,
     selectedId: null as string | null,

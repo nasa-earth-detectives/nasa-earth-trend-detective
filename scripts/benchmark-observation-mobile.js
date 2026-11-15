@@ -1,10 +1,10 @@
-/** Viewport móvil en GPU de escritorio: no certifica un teléfono físico. Ejecutar con playwright-cli run-code. */
+/** Mobile viewport on desktop GPU: does not certify a physical phone. Run with playwright-cli run-code. */
 async (page) => {
   await page.unroute('**/src/components/Globe/useGlobeScene.ts*');
   await page.route('**/src/components/Globe/useGlobeScene.ts*', async route => {
     const response = await route.fetch();
     const body = await response.text();
-    if (!body.includes('globe.backgroundColor(')) throw new Error('No se encontró Globe');
+    if (!body.includes('globe.backgroundColor(')) throw new Error('Globe not found');
     await route.fulfill({ response, body: body.replace('globe.backgroundColor(',
       'window.__observationGlobe = globe; globe.backgroundColor(') });
   });
@@ -35,9 +35,9 @@ async (page) => {
       for (let i = 0; i < 8; i++) await page.mouse.move(i % 2 ? 230 : 190, i % 2 ? 410 : 390, { steps: 24 });
       await page.mouse.up();
     } else if (mode === 'timeline') {
-      await page.getByRole('button', { name: 'Tiempo', exact: true }).click();
+      await page.getByRole('button', { name: 'Time', exact: true }).click();
       for (const year of ['2010', '2020', '2024']) {
-        await page.getByRole('slider', { name: 'Año de consulta', exact: true }).fill(year);
+        await page.getByRole('slider', { name: 'Query year', exact: true }).fill(year);
         await page.waitForTimeout(800);
       }
       await page.keyboard.press('Escape');
@@ -56,7 +56,7 @@ async (page) => {
   const resources = [];
   for (let cycle = 0; cycle < 5; cycle++) {
     await page.getByRole('button', { name: 'Variables', exact: true }).click();
-    for (const mode of ['Mapa de calor', 'Hexágonos 3D']) {
+    for (const mode of ['Heatmap', '3D Hexagons']) {
       await page.getByRole('radio', { name: mode, exact: true }).click();
       await page.waitForTimeout(1100);
     }

@@ -1,9 +1,9 @@
 /**
  * detective-wizard.css
  *
- * Expediente de inicio "Detective de tendencias". Usa sólo las variables del sistema de diseño
- * (index.css): grafito neutro, texto cálido y un único color saturado, el de la variable elegida.
- * Va acoplado a la izquierda para dejar el globo a la vista; en pantallas estrechas ocupa todo.
+ * "Trend Detective" startup briefing. Uses only the design system tokens (index.css):
+ * neutral graphite, warm text, and a single saturated color for the chosen variable.
+ * Docked to the left to keep the globe in view; fills narrow screens.
  */
 
 .briefing {
@@ -12,7 +12,7 @@
   z-index: 200;
   display: flex;
   outline: none;
-  /* Velo sólo del lado del expediente: el globo queda visible, pero no se puede tocar hasta salir. */
+  /* Veil only on the briefing side: the globe stays visible, but cannot be touched until dismissed. */
   background: linear-gradient(90deg, rgba(5, 7, 10, .9) 0, rgba(5, 7, 10, .62) 30%, rgba(5, 7, 10, .12) 58%, rgba(5, 7, 10, 0) 76%);
   animation: briefing-veil 420ms var(--ease-soft) both;
 }
@@ -29,7 +29,7 @@
   animation: briefing-in 560ms var(--ease-panel) both;
 }
 
-/* Filo con el color de la variable activa: el expediente entero toma su tono al elegirla. */
+/* Edge strip in the active variable color: the whole briefing adopts its tone on selection. */
 .briefing__sheet::before {
   content: '';
   position: absolute;
@@ -45,7 +45,7 @@
 @keyframes briefing-step-back { from { opacity: 0; transform: translateX(-22px); } to { opacity: 1; transform: none; } }
 @keyframes briefing-reveal { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
 
-/* ── Cabecera ──────────────────────────────────────────────── */
+/* ── Header ────────────────────────────────────────────────── */
 .briefing__header { padding: 30px 34px 20px 36px; }
 
 .briefing__eyebrow {
@@ -70,7 +70,7 @@
   list-style: none;
   border-bottom: 1px solid var(--edge-subtle);
 }
-/* Avance: una sola línea que crece, en lugar de tres puntos sueltos. */
+/* Progress: a single growing line instead of three loose dots. */
 .briefing__rail::after {
   content: '';
   position: absolute;
@@ -102,7 +102,7 @@
 }
 .briefing__hint { margin: 10px 0 0; max-width: 40ch; font-size: 13px; line-height: 1.5; color: var(--text-secondary); }
 
-/* ── Cuerpo ────────────────────────────────────────────────── */
+/* ── Body ──────────────────────────────────────────────────── */
 .briefing__body { flex: 1; min-height: 0; overflow-y: auto; padding: 4px 34px 22px 36px; animation: briefing-step-forward 380ms var(--ease-instrument) both; }
 .briefing__body[data-direction='back'] { animation-name: briefing-step-back; }
 
@@ -173,7 +173,7 @@
 .briefing-row[data-kind='real'] .briefing-row__tag { color: var(--status-live); }
 .briefing-row__coords { line-height: 15px; }
 .briefing-item[data-selected='true'] .briefing-row__coords { color: var(--active-accent); }
-/* Los escenarios de demostración se leen, pero no compiten con los datos reales. */
+/* Demo scenarios stay readable without competing with real data. */
 .briefing-group[data-quiet='true'] .briefing-item:not([data-selected='true']) .briefing-row { opacity: .62; }
 .briefing-group[data-quiet='true'] .briefing-row__icon { border-style: dashed; }
 
@@ -190,7 +190,7 @@
 .briefing-chip { padding: 5px 10px; font-size: 12px; color: var(--row-accent); background: rgba(var(--row-rgb), .08); border: 1px solid rgba(var(--row-rgb), .4); border-radius: 3px; cursor: pointer; transition: background-color var(--motion-fast); }
 .briefing-chip:hover { background: rgba(var(--row-rgb), .16); }
 
-/* ── Periodo: lectura y regla de años ──────────────────────── */
+/* ── Period: readout and year ruler ────────────────────────── */
 .briefing-readout { display: flex; align-items: flex-end; gap: 14px; margin: 6px 0 22px; }
 .briefing-readout strong { font-family: var(--font-readout); font-size: 60px; font-weight: 500; line-height: .86; letter-spacing: -.04em; color: var(--text-primary); }
 .briefing-readout p { margin: 0; font-family: var(--font-readout); font-size: 11px; line-height: 16px; color: var(--text-secondary); }
@@ -200,7 +200,7 @@
 .briefing-ruler__track { position: absolute; inset: 11px 0 auto; height: 1px; background: var(--edge-highlight); }
 .briefing-ruler__coverage,
 .briefing-ruler__span { position: absolute; top: 7px; left: var(--from); right: var(--to); height: 9px; }
-/* Lo que la fuente tiene (trama) frente a lo que se va a analizar (color). */
+/* What the source covers (hatch) versus what will be analyzed (solid color). */
 .briefing-ruler__coverage { background: repeating-linear-gradient(90deg, rgba(232, 230, 218, .2) 0 1px, transparent 1px 5px); border-inline: 1px solid var(--edge-highlight); }
 .briefing-ruler__span { background: var(--active-accent); transition: left var(--motion-panel) var(--ease-instrument), right var(--motion-panel) var(--ease-instrument), background-color var(--motion-standard); }
 .briefing-ruler__tick { position: absolute; top: 26px; left: var(--at); transform: translateX(-50%); font-family: var(--font-readout); font-size: 10px; color: var(--text-quaternary); }
@@ -218,7 +218,7 @@
 .briefing-period__years { font-family: var(--font-readout); font-size: 11px; color: var(--text-tertiary); }
 .briefing-period[data-short='true'] .briefing-period__years { color: var(--status-local); }
 
-/* ── Pie ───────────────────────────────────────────────────── */
+/* ── Footer ────────────────────────────────────────────────── */
 .briefing__footer { padding: 14px 34px 26px 36px; border-top: 1px solid var(--edge-subtle); }
 .briefing__summary { display: flex; flex-wrap: wrap; gap: 4px 0; min-height: 16px; margin: 0 0 14px; font-family: var(--font-readout); font-size: 11px; color: var(--text-tertiary); }
 .briefing__summary span + span::before { content: '/'; margin: 0 9px; color: var(--text-quaternary); }
@@ -245,7 +245,7 @@
 .briefing__primary:hover { filter: brightness(1.08); }
 .briefing__primary:hover svg { transform: translateX(3px); }
 
-/* ── Botón de reapertura del asistente (cabecera principal) ── */
+/* ── Wizard reopen button (main header) ────────────────────── */
 .wizard-reopen-btn { color: var(--text-secondary); }
 
 @media (max-width: 720px) {
@@ -262,6 +262,6 @@
   .briefing__rail::after, .briefing-ruler__span, .briefing__primary svg { transition: none; }
 }
 
-/* Las regiones no tienen color propio: su fila elegida toma el de la variable activa. */
+/* Regions have no own color: the selected row adopts the active variable's color. */
 .briefing-group[role='radiogroup'] > .briefing-item[data-selected='true'] { background: linear-gradient(90deg, var(--active-accent-soft), transparent 78%); }
 .briefing-group[role='radiogroup'] > .briefing-item[data-selected='true'] .briefing-row__name { color: var(--text-primary); }

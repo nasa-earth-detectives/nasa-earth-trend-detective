@@ -7,8 +7,8 @@ using NasaTrendDetective.Infrastructure.Interfaces;
 namespace NasaTrendDetective.Infrastructure.Implements;
 
 /// <summary>
-/// Series anuales de todas las celdas de una variable en una sola consulta: DuckDB agrega los meses
-/// a años y .NET solo agrupa filas ya ordenadas por celda (una pasada, sin diccionarios).
+/// Annual series for all cells of a variable in a single query: DuckDB aggregates months
+/// to years, and .NET groups rows already ordered by cell (single pass, without dictionaries).
 /// </summary>
 public sealed class GridTrendRepository : IGridTrendRepository
 {

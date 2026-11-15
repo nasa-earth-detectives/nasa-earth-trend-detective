@@ -1,10 +1,10 @@
 {
   "variable": "GpmPrecipitation",
   "provider": "nasa-power-imerg",
-  "product": "GPM IMERG · precipitación total estimada por satélite (NASA POWER v10, media anual)",
+  "product": "GPM IMERG · satellite-estimated total precipitation (NASA POWER v10, annual mean)",
   "baseline": "2001-2020",
   "unit": "mm/day",
-  "trendUnit": "mm/día / año",
+  "trendUnit": "mm/day / year",
   "interim": false,
   "resolutionDegrees": 2.0,
   "sourceUrl": "https://nasa-power.s3.amazonaws.com/imerg/temporal/power_imerg_annual_temporal_utc.zarr/IMERG_PRECTOT",
@@ -15,6 +15,6 @@
   "coverageEnd": 2025,
   "lastMonth": "2025-12",
   "rows": 453600,
-  "processing": "Media anual de POWER regrillada de 0,1° a 2° con promedio ponderado por área; celdas con menos del 50 por ciento de su área con dato, sin fila. anomaly = valor - media de la celda en el periodo base.",
-  "citation": "NASA POWER Project: NASA POWER Data v10. NASA Langley Research Center. https://power.larc.nasa.gov/ (CC BY 4.0). Datos derivados de GPM IMERG (Integrated Multi-satellitE Retrievals for GPM), NASA Goddard. POWER marca este parámetro como 'reviewing'."
+  "processing": "POWER annual mean regridded from 0.1° to 2° using area-weighted averaging; cells with less than 50 percent of their area covered are omitted. anomaly = value - cell mean over the baseline period.",
+  "citation": "NASA POWER Project: NASA POWER Data v10. NASA Langley Research Center. https://power.larc.nasa.gov/ (CC BY 4.0). Derived from GPM IMERG (Integrated Multi-satellitE Retrievals for GPM), NASA Goddard. POWER marks this parameter as 'reviewing'."
 }

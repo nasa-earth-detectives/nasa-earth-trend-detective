@@ -40,14 +40,14 @@ export function TimeSliderTrack({
           disabled={span === 0}
           onChange={(event) => onSelectYear(Number(event.target.value))}
           onPointerDown={onPausePlayback}
-          aria-label="Año de consulta"
+          aria-label="Query year"
           aria-valuetext={`${currentYear}, ${missionLabel}`}
           className="time-range"
         />
 
         <span className="time-axis" aria-hidden="true" />
 
-        {/* Marcas de años (Ticks) */}
+        {/* Year tick marks */}
         <div className="time-ticks" aria-hidden="true">
           {years.map((year) => {
             const isMilestone = Boolean(CLIMATE_MILESTONES[year]);
@@ -63,7 +63,7 @@ export function TimeSliderTrack({
           })}
         </div>
 
-        {/* Balizas interactivas de hitos históricos */}
+        {/* Interactive historical milestone beacons */}
         <div className="time-milestone-beacons">
           {MILESTONE_YEARS.filter((yr) => yr >= startYear && yr <= endYear).map((year) => {
             const position = ((year - startYear) / (span || 1)) * 100;
@@ -77,7 +77,7 @@ export function TimeSliderTrack({
                 className={`milestone-beacon ${isSelected ? 'selected' : ''}`}
                 style={{ left: `${position}%` }}
                 onClick={() => { setDismissedMilestoneYear(null); onSelectYear(year); }}
-                aria-label={`Hito de ${year}: ${milestone.title}`}
+                aria-label={`${year} milestone: ${milestone.title}`}
                 title={`${year}: ${milestone.title}`}
               >
                 <span className="beacon-dot" />
@@ -90,7 +90,7 @@ export function TimeSliderTrack({
         <span className="time-cursor" aria-hidden="true" />
       </div>
 
-      {/* Etiquetas anuales */}
+      {/* Year labels */}
       <div className="time-mark-labels" aria-hidden="true">
         {marks.map((year) => {
           const position = ((year - startYear) / (span || 1)) * 100;
@@ -105,7 +105,7 @@ export function TimeSliderTrack({
         })}
       </div>
 
-      {/* Detalle del hito seleccionado; no desplaza los controles al pasar el puntero. */}
+      {/* Selected milestone detail; does not shift controls on hover. */}
       {activeMilestone && (
         <div className="milestone-tooltip-container">
           <ClimateMilestoneTooltip

@@ -19,43 +19,43 @@ const getMissionSteps = (callbacks: TourCallbacks): ObservationStep[] => [
   {
     element: '#tour-launch-button', prepare: callbacks.onResetView,
     popover: {
-      title: 'Guía de observación', side: 'bottom', align: 'start',
-      description: '<p>Este botón abre la guía de los instrumentos de Trend Detective.</p><p class="tour-hint">Avanza con Siguiente o las flechas del teclado. Esc cierra la guía.</p>',
+      title: 'Observation Guide', side: 'bottom', align: 'start',
+      description: '<p>This button opens the Trend Detective instrument guide.</p><p class="tour-hint">Advance with Next or your keyboard arrow keys. Esc closes the guide.</p>',
     },
   },
   {
     element: '#tour-observation-context', prepare: callbacks.onResetView,
     popover: {
-      title: 'Tu observación actual', side: 'right', align: 'start',
-      description: '<p>Aquí se muestran la variable seleccionada, su fuente científica y su unidad. Este contexto cambia al elegir otra variable.</p>',
+      title: 'Your Current Observation', side: 'right', align: 'start',
+      description: '<p>This shows the selected variable, its scientific source, and its unit. This context updates when you choose another variable.</p>',
     },
   },
   {
     element: '[data-mode-trigger="layers"]', prepare: callbacks.onResetView,
     popover: {
-      title: 'Cambiar variable', side: 'left', align: 'center',
-      description: '<p>Abre Variables para elegir temperatura, vegetación, masa de agua y hielo o CO₂. El acento y la información de referencia siguen tu selección.</p>',
+      title: 'Switch Variable', side: 'left', align: 'center',
+      description: '<p>Open Variables to choose surface temperature, vegetation, water & ice mass, or CO₂. The accent color and reference details follow your selection.</p>',
     },
   },
   {
     element: '[data-mode-trigger="view"]', prepare: callbacks.onResetView,
     popover: {
-      title: 'Ajustar la escena', side: 'left', align: 'center',
-      description: '<p>Desde Escena puedes activar la rotación, las estrellas, la retícula geográfica y la atmósfera.</p>',
+      title: 'Adjust the Scene', side: 'left', align: 'center',
+      description: '<p>From Scene you can toggle rotation, stars, geographic grid, and atmosphere.</p>',
     },
   },
   {
     element: '#mission-time-navigator', prepare: callbacks.onOpenTime,
     popover: {
-      title: 'Recorrer los años', side: 'top', align: 'center',
-      description: `<p>El archivo temporal está abierto. Selecciona un año entre ${SATELLITE_TIMELINE.startYear} y ${SATELLITE_TIMELINE.endYear}, o usa Recorrer para avanzar año a año.</p><p class="tour-hint">La textura terrestre es una referencia visual; no representa una imagen satelital de cada año.</p>`,
+      title: 'Browse Through Years', side: 'top', align: 'center',
+      description: `<p>The time archive is open. Select a year between ${SATELLITE_TIMELINE.startYear} and ${SATELLITE_TIMELINE.endYear}, or use Play to step year by year.</p><p class="tour-hint">The Earth texture is a visual reference; it does not represent a satellite image of each year.</p>`,
     },
   },
   {
     element: '#tour-detective-card', prepare: callbacks.onOpenInspector,
     popover: {
-      title: 'Inspeccionar una ubicación', side: 'right', align: 'start',
-      description: '<p>El inspector muestra las coordenadas de la ubicación seleccionada. También puedes abrirlo tocando un punto de la Tierra.</p><p class="tour-hint">El veredicto usa Mann–Kendall y la pendiente de Sen sobre la serie anual. Si no hay datos observados, la app lo indica en lugar de inventarlos.</p>',
+      title: 'Inspect a Location', side: 'right', align: 'start',
+      description: '<p>The inspector displays the coordinates of the selected location. You can also open it by clicking any point on Earth.</p><p class="tour-hint">The verdict uses Mann–Kendall and Sen’s slope on the annual series. If no observed data is available, the app states this instead of fabricating values.</p>',
     },
   },
 ];
@@ -80,13 +80,13 @@ export const guidedTourService = {
       requestAnimationFrame(() => {
         if (!stopActiveTour) document.getElementById('tour-launch-button')?.focus({ preventScroll: true });
       });
-      try { localStorage.setItem('nasa_mission_tour_seen', 'true'); } catch { /* Almacenamiento opcional. */ }
+      try { localStorage.setItem('nasa_mission_tour_seen', 'true'); } catch { /* Optional storage. */ }
     };
 
     const goTo = async (index: number) => {
       if (preparing || finished || !steps[index]) return;
       preparing = true;
-      // Cambiar el modo ANTES de que Driver resuelva y mida el elemento.
+      // Change mode BEFORE Driver resolves and measures the element.
       steps[index].prepare?.();
       const target = await waitForTourTarget(steps[index].element, controller.signal);
       if (finished) return;
@@ -98,7 +98,7 @@ export const guidedTourService = {
     const tour = driver({
       steps, popoverClass: 'instrument-tour-popover',
       showProgress: true, progressText: '{{current}} / {{total}}',
-      nextBtnText: 'Siguiente', prevBtnText: 'Anterior', doneBtnText: 'Terminar',
+      nextBtnText: 'Next', prevBtnText: 'Previous', doneBtnText: 'Finish',
       animate: false, smoothScroll: false, allowScroll: false,
       overlayColor: '#050706', overlayOpacity: 0.56,
       stagePadding: 6, stageRadius: 3, popoverOffset: 16,
@@ -107,7 +107,7 @@ export const guidedTourService = {
       onPrevClick: () => { void goTo((tour.getActiveIndex() ?? 0) - 1); },
       onDoneClick: () => tour.destroy(),
       onPopoverRender: popover => {
-        popover.closeButton.setAttribute('aria-label', 'Cerrar guía');
+        popover.closeButton.setAttribute('aria-label', 'Close guide');
         popover.wrapper.setAttribute('data-ui-control', '');
       },
       onDestroyed: finish,

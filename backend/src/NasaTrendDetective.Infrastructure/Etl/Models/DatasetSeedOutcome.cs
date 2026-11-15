@@ -4,13 +4,13 @@ namespace NasaTrendDetective.Infrastructure.Etl.Models;
 
 public enum DatasetSeedStatus
 {
-    /// <summary>Hechos reemplazados y procedencia registrada.</summary>
+    /// <summary>Facts replaced and provenance recorded.</summary>
     Imported,
 
-    /// <summary>El Parquet ya estaba cargado (mismo SHA-256): no se tocó nada.</summary>
+    /// <summary>Parquet was already loaded (matching SHA-256): no changes made.</summary>
     Unchanged,
 
-    /// <summary>Manifiesto sin Parquet hermano.</summary>
+    /// <summary>Manifest without a sibling Parquet file.</summary>
     Skipped,
 
     Failed,

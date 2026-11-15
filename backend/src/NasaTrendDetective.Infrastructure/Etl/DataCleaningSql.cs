@@ -3,24 +3,24 @@ using NasaTrendDetective.Infrastructure.Etl.Models;
 namespace NasaTrendDetective.Infrastructure.Etl;
 
 /// <summary>
-/// Etapa de limpieza en SQL DuckDB sobre la tupla canónica:
-/// 1) fill values, NaN/Infinito y valores fuera del rango físico => NULL analítico;
-/// 2) interpolación temporal lineal SOLO de huecos de un único periodo (fila NULL con vecinas
-///    válidas inmediatas en la misma celda); huecos de 2 o más periodos quedan NULL.
-/// Añade las columnas auxiliares is_valid e is_imputed para las métricas de calidad.
+/// Cleaning stage in DuckDB SQL on the canonical tuple:
+/// 1) fill values, NaN/Infinity, and out-of-physical-range values => analytical NULL;
+/// 2) linear temporal interpolation ONLY for single-period gaps (NULL row with immediate
+///    valid neighbors in the same cell); gaps of 2 or more periods remain NULL.
+/// Adds auxiliary columns is_valid and is_imputed for quality metrics.
 /// </summary>
 /// <remarks>
-/// Varias lecturas crudas que caen en la misma celda y timestamp (p.ej. sondeos OCO-2) se promedian
-/// antes de interpolar, para que la ventana temporal sea determinista. El periodo de cada celda es
-/// su menor paso entre timestamps consecutivos; solo se imputa si las vecinas válidas distan como
-/// máximo <see cref="MaxGapInPeriods"/> periodos, así los periodos ausentes del archivo también
-/// cuentan como hueco (enero, febrero NULL y diciembre no se interpola).
+/// Multiple raw readings that fall into the same cell and timestamp (e.g. OCO-2 soundings) are averaged
+/// before interpolating to ensure the time window is deterministic. The period of each cell is
+/// its smallest step between consecutive timestamps; interpolation occurs only if valid neighbors are separated
+/// by at most <see cref="MaxGapInPeriods"/> periods, so periods absent from the file also
+/// count as gaps (e.g. January, February NULL, and December is not interpolated).
 /// </remarks>
 internal static class DataCleaningSql
 {
     /// <summary>
-    /// Distancia máxima entre vecinas válidas, en periodos (2 = un único periodo faltante). El margen
-    /// de 0.5 absorbe meses de 28 a 31 días.
+    /// Maximum distance between valid neighbors, in periods (2 = a single missing period). The 0.5 margin
+    /// absorbs calendar months from 28 to 31 days.
     /// </summary>
     public const double MaxGapInPeriods = 2.5;
 

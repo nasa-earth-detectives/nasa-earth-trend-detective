@@ -1,25 +1,25 @@
-"""Convierte medias anuales de NASA POWER v10 (MERRA-2 y GPM IMERG) al CSV que consume el ETL.
+"""Converts NASA POWER v10 annual means (MERRA-2 and GPM IMERG) to the CSV consumed by the ETL.
 
-Por qué existe: el reto nombra MERRA-2 (modelo) y GPM (misión), y NASA POWER publica los dos
-completos en un bucket abierto, sin cuenta ni token. Es el mismo camino que GISTEMP: este conversor
-es la única pieza específica de la fuente; ni la API ni el frontend cambian.
+Why this exists: the challenge names MERRA-2 (model) and GPM (mission), and NASA POWER publishes both
+datasets in an open bucket, with no account or token required. It follows the same path as GISTEMP: this
+converter is the only source-specific piece; neither the API nor the frontend changes.
 
-Qué hace con los datos, y por qué:
-  * Usa la media ANUAL que ya calcula POWER (no promedia meses aquí): una fila por celda y año.
-  * Regrilla de la resolución nativa (0,5° x 0,625° en MERRA-2; 0,1° en IMERG) a la grilla de 2° de
-    GISTEMP, para que todas las fuentes compartan celdas. Promedio ponderado por el área de solape.
-  * Una celda de 2° con menos de la mitad de su área con dato se deja sin fila (costas en variables
-    que sólo existen sobre tierra, o latitudes que IMERG no cubre): no se inventa ni se imputa.
-  * anomaly = valor - media de la celda en el periodo base de la fuente. La pendiente es la misma con
-    valor o anomalía; la anomalía hace legible el mapa de un año concreto.
+What it does with the data, and why:
+  * Uses the ANNUAL mean already computed by POWER (does not average months here): one row per cell and year.
+  * Regrids from the native resolution (0.5° x 0.625° for MERRA-2; 0.1° for IMERG) to the 2° GISTEMP grid,
+    so all sources share the same cells. Overlap-area weighted average.
+  * A 2° cell with less than half of its area covered is omitted (coastlines in land-only variables, or
+    latitudes not covered by IMERG): nothing is invented or imputed.
+  * anomaly = value - cell mean over the source baseline period. The slope is identical using value or
+    anomaly; the anomaly makes single-year maps readable.
 
-Requisitos: pip install numpy numcodecs
-Uso (desde la raíz del repo):
-    python scripts/etl/nasa_power_zarr_to_csv.py                    # todas las variables
+Requirements: pip install numpy numcodecs
+Usage (from repo root):
+    python scripts/etl/nasa_power_zarr_to_csv.py                    # all variables
     python scripts/etl/nasa_power_zarr_to_csv.py --variables IMERG_PRECTOT
-Salida, por variable:
-    data/nasa/raw/<archivo>.csv                 lat, lon, time (AAAA-01-01), value, anomaly
-    backend/seed/<archivo>.provenance.json      procedencia que la API expone (se versiona)
+Output, per variable:
+    data/nasa/raw/<file>.csv                    lat, lon, time (YYYY-01-01), value, anomaly
+    backend/seed/<file>.provenance.json         provenance exposed by the API (versioned)
 """
 from __future__ import annotations
 
@@ -38,29 +38,29 @@ POWER_CITATION = ("NASA POWER Project: NASA POWER Data v10. NASA Langley Researc
 SOURCES = {
     "merra2": {
         "store": "merra2/temporal/power_merra2_annual_temporal_utc.zarr", "provider": "nasa-power-merra2",
-        "name": "MERRA-2", "native": "0,5° x 0,625°", "baseline": (1991, 2020),
-        "citation": POWER_CITATION + "Datos derivados de MERRA-2: Gelaro et al. (2017), J. Climate 30, "
+        "name": "MERRA-2", "native": "0.5° x 0.625°", "baseline": (1991, 2020),
+        "citation": POWER_CITATION + "Derived from MERRA-2: Gelaro et al. (2017), J. Climate 30, "
                     "5419-5454, doi:10.1175/JCLI-D-16-0758.1",
     },
-    # IMERG empieza en 1998: su periodo base no puede ser el 1991-2020 de MERRA-2.
+    # IMERG starts in 1998: its baseline period cannot be MERRA-2's 1991-2020.
     "imerg": {
         "store": "imerg/temporal/power_imerg_annual_temporal_utc.zarr", "provider": "nasa-power-imerg",
-        "name": "GPM IMERG", "native": "0,1°", "baseline": (2001, 2020),
-        "citation": POWER_CITATION + "Datos derivados de GPM IMERG (Integrated Multi-satellitE Retrievals "
-                    "for GPM), NASA Goddard. POWER marca este parámetro como 'reviewing'.",
+        "name": "GPM IMERG", "native": "0.1°", "baseline": (2001, 2020),
+        "citation": POWER_CITATION + "Derived from GPM IMERG (Integrated Multi-satellitE Retrievals "
+                    "for GPM), NASA Goddard. POWER marks this parameter as 'reviewing'.",
     },
 }
-# parámetro POWER -> (fuente, variable del dominio, archivo, unidad, unidad de tendencia, producto, decimales)
+# POWER parameter -> (source, domain variable, file stem, unit, trend unit, product, decimals)
 VARIABLES = {
-    "T2M": ("merra2", "Merra2Temperature", "merra2_t2m", "°C", "°C / año", "temperatura del aire a 2 m", 3),
-    "PRECTOTCORR": ("merra2", "Merra2Precipitation", "merra2_precipitation", "mm/day", "mm/día / año",
-                    "precipitación total corregida", 3),
-    "EVLAND": ("merra2", "Merra2Evaporation", "merra2_evaporation", "mm/day", "mm/día / año",
-               "evaporación en tierra", 3),
-    "GWETROOT": ("merra2", "Merra2SoilMoisture", "merra2_soil_moisture", "fraction", "fracción / año",
-                 "humedad del suelo en la zona de raíces (0-1)", 4),
-    "IMERG_PRECTOT": ("imerg", "GpmPrecipitation", "gpm_imerg_precipitation", "mm/day", "mm/día / año",
-                      "precipitación total estimada por satélite", 3),
+    "T2M": ("merra2", "Merra2Temperature", "merra2_t2m", "°C", "°C / year", "2 m air temperature", 3),
+    "PRECTOTCORR": ("merra2", "Merra2Precipitation", "merra2_precipitation", "mm/day", "mm/day / year",
+                    "corrected total precipitation", 3),
+    "EVLAND": ("merra2", "Merra2Evaporation", "merra2_evaporation", "mm/day", "mm/day / year",
+               "land evaporation", 3),
+    "GWETROOT": ("merra2", "Merra2SoilMoisture", "merra2_soil_moisture", "fraction", "fraction / year",
+                 "root-zone soil moisture (0-1)", 4),
+    "IMERG_PRECTOT": ("imerg", "GpmPrecipitation", "gpm_imerg_precipitation", "mm/day", "mm/day / year",
+                      "satellite-estimated total precipitation", 3),
 }
 
 
@@ -69,21 +69,21 @@ def convert(name: str, args: argparse.Namespace) -> None:
     source = SOURCES[source_key]
     zarr = PowerZarr(source["store"], args.cache / source_key, args.workers)
     lat, lon = zarr.axis("lat"), zarr.axis("lon")
-    # Las unidades del eje son "days since AAAA-12-31": cada paso es el 31 de diciembre de su año.
+    # Axis units are "days since YYYY-12-31": each step is December 31 of its year.
     origin = dt.date.fromisoformat(zarr.attrs("time")["units"].split("since ")[1][:10])
     years = np.array([(origin + dt.timedelta(days=int(d))).year for d in zarr.axis("time")])
 
     cube, source_sha, missing = zarr.read(name)
-    complete = np.isfinite(cube).any(axis=(1, 2))  # el Zarr reserva años futuros, todavía vacíos
+    complete = np.isfinite(cube).any(axis=(1, 2))  # the Zarr store pre-allocates future, still-empty years
     cube, kept = cube[complete], years[complete]
     grid = regrid(cube, lat, lon)
 
     first, last = source["baseline"]
     base = (kept >= first) & (kept <= last)
     if base.sum() != last - first + 1:
-        raise SystemExit(f"{name}: el periodo base {first}-{last} no está completo en la fuente.")
+        raise SystemExit(f"{name}: baseline period {first}-{last} is incomplete in the source.")
     with np.errstate(invalid="ignore"):
-        # Media simple (no nanmean): una celda con algún año base sin dato queda sin anomalía y sin fila.
+        # Simple mean (not nanmean): a cell missing any baseline year gets no anomaly and no row.
         anomaly = grid - grid[base].mean(axis=0)
 
     output = args.output_dir / f"{stem}.csv"
@@ -91,16 +91,16 @@ def convert(name: str, args: argparse.Namespace) -> None:
     manifest = {
         "variable": variable,
         "provider": source["provider"],
-        "product": f"{source['name']} · {label} (NASA POWER v10, media anual)",
+        "product": f"{source['name']} · {label} (NASA POWER v10, annual mean)",
         "baseline": f"{first}-{last}",
         "unit": unit,
         "trendUnit": trend_unit,
-        # MERRA-2 y GPM son fuentes que nombra el propio reto: no son provisionales.
+        # MERRA-2 and GPM are sources named by the challenge itself: they are not interim.
         "interim": False,
         "resolutionDegrees": TARGET_DEGREES,
         "sourceUrl": f"{zarr.url}/{name}",
         "sourceFile": f"{Path(source['store']).name}/{name}",
-        # SHA-256 de los bloques comprimidos del array, concatenados en orden (latitud, longitud).
+        # SHA-256 of the compressed array chunks, concatenated in (latitude, longitude) order.
         "sourceSha256": source_sha,
         "retrievedAt": dt.datetime.fromtimestamp(zarr.retrieved_at(name), dt.timezone.utc)
             .isoformat(timespec="seconds"),
@@ -108,17 +108,17 @@ def convert(name: str, args: argparse.Namespace) -> None:
         "coverageEnd": int(kept[-1]),
         "lastMonth": f"{int(kept[-1]):04d}-12",
         "rows": rows,
-        "processing": f"Media anual de POWER regrillada de {source['native']} a {TARGET_DEGREES:g}° con promedio "
-                      f"ponderado por área; celdas con menos del {round(MIN_COVERAGE * 100)} por ciento de su área "
-                      "con dato, sin fila. anomaly = valor - media de la celda en el periodo base.",
+        "processing": f"POWER annual mean regridded from {source['native']} to {TARGET_DEGREES:g}° using "
+                      f"area-weighted averaging; cells with less than {round(MIN_COVERAGE * 100)} percent of "
+                      "their area covered are omitted. anomaly = value - cell mean over the baseline period.",
         "citation": source["citation"],
     }
     path = args.manifest_dir / f"{stem}.provenance.json"
     path.write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     cells = int(np.isfinite(grid).all(axis=0).sum())
-    print(f"{name}: {rows} filas | {kept[0]}-{kept[-1]} ({len(kept)} años) | {cells} celdas completas | "
-          f"bloques ausentes: {missing} | {output}")
-    print("  siguiente paso: dotnet run --project backend/tools/NasaTrendDetective.EtlCli -- normalize "
+    print(f"{name}: {rows} rows | {kept[0]}-{kept[-1]} ({len(kept)} years) | {cells} complete cells | "
+          f"missing chunks: {missing} | {output}")
+    print("  next step: dotnet run --project backend/tools/NasaTrendDetective.EtlCli -- normalize "
           f"--source {output.as_posix()} --variable {variable} --output {stem}.parquet")
 
 

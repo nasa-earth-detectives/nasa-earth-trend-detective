@@ -1,10 +1,10 @@
 namespace NasaTrendDetective.Domain.Entities;
 
 /// <summary>
-/// Mann-Kendall repetido después de descontar la persistencia de un año al siguiente (preblanqueo).
-/// <see cref="Lag1Autocorrelation"/> es cuánto se parece cada año al anterior (de −1 a 1) y
-/// <see cref="SampleSize"/> los valores que quedan tras el preblanqueo: uno menos por cada tramo de
-/// años seguidos.
+/// Mann-Kendall rerun after removing year-to-year persistence (prewhitening).
+/// <see cref="Lag1Autocorrelation"/> measures how strongly each year resembles the previous one
+/// (-1 to 1) and <see cref="SampleSize"/> is the remaining value count after prewhitening: one fewer
+/// per contiguous run of years.
 /// </summary>
 public sealed record PrewhitenedTrendVerdict(
     double Lag1Autocorrelation,
@@ -13,6 +13,6 @@ public sealed record PrewhitenedTrendVerdict(
     double PValue,
     bool IsSignificant)
 {
-    /// <summary>Serie demasiado corta, constante o sin años consecutivos: no se puede afirmar nada.</summary>
+    /// <summary>Series is too short, constant, or lacks consecutive years: nothing can be concluded.</summary>
     public static PrewhitenedTrendVerdict Inconclusive { get; } = new(0, 0, 0, 1, false);
 }

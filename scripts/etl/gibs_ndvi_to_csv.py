@@ -1,25 +1,25 @@
-"""NDVI mensual de MODIS Terra (capa de NASA GIBS) al CSV que consume el normalizador del ETL.
+"""Monthly MODIS Terra NDVI (NASA GIBS layer) to the CSV consumed by the ETL normalizer.
 
-Por qué por GIBS: el NDVI de MODIS sólo se publica en teselas de 1 km que piden cuenta, y pedirlo a
-AppEEARS punto a punto para todo el planeta tarda días (medido: 23 minutos por cada 1 % de una tarea).
-GIBS, el servicio abierto de imágenes de la NASA, sirve el mismo producto mensual (L3, MODIS, Terra)
-como teselas PNG, sin cuenta. La imagen está pintada con una paleta oficial que asigna a cada color un
-intervalo de NDVI, así que el valor se recupera de forma exacta hasta el ancho de ese intervalo.
+Why via GIBS: MODIS NDVI is only published in 1 km tiles that require an account, and requesting it
+point-by-point from AppEEARS for the entire globe takes days (measured: 23 minutes per 1% of a task).
+GIBS, NASA's open imagery service, serves the same monthly product (L3, MODIS, Terra) as PNG tiles
+without an account. Each image is rendered using an official palette that maps every color to an NDVI
+interval, so the value is recovered accurately within that interval width.
 
-Qué hace con los datos, y por qué:
-  * Baja el nivel 2 de la pirámide (15 teselas por mes, 0,14° por píxel): unos 200 píxeles por celda de
-    2°, suficientes para promediar sin descargar el producto entero.
-  * Convierte cada color en el punto medio de su intervalo (142 clases, de 0,005 a 0,01 de ancho).
-  * Los píxeles transparentes (agua, sin dato o NDVI menor o igual que 0) no entran en el promedio.
-  * Una celda con menos de la mitad de su área con dato queda sin fila: no se inventa ni se imputa.
-  * Deja la columna anomaly vacía: el NDVI se analiza como índice, no como anomalía.
+What it does with the data, and why:
+  * Downloads level 2 of the tile pyramid (15 tiles per month, 0.14° per pixel): roughly 200 pixels per
+    2° cell, enough to average without downloading the full product.
+  * Maps each color to the midpoint of its interval (142 classes, from 0.005 to 0.01 wide).
+  * Transparent pixels (water, no data, or NDVI <= 0) are excluded from the average.
+  * A cell with less than half of its area covered is omitted (no row): nothing is invented or imputed.
+  * Leaves the anomaly column empty: NDVI is analyzed as an index, not as an anomaly.
 
-Requisitos: pip install numpy pillow
-Uso (desde la raíz del repo):
+Requirements: pip install numpy pillow
+Usage (from repo root):
     python scripts/etl/gibs_ndvi_to_csv.py
-Salida:
-    data/nasa/raw/modis_ndvi.csv                 lat, lon, time (AAAA-MM-01), value, anomaly
-    backend/seed/modis_ndvi.provenance.json      procedencia que la API expone (se versiona)
+Output:
+    data/nasa/raw/modis_ndvi.csv                 lat, lon, time (YYYY-MM-01), value, anomaly
+    backend/seed/modis_ndvi.provenance.json      provenance exposed by the API (versioned)
 """
 from __future__ import annotations
 
@@ -44,15 +44,15 @@ GIBS = "https://gibs.earthdata.nasa.gov"
 TILE_URL = GIBS + "/wmts/epsg4326/best/" + LAYER + "/default/{month}-01/1km/{level}/{row}/{col}.png"
 COLORMAP_URL = GIBS + "/colormaps/v1.3/MODIS_L3_NDVI.xml"
 LEVEL, ROWS, COLS, TILE = 2, 3, 5, 512
-DEGREES_PER_PIXEL = 0.5625 / 2 ** LEVEL  # el nivel 0 de la pirámide geográfica de GIBS mide 0,5625° por píxel
-VALID_ROWS = round(180 / DEGREES_PER_PIXEL)  # la última fila de teselas sobrepasa el polo sur
+DEGREES_PER_PIXEL = 0.5625 / 2 ** LEVEL  # level 0 of the GIBS geographic pyramid is 0.5625° per pixel
+VALID_ROWS = round(180 / DEGREES_PER_PIXEL)  # the bottom tile row extends past the South Pole
 CITATION = ("Didan, K. (2021). MODIS/Terra Vegetation Indices Monthly L3 Global 1km SIN Grid V061. NASA EOSDIS "
-            "Land Processes DAAC. doi:10.5067/MODIS/MOD13A3.061. Imagen servida por NASA Global Imagery Browse "
+            "Land Processes DAAC. doi:10.5067/MODIS/MOD13A3.061. Imagery served by NASA Global Imagery Browse "
             "Services (GIBS), ESDIS.")
 
 
 def fetch(url: str, path: Path) -> bytes | None:
-    """Descarga con caché en disco. Un mes que GIBS no publica (404) se recuerda con un archivo vacío."""
+    """Download with on-disk cache. A month not published by GIBS (404) is recorded as an empty file."""
     if path.exists():
         return path.read_bytes() or None
     try:
@@ -68,7 +68,7 @@ def fetch(url: str, path: Path) -> bytes | None:
 
 
 def color_table(cache: Path) -> np.ndarray:
-    """Tabla color -> NDVI, indexada por el color empaquetado en 24 bits. NaN = color sin valor."""
+    """Color -> NDVI lookup table indexed by 24-bit packed RGB. NaN = color without value."""
     xml = fetch(COLORMAP_URL, cache / "MODIS_L3_NDVI.xml").decode("utf-8")
     table = np.full(1 << 24, np.nan, dtype="float32")
     for entry in re.findall(r"<ColorMapEntry\b[^>]*>", xml):
@@ -82,7 +82,7 @@ def color_table(cache: Path) -> np.ndarray:
 
 
 def month_grid(month: str, cache: Path, table: np.ndarray, digest: "hashlib._Hash") -> np.ndarray | None:
-    """Mosaico del mes en NDVI (latitud de norte a sur), o None si GIBS no tiene ese mes."""
+    """Monthly NDVI mosaic (latitude north to south), or None if GIBS does not have that month."""
     mosaic = np.full((ROWS * TILE, COLS * TILE), np.nan, dtype="float32")
     for row in range(ROWS):
         for col in range(COLS):
@@ -100,8 +100,8 @@ def month_grid(month: str, cache: Path, table: np.ndarray, digest: "hashlib._Has
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    parser.add_argument("--first", default="2000-03", help="primer mes (AAAA-MM); GIBS empieza en 2000-03")
-    parser.add_argument("--last", default="2025-12", help="último mes; se cierra en un año completo")
+    parser.add_argument("--first", default="2000-03", help="first month (YYYY-MM); GIBS starts at 2000-03")
+    parser.add_argument("--last", default="2025-12", help="last month; closes on a full year")
     parser.add_argument("--cache", type=Path, default=Path("data/nasa/raw/gibs_ndvi"))
     parser.add_argument("--output", type=Path, default=Path("data/nasa/raw/modis_ndvi.csv"))
     parser.add_argument("--manifest", type=Path, default=Path("backend/seed/modis_ndvi.provenance.json"))
@@ -112,7 +112,7 @@ def main() -> None:
     months = [f"{year:04d}-{month:02d}" for year in range(first.year, last.year + 1) for month in range(1, 13)
               if first <= dt.date(year, month, 1) <= last]
     table = color_table(args.cache)
-    # Primero se baja todo en paralelo (queda en caché); después se procesa mes a mes, en orden.
+    # Download everything in parallel first (cached on disk); then process month by month in order.
     jobs = [(TILE_URL.format(month=m, level=LEVEL, row=r, col=c), args.cache / m / f"{LEVEL}_{r}_{c}.png")
             for m in months for r in range(ROWS) for c in range(COLS)]
     with ThreadPoolExecutor(args.workers) as pool:
@@ -140,22 +140,22 @@ def main() -> None:
 
     manifest = {
         "variable": "ModisNdvi", "provider": "nasa-gibs-modis-terra",
-        "product": "MODIS Terra L3 · NDVI mensual (capa MODIS_Terra_L3_NDVI_Monthly de NASA GIBS, media por celda)",
-        "baseline": None, "unit": "NDVI", "trendUnit": "NDVI / año", "interim": False,
+        "product": "MODIS Terra L3 · monthly NDVI (NASA GIBS MODIS_Terra_L3_NDVI_Monthly layer, cell mean)",
+        "baseline": None, "unit": "NDVI", "trendUnit": "NDVI / year", "interim": False,
         "resolutionDegrees": TARGET_DEGREES,
-        "sourceUrl": TILE_URL.format(month="{AAAA-MM}", level=LEVEL, row="{fila}", col="{columna}"),
-        "sourceFile": f"{LAYER}, nivel {LEVEL}, {len(used)} meses",
-        # SHA-256 de las teselas PNG, concatenadas por mes, fila y columna.
+        "sourceUrl": TILE_URL.format(month="{YYYY-MM}", level=LEVEL, row="{row}", col="{col}"),
+        "sourceFile": f"{LAYER}, level {LEVEL}, {len(used)} months",
+        # SHA-256 of the PNG tiles, concatenated by month, row, and column.
         "sourceSha256": digest.hexdigest(),
         "retrievedAt": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds"),
         "coverageStart": int(used[0][:4]), "coverageEnd": int(used[-1][:4]), "lastMonth": used[-1], "rows": rows,
-        "processing": "NDVI recuperado de la imagen con la paleta oficial de GIBS (142 clases de 0,005 a 0,01 de "
-                      "ancho) y promediado por área a 2°. Los píxeles transparentes (agua, sin dato o NDVI menor "
-                      f"o igual que 0) no entran. Meses que GIBS no publica: {', '.join(missing) or 'ninguno'}.",
+        "processing": "NDVI recovered from the image using the official GIBS palette (142 classes from 0.005 to 0.01 "
+                      "wide) and area-averaged to 2°. Transparent pixels (water, no data, or NDVI less than or "
+                      f"equal to 0) are excluded. Months not published by GIBS: {', '.join(missing) or 'none'}.",
         "citation": CITATION,
     }
     args.manifest.write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    print(f"{rows} filas | {used[0]} a {used[-1]} ({len(used)} meses) | sin publicar: {missing or 'ninguno'} | {args.output}")
+    print(f"{rows} rows | {used[0]} to {used[-1]} ({len(used)} months) | unpublished: {missing or 'none'} | {args.output}")
 
 
 if __name__ == "__main__":

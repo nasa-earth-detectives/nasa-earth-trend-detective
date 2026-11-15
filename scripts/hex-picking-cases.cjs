@@ -1,7 +1,7 @@
 const assert = require('node:assert/strict');
 const { performance } = require('node:perf_hooks');
 
-// Contrasta el raycast acelerado con Three y la oclusión de la Tierra.
+// Compares accelerated raycasting with Three.js and Earth occlusion.
 function validatePickingRays({ three, mesh, radius, scene, camera }) {
   const raycaster = new three.Raycaster();
   const inverse = new three.Matrix4();
@@ -46,12 +46,12 @@ function validatePickingRays({ three, mesh, radius, scene, camera }) {
     camera.lookAt(mesh.parent.position);
     camera.updateMatrixWorld(true);
     points.length = 0;
-    // Rayos a centros exactos: prueba topes, columnas parcialmente ocluidas y reverso.
+    // Rays to exact centers: tests tops, partially occluded columns, and reverse side.
     for (let i = 0; i < mesh.count; i += 61) {
       mesh.getMatrixAt(i, instanceMatrix);
       points.push(new three.Vector3(0, 0.5, 0).applyMatrix4(instanceMatrix).applyMatrix4(mesh.matrixWorld));
     }
-    // Barrido de pantalla: huecos, silueta y espacio fuera del planeta.
+    // Screen sweep: gaps, silhouette, and outer space beyond the planet.
     for (let y = -1; y <= 1.01; y += 0.2) {
       for (let x = -1; x <= 1.01; x += 0.2) {
         raycaster.setFromCamera(new three.Vector2(x, y), camera);
@@ -68,7 +68,7 @@ function validatePickingRays({ three, mesh, radius, scene, camera }) {
       started = performance.now();
       const actual = nearest(false);
       acceleratedMs += performance.now() - started;
-      assert.equal(actual?.instanceId, baseline?.instanceId, `${view.name}, rayo ${comparisons}`);
+      assert.equal(actual?.instanceId, baseline?.instanceId, `${view.name}, ray ${comparisons}`);
       if (actual) {
         positiveHits++;
         assert(Math.abs(actual.distance - baseline.distance) < 1e-7);
@@ -78,7 +78,7 @@ function validatePickingRays({ three, mesh, radius, scene, camera }) {
     measurements.push({ view: view.name, rays: points.length, nativeAverageMs: nativeMs / points.length, bvhAverageMs: acceleratedMs / points.length });
   }
   assert(positiveHits > 100);
-  assert(rejectedBackside > 50, 'Se contrastan impactos que deben quedar ocultos tras la Tierra.');
+  assert(rejectedBackside > 50, 'Hits that should be hidden behind Earth must be rejected.');
   return {
     nearest, views, raycaster, instanceMatrix, measurements, comparisons, positiveHits,
     get rejectedBackside() { return rejectedBackside; },
@@ -112,7 +112,7 @@ function validateGlobalPicking({ three, globalMesh, scene, camera, picking }) {
   return globalComparisons;
 }
 
-// El detalle por distancia conserva buffers y no emite selecciones por frame.
+// Distance-based detail preserves buffers and avoids emitting selections per frame.
 function validateDistanceBrightness({ three, globalMesh, radius, scene, camera, selections, HEX_COLUMN_CONFIG }) {
   const frozenMatrices = globalMesh.instanceMatrix.array.slice();
   const frozenColors = globalMesh.instanceColor.array.slice();
@@ -131,16 +131,16 @@ function validateDistanceBrightness({ three, globalMesh, radius, scene, camera, 
   const farBrightness = distanceFrame(6);
   const middleBrightness = distanceFrame(1.5);
   const nearBrightness = distanceFrame(0.5);
-  assert(Math.abs(farBrightness - HEX_COLUMN_CONFIG.farBrightness) < 1e-5, `Brillo lejano: ${farBrightness}`);
-  assert(Math.abs(nearBrightness - HEX_COLUMN_CONFIG.nearBrightness) < 1e-5, `Brillo cercano: ${nearBrightness}`);
+  assert(Math.abs(farBrightness - HEX_COLUMN_CONFIG.farBrightness) < 1e-5, `Far brightness: ${farBrightness}`);
+  assert(Math.abs(nearBrightness - HEX_COLUMN_CONFIG.nearBrightness) < 1e-5, `Near brightness: ${nearBrightness}`);
   assert(farBrightness < middleBrightness && middleBrightness < nearBrightness);
-  assert(Math.abs(distanceFrame(1.5, 0.46) - middleBrightness) < 1e-6, 'La profundidad visual respeta escala y desplazamiento de entrada.');
+  assert(Math.abs(distanceFrame(1.5, 0.46) - middleBrightness) < 1e-6, 'Visual depth respects scale and intro translation.');
   for (let frame = 0; frame < 120; frame++) distanceFrame(0.5 + frame / 20);
-  assert.equal(globalMesh.instanceMatrix.version, matrixVersion, 'El zoom no sube matrices mientras las alturas están quietas.');
-  assert.equal(globalMesh.instanceColor.version, colorVersion, 'El zoom no reescribe la paleta de las instancias.');
+  assert.equal(globalMesh.instanceMatrix.version, matrixVersion, 'Zoom does not upload matrices while heights remain stationary.');
+  assert.equal(globalMesh.instanceColor.version, colorVersion, 'Zoom does not rewrite instance colors.');
   assert.deepEqual(globalMesh.instanceMatrix.array, frozenMatrices);
   assert.deepEqual(globalMesh.instanceColor.array, frozenColors);
-  assert.equal(selections.length, selectionCount, 'El comportamiento por distancia no emite estado React por frame.');
+  assert.equal(selections.length, selectionCount, 'Distance behavior does not emit React state per frame.');
   return { far: farBrightness, middle: middleBrightness, near: nearBrightness };
 }
 

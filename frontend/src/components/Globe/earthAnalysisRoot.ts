@@ -3,7 +3,7 @@ import type { GlobeInstance } from 'globe.gl';
 
 const roots = new WeakMap<GlobeInstance, { group: Group; owners: number }>();
 
-/** Una raíz pública de Globe.gl comparte la transformación del planeta entre capas. */
+/** A shared Globe.gl root sharing the planet transformation across layers. */
 export function acquireEarthAnalysisRoot(globe: GlobeInstance) {
   let entry = roots.get(globe);
   if (!entry) {

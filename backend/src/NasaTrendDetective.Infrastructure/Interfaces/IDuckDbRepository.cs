@@ -5,8 +5,8 @@ using NasaTrendDetective.Infrastructure.Queries.Models;
 namespace NasaTrendDetective.Infrastructure.Interfaces;
 
 /// <summary>
-/// Acceso asíncrono al motor OLAP DuckDB. Cada operación usa una conexión aislada.
-/// Los parámetros se enlazan por nombre ($nombre en SQL).
+/// Asynchronous access to the DuckDB OLAP engine. Each operation uses an isolated connection.
+/// Parameters are bound by name ($name in SQL).
 /// </summary>
 public interface IDuckDbRepository
 {
@@ -31,15 +31,15 @@ public interface IDuckDbRepository
         CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Importa en bloque los Parquet canónicos del glob (p.ej. 'data/nasa/normalized/*.parquet') a
-    /// fact_climate_observations con INSERT ... SELECT FROM read_parquet, validando antes el esquema.
+    /// Bulk imports canonical Parquet files matching the glob (e.g. 'data/nasa/normalized/*.parquet') into
+    /// fact_climate_observations using INSERT ... SELECT FROM read_parquet, after validating schema.
     /// </summary>
     Task<ParquetImportResult> ExecuteParquetIngestAsync(
         string parquetGlob,
         CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Agregación global por celda espacial (lat/lng redondeados): promedio por variable y año.
+    /// Global aggregation per spatial cell (rounded lat/lng): annual average per variable and year.
     /// </summary>
     Task<IReadOnlyList<CellAggregate>> GetCellAggregatesAsync(
         CellAggregationRequest request,

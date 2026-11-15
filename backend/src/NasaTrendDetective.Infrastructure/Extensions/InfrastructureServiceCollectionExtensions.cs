@@ -6,13 +6,13 @@ using NasaTrendDetective.Infrastructure.Interfaces;
 namespace NasaTrendDetective.Infrastructure.Extensions;
 
 /// <summary>
-/// Registro de dependencias de la capa de infraestructura.
+/// Infrastructure layer dependency injection registrations.
 /// </summary>
 public static class InfrastructureServiceCollectionExtensions
 {
     /// <remarks>
-    /// El orden importa: AddDuckDb registra el servicio que crea el esquema y AddDatasetSeed el que
-    /// lo llena; el host los arranca en ese orden.
+    /// Registration order matters: AddDuckDb registers the service that creates the schema,
+    /// and AddDatasetSeed populates it; the host starts them in that sequence.
     /// </remarks>
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
@@ -25,8 +25,8 @@ public static class InfrastructureServiceCollectionExtensions
     }
 
     /// <summary>
-    /// Registra DuckDB embebido. La ruta sale de "DuckDb:DatabasePath" y la variable de entorno
-    /// DUCKDB_DATABASE_PATH tiene prioridad cuando está definida.
+    /// Registers embedded DuckDB. The database path is loaded from "DuckDb:DatabasePath",
+    /// with the DUCKDB_DATABASE_PATH environment variable taking precedence when set.
     /// </summary>
     public static IServiceCollection AddDuckDb(this IServiceCollection services, IConfiguration configuration)
     {

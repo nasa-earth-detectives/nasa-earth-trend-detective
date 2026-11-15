@@ -1,4 +1,4 @@
-/* Lectura científica, referencias de procedencia y mandos: tres densidades distintas. */
+/* Scientific readout, provenance references, and controls: three distinct densities. */
 .observation-context { width: 276px; user-select: none; }
 .context-kicker { display: flex; align-items: center; gap: 12px; font-size: 12px;
   color: var(--text-secondary); margin-bottom: 14px; }

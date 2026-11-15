@@ -1,11 +1,11 @@
 /**
  * DetectiveWizard.tsx
  *
- * Expediente de inicio "Detective de tendencias": tres preguntas (qué, dónde, cuántos años) que son
- * exactamente las del reto NASA Space Apps 2026 "Be An Earth System Trend Detective!".
+ * "Trend Detective" startup briefing: three questions (what, where, how many years) matching
+ * the NASA Space Apps 2026 challenge "Be An Earth System Trend Detective!".
  *
- * Va acoplado a un lado y no como modal centrado: el globo es la pieza principal del instrumento y
- * tiene que seguir a la vista. Cada elección se refleja en él al momento (variable y lugar).
+ * Docked to one side rather than a centered modal: the globe is the main piece of the instrument
+ * and must stay in view. Each choice updates it immediately (variable and location).
  */
 import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
@@ -30,18 +30,18 @@ interface DetectiveWizardProps {
   initialVariable?: ClimateVariable;
   onComplete: (result: WizardResult) => void;
   onSkip: () => void;
-  /** La elección se enseña en el globo antes de confirmar. */
+  /** Choice is shown on the globe before confirming. */
   onPreviewVariable?: (variable: ClimateVariable) => void;
   onPreviewRegion?: (region: WizardRegion) => void;
 }
 
 const STEPS = [
-  { label: 'Variable', question: '¿Qué quieres investigar?',
-    hint: 'Elige una variable del sistema Tierra. El globo cambia mientras eliges.' },
-  { label: 'Lugar', question: '¿Dónde quieres mirar?',
-    hint: 'Casi ninguna tendencia es global: la misma variable sube en un lugar y baja en otro.' },
-  { label: 'Periodo', question: '¿Cuántos años quieres analizar?',
-    hint: 'Con más años, la prueba estadística distingue mejor una tendencia real del azar.' },
+  { label: 'Variable', question: 'What do you want to investigate?',
+    hint: 'Pick an Earth system variable. The globe updates as you choose.' },
+  { label: 'Location', question: 'Where do you want to look?',
+    hint: 'Almost no trend is global: the same variable rises in one place and falls in another.' },
+  { label: 'Period', question: 'How many years do you want to analyze?',
+    hint: 'With more years, the statistical test better distinguishes a real trend from chance.' },
 ] as const;
 type Step = 0 | 1 | 2;
 
@@ -56,7 +56,7 @@ export function DetectiveWizard({ initialVariable = 'Gistemp', onComplete, onSki
   const headingId = useId();
   useFocusTrap(dialogRef);
 
-  // El catálogo dice qué variables tienen datos reales cargados y qué años cubre cada una.
+  // The catalog reports which variables have real loaded data and which years each covers.
   useEffect(() => {
     let active = true;
     void getDatasetCatalog().then(loaded => { if (active) setCatalog(loaded); });
@@ -83,7 +83,7 @@ export function DetectiveWizard({ initialVariable = 'Gistemp', onComplete, onSki
   const goTo = (next: Step) => {
     setDirection(next > step ? 'forward' : 'back');
     setStep(next);
-    // Al llegar al paso "lugar" el globo se orienta a la región ya marcada, sin esperar un clic.
+    // When arriving at the "location" step, the globe turns to the selected region without waiting for a click.
     if (next === 1) onPreviewRegion?.(region);
   };
   const handleNext = () => {
@@ -102,8 +102,8 @@ export function DetectiveWizard({ initialVariable = 'Gistemp', onComplete, onSki
     <div className="briefing" role="dialog" aria-modal="true" aria-labelledby={headingId} ref={dialogRef} tabIndex={-1}>
       <div className="briefing__sheet">
         <header className="briefing__header">
-          <p className="briefing__eyebrow">Detective de tendencias<span>NASA Space Apps 2026</span></p>
-          <ol className="briefing__rail" data-step={step} aria-label="Pasos del asistente">
+          <p className="briefing__eyebrow">Trend Detective<span>NASA Space Apps 2026</span></p>
+          <ol className="briefing__rail" data-step={step} aria-label="Wizard steps">
             {STEPS.map((item, index) => (
               <li key={item.label} data-state={index === step ? 'current' : index < step ? 'done' : 'todo'}
                 aria-current={index === step ? 'step' : undefined}>
@@ -116,7 +116,7 @@ export function DetectiveWizard({ initialVariable = 'Gistemp', onComplete, onSki
           <p className="briefing__hint">{STEPS[step].hint}</p>
         </header>
 
-        {/* La clave fuerza el montaje del paso para que la transición de entrada se repita. */}
+        {/* Key forces step remount so the entrance transition replays. */}
         <div className="briefing__body scrollbar-instrument" key={step} data-direction={direction}>
           {step === 0 && <VariableStep variable={variable} catalog={catalog} onSelect={selectVariable} />}
           {step === 1 && <RegionStep region={region} variable={variable} onSelect={selectRegion} onSuggest={selectVariable} />}
@@ -129,14 +129,14 @@ export function DetectiveWizard({ initialVariable = 'Gistemp', onComplete, onSki
           </p>
           <div className="briefing__actions">
             {step === 0 ? (
-              <button type="button" className="briefing__ghost focus-ring" onClick={onSkip}>Explorar sin guía</button>
+              <button type="button" className="briefing__ghost focus-ring" onClick={onSkip}>Explore without guide</button>
             ) : (
               <button type="button" className="briefing__ghost focus-ring" onClick={() => goTo((step - 1) as Step)}>
-                <ArrowLeft size={15} strokeWidth={1.7} aria-hidden="true" />Atrás
+                <ArrowLeft size={15} strokeWidth={1.7} aria-hidden="true" />Back
               </button>
             )}
             <button type="button" className="briefing__primary focus-ring" onClick={handleNext}>
-              {step < 2 ? 'Continuar' : 'Abrir el expediente'}
+              {step < 2 ? 'Continue' : 'Open dossier'}
               <ArrowRight size={16} strokeWidth={1.8} aria-hidden="true" />
             </button>
           </div>

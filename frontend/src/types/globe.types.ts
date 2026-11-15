@@ -4,8 +4,8 @@ import type { GlobeReading, ObservationLayerMode } from './observationLayer.type
 import type { Teleconnection } from './teleconnection.types';
 
 /**
- * Tipos e interfaces de la escena 3D del globo terráqueo (Globe.gl & Three.js).
- * Desacoplado para mantener useGlobeScene.ts conciso (< 170 líneas) y cumplir Regla 5.
+ * Types and interfaces for the 3D globe scene (Globe.gl & Three.js).
+ * Decoupled to keep useGlobeScene.ts concise (< 170 lines) and comply with Rule 5.
  */
 
 export interface GlobeLocation {
@@ -13,18 +13,18 @@ export interface GlobeLocation {
   lng: number;
 }
 
-/** Superficie imperativa que la interfaz flotante usa para actuar sobre la escena. */
+/** Imperative surface used by floating UI to interact with the scene. */
 export interface GlobeSceneApi {
   setObservationData(data: ClimateObservation[], variable: ClimateVariable): void;
   setObservationMode(mode: ObservationLayerMode): void;
   setObservationSelection(id: string | null): void;
   setObservationSelectHandler(handler: ((observation: ClimateObservation | null) => void) | null): void;
-  /** Cambia la pregunta del globo: valor del año o ritmo de cambio del periodo. */
+  /** Changes the globe inquiry: annual value or rate of change over the period. */
   setReadingMode?(mode: GlobeReading): void;
-  /** Celdas de tendencia (Sen). Sólo tiene efecto en lectura `trend`. */
+  /** Trend cells (Sen). Only takes effect in `trend` reading mode. */
   setTrendData?(dataset: HexDataset | null): void;
   setTrendCellSelectHandler?(handler: ((cell: HexCell | null) => void) | null): void;
-  /** Preferencia del usuario sobre la rotación en reposo. */
+  /** User preference for resting rotation. */
   setAutoRotateEnabled(enabled: boolean): void;
   setStarsVisible(visible: boolean): void;
   setGridVisible(visible: boolean): void;
@@ -33,21 +33,21 @@ export interface GlobeSceneApi {
   setRadarRipplesVisible?(visible: boolean): void;
   setSatellitesVisible?(visible: boolean): void;
   setOceanFlowVisible?(visible: boolean): void;
-  /** Arcos de teleconexión y anillos en sus extremos. */
+  /** Teleconnection arcs and rings at their endpoints. */
   setTeleconnections?(connections: Teleconnection[]): void;
-  /** Maniobra cinemática "Ojo de Dios" hacia un punto específico de observación. */
+  /** Cinematic "God's Eye" maneuver toward a specific observation point. */
   flyToGodsEye?(lat: number, lng: number, altitude?: number, durationMs?: number): void;
-  /** Marcador 3D de ubicación en tiempo real del usuario en la superficie terrestre. */
+  /** Real-time 3D user location marker on the Earth surface. */
   setUserLocation?(coords: GlobeLocation | null): void;
   setLocationSelectHandler(handler: ((location: GlobeLocation) => void) | null): void;
   inspectCenter(): void;
-  /** Devuelve la cámara al encuadre inicial con una transición suave. */
+  /** Returns the camera to initial framing with a smooth transition. */
   resetCamera(): void;
-  /** Aparta el planeta lateralmente para dejar sitio a un instrumento. */
+  /** Shifts the planet laterally to make room for an instrument. */
   setFocusOffset(offsetPx: number, verticalOffsetPx?: number): void;
 }
 
-/** Preferencias visuales de escena que el usuario controla desde la pestaña Vista. */
+/** Visual scene preferences controlled by the user from the View tab. */
 export interface ScenePreferences {
   autoRotate: boolean;
   starsVisible: boolean;

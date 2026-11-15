@@ -14,7 +14,7 @@ interface ModeNavigatorProps {
   locating?: boolean;
 }
 
-/** Instrumentos persistentes; cada acceso conserva la lectura del contexto que abre. */
+/** Persistent instruments; each access preserves the context reading it opens. */
 export function ModeNavigator({
   mode,
   variable,
@@ -28,13 +28,13 @@ export function ModeNavigator({
   const lens = OBSERVATION_LENSES[variable];
   const instruments = [
     { mode: 'layers', label: 'Variables', detail: lens.domain, panel: 'layer-panel', symbol: lens.symbol },
-    { mode: 'time', label: 'Tiempo', detail: `Año seleccionado · ${year}`, panel: 'mission-time-navigator', symbol: <History size={19} /> },
-    { mode: 'view', label: 'Escena', detail: 'Órbita y referencias', panel: 'layer-panel', symbol: <Orbit size={19} /> },
+    { mode: 'time', label: 'Time', detail: `Selected year · ${year}`, panel: 'mission-time-navigator', symbol: <History size={19} /> },
+    { mode: 'view', label: 'Scene', detail: 'Orbit & references', panel: 'layer-panel', symbol: <Orbit size={19} /> },
   ] as const;
 
   return (
-    <nav id="tour-mode-navigator" className="mode-navigator" aria-label="Explorar la Tierra" data-ui-control>
-      <p className="mode-index-label">Instrumentos de observación</p>
+    <nav id="tour-mode-navigator" className="mode-navigator" aria-label="Explore Earth" data-ui-control>
+      <p className="mode-index-label">Observation instruments</p>
       {instruments.map(item => (
         <button key={item.mode} type="button" className="mode-entry focus-ring"
           data-mode-trigger={item.mode} data-selected={mode === item.mode}
@@ -53,20 +53,20 @@ export function ModeNavigator({
             onClick={onLocateUser}
             disabled={locating}
             data-mode-trigger="locate"
-            aria-label="Ubicar mi posición en la Tierra"
-            title="Ubicar mi posición en la Tierra"
+            aria-label="Locate my position on Earth"
+            title="Locate my position on Earth"
           >
             <MapPin size={16} aria-hidden="true" />
-            <span>{locating ? 'Ubicando…' : 'Mi ubicación'}</span>
+            <span>{locating ? 'Locating…' : 'My location'}</span>
           </button>
         )}
         <button type="button" className="recenter-control focus-ring" onClick={onInspectCenter}
-          data-mode-trigger="inspection" aria-label="Inspeccionar centro de la Tierra" title="Inspeccionar centro de la Tierra">
-          <Scan size={16} aria-hidden="true" /><span>Inspeccionar ubicación</span>
+          data-mode-trigger="inspection" aria-label="Inspect center of Earth" title="Inspect center of Earth">
+          <Scan size={16} aria-hidden="true" /><span>Inspect location</span>
         </button>
         <button type="button" className="recenter-control focus-ring" onClick={onRecenter}
-          aria-label="Recentrar la Tierra" title="Recentrar la Tierra">
-          <Crosshair size={16} aria-hidden="true" /><span>Recentrar planeta</span>
+          aria-label="Recenter Earth" title="Recenter Earth">
+          <Crosshair size={16} aria-hidden="true" /><span>Recenter planet</span>
         </button>
       </div>
     </nav>

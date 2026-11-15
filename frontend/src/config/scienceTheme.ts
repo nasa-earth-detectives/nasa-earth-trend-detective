@@ -1,44 +1,44 @@
 /**
- * Cromática científica del instrumento.
+ * Scientific color palette of the instrument.
  *
- * El chasis de la interfaz es siempre grafito neutro. El único color con
- * saturación es el de la variable observada, de modo que el color comunica
- * qué está midiendo el instrumento y no decora.
+ * The interface chassis is always neutral graphite. The only saturated
+ * color is that of the observed variable, so that color communicates
+ * what the instrument is measuring rather than decorating.
  *
- * Tonos minerales y desaturados a propósito: nada de neón.
+ * Mineral and purposefully desaturated tones: no neon.
  */
 import { ClimateVariable } from '../types/climate.types';
 
 export interface ScienceAccent {
-  /** Color del acento en hexadecimal. */
+  /** Accent color in hexadecimal. */
   accent: string;
-  /** Mismo color en componentes RGB, para construir capas translúcidas. */
+  /** Same color in RGB components, for constructing translucent layers. */
   rgb: string;
-  /** Nombre corto para el indicador contextual fuera del panel. */
+  /** Short label for contextual indicator outside the panel. */
   shortLabel: string;
 }
 
 export const SCIENCE_ACCENTS: Record<ClimateVariable, ScienceAccent> = {
-  // Ámbar quemado: calor sin rojo de videojuego.
-  Gistemp: { accent: '#d4834a', rgb: '212, 131, 74', shortLabel: 'Temperatura' },
-  // Clorofila apagada, verde vegetal real.
-  ModisNdvi: { accent: '#86a05c', rgb: '134, 160, 92', shortLabel: 'Vegetación' },
-  // Cian glacial pálido, frío y mineral.
-  GraceMass: { accent: '#9dc0d2', rgb: '157, 192, 210', shortLabel: 'Hielo y agua' },
-  // Violeta atmosférico contenido.
+  // Burnt amber: warmth without video-game red.
+  Gistemp: { accent: '#d4834a', rgb: '212, 131, 74', shortLabel: 'Temperature' },
+  // Muted chlorophyll, real plant green.
+  ModisNdvi: { accent: '#86a05c', rgb: '134, 160, 92', shortLabel: 'Vegetation' },
+  // Pale glacial cyan, cold and mineral.
+  GraceMass: { accent: '#9dc0d2', rgb: '157, 192, 210', shortLabel: 'Water & Ice' },
+  // Restrained atmospheric violet.
   Oco2: { accent: '#a38cb9', rgb: '163, 140, 185', shortLabel: 'CO₂' },
-  // MERRA-2: terracota para el aire, azul lluvia, ocre y verde musgo para el agua en tierra.
-  Merra2Temperature: { accent: '#d98a5f', rgb: '217, 138, 95', shortLabel: 'Temp. del aire' },
-  Merra2Precipitation: { accent: '#6f9fd0', rgb: '111, 159, 208', shortLabel: 'Precipitación' },
-  GpmPrecipitation: { accent: '#7fb2c9', rgb: '127, 178, 201', shortLabel: 'Precipitación GPM' },
-  Merra2Evaporation: { accent: '#c9a45c', rgb: '201, 164, 92', shortLabel: 'Evaporación' },
-  Merra2SoilMoisture: { accent: '#8b9a6b', rgb: '139, 154, 107', shortLabel: 'Humedad del suelo' },
+  // MERRA-2: terracotta for air, rain blue, ochre and moss green for land water.
+  Merra2Temperature: { accent: '#d98a5f', rgb: '217, 138, 95', shortLabel: 'Air Temp.' },
+  Merra2Precipitation: { accent: '#6f9fd0', rgb: '111, 159, 208', shortLabel: 'Precipitation' },
+  GpmPrecipitation: { accent: '#7fb2c9', rgb: '127, 178, 201', shortLabel: 'GPM Precip.' },
+  Merra2Evaporation: { accent: '#c9a45c', rgb: '201, 164, 92', shortLabel: 'Evaporation' },
+  Merra2SoilMoisture: { accent: '#8b9a6b', rgb: '139, 154, 107', shortLabel: 'Soil Moisture' },
 };
 
-/** Azul marino reservado para Nivel del Mar cuando la API lo soporte. */
+/** Deep navy reserved for Sea Level when the API supports it. */
 export const SEA_LEVEL_ACCENT = '#5f88a6';
 
-/** Extremos de escalas de observaciones, separados del acento de interfaz. */
+/** Extrema of observation scales, separate from the interface accent. */
 export const SCIENCE_SURFACE_COLORS = {
   cold: '#267edf',
   neutral: '#aaa99d',
@@ -51,7 +51,7 @@ export const SCIENCE_SURFACE_COLORS = {
   co2Elevated: '#a565aa',
 } as const;
 
-/** Traduce la variable activa a las variables CSS que consume el instrumento. */
+/** Translates the active variable to CSS variables consumed by the instrument. */
 export function applyScienceAccent(variable: ClimateVariable, root: HTMLElement): void {
   const { accent, rgb } = SCIENCE_ACCENTS[variable];
 

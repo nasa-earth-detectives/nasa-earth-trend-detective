@@ -1,10 +1,10 @@
-/** Ejecutar con playwright-cli run-code. Sólo instrumenta la respuesta de Vite del navegador de prueba. */
+/** Run with playwright-cli run-code. Only instruments the Vite response in the test browser. */
 async (page) => {
   await page.unroute('**/src/components/Globe/useGlobeScene.ts*');
   await page.route('**/src/components/Globe/useGlobeScene.ts*', async route => {
     const response = await route.fetch();
     const body = await response.text();
-    if (!body.includes('globe.backgroundColor(')) throw new Error('No se encontró Globe');
+    if (!body.includes('globe.backgroundColor(')) throw new Error('Globe not found');
     await route.fulfill({ response, body: body.replace('globe.backgroundColor(', 'window.__observationGlobe = globe; globe.backgroundColor(') });
   });
   await page.setViewportSize({ width: 1920, height: 1080 });
@@ -14,13 +14,13 @@ async (page) => {
   await page.waitForTimeout(1500);
   await page.evaluate(() => { window.__observationCanvas = document.querySelector('canvas'); });
   const results = [];
-  for (const layer of ['Hexágonos 3D', 'Mapa de calor']) {
+  for (const layer of ['3D Hexagons', 'Heatmap']) {
     await page.getByRole('button', { name: 'Variables', exact: true }).click();
     await page.getByRole('radio', { name: layer, exact: true }).click();
     await page.keyboard.press('Escape');
     await page.waitForTimeout(1500);
     for (const mode of ['idle', 'orbit', 'zoom', 'variable', 'timeline']) {
-      await page.getByRole('button', { name: 'Recentrar la Tierra' }).click();
+      await page.getByRole('button', { name: 'Recenter Earth' }).click();
       await page.waitForTimeout(800);
       await page.evaluate(() => {
         const renderer = window.__observationGlobe.renderer();
@@ -46,15 +46,15 @@ async (page) => {
         for (let i = 0; i < 6; i++) { await page.mouse.wheel(0, i % 2 ? 110 : -110); await page.waitForTimeout(500); }
       } else if (mode === 'variable') {
         await page.getByRole('button', { name: 'Variables', exact: true }).click();
-        for (const name of ['Vegetación', 'Masa de agua', 'Dióxido', 'Temperatura']) {
+        for (const name of ['Vegetation', 'Water', 'Dioxide', 'Temperature']) {
           await page.getByRole('radio', { name: new RegExp(name) }).click();
           await page.waitForTimeout(700);
         }
         await page.keyboard.press('Escape');
       } else if (mode === 'timeline') {
-        await page.getByRole('button', { name: 'Tiempo', exact: true }).click();
+        await page.getByRole('button', { name: 'Time', exact: true }).click();
         for (const year of ['2010', '2020', '2015', '2024']) {
-          await page.getByRole('slider', { name: 'Año de consulta', exact: true }).fill(year);
+          await page.getByRole('slider', { name: 'Query year', exact: true }).fill(year);
           await page.waitForTimeout(700);
         }
         await page.keyboard.press('Escape');

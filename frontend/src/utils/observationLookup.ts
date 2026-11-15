@@ -7,7 +7,7 @@ export interface NearbyObservation {
 }
 const RADIANS = Math.PI / 180;
 
-/** Distancia sobre la esfera: admite cruces del antimeridiano y longitudes en los polos. */
+/** Spherical distance: supports antimeridian crossing and polar longitudes. */
 export function angularDistanceDegrees(a: Location, b: Location): number {
   const latA = a.lat * RADIANS;
   const latB = b.lat * RADIANS;
@@ -17,13 +17,13 @@ export function angularDistanceDegrees(a: Location, b: Location): number {
   return 2 * Math.asin(Math.sqrt(Math.min(1, Math.max(0, haversine)))) / RADIANS;
 }
 
-/** Busca exclusivamente en la cobertura recibida; no genera valores para llenar huecos. */
+/** Searches exclusively within the received coverage; does not synthesize values to fill gaps. */
 export function findNearbyObservation(
   observations: readonly ClimateObservation[], location: Location | null,
   variable: ClimateVariable, supportRadiusDegrees: number,
 ): NearbyObservation | null {
   if (!Number.isFinite(supportRadiusDegrees) || supportRadiusDegrees <= 0 || supportRadiusDegrees > 180) {
-    throw new RangeError('El radio de búsqueda debe estar entre 0 y 180 grados.');
+    throw new RangeError('Search radius must be between 0 and 180 degrees.');
   }
   if (!location || !Number.isFinite(location.lat) || Math.abs(location.lat) > 90
     || !Number.isFinite(location.lng) || Math.abs(location.lng) > 180) return null;
@@ -32,7 +32,7 @@ export function findNearbyObservation(
     if (observation.variable !== variable || !Number.isFinite(observation.latitude) || Math.abs(observation.latitude) > 90
       || !Number.isFinite(observation.longitude) || Math.abs(observation.longitude) > 180) continue;
     const distanceDegrees = angularDistanceDegrees(location, { lat: observation.latitude, lng: observation.longitude });
-    // El kernel del mapa de calor también tiene soporte abierto: peso cero a exactamente 4°.
+    // The heatmap kernel also has open support: zero weight at exactly 4°.
     if (distanceDegrees < supportRadiusDegrees && (!nearest || distanceDegrees < nearest.distanceDegrees)) {
       nearest = { observation, distanceDegrees };
     }

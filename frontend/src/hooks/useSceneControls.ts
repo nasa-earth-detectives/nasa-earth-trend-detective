@@ -1,15 +1,15 @@
 /**
- * Fuente de verdad única de las preferencias visuales de la escena.
+ * Single source of truth for scene visual preferences.
  *
- * El estado de React manda sobre lo que muestran los interruptores, y el
- * mismo valor viaja por referencia hasta `useGlobeScene`, de modo que si la
- * escena WebGL se reconstruye vuelve a nacer con esas preferencias aplicadas.
+ * React state controls what the toggles display, and the
+ * same value is passed by reference to `useGlobeScene`, so that if the
+ * WebGL scene is rebuilt, it is recreated with those preferences applied.
  */
 import { useCallback, useRef, useState, type RefObject } from 'react';
 import type { GlobeSceneApi, ScenePreferences } from '../components/Globe/useGlobeScene';
 
 const DEFAULT_PREFERENCES: ScenePreferences = {
-  // Desactivada por defecto para permitir análisis quieto de celdas; se activa en Escena si se desea.
+  // Disabled by default to allow calm cell inspection; can be enabled in View settings if desired.
   autoRotate: false,
   starsVisible: true,
   gridVisible: false,
@@ -17,7 +17,7 @@ const DEFAULT_PREFERENCES: ScenePreferences = {
   teleconnectionArcsVisible: true,
   radarRipplesVisible: true,
   satellitesVisible: true,
-  // Apagadas al inicio: sus guiones cruzando los océanos ensuciaban la vista (pedido de Diego).
+  // Disabled initially: dashes crossing the oceans cluttered the view.
   oceanFlowVisible: false,
 };
 

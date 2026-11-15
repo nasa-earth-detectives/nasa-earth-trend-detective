@@ -1,7 +1,7 @@
 namespace NasaTrendDetective.Domain.Entities;
 
 /// <summary>
-/// Serie anual de una celda de la grilla, ordenada por año: la entrada del análisis de tendencia por celda.
+/// Annual time series for a grid cell, ordered by year: input for per-cell trend analysis.
 /// </summary>
 public sealed record CellAnnualSeries(
     double Latitude,

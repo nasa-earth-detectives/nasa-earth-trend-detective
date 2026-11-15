@@ -1,31 +1,29 @@
-# Datasets sembrados
+# Seed datasets
 
-La API carga en DuckDB, al arrancar, cada par `<nombre>.parquet` + `<nombre>.provenance.json` de
-esta carpeta (en Docker: `/app/seed`). Si el SHA-256 del Parquet no cambió, no reimporta; si
-cambió, reemplaza los hechos de esa variable.
+On startup, the API loads each `<name>.parquet` + `<name>.provenance.json` pair from this folder (in Docker: `/app/seed`) into DuckDB. If the Parquet SHA-256 has not changed, it skips re-importing; if it changed, it replaces the facts for that variable.
 
-| Archivo | Contenido |
+| File | Contents |
 | --- | --- |
-| `gistemp_v4.parquet` | GISTEMP v4 (NASA GISS), anomalía mensual tierra-océano en grilla de 2°, 2000-01 a 2026-08. 5.142.681 filas, 13,4 MB. |
-| `gistemp_v4.provenance.json` | Procedencia: URL y SHA-256 del netCDF original, base 1951-1980, cita. `interim: true` = fuente provisional hasta recibir la oficial del reto. |
-| `merra2_t2m.parquet` | MERRA-2 vía NASA POWER v10: temperatura del aire a 2 m, media anual 1981-2025 en grilla de 2°. 729.000 filas, 4,7 MB. |
-| `merra2_precipitation.parquet` | MERRA-2: precipitación total corregida, media anual 1981-2025. 729.000 filas, 2,9 MB. |
-| `merra2_evaporation.parquet` | MERRA-2: evaporación en tierra, media anual 1981-2025, sólo celdas de tierra. 205.785 filas, 0,7 MB. |
-| `merra2_soil_moisture.parquet` | MERRA-2: humedad del suelo en la zona de raíces (0-1), media anual 1981-2025, sólo tierra. 205.785 filas, 0,8 MB. |
-| `gpm_imerg_precipitation.parquet` | GPM IMERG vía NASA POWER v10: precipitación estimada por satélite, media anual 1998-2025. 453.600 filas, 1,8 MB. |
-| `modis_ndvi.parquet` | MODIS Terra L3 vía NASA GIBS: NDVI mensual 2000-03 a 2025-12, media por celda de 2°. 1.010.695 filas, 2,4 MB. |
-| `grace_mascons.parquet` | GRACE y GRACE-FO, mascons de NASA GSFC RL06v2.0: agua y hielo en tierra, cm de agua equivalente respecto a 2004-2009, mensual 2002-04 a 2025-12, 5.832 celdas de 2°. 1.469.664 filas, 7,0 MB. |
-| `oco2_xco2.parquet` | OCO-2 vía NASA GIBS: XCO₂ medio de la columna, media anual 2015-2025 por celda de 2° (un mes cuenta con 3 sondeos o más; un año, con 6 meses o más). 55.632 filas, 0,13 MB. |
-| `merra2_*.provenance.json` | Procedencia de cada variable: URL del Zarr público, SHA-256 de sus bloques, base 1991-2020, cómo se regrilló y cita. `interim: false`: MERRA-2 es una fuente que nombra el reto. |
+| `gistemp_v4.parquet` | GISTEMP v4 (NASA GISS), monthly land-ocean anomaly on a 2° grid, 2000-01 to 2026-08. 5,142,681 rows, 13.4 MB. |
+| `gistemp_v4.provenance.json` | Provenance: URL and SHA-256 of the original netCDF, 1951-1980 baseline, citation. `interim: true` = provisional source until the official challenge dataset is received. |
+| `merra2_t2m.parquet` | MERRA-2 via NASA POWER v10: 2 m air temperature, annual mean 1981-2025 on a 2° grid. 729,000 rows, 4.7 MB. |
+| `merra2_precipitation.parquet` | MERRA-2: bias-corrected total precipitation, annual mean 1981-2025. 729,000 rows, 2.9 MB. |
+| `merra2_evaporation.parquet` | MERRA-2: land evaporation, annual mean 1981-2025, land cells only. 205,785 rows, 0.7 MB. |
+| `merra2_soil_moisture.parquet` | MERRA-2: root-zone soil moisture (0-1), annual mean 1981-2025, land only. 205,785 rows, 0.8 MB. |
+| `gpm_imerg_precipitation.parquet` | GPM IMERG via NASA POWER v10: satellite-estimated precipitation, annual mean 1998-2025. 453,600 rows, 1.8 MB. |
+| `modis_ndvi.parquet` | MODIS Terra L3 via NASA GIBS: monthly NDVI 2000-03 to 2025-12, 2° cell mean. 1,010,695 rows, 2.4 MB. |
+| `grace_mascons.parquet` | GRACE and GRACE-FO, NASA GSFC RL06v2.0 mascons: land water and ice, cm of equivalent water height relative to 2004-2009, monthly 2002-04 to 2025-12, 5,832 2° cells. 1,469,664 rows, 7.0 MB. |
+| `oco2_xco2.parquet` | OCO-2 via NASA GIBS: column-averaged XCO₂, annual mean 2015-2025 per 2° cell (a month counts with 3 or more soundings; a year, with 6 or more months). 55,632 rows, 0.13 MB. |
+| `merra2_*.provenance.json` | Provenance for each variable: public Zarr URL, SHA-256 of its chunks, 1991-2020 baseline, regridding method, and citation. `interim: false`: MERRA-2 is a source named in the challenge. |
 
-Regenerar (desde la raíz del repo, con el netCDF en `data/nasa/raw/`):
+Regenerate (from the repo root, with the netCDF in `data/nasa/raw/`):
 
 ```bash
 python scripts/etl/gistemp_netcdf_to_csv.py --source data/nasa/raw/gistemp1200_GHCNv4_ERSSTv5.nc.gz --start-year 2000
 dotnet run --project backend/tools/NasaTrendDetective.EtlCli -- normalize --source data/nasa/raw/gistemp_v4.csv --variable Gistemp --output gistemp_v4.parquet
 ```
 
-MERRA-2 y GPM IMERG (descarga los Zarr públicos de NASA POWER, sin cuenta; requiere `pip install numpy numcodecs`):
+MERRA-2 and GPM IMERG (downloads the public NASA POWER Zarr stores, no account required; requires `pip install numpy numcodecs`):
 
 ```bash
 python scripts/etl/nasa_power_zarr_to_csv.py
@@ -36,28 +34,27 @@ dotnet run --project backend/tools/NasaTrendDetective.EtlCli -- normalize --sour
 dotnet run --project backend/tools/NasaTrendDetective.EtlCli -- normalize --source data/nasa/raw/gpm_imerg_precipitation.csv --variable GpmPrecipitation --output gpm_imerg_precipitation.parquet
 ```
 
-NDVI de MODIS (teselas abiertas de NASA GIBS, sin cuenta; requiere `pip install numpy pillow`):
+MODIS NDVI (open NASA GIBS tiles, no account required; requires `pip install numpy pillow`):
 
 ```bash
 python scripts/etl/gibs_ndvi_to_csv.py
 dotnet run --project backend/tools/NasaTrendDetective.EtlCli -- normalize --source data/nasa/raw/modis_ndvi.csv --variable ModisNdvi --output modis_ndvi.parquet
 ```
 
-GRACE y GRACE-FO (mascons de NASA Goddard, sin cuenta, 58,6 MB; requiere `pip install numpy`):
+GRACE and GRACE-FO (NASA Goddard mascons, no account required, 58.6 MB; requires `pip install numpy`):
 
 ```bash
 python scripts/etl/gsfc_mascons_to_csv.py
 dotnet run --project backend/tools/NasaTrendDetective.EtlCli -- normalize --source data/nasa/raw/grace_mascons.csv --variable GraceMass --output grace_mascons.parquet
 ```
 
-CO₂ de OCO-2 (imágenes diarias del WMS abierto de NASA GIBS, sin cuenta; requiere `pip install numpy pillow`;
-la primera vez descarga 255 MB en unos 50 minutos, después la conversión tarda unos 5):
+OCO-2 CO₂ (daily images from the open NASA GIBS WMS, no account required; requires `pip install numpy pillow`; the first run downloads 255 MB in about 50 minutes, subsequent conversions take about 5 minutes):
 
 ```bash
 python scripts/etl/gibs_oco2_to_csv.py
 dotnet run --project backend/tools/NasaTrendDetective.EtlCli -- normalize --source data/nasa/raw/oco2_xco2.csv --variable Oco2 --output oco2_xco2.parquet
 ```
 
-Cambiar de fuente: ver `docs/obsidian/31-Datos-GISTEMP-Reales-e-Integracion-API.md`. MERRA-2: ver
-`docs/obsidian/37-MERRA2-Datos-Reales-y-Casos-Opuestos.md`. GRACE y CO₂: ver
+Changing sources: see `docs/obsidian/31-Datos-GISTEMP-Reales-e-Integracion-API.md`. MERRA-2: see
+`docs/obsidian/37-MERRA2-Datos-Reales-y-Casos-Opuestos.md`. GRACE and CO₂: see
 `docs/obsidian/40-GRACE-OCO2-Reales-y-Correcciones-de-Significancia.md`.

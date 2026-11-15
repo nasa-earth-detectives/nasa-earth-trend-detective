@@ -3,9 +3,9 @@ import type { CaseVerdict } from '../hooks/useOpposingCases';
 export type VerdictTone = 'up' | 'down' | 'flat' | 'none';
 
 /**
- * Tono del veredicto: sin significancia no se afirma ni subida ni bajada, sea cual sea el signo. Si la
- * API envía el test con preblanqueo, la tendencia tiene que superarlo también: una que sólo pasa el
- * test clásico puede ser una racha larga y no se presenta como "sube" o "baja".
+ * Verdict tone: without significance neither rising nor falling is claimed, regardless of sign.
+ * If the API provides the prewhitened test, the trend must pass it as well: one that only passes
+ * the classic test may be a long streak and is not presented as "Rising" or "Falling".
  */
 export function verdictTone(verdict: CaseVerdict | undefined): VerdictTone {
   if (verdict?.status !== 'ready') return 'none';

@@ -1,8 +1,8 @@
 namespace NasaTrendDetective.Domain.Entities;
 
 /// <summary>
-/// Resultado de la prueba t sobre la pendiente de una regresión lineal: ritmo de cambio por año, su
-/// error estándar, el estadístico t, el valor p bilateral y el intervalo de confianza del 95 %.
+/// Result of the t-test on a linear regression slope: rate of change per year, its
+/// standard error, the t-statistic, the two-tailed p-value, and the 95% confidence interval.
 /// </summary>
 public sealed record LinearTrendVerdict(
     double Slope,
@@ -12,6 +12,6 @@ public sealed record LinearTrendVerdict(
     double[] ConfidenceInterval95,
     bool IsSignificant)
 {
-    /// <summary>Serie demasiado corta o sin variación en el tiempo: no se puede afirmar nada.</summary>
+    /// <summary>Series too short or without variation over time: nothing can be concluded.</summary>
     public static LinearTrendVerdict Inconclusive { get; } = new(0, 0, 0, 1, [0, 0], false);
 }

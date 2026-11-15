@@ -1,17 +1,17 @@
 /**
- * Qué lado del terminador entra en el horizonte de la cámara.
+ * Which side of the terminator enters the camera horizon.
  *
- * Desde una altitud `h` (en radios) se ve un casquete de radio angular acos(1 / (1 + h)).
- * Si ese casquete no alcanza la noche, la capa nocturna no necesita dibujarse, y al revés.
- * Usar el horizonte completo y no el campo de visión es conservador: nunca oculta algo
- * que esté en pantalla, aunque el desplazamiento lateral de la vista esté activo.
+ * From an altitude `h` (in radii), a spherical cap of angular radius acos(1 / (1 + h)) is visible.
+ * If that cap does not reach into night, the night layer does not need to render, and vice versa.
+ * Using the full horizon rather than the field of view is conservative: it never hides anything
+ * that is on-screen, even when lateral view panning is active.
  */
 import type { Vector3 } from 'three';
 
 const DEGREE = Math.PI / 180;
-// Mismos límites que la máscara del shader: smoothstep(-0.14, 0.04, cos(ángulo al subsolar)).
-const DAY_LIMIT = Math.acos(-0.14); // ≈ 98,0°: más allá, ningún píxel diurno es visible
-const NIGHT_LIMIT = Math.acos(0.04); // ≈ 87,7°: más acá, ningún píxel nocturno es visible
+// Same bounds as shader mask: smoothstep(-0.14, 0.04, cos(angle to subsolar)).
+const DAY_LIMIT = Math.acos(-0.14); // ≈ 98.0°: beyond this, no daytime pixel is visible
+const NIGHT_LIMIT = Math.acos(0.04); // ≈ 87.7°: before this, no night pixel is visible
 const MARGIN = 2 * DEGREE;
 
 export function visibleTerminatorSides(

@@ -5,10 +5,10 @@ using NasaTrendDetective.Domain.Enums;
 namespace NasaTrendDetective.Tests.ScientificValidation;
 
 /// <summary>
-/// Validación cruzada contra una implementación independiente. Los valores esperados salen de
-/// SciPy 1.18.1 (`stats.theilslopes(y, x, 0.95)` y `stats.linregress(x, y)`), calculados el 2026-11-14
-/// con `referencia_scipy.py`. La tercera serie es real: anomalía anual de precipitación de MERRA-2
-/// (NASA POWER) en la celda 5° S, 61° O, 1981-2025.
+/// Cross-validation against an independent implementation. Expected values come from
+/// SciPy 1.18.1 (`stats.theilslopes(y, x, 0.95)` and `stats.linregress(x, y)`), computed on 2026-11-14
+/// with `referencia_scipy.py`. The third series is real: MERRA-2 annual precipitation anomaly
+/// (NASA POWER) at cell 5° S, 61° W, 1981-2025.
 /// </summary>
 public class SciPyCrossValidationTests
 {
@@ -57,7 +57,7 @@ public class SciPyCrossValidationTests
         Assert.Equal(slope, linear.Slope, precision: 6);
         Assert.Equal(standardError, linear.StandardError, precision: 6);
         Assert.Equal(t, linear.TStatistic, precision: 4);
-        // Tolerancia relativa: los valores p abarcan seis órdenes de magnitud.
+        // Relative tolerance: p-values span six orders of magnitude.
         Assert.InRange(linear.PValue, pValue * (1 - 1e-6), pValue * (1 + 1e-6));
         Assert.Equal(lower, linear.ConfidenceInterval95[0], precision: 6);
         Assert.Equal(upper, linear.ConfidenceInterval95[1], precision: 6);
@@ -80,7 +80,7 @@ public class SciPyCrossValidationTests
         Assert.Equal(TrendDirection.Decreasing, verdict.Direction);
         Assert.True(verdict.IsSignificant);
         Assert.True(verdict.Linear.IsSignificant);
-        // Los dos intervalos del 95 % quedan enteros por debajo de cero.
+        // Both 95% confidence intervals lie entirely below zero.
         Assert.True(verdict.ConfidenceInterval95[1] < 0);
         Assert.True(verdict.Linear.ConfidenceInterval95[1] < 0);
     }
@@ -88,8 +88,8 @@ public class SciPyCrossValidationTests
     [Fact]
     public void KnownSlopeWithYearToYearNoise_IsRecovered()
     {
-        // Serie construida: 0,07 por año más una oscilación. No es un dato de la NASA; sólo comprueba
-        // que el motor recupera una pendiente conocida.
+        // Constructed series: 0.07 per year plus an oscillation. Not NASA data; only verifies
+        // that the engine recovers a known slope.
         var observations = Enumerable.Range(2000, 25)
             .Select(year => new AnnualObservation(year, 0.070 * (year - 2000) + 0.12 * Math.Sin((year - 2000) * 1.7)))
             .ToList();

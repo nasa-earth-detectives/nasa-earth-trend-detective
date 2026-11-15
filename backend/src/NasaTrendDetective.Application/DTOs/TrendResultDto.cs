@@ -20,13 +20,13 @@ public class TrendResultDto
     public string Direction { get; set; } = string.Empty;
     public double[] ConfidenceInterval95 { get; set; } = Array.Empty<double>();
 
-    /// <summary>Prueba t de la regresión lineal: pendiente por año, IC del 95 %, t y valor p.</summary>
+    /// <summary>Linear regression t-test: slope per year, 95% CI, t, and p-value.</summary>
     public LinearTrendVerdict Linear { get; set; } = LinearTrendVerdict.Inconclusive;
 
-    /// <summary>Mann-Kendall con preblanqueo: autocorrelación de un año al siguiente, Z y valor p.</summary>
+    /// <summary>Prewhitened Mann-Kendall: lag-1 year-to-year autocorrelation, Z-score, and p-value.</summary>
     public PrewhitenedTrendVerdict Prewhitened { get; set; } = PrewhitenedTrendVerdict.Inconclusive;
     public IReadOnlyList<AnnualObservation>? Observations { get; set; }
 
-    /// <summary>"observed" (DuckDB) o "synthetic" (serie de demostración: la variable no tiene dataset).</summary>
+    /// <summary>"observed" (DuckDB) or "synthetic" (demonstration series: the variable has no loaded dataset).</summary>
     public string Source { get; set; } = DatasetStatusDto.Synthetic;
 }

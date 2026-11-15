@@ -24,11 +24,11 @@ RUN dotnet build "NasaTrendDetective.Api.csproj" -c Release -o /app/build
 FROM build AS publish
 RUN dotnet publish "NasaTrendDetective.Api.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
-# Stage 3: Production Runtime (Debian/glibc: la libreria nativa de DuckDB no soporta musl/Alpine)
+# Stage 3: Production Runtime (Debian/glibc: DuckDB native library does not support musl/Alpine)
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS final
 WORKDIR /app
 
-# wget para el healthcheck de docker-compose y directorio de datos DuckDB con permisos del usuario app
+# wget for docker-compose healthcheck and DuckDB data directory with app user permissions
 RUN apt-get update \
     && apt-get install -y --no-install-recommends wget \
     && rm -rf /var/lib/apt/lists/* \
@@ -45,13 +45,13 @@ ENV DUCKDB_DATABASE_PATH=/app/data/nasa_earth_trends.duckdb
 
 COPY --from=publish /app/publish .
 
-# Datasets que la API siembra en DuckDB al arrancar (Parquet + manifiesto de procedencia). Viajan en
-# la imagen porque Render construye solo con ./backend como contexto. Ver docs/obsidian/31.
+# Datasets seeded into DuckDB by the API on startup (Parquet + provenance manifest). Included in
+# the image because Render builds with only ./backend as context. See docs/obsidian/31.
 COPY --from=build /src/seed /app/seed
 ENV DATASET_SEED_DIRECTORY=/app/seed
 
-# Render gratuito tiene 512 MB. Sin tope, la importación de GISTEMP llegó a 647 MB de pico (medido
-# en local); con 256 MB y 2 hilos, la API completa (carga + consultas) se quedó en 423 MB.
+# Free-tier Render has 512 MB. Without limits, GISTEMP import peaked at 647 MB (measured
+# locally); with 256 MB and 2 threads, the complete API (loading + queries) stayed at 423 MB.
 ENV DuckDb__MemoryLimit=256MB
 ENV DuckDb__Threads=2
 

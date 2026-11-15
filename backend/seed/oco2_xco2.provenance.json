@@ -1,20 +1,20 @@
 {
   "variable": "Oco2",
   "provider": "nasa-gibs-oco2",
-  "product": "OCO-2 · XCO₂, media de la columna (capa OCO-2_Carbon_Dioxide_Total_Column_Average de NASA GIBS, media anual por celda)",
+  "product": "OCO-2 · XCO₂, column average (NASA GIBS OCO-2_Carbon_Dioxide_Total_Column_Average layer, annual cell mean)",
   "baseline": null,
   "unit": "ppm",
-  "trendUnit": "ppm / año",
+  "trendUnit": "ppm / year",
   "interim": false,
   "resolutionDegrees": 2.0,
-  "sourceUrl": "https://gibs.earthdata.nasa.gov/wms/epsg4326/best/wms.cgi?SERVICE=WMS&REQUEST=GetMap&VERSION=1.1.1&LAYERS=OCO-2_Carbon_Dioxide_Total_Column_Average&STYLES=&FORMAT=image/png&TRANSPARENT=true&SRS=EPSG:4326&BBOX=-180,-90,180,90&WIDTH=5120&HEIGHT=2560&TIME={AAAA-MM-DD}",
-  "sourceFile": "OCO-2_Carbon_Dioxide_Total_Column_Average, WMS 5120x2560, 3814 días",
+  "sourceUrl": "https://gibs.earthdata.nasa.gov/wms/epsg4326/best/wms.cgi?SERVICE=WMS&REQUEST=GetMap&VERSION=1.1.1&LAYERS=OCO-2_Carbon_Dioxide_Total_Column_Average&STYLES=&FORMAT=image/png&TRANSPARENT=true&SRS=EPSG:4326&BBOX=-180,-90,180,90&WIDTH=5120&HEIGHT=2560&TIME={YYYY-MM-DD}",
+  "sourceFile": "OCO-2_Carbon_Dioxide_Total_Column_Average, WMS 5120x2560, 3814 days",
   "sourceSha256": "1166ff5cb83c56f8772e65a8b8b33be86ed24a2b4c412401d8cab7dbab7566a8",
   "retrievedAt": "2026-11-14T20:05:52+00:00",
   "coverageStart": 2015,
   "coverageEnd": 2025,
   "lastMonth": "2025-12",
   "rows": 55632,
-  "processing": "XCO₂ recuperado de la imagen diaria con la paleta oficial de GIBS (clases de 0,4 ppm): 13105886 sondeos en 3814 días. Media anual por celda de 2° = media de sus medias mensuales; un mes cuenta con 3 sondeos o más y un año con 6 meses o más. Sondeos fuera del rango de la paleta (menos de 380 ppm o 480 ppm o más), descartados: 0. Píxeles con un color ajeno a la paleta, descartados: 202.",
-  "citation": "OCO-2 Level 2 bias-corrected XCO2 and other select fields from the full-physics retrieval aggregated as daily files, Retrospective processing V11.2r (OCO2_L2_Lite_FP). NASA GES DISC, concept id C2912085112-GES_DISC. Imagen servida por NASA Global Imagery Browse Services (GIBS), ESDIS."
+  "processing": "XCO₂ recovered from the daily image using the official GIBS palette (0.4 ppm bins): 13105886 soundings across 3814 days. Annual mean per 2° cell = mean of its monthly means; a month requires 3 or more soundings and a year requires 6 or more months. Soundings outside the palette range (below 380 ppm or 480 ppm and above), discarded: 0. Pixels with an off-palette color, discarded: 202.",
+  "citation": "OCO-2 Level 2 bias-corrected XCO2 and other select fields from the full-physics retrieval aggregated as daily files, Retrospective processing V11.2r (OCO2_L2_Lite_FP). NASA GES DISC, concept id C2912085112-GES_DISC. Imagery served by NASA Global Imagery Browse Services (GIBS), ESDIS."
 }

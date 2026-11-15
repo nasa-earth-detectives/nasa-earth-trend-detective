@@ -3,10 +3,10 @@ using NasaTrendDetective.Domain.Entities;
 namespace NasaTrendDetective.Application.Statistics;
 
 /// <summary>
-/// Prueba t de la pendiente de una regresión lineal por mínimos cuadrados. Es el método paramétrico
-/// que el reto nombra junto a Mann-Kendall: responde a la misma pregunta (¿hay tendencia?) suponiendo
-/// residuos normales, y da el ritmo de cambio con su intervalo de confianza del 95 %. Tenerlos los dos
-/// permite ver si el veredicto depende del método.
+/// T-test for the slope of a least-squares linear regression. This is the parametric method
+/// that the challenge names alongside Mann-Kendall: it answers the same question (is there a trend?) assuming
+/// normal residuals, and provides the rate of change with its 95% confidence interval. Having both
+/// allows checking whether the verdict depends on the method.
 /// </summary>
 public static class LinearTrendTest
 {
@@ -18,7 +18,7 @@ public static class LinearTrendTest
         ArgumentNullException.ThrowIfNull(years);
 
         var n = values.Count;
-        // Con dos puntos la recta pasa exacta por ambos: no quedan grados de libertad para el error.
+        // With two points the line passes exactly through both: no degrees of freedom remain for error.
         if (n < 3 || years.Count != n)
         {
             return LinearTrendVerdict.Inconclusive;
@@ -51,7 +51,7 @@ public static class LinearTrendTest
         var standardError = Math.Sqrt(residualSum / degreesOfFreedom / sxx);
         if (standardError <= 0)
         {
-            // Ajuste perfecto: una recta exacta. La tendencia es cierta si la pendiente no es cero.
+            // Perfect fit: an exact line. The trend is true if the slope is non-zero.
             var exact = Math.Round(slope, 6);
             return new LinearTrendVerdict(exact, 0, 0, slope == 0 ? 1 : 0, [exact, exact], slope != 0);
         }

@@ -23,12 +23,12 @@ export function useGlobeData(filter: TrendFilterParams) {
         source: dataset.source, provenance: dataset.provenance });
     }).catch((error: unknown) => {
       if (!controller.signal.aborted) setState(previous => ({ ...previous, key, data: EMPTY_OBSERVATIONS, loading: false,
-        error: error instanceof Error ? error.message : 'Error al obtener observaciones.' }));
+        error: error instanceof Error ? error.message : 'Failed to fetch observations.' }));
     });
     return () => controller.abort();
   }, [filter.variable, filter.endYear, key]);
 
-  // No mostrar un año anterior bajo la etiqueta del nuevo contexto, ni durante un solo render.
+  // Do not display a previous year under the new context label, even for a single render.
   return { data: state.key === key ? state.data : EMPTY_OBSERVATIONS,
     loading: state.key !== key || state.loading, error: state.key === key ? state.error : null,
     source: state.source, provenance: state.provenance };

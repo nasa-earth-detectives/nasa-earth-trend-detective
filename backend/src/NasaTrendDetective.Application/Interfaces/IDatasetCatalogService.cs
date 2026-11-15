@@ -4,6 +4,6 @@ namespace NasaTrendDetective.Application.Interfaces;
 
 public interface IDatasetCatalogService
 {
-    /// <summary>Una entrada por cada variable del dominio, observada o sintética.</summary>
+    /// <summary>One entry for each domain variable, indicating whether it is observed or synthetic.</summary>
     Task<IReadOnlyList<DatasetStatusDto>> GetCatalogAsync(CancellationToken cancellationToken = default);
 }

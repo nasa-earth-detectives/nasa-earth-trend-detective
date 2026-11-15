@@ -1,4 +1,4 @@
-/** Espera el montaje de React y las transiciones finitas; nunca mide un panel oculto. */
+/** Waits for React mounting and finite transitions; never measures a hidden panel. */
 export function waitForTourTarget(selector: string, signal: AbortSignal): Promise<HTMLElement | null> {
   return new Promise(resolve => {
     let frame = 0;
@@ -24,7 +24,7 @@ export function waitForTourTarget(selector: string, signal: AbortSignal): Promis
       stableFrames = box && box === previous && !moving ? stableFrames + 1 : 0;
       previous = box;
       if (stableFrames >= 3) { finish(element); return; }
-      // Un destino que no llegó a montarse no se sustituye por un globo de ayuda en el centro.
+      // A target that failed to mount is not replaced with a fallback tooltip in the center.
       if (performance.now() - started > 2000) { finish(null); return; }
       frame = requestAnimationFrame(check);
     };

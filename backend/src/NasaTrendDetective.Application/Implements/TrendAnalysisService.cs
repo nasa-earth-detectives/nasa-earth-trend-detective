@@ -30,8 +30,8 @@ public class TrendAnalysisService : ITrendAnalysisService
             toleranceDegrees: 1.0,
             cancellationToken).ConfigureAwait(false);
 
-        // Solo una variable sin dataset recibe la serie de demostración. Con dataset cargado, una
-        // celda sin datos devuelve una serie vacía: inventarla ahí haría pasar ficción por observación.
+        // Only a variable without a dataset receives the demonstration series. With a loaded dataset,
+        // a cell without data returns an empty series: fabricating data there would pass fiction off as observation.
         var observed = observations.Count > 0
             || await IsObservedAsync(query.Variable, cancellationToken).ConfigureAwait(false);
         if (!observed)

@@ -2,7 +2,7 @@
   "name": "nasa-earth-system-trend-detective-monorepo",
   "version": "1.0.0",
   "private": true,
-  "description": "Monorrepo oficial de la plataforma NASA Earth System Trend Detective - NASA Space Apps Challenge 2026",
+  "description": "Official monorepo for the NASA Earth System Trend Detective platform - NASA Space Apps Challenge 2026",
   "workspaces": [
     "frontend",
     "packages/*"

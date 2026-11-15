@@ -1,7 +1,7 @@
-"""Regrillado a la grilla de 2° de GISTEMP y escritura del CSV canónico del ETL.
+"""Regridding to the 2° GISTEMP grid and writing the canonical ETL CSV.
 
-Separado del conversor para que cada archivo se lea de una vez. El regrillado es un promedio ponderado
-por el área de solape en la esfera, y se valida comprobando que la media mundial no cambia.
+Separated from the converter so each file stays concise and focused. Regridding uses an overlap-area
+weighted average on the sphere, validated by checking that the global mean is preserved.
 """
 from __future__ import annotations
 
@@ -11,11 +11,11 @@ from pathlib import Path
 import numpy as np
 
 TARGET_DEGREES = 2.0
-MIN_COVERAGE = 0.5  # fracción mínima del área de la celda de 2° que debe tener dato
+MIN_COVERAGE = 0.5  # minimum fraction of the 2° cell area that must have valid data
 
 
 def lat_weights(lat: np.ndarray, step: float = TARGET_DEGREES) -> np.ndarray:
-    """Área de solape (diferencia de senos) entre cada banda nativa y cada banda de la grilla destino."""
+    """Overlap area (sine difference) between each native band and each target grid band."""
     half = abs(lat[1] - lat[0]) / 2
     lo, hi = np.clip(lat - half, -90, 90), np.clip(lat + half, -90, 90)
     edges = np.arange(-90, 90 + step, step)
@@ -25,8 +25,8 @@ def lat_weights(lat: np.ndarray, step: float = TARGET_DEGREES) -> np.ndarray:
 
 
 def lon_weights(lon: np.ndarray, step: float = TARGET_DEGREES) -> np.ndarray:
-    """Grados de solape en longitud. Una celda nativa centrada en -180 cruza el antimeridiano: se prueba
-    también desplazada 360° para que su mitad occidental caiga en la última celda destino."""
+    """Overlap degrees in longitude. A native cell centered at -180 crosses the antimeridian: also test
+    shifted by ±360° so its western half lands in the rightmost target cell."""
     half = abs(lon[1] - lon[0]) / 2
     edges = np.arange(-180, 180 + step, step)
     total = np.zeros((len(edges) - 1, len(lon)))
@@ -38,11 +38,11 @@ def lon_weights(lon: np.ndarray, step: float = TARGET_DEGREES) -> np.ndarray:
 
 
 def regrid(cube: np.ndarray, lat: np.ndarray, lon: np.ndarray) -> np.ndarray:
-    """Media ponderada ignorando los huecos; NaN si el dato cubre menos de MIN_COVERAGE de la celda.
+    """Weighted mean ignoring gaps; NaN if valid data covers less than MIN_COVERAGE of the cell.
 
-    Va año por año con dos productos de matrices. Un einsum de tres operandos sin optimizar recorre los
-    cinco índices a la vez (más de diez minutos por variable), y hacerlo con el cubo entero de IMERG
-    (32 x 1800 x 3600) en doble precisión no cabe en memoria.
+    Processes year by year with two matrix products. An unoptimized three-operand einsum iterates over
+    all five indices at once (over ten minutes per variable), and doing the entire IMERG cube
+    (32 x 1800 x 3600) in double precision does not fit in memory.
     """
     w_lat, w_lon = lat_weights(lat), lon_weights(lon)
     full = w_lat.sum(axis=1)[:, None] * w_lon.sum(axis=1)[None, :]
@@ -58,7 +58,7 @@ def regrid(cube: np.ndarray, lat: np.ndarray, lon: np.ndarray) -> np.ndarray:
 
 
 def write_csv(output: Path, grid: np.ndarray, anomaly: np.ndarray, years: np.ndarray, decimals: int) -> int:
-    """Una fila por celda y año con dato: lat, lon, time (AAAA-01-01), value, anomaly."""
+    """One row per cell and year with valid data: lat, lon, time (YYYY-01-01), value, anomaly."""
     centers_lat = np.arange(-90 + TARGET_DEGREES / 2, 90, TARGET_DEGREES)
     centers_lon = np.arange(-180 + TARGET_DEGREES / 2, 180, TARGET_DEGREES)
     output.parent.mkdir(parents=True, exist_ok=True)

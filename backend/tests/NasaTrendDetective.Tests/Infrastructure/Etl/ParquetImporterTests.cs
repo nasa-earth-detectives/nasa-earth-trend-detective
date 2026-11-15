@@ -85,10 +85,10 @@ public sealed class ParquetImporterTests : IAsyncLifetime
     }
 
     [Theory]
-    [InlineData("SELECT 1 AS variable_id, 1.0 AS latitude, 2.0 AS longitude, now() AS \"timestamp\", 1.0 AS value", "falta la columna 'anomaly'")]
-    [InlineData("SELECT 1 AS variable_id, 'x' AS latitude, 2.0 AS longitude, now() AS \"timestamp\", 1.0 AS value, 0.1 AS anomaly", "la columna 'latitude' es VARCHAR")]
-    [InlineData("SELECT 1 AS variable_id, 1.0 AS latitude, 2.0 AS longitude, 2020 AS \"timestamp\", 1.0 AS value, 0.1 AS anomaly", "la columna 'timestamp' es INTEGER")]
-    [InlineData("SELECT 1 AS variable_id, 1.0 AS latitude, 2.0 AS longitude, now() AS \"timestamp\", 1.0 AS value, 0.1 AS anomaly, 1 AS extra", "columna no canónica 'extra'")]
+    [InlineData("SELECT 1 AS variable_id, 1.0 AS latitude, 2.0 AS longitude, now() AS \"timestamp\", 1.0 AS value", "missing column 'anomaly'")]
+    [InlineData("SELECT 1 AS variable_id, 'x' AS latitude, 2.0 AS longitude, now() AS \"timestamp\", 1.0 AS value, 0.1 AS anomaly", "column 'latitude' is VARCHAR")]
+    [InlineData("SELECT 1 AS variable_id, 1.0 AS latitude, 2.0 AS longitude, 2020 AS \"timestamp\", 1.0 AS value, 0.1 AS anomaly", "column 'timestamp' is INTEGER")]
+    [InlineData("SELECT 1 AS variable_id, 1.0 AS latitude, 2.0 AS longitude, now() AS \"timestamp\", 1.0 AS value, 0.1 AS anomaly, 1 AS extra", "non-canonical column 'extra'")]
     public async Task ExecuteParquetIngestAsync_NonCanonicalColumns_FailsWithClearError(string selectSql, string expected)
     {
         await _context.WriteParquetAsync("bad.parquet", selectSql);
@@ -96,7 +96,7 @@ public sealed class ParquetImporterTests : IAsyncLifetime
         var error = await Assert.ThrowsAsync<ParquetImportException>(
             () => _context.Repository.ExecuteParquetIngestAsync(_context.Glob));
 
-        Assert.Contains("esquema canónico", error.Message);
+        Assert.Contains("canonical schema", error.Message);
         Assert.Contains(expected, error.Message);
         Assert.Equal(0L, await _context.CountAsync("fact_climate_observations"));
     }
@@ -107,7 +107,7 @@ public sealed class ParquetImporterTests : IAsyncLifetime
         var error = await Assert.ThrowsAsync<ParquetImportException>(
             () => _context.Repository.ExecuteParquetIngestAsync(_context.Glob));
 
-        Assert.Contains("No se encontraron archivos Parquet", error.Message);
+        Assert.Contains("No Parquet files found", error.Message);
     }
 
     [Fact]

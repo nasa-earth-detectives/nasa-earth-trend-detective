@@ -6,22 +6,22 @@ import {
 
 const DEG = Math.PI / 180;
 
-/** Dirección de (ascensión recta, declinación) en el marco de getCoords de three-globe con GMST = 0. */
+/** Direction of (right ascension, declination) in three-globe getCoords frame with GMST = 0. */
 export function celestialDirection(raDeg: number, decDeg: number): Vector3 {
   const ra = raDeg * DEG;
   const dec = decDeg * DEG;
   return new Vector3(Math.cos(dec) * Math.sin(ra), Math.sin(dec), Math.cos(dec) * Math.cos(ra));
 }
 
-/** Polo norte y centro galácticos (J2000); l = 90° (Cygnus) = N × C en este marco (comprobado). */
+/** Galactic north pole and center (J2000); l = 90° (Cygnus) = N × C in this frame (verified). */
 export const GALACTIC_NORTH = celestialDirection(192.85948, 27.12825);
 export const GALACTIC_CENTER = celestialDirection(266.405, -28.93617);
 export const GALACTIC_EAST = new Vector3().crossVectors(GALACTIC_NORTH, GALACTIC_CENTER).normalize();
 
 /**
- * Banda procedural: no es un mapa del cielo, sí su geometría real (plano y centro galácticos) con
- * bulbo más ancho y brillante hacia Sagitario, nubes de estrellas y franjas de polvo oscuro.
- * Se hornea una vez a una textura equirectangular con el mismo mapeo UV que SphereGeometry.
+ * Procedural band: not a full sky survey, but its true geometry (galactic plane and center) with
+ * wider, brighter bulge toward Sagittarius, star clouds, and dark dust rifts.
+ * Baked once to an equirectangular texture matching SphereGeometry UV mapping.
  */
 const bakeFragmentShader = /* glsl */ `
 precision highp float;
@@ -37,12 +37,12 @@ float noise(vec3 x) {
              mix(mix(hash(i + vec3(0,0,1)), hash(i + vec3(1,0,1)), f.x), mix(hash(i + vec3(0,1,1)), hash(i + vec3(1,1,1)), f.x), f.y), f.z);
 }
 float fbm(vec3 p) { float v = 0.0; float a = 0.5; for (int i = 0; i < 6; i++) { v += a * noise(p); p *= 2.03; a *= 0.5; } return v; }
-// pow(x, 2.0) es indefinido en GLSL si x < 0, y la latitud y la longitud galácticas son negativas en
-// medio cielo.
+// pow(x, 2.0) is undefined in GLSL if x < 0, and galactic latitude and longitude are negative
+// across half the sky.
 float sq(float x) { return x * x; }
 
 void main() {
-  // Mismo mapeo que SphereGeometry: u = phi / 2π, v = 1 - theta / π.
+  // Same mapping as SphereGeometry: u = phi / 2π, v = 1 - theta / π.
   float phi = vUv.x * 6.2831853;
   float theta = (1.0 - vUv.y) * 3.1415927;
   vec3 d = vec3(-cos(phi) * sin(theta), cos(theta), sin(phi) * sin(theta));
@@ -60,7 +60,7 @@ void main() {
   float intensity = band * (0.15 + 0.85 * clouds) * (0.5 + 0.5 * fine) * (0.4 + 0.6 * coreWeight)
     + bulge * 0.55 * (0.5 + 0.5 * clouds);
   intensity *= 1.0 - 0.85 * dust;
-  // Contraste: sin él la banda es una niebla uniforme; con él aparecen nubes y huecos.
+  // Contrast: without it the band is uniform fog; with it star clouds and rifts emerge.
   intensity = pow(intensity, 1.6);
   vec3 cool = vec3(0.66, 0.74, 0.95);
   vec3 warm = vec3(1.0, 0.9, 0.78);
@@ -94,7 +94,7 @@ function bakeTexture(renderer: WebGLRenderer, width: number): WebGLRenderTarget 
   return target;
 }
 
-/** Esfera de fondo con la banda horneada. `brightness` escala su aporte sobre el negro del espacio. */
+/** Background sphere with the baked band. `brightness` scales its contribution over deep space black. */
 export function createMilkyWay(renderer: WebGLRenderer, radius: number, brightness: number, textureWidth: number) {
   const target = bakeTexture(renderer, textureWidth);
   const geometry = new SphereGeometry(radius, 64, 32);

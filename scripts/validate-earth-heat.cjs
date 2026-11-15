@@ -46,17 +46,17 @@ async function main() {
   const signed = rasterizeEarthHeat(data, 'Gistemp');
   assert(signed.values[pixel(signed, 0, -1)] < 0);
   assert(signed.values[pixel(signed, 0, 1)] > 0);
-  assert.equal(signed.coverage[pixel(signed, 0, 40)], 0, 'No rellena océanos alejados de muestras.');
+  assert.equal(signed.coverage[pixel(signed, 0, 40)], 0, 'Does not fill oceans distant from samples.');
   assert(Number.isNaN(signed.values[pixel(signed, 0, 40)]));
   const duplicated = rasterizeEarthHeat([...data, data[0], data[0]], 'Gistemp');
-  assert.deepEqual([...duplicated.pixels], [...signed.pixels], 'Repetir ubicación no convierte el mapa en densidad.');
+  assert.deepEqual([...duplicated.pixels], [...signed.pixels], 'Duplicate locations do not turn map into density.');
   const neutral = rasterizeEarthHeat([observation(0, 0, -2), observation(0, 0, 2)], 'Gistemp');
-  assert.equal(neutral.values[pixel(neutral, 0, 0)], 0, 'Las anomalías opuestas se compensan sin abs.');
+  assert.equal(neutral.values[pixel(neutral, 0, 0)], 0, 'Opposing anomalies cancel out without abs.');
   const warm = rasterizeEarthHeat([observation(0, 0, 2)], 'Gistemp');
-  assert.deepEqual([...neutral.coverage], [...warm.coverage], 'La fuerza visual no cambia la cobertura geográfica.');
+  assert.deepEqual([...neutral.coverage], [...warm.coverage], 'Visual strength does not alter geographic coverage.');
   const neutralAlpha = neutral.pixels[pixel(neutral, 0, 0) * 4 + 3];
   const warmAlpha = warm.pixels[pixel(warm, 0, 0) * 4 + 3];
-  assert(neutralAlpha > 0 && neutralAlpha < warmAlpha * 0.16, 'La referencia cero no cubre la Tierra con gris opaco.');
+  assert(neutralAlpha > 0 && neutralAlpha < warmAlpha * 0.16, 'Zero reference does not cover Earth in opaque gray.');
   assert.equal(observationHeatStrength('Gistemp', -1), observationHeatStrength('Gistemp', 1));
   assert.equal(observationHeatStrength('GraceMass', -15), observationHeatStrength('GraceMass', 15));
   assert.equal(observationHeatStrength('Gistemp', 20), 1);
@@ -90,13 +90,13 @@ async function main() {
   };
   const shared = acquireEarthAnalysisRoot(globe);
   const layer = createEarthHeatLayer(globe);
-  assert.equal(created, 1, 'Una raíz, sin otro renderer ni canvas.');
+  assert.equal(created, 1, 'Single root, no additional renderer or canvas.');
   const mesh = scene.getObjectByName('earth-observation-heat');
   const uniforms = mesh.material.uniforms;
   const textures = [uniforms.previousMap.value, uniforms.currentMap.value];
   const versions = textures.map(texture => texture.version);
   layer.updateData(data, 'Gistemp');
-  assert.deepEqual(textures.map(texture => texture.version), versions, 'No calcula/sube raster estando oculta.');
+  assert.deepEqual(textures.map(texture => texture.version), versions, 'Does not compute/upload raster while hidden.');
   layer.setVisible(true);
   assert.equal(uniforms.progress.value, 0);
   clock += 400;
@@ -112,7 +112,7 @@ async function main() {
   assert.equal(uniforms.progress.value, 1);
   const stableVersions = textures.map(texture => texture.version);
   for (let frame = 0; frame < 120; frame++) { clock += 16; mesh.onBeforeRender(); }
-  assert.deepEqual(textures.map(texture => texture.version), stableVersions, 'No sube texturas por frame.');
+  assert.deepEqual(textures.map(texture => texture.version), stableVersions, 'Does not upload textures per frame.');
   assert.equal(scene.getObjectByName('earth-observation-heat'), mesh);
   assert.equal(textures[0].colorSpace, three.NoColorSpace);
   assert.equal(textures[0].wrapS, three.RepeatWrapping);
@@ -124,7 +124,7 @@ async function main() {
   layer.dispose();
   layer.dispose();
   assert.equal(disposed, 4);
-  assert.equal(cleared, 0, 'Cerrar calor no destruye la raíz que usan hexágonos.');
+  assert.equal(cleared, 0, 'Disposing heat layer does not destroy root used by hexagons.');
   shared.release();
   assert.equal(cleared, 1);
   assert.equal(scene.children.length, 0);
@@ -140,19 +140,19 @@ async function main() {
   assert.equal(worker.messages.length, 1);
   asynchronous.updateData([observation(0, 0, -1.5)], 'Gistemp');
   asynchronous.updateData([observation(0, 0, 1.8)], 'Gistemp');
-  assert.equal(worker.messages.length, 1, 'No acumula años intermedios en la cola del worker.');
+  assert.equal(worker.messages.length, 1, 'Does not accumulate intermediate years in worker queue.');
   const respond = request => worker.onmessage({ data: { id: request.id,
     pixels: rasterizeEarthHeat(request.observations, request.variable).pixels } });
   respond(worker.messages[0]);
-  assert.equal(asyncMap.version, initialVersion, 'Descarta la respuesta de un año anterior.');
+  assert.equal(asyncMap.version, initialVersion, 'Discards response from a stale year.');
   assert.equal(worker.messages.length, 2);
   assert.equal(worker.messages[1].observations[0].value, 1.8);
   respond(worker.messages[1]);
   assert.equal(asyncMap.version, initialVersion + 1);
   asynchronous.dispose();
-  assert(worker.terminated, 'Libera también el worker.');
+  assert(worker.terminated, 'Also terminates worker.');
   respond(worker.messages[1]);
-  assert.equal(asyncMap.version, initialVersion + 1, 'No aplica respuestas después de desmontar.');
+  assert.equal(asyncMap.version, initialVersion + 1, 'Does not apply responses after unmounting.');
 
   const timings = {};
   for (const variable of ['Gistemp', 'ModisNdvi', 'GraceMass', 'Oco2']) {
@@ -161,7 +161,7 @@ async function main() {
     const result = rasterizeEarthHeat(samples, variable);
     timings[variable] = { samples: samples.length, rasterMs: +(performance.now() - started).toFixed(1),
       coveredPixels: result.coverage.filter(value => value > 0).length };
-    assert(result.coverage[pixel(result, 0, -145)] === 0, 'El Pacífico central permanece sin falsa cobertura terrestre.');
+    assert(result.coverage[pixel(result, 0, -145)] === 0, 'Central Pacific remains without false land coverage.');
   }
   console.log(JSON.stringify({ result: 'PASS', timings, checks: [
     'signed normalized means', 'duplicate location invariance', 'zero preserved', 'anomaly preferred',

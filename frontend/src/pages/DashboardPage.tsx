@@ -11,9 +11,9 @@ import { VARIABLE_IDS } from '../config/climateLayers';
 import '../styles/detective-wizard.css';
 
 /**
- * Punto de entrada de la experiencia.
- * Soporta enlace compartido por URL (?variable=...&lat=...&lng=...&year=...)
- * y Wizard de bienvenida "Detective de Tendencias" para guiar a estudiantes.
+ * Experience entry point.
+ * Supports URL share links (?variable=...&lat=...&lng=...&year=...)
+ * and "Trend Detective" welcome wizard to guide students.
  */
 export function DashboardPage() {
   const queryConfig = useMemo(() => {
@@ -45,11 +45,11 @@ export function DashboardPage() {
   const handleWizardComplete = useCallback((result: WizardResult) => {
     setVariable(result.variable);
     setYearRange(result.startYear, result.endYear);
-    // El paso "región" se elegía y no hacía nada: ahora lleva el globo a ese lugar y abre su análisis.
+    // The "region" step previously had no effect: now it flies the globe to that location and opens its analysis.
     if (result.region.id !== 'custom') setFocusLocation({ lat: result.region.lat, lng: result.region.lng });
     wizard.dismiss();
   }, [setVariable, setYearRange, wizard.dismiss]);
-  // Vista previa: mientras se elige en el asistente, el globo ya enseña la variable y gira al lugar.
+  // Preview: while choosing in the wizard, the globe already displays the variable and turns to the location.
   const [previewLocation, setPreviewLocation] = useState<SelectedLocation | null>(null);
   const handlePreviewRegion = useCallback((region: WizardRegion) => {
     if (region.id !== 'custom') setPreviewLocation({ lat: region.lat, lng: region.lng });
@@ -57,7 +57,7 @@ export function DashboardPage() {
   const handleYearChange = useCallback((year: number) => setYearRange(Math.min(filter.startYear, year), year),
     [setYearRange, filter.startYear]);
 
-  // Si el usuario ingresó por un enlace compartido con ubicación específica, no mostramos el wizard encima
+  // If the user arrived via a share link with a specific location, do not show the wizard on top
   const showWizard = wizard.open && !queryConfig.location;
 
   return (

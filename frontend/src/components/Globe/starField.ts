@@ -1,11 +1,11 @@
 /**
- * Cielo de fondo: estrellas en capas (una draw call cada una) + Vía Láctea horneada.
+ * Celestial background: layered stars (one draw call each) + baked procedural Milky Way.
  *
- * - Generador con semilla: el cielo es el mismo en cada carga, no un ruido nuevo.
- * - Colores por temperatura estelar (de azul a anaranjado) en proporciones aproximadas.
- * - Una capa extra se concentra en el plano galáctico para dar textura de nubes de estrellas.
- * - El grupo gira con el tiempo sidéreo real (GMST): como el sol ya es real, la Vía Láctea queda
- *   donde está de verdad respecto a la Tierra en este instante.
+ * - Seeded PRNG: sky remains consistent on every load, not random noise.
+ * - Colors by stellar spectral classification (blue to amber) in approximate natural proportions.
+ * - An extra layer concentrates along galactic plane to generate star cloud texture.
+ * - Group rotates with real Greenwich Mean Sidereal Time (GMST): aligning the Milky Way
+ *   with its true orientation relative to Earth at this instant.
  */
 import {
   BufferAttribute, BufferGeometry, CanvasTexture, Group, Points, PointsMaterial, SRGBColorSpace, Vector3,
@@ -34,7 +34,7 @@ function gaussian(random: () => number): number {
   return Math.sqrt(-2 * Math.log(Math.max(random(), 1e-9))) * Math.cos(2 * Math.PI * random());
 }
 
-/** Disco suave: las estrellas dejan de ser cuadrados de 2 px. */
+/** Soft circular sprite: stars render as round points rather than 2px squares. */
 function createStarSprite(): CanvasTexture {
   const canvas = document.createElement('canvas');
   canvas.width = canvas.height = 32;
@@ -71,7 +71,7 @@ function createStarLayer(layer: StarLayerConfig, random: () => number, sprite: C
   const material = new PointsMaterial({
     size: layer.size,
     map: sprite,
-    // Tamaño constante en píxeles: el campo estelar no debe "crecer" al hacer zoom.
+    // Constant pixel size: starfield must not expand when zooming.
     sizeAttenuation: false,
     vertexColors: true,
     transparent: true,
@@ -87,13 +87,13 @@ function createStarLayer(layer: StarLayerConfig, random: () => number, sprite: C
   return points;
 }
 
-/** Tiempo sidéreo medio de Greenwich, en radianes. */
+/** Greenwich Mean Sidereal Time angle, in radians. */
 export function greenwichSiderealAngle(timeMs: number): number {
   const julianDays = timeMs / 86_400_000 + 2440587.5 - 2451545.0;
   return ((((280.46061837 + 360.98564736629 * julianDays) % 360) + 360) % 360) * Math.PI / 180;
 }
 
-/** Crea el cielo y lo añade a la escena. Devuelve un único grupo para el interruptor "estrellas". */
+/** Creates celestial sphere and adds to scene. Returns a single group for starfield toggle. */
 export function createStarField(scene: Scene, renderer: WebGLRenderer): Object3D[] {
   const random = mulberry32(20261004);
   const sprite = createStarSprite();
@@ -116,7 +116,7 @@ export function createStarField(scene: Scene, renderer: WebGLRenderer): Object3D
 
   const milkyWay = createMilkyWay(renderer, GLOBE_CONFIG.starInnerRadius * 0.95,
     GLOBE_CONFIG.milkyWayBrightness, window.matchMedia('(pointer: coarse)').matches ? 1024 : 2048);
-  // Sin temporizadores: se actualiza sólo cuando el cielo se dibuja (≈0,004° por segundo).
+  // No timer: updates strictly when sky renders (≈0.004° per second).
   milkyWay.mesh.onBeforeRender = () => { sky.rotation.y = -greenwichSiderealAngle(Date.now()); };
   sky.add(milkyWay.mesh);
   sky.userData.dispose = () => { milkyWay.dispose(); sprite.dispose(); };
@@ -124,7 +124,7 @@ export function createStarField(scene: Scene, renderer: WebGLRenderer): Object3D
   return [sky];
 }
 
-/** Retira el cielo de la escena y libera geometrías, materiales y texturas. */
+/** Removes starfield from scene and disposes geometries, materials, and textures. */
 export function disposeStarField(scene: Scene, layers: Object3D[]): void {
   for (const layer of layers) {
     scene.remove(layer);

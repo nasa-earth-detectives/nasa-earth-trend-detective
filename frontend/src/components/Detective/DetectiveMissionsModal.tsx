@@ -1,6 +1,6 @@
 /**
- * Casos de estudio: un tablero que compara dos regiones variable por variable. Es la idea central del
- * reto (una misma variable sube en un lugar y baja en otro) enseñada con datos, no contada.
+ * Case studies: a board comparing two regions variable by variable. This is the core idea of the
+ * challenge (the same variable rises in one place and falls in another) shown with data, not told.
  */
 import { useEffect, useRef } from 'react';
 import { X } from 'lucide-react';
@@ -16,7 +16,7 @@ import { OpposingCaseCell } from './OpposingCaseCell';
 import { VARIABLE_ACCENT_STYLE, VARIABLE_ICONS } from './variableIcons';
 import '../../styles/detective-modals.css';
 
-/** Lo que el globo necesita para abrir un caso: qué variable, dónde y en qué año. */
+/** What the globe needs to open a case: which variable, where, and in which year. */
 export interface MissionPreset {
   variable: ClimateVariable;
   location: SelectedLocation;
@@ -24,14 +24,14 @@ export interface MissionPreset {
 }
 
 const coordinates = (region: CaseRegion) =>
-  `${Math.abs(region.lat)}° ${region.lat >= 0 ? 'N' : 'S'} · ${Math.abs(region.lng)}° ${region.lng >= 0 ? 'E' : 'O'}`;
+  `${Math.abs(region.lat)}° ${region.lat >= 0 ? 'N' : 'S'} · ${Math.abs(region.lng)}° ${region.lng >= 0 ? 'E' : 'W'}`;
 
-/** Lectura del par: sólo se dice "opuestas" si las dos tendencias son significativas y de signo contrario. */
+/** Pair reading: only called "Opposing" if both trends are significant and have opposite signs. */
 function pairReading(first: CaseVerdict | undefined, second: CaseVerdict | undefined): { tone: string; label: string } {
   const tones = [verdictTone(first), verdictTone(second)];
   if (tones.includes('none')) return { tone: 'pending', label: '—' };
-  if (tones.includes('flat')) return { tone: 'open', label: 'No concluyente' };
-  return tones[0] === tones[1] ? { tone: 'same', label: 'Mismo sentido' } : { tone: 'opposite', label: 'Opuestas' };
+  if (tones.includes('flat')) return { tone: 'open', label: 'Inconclusive' };
+  return tones[0] === tones[1] ? { tone: 'same', label: 'Same direction' } : { tone: 'opposite', label: 'Opposing' };
 }
 
 interface DetectiveMissionsModalProps {
@@ -67,28 +67,28 @@ export function DetectiveMissionsModal({ open, onClose, onSelectMission }: Detec
         ref={dialogRef} tabIndex={-1} onClick={event => event.stopPropagation()}>
         <header className="dossier__header">
           <div>
-            <p className="dossier__eyebrow">Casos de estudio<span>MERRA-2 · NASA POWER</span></p>
-            <h2 id="cases-title">Dos regiones, sentidos opuestos</h2>
+            <p className="dossier__eyebrow">Case studies<span>MERRA-2 · NASA POWER</span></p>
+            <h2 id="cases-title">Two regions, opposing directions</h2>
             <p className="dossier__lead">
-              La misma variable puede subir en un lugar y bajar en otro. Cada cifra de este tablero se calcula
-              ahora mismo con la serie real de esa celda: ninguna está escrita a mano.
+              The same variable can rise in one place and fall in another. Every figure on this board is computed
+              right now from that cell&apos;s real time series: nothing is hardcoded.
             </p>
           </div>
-          <button type="button" onClick={onClose} className="dossier__close focus-ring" aria-label="Cerrar">
+          <button type="button" onClick={onClose} className="dossier__close focus-ring" aria-label="Close">
             <X size={18} strokeWidth={1.5} aria-hidden="true" />
           </button>
         </header>
 
         <div className="case-board scrollbar-instrument">
           <table className="case-board__table">
-            <caption className="sr-only">Tendencias por variable en dos regiones</caption>
+            <caption className="sr-only">Trends by variable across two regions</caption>
             <thead>
               <tr className="case-board__head">
                 <th scope="col">Variable</th>
                 {CASE_REGIONS.map(region => (
                   <th key={region.id} scope="col" className="case-board__place">{region.name}<small>{coordinates(region)}</small></th>
                 ))}
-                <th scope="col">Lectura</th>
+                <th scope="col">Reading</th>
               </tr>
             </thead>
             <tbody>
@@ -107,7 +107,7 @@ export function DetectiveMissionsModal({ open, onClose, onSelectMission }: Detec
                     </th>
                     {CASE_REGIONS.map((region, index) => (
                       <OpposingCaseCell key={region.id} verdict={index === 0 ? first : second}
-                        unit={OBSERVATION_SCALES[variable].unit} placeLabel={`${meta?.name} en ${region.name}`}
+                        unit={OBSERVATION_SCALES[variable].unit} placeLabel={`${meta?.name} in ${region.name}`}
                         onOpen={() => openCase(variable, region)} />
                     ))}
                     <td><span className="case-board__reading" data-tone={reading.tone}>{reading.label}</span></td>
@@ -119,10 +119,10 @@ export function DetectiveMissionsModal({ open, onClose, onSelectMission }: Detec
         </div>
 
         <p className="dossier__foot">
-          Prueba de Mann-Kendall y pendiente de Sen sobre todos los años disponibles, con 95 % de confianza.
-          El valor p ya descuenta la persistencia de un año al siguiente; sólo se dice que sube o baja si lo supera.
-          MERRA-2 es un modelo de la NASA que reconstruye la atmósfera a partir de observaciones, no una
-          medición directa: el tablero dice qué muestran sus datos, no por qué ocurre.
+          Mann–Kendall test and Sen&apos;s slope across all available years at 95% confidence.
+          The p-value already accounts for year-to-year persistence; a series is only reported as rising or falling if it passes that check.
+          MERRA-2 is a NASA reanalysis model that reconstructs the atmosphere from observations, not a direct
+          measurement: this board shows what its data indicate, not why it happens.
         </p>
       </div>
     </div>

@@ -1,4 +1,4 @@
-/** Dos regiones ligadas por un proceso físico o por tendencias opuestas. Lo dibuja la capa de arcos. */
+/** Two regions linked by a physical process or opposing trends. Rendered by the arcs layer. */
 export interface TeleconnectionEndpoint {
   label: string;
   lat: number;
@@ -11,8 +11,8 @@ export interface Teleconnection {
   from: TeleconnectionEndpoint;
   to: TeleconnectionEndpoint;
   color: string;
-  /** Altura del arco en radios terrestres. */
+  /** Arc altitude in Earth radii. */
   altitude: number;
-  /** 'api' = par de /api/trends/opposing; 'local' = teleconexión física ilustrativa. */
+  /** 'api' = pair from /api/trends/opposing; 'local' = illustrative physical teleconnection. */
   source: 'api' | 'local';
 }

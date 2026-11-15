@@ -6,9 +6,9 @@ using NasaTrendDetective.Domain.Enums;
 namespace NasaTrendDetective.Tests.Statistics;
 
 /// <summary>
-/// El servicio ya no fabrica series: cada par sale de lo que devuelve el repositorio. Las pruebas usan
-/// un repositorio de mentira para fijar las tres reglas: se calcula con la serie recibida, sin datos
-/// no hay par, y un par cuyas pendientes van en el mismo sentido no se presenta como opuesto.
+/// The service no longer fabricates series: each pair comes from what the repository returns. Tests use
+/// a mock repository to pin down the three rules: computed from the received series, without data
+/// there is no pair, and a pair whose slopes move in the same direction is not presented as opposing.
 /// </summary>
 public class OpposingTrendsServiceTests
 {
@@ -18,7 +18,7 @@ public class OpposingTrendsServiceTests
     [Fact]
     public async Task GetPredefinedPairsAsync_BuildsEachPairFromTheStoredSeries()
     {
-        // Sube en la primera región de cada par y baja en la segunda.
+        // Rises in the first region of each pair and falls in the second.
         var service = new OpposingTrendsService(new FakeRepository((latitude, longitude) =>
             OpposingPairCatalog.Pairs.Any(p => p.First.Latitude == latitude && p.First.Longitude == longitude) ? 0.5 : -0.3),
             new FakeCatalog(loaded: true));
@@ -76,17 +76,17 @@ public class OpposingTrendsServiceTests
         var service = new OpposingTrendsService(new FakeRepository((_, _) => 0), new FakeCatalog(loaded: false));
         var verdictHigh = new StatisticalVerdict(35, 60, 3.2, 0.001, 0.5, 5.0, [0.3, 0.7], TrendDirection.Increasing, TrendSignificance.SignificantlyIncreasing);
         var verdictLow = new StatisticalVerdict(-28, 60, -2.6, 0.009, -0.4, -4.0, [-0.6, -0.2], TrendDirection.Decreasing, TrendSignificance.SignificantlyDecreasing);
-        var regA = new RegionalTrendSummary("rA", "Región A", 10, 20, ClimateVariable.Gistemp, 2000, 2024, [], verdictHigh);
-        var regB = new RegionalTrendSummary("rB", "Región B", -10, -20, ClimateVariable.Gistemp, 2000, 2024, [], verdictLow);
+        var regA = new RegionalTrendSummary("rA", "Region A", 10, 20, ClimateVariable.Gistemp, 2000, 2024, [], verdictHigh);
+        var regB = new RegionalTrendSummary("rB", "Region B", -10, -20, ClimateVariable.Gistemp, 2000, 2024, [], verdictLow);
 
-        var pair = service.EvaluatePair(regB, regA, "Divergencia térmica", "Notas");
+        var pair = service.EvaluatePair(regB, regA, "Thermal divergence", "Notes");
 
         Assert.Equal("rA", pair.IncreasingRegion.RegionId);
         Assert.Equal("rB", pair.DecreasingRegion.RegionId);
         Assert.True(pair.DivergenceIndex > 0);
     }
 
-    /// <summary>Serie exactamente lineal de 1981 en adelante, con la pendiente que decida cada celda.</summary>
+    /// <summary>Exactly linear series from 1981 onward, with the slope decided per cell.</summary>
     private sealed class FakeRepository(Func<double, double, double> slopeAt, int years = 45) : ITrendObservationRepository
     {
         public Task<IReadOnlyList<AnnualObservation>> GetAnnualSeriesAsync(
@@ -112,9 +112,9 @@ public class OpposingTrendsServiceTests
 
         public Task<DatasetProvenance?> GetAsync(ClimateVariable variable, CancellationToken cancellationToken = default) =>
             Task.FromResult(loaded
-                ? new DatasetProvenance(variable, "nasa-power-merra2", "MERRA-2 de prueba", "mm/day", "mm/día / año",
-                    "1991-2020", 2.0, "https://example.test/fuente", "fuente", "sha", DateTimeOffset.UnixEpoch, 1981, 2025,
-                    "2025-12", false, "cita", 45, DateTimeOffset.UnixEpoch)
+                ? new DatasetProvenance(variable, "nasa-power-merra2", "Test MERRA-2", "mm/day", "mm/day / year",
+                    "1991-2020", 2.0, "https://example.test/source", "source", "sha", DateTimeOffset.UnixEpoch, 1981, 2025,
+                    "2025-12", false, "citation", 45, DateTimeOffset.UnixEpoch)
                 : null);
     }
 }

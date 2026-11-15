@@ -7,15 +7,15 @@ using NasaTrendDetective.Infrastructure.Interfaces;
 namespace NasaTrendDetective.Infrastructure.Implements;
 
 /// <summary>
-/// Siembra los datasets en segundo plano al arrancar. No bloquea el arranque: mientras carga, la API
-/// responde y declara la variable como "synthetic"; al terminar pasa a "observed". Un fallo se
-/// registra en el log y no tumba el proceso.
+/// Seeds datasets in the background upon application startup. Does not block startup: while loading, the API
+/// responds declaring variables as "synthetic"; once finished, they transition to "observed".
+/// Failures are logged without terminating the process.
 /// </summary>
 /// <remarks>
-/// Depende de que <see cref="DuckDbSchemaHostedService"/> haya creado el esquema: el host arranca los
-/// servicios en orden de registro y AddInfrastructure registra DuckDB antes que el sembrado. No se
-/// reinicializa aquí: dos inicializaciones concurrentes sobre el mismo archivo chocan en DuckDB
-/// ("Catalog write-write conflict").
+/// Depends on <see cref="DuckDbSchemaHostedService"/> having created the schema: the host starts
+/// services in registration order and AddInfrastructure registers DuckDB prior to seeding.
+/// Initialization is not repeated here: concurrent schema initializations against the same database file
+/// cause DuckDB conflicts ("Catalog write-write conflict").
 /// </remarks>
 public sealed class DatasetSeedHostedService : BackgroundService
 {
@@ -51,7 +51,7 @@ public sealed class DatasetSeedHostedService : BackgroundService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Falló el sembrado de datasets; la API seguirá con datos sintéticos.");
+            _logger.LogError(ex, "Dataset seeding failed; the API will continue serving synthetic data.");
         }
     }
 }

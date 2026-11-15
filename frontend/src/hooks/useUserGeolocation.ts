@@ -8,7 +8,7 @@ export interface UserCoordinates {
   accuracy?: number;
 }
 
-/** Hook para consultar la posición geográfica del usuario para el marcador 3D. */
+/** Hook to query the user's geographic position for the 3D marker. */
 export function useUserGeolocation() {
   const [status, setStatus] = useState<GeolocationStatus>('idle');
   const [coords, setCoords] = useState<UserCoordinates | null>(null);
@@ -17,7 +17,7 @@ export function useUserGeolocation() {
   const requestLocation = useCallback((): Promise<UserCoordinates | null> => {
     if (typeof window === 'undefined' || !navigator.geolocation) {
       setStatus('error');
-      setErrorMessage('Geolocalización no disponible en este navegador.');
+      setErrorMessage('Geolocation is not available in this browser.');
       return Promise.resolve(null);
     }
 
@@ -39,10 +39,10 @@ export function useUserGeolocation() {
         (err) => {
           if (err.code === err.PERMISSION_DENIED) {
             setStatus('denied');
-            setErrorMessage('Permiso de ubicación denegado.');
+            setErrorMessage('Location permission denied.');
           } else {
             setStatus('error');
-            setErrorMessage('No se pudo determinar la ubicación.');
+            setErrorMessage('Could not determine location.');
           }
           resolve(null);
         },

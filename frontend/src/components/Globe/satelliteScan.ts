@@ -4,15 +4,15 @@ import {
 } from 'three';
 
 /**
- * Piezas translúcidas de cada satélite: cono de escaneo hacia el nadir con bandas que bajan, huella
- * en la superficie, órbita punteada y estela. Todas aditivas y sin escribir profundidad: brillan
- * sobre la escena pero la Tierra las sigue tapando cuando quedan detrás.
+ * Translucent parts for each satellite: nadir scanning cone with downward bands, surface
+ * footprint ring, dotted orbit path, and trailing wake. All additive and depth-write false:
+ * they glow over the scene while remaining properly occluded when behind Earth.
  */
 const coneVertexShader = /* glsl */ `
 varying float vHeight;
 varying vec3 vViewNormal;
 void main() {
-  // ConeGeometry: uv.y = 1 en el vértice (satélite), 0 en la base (suelo).
+  // ConeGeometry: uv.y = 1 at apex (satellite), 0 at base (ground).
   vHeight = 1.0 - uv.y;
   vViewNormal = normalize(normalMatrix * normal);
   gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
@@ -61,7 +61,7 @@ function releaseDotTexture(): void {
   }
 }
 
-/** Círculo inclinado en el marco local del plano orbital (nodo = +Z, este = +X, polo = +Y). */
+/** Inclined circular orbit point in orbital plane frame (node = +Z, east = +X, pole = +Y). */
 export function orbitPoint(radius: number, inclination: number, u: number, target: Float32Array, offset: number): void {
   target[offset] = radius * Math.sin(u) * Math.cos(inclination);
   target[offset + 1] = radius * Math.sin(u) * Math.sin(inclination);
@@ -94,7 +94,7 @@ export function createSatelliteScan(accent: string, orbitRadius: number, inclina
     transparent: true, opacity: 0.6, depthWrite: false, alphaTest: 0.2 });
   const orbit = new Points(orbitGeometry, orbitMaterial);
 
-  // Estela: degradado a negro con mezcla aditiva = se desvanece hacia atrás sin canal alfa por vértice.
+  // Trail: gradient to black with additive blending = fades backwards without per-vertex alpha.
   const trailPositions = new Float32Array((trailSegments + 1) * 3);
   const trailColors = new Float32Array((trailSegments + 1) * 3);
   for (let i = 0; i <= trailSegments; i += 1) {

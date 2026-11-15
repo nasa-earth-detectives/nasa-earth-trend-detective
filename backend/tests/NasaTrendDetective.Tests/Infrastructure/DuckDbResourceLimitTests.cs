@@ -58,7 +58,7 @@ public sealed class DuckDbResourceLimitTests
 
         var value = Convert.ToString(await command.ExecuteScalarAsync());
 
-        // DuckDB lo reporta en su propia unidad (MiB/MB); basta con que ya no sea el 80 % de la RAM.
+        // DuckDB reports this in its own units (MiB/MB); it is sufficient that it is no longer 80% of RAM.
         Assert.Matches(@"^(286\.\d MiB|300\.0 MB)$", value);
     }
 }

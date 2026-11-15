@@ -1,9 +1,9 @@
 /**
  * useDetectiveWizard.ts
  *
- * Controla si el wizard de bienvenida debe mostrarse.
- * Solo aparece la primera vez (localStorage). El usuario puede
- * saltarlo o volver a abrirlo desde la UI.
+ * Controls whether the welcome wizard should be displayed.
+ * Only appears the first time (localStorage). The user can
+ * dismiss it or reopen it from the UI.
  */
 
 import { useState, useCallback } from 'react';
@@ -31,7 +31,7 @@ export function useDetectiveWizard() {
 
   const dismiss = useCallback(() => {
     setOpen(false);
-    try { localStorage.setItem(STORAGE_KEY, 'true'); } catch { /* storage opcional */ }
+    try { localStorage.setItem(STORAGE_KEY, 'true'); } catch { /* optional storage */ }
   }, []);
 
   const reopen = useCallback(() => setOpen(true), []);

@@ -4,7 +4,7 @@ import type { DatasetProvenance } from '../types/dataset.types';
 import type { TimeSeriesDataPoint } from '../types/detective.types';
 import { trendService } from '../services/trendService';
 
-/** Veredicto Mann-Kendall / Sen calculado por el backend para una celda observada. */
+/** Mann-Kendall / Sen verdict computed by the backend for an observed cell. */
 export interface CellTrend {
   series: TimeSeriesDataPoint[];
   sensSlope: number;
@@ -12,16 +12,16 @@ export interface CellTrend {
   isSignificant: boolean;
   zScore: number;
   direction: string;
-  /** Intervalo de confianza del 95 % de la pendiente de Sen; null si la API no lo envía. */
+  /** 95% confidence interval for Sen's slope; null if not sent by the API. */
   confidenceInterval95: [number, number] | null;
-  /** Prueba t de la regresión lineal sobre la misma serie; null si la API no la envía. */
+  /** Linear regression t-test on the same series; null if not sent by the API. */
   linear: LinearTrend | null;
-  /** Mann-Kendall tras descontar la persistencia entre años; null si la API no lo envía o no es concluyente. */
+  /** Mann-Kendall after removing year-to-year persistence; null if omitted or inconclusive. */
   prewhitened: PrewhitenedTrend | null;
 }
 
 export interface PrewhitenedTrend {
-  /** Autocorrelación de un año al siguiente, de -1 a 1. */
+  /** Year-to-year lag-1 autocorrelation, from -1 to 1. */
   lag1Autocorrelation: number;
   pValue: number;
   isSignificant: boolean;
@@ -38,7 +38,7 @@ export interface LinearTrend {
 interface CellTrendState { key: string | null; data: CellTrend | null; loading: boolean; error: string | null }
 
 function finite(value: unknown, field: string): number {
-  if (typeof value !== 'number' || !Number.isFinite(value)) throw new Error(`La API devolvió ${field} no válido.`);
+  if (typeof value !== 'number' || !Number.isFinite(value)) throw new Error(`API returned invalid ${field}.`);
   return value;
 }
 
@@ -48,7 +48,7 @@ function interval(value: unknown): [number, number] | null {
     ? [value[0] as number, value[1] as number] : null;
 }
 
-/** Campos nuevos del DTO: si faltan (API antigua) la tarjeta sencillamente no los muestra. */
+/** New DTO fields: if missing (older API), the card simply does not display them. */
 function linearTrend(value: unknown): LinearTrend | null {
   if (!value || typeof value !== 'object') return null;
   const row = value as Record<string, unknown>;
@@ -59,7 +59,7 @@ function linearTrend(value: unknown): LinearTrend | null {
     isSignificant: row.isSignificant === true };
 }
 
-/** sampleSize = 0 es la marca del backend para "no concluyente" (serie corta o sin años seguidos). */
+/** sampleSize = 0 is the backend marker for "inconclusive" (short series or no consecutive years). */
 function prewhitenedTrend(value: unknown): PrewhitenedTrend | null {
   if (!value || typeof value !== 'object') return null;
   const row = value as Record<string, unknown>;
@@ -68,12 +68,12 @@ function prewhitenedTrend(value: unknown): PrewhitenedTrend | null {
   return { lag1Autocorrelation: row.lag1Autocorrelation, pValue: row.pValue, isSignificant: row.isSignificant === true };
 }
 
-/** Frontera del TrendResultDto. Exige Source = "observed": una serie sintética no se pinta como real. */
+/** TrendResultDto boundary. Requires Source = "observed": a synthetic series is never drawn as real. */
 export function adaptCellTrend(payload: unknown): CellTrend {
-  if (!payload || typeof payload !== 'object') throw new Error('Respuesta de tendencia inválida.');
+  if (!payload || typeof payload !== 'object') throw new Error('Invalid trend response.');
   const row = payload as Record<string, unknown>;
-  if (row.source !== 'observed') throw new Error('La API no tiene observaciones reales para esta celda.');
-  if (!Array.isArray(row.observations)) throw new Error('La tendencia no incluye la serie anual.');
+  if (row.source !== 'observed') throw new Error('API has no real observations for this cell.');
+  if (!Array.isArray(row.observations)) throw new Error('Trend response does not include the annual series.');
   const series = row.observations.map((entry: unknown) => {
     const point = (entry ?? {}) as Record<string, unknown>;
     const value = point.anomaly ?? point.value;
@@ -86,7 +86,7 @@ export function adaptCellTrend(payload: unknown): CellTrend {
     prewhitened: prewhitenedTrend(row.prewhitened) };
 }
 
-/** Solo consulta con una celda de la API seleccionada; con la demo devuelve null sin pedir nada. */
+/** Only queries when an API cell is selected; in demo mode returns null without fetching. */
 export function useCellTrend(variable: ClimateVariable, provenance: DatasetProvenance | null,
   cell: { latitude: number; longitude: number } | null) {
   const latitude = cell?.latitude ?? null;
@@ -106,7 +106,7 @@ export function useCellTrend(variable: ClimateVariable, provenance: DatasetProve
       .catch((error: unknown) => {
         if (controller.signal.aborted) return;
         setState({ key, data: null, loading: false,
-          error: error instanceof Error ? error.message : 'No se pudo calcular la tendencia.' });
+          error: error instanceof Error ? error.message : 'Could not calculate the trend.' });
       });
     return () => controller.abort();
   }, [key, provenance, variable, latitude, longitude]);

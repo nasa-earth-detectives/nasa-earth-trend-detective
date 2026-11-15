@@ -1,8 +1,8 @@
 namespace NasaTrendDetective.Infrastructure.Etl.Models;
 
 /// <summary>
-/// Resultado de la normalización: Parquet generado, conteo de filas escritas/descartadas
-/// (coordenadas o tiempo inválidos) y métricas de calidad de la etapa de limpieza.
+/// Normalization result: generated Parquet file, count of rows written/discarded
+/// (invalid coordinates or timestamp), and quality metrics from the cleaning stage.
 /// </summary>
 public sealed record GridNormalizationResult(
     string OutputPath,

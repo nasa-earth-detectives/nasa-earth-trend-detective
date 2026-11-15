@@ -6,8 +6,8 @@ using NasaTrendDetective.Infrastructure.Interfaces;
 namespace NasaTrendDetective.Infrastructure.Etl;
 
 /// <summary>
-/// Resuelve el glob (relativo al directorio de trabajo) y delega la carga masiva en
-/// <see cref="IDuckDbRepository.ExecuteParquetIngestAsync"/>, que se ejecuta íntegramente en DuckDB.
+/// Resolves the file glob (relative to the working directory) and delegates bulk loading to
+/// <see cref="IDuckDbRepository.ExecuteParquetIngestAsync"/>, executed entirely inside DuckDB.
 /// </summary>
 public sealed class ParquetImporter : IParquetImporter
 {
@@ -34,7 +34,7 @@ public sealed class ParquetImporter : IParquetImporter
         var result = await _repository.ExecuteParquetIngestAsync(glob, cancellationToken).ConfigureAwait(false);
 
         _logger.LogInformation(
-            "Importación Parquet '{Glob}': {Files} archivo(s), {SourceRows} filas leídas, {Imported} hechos nuevos.",
+            "Parquet import '{Glob}': {Files} file(s), {SourceRows} rows read, {Imported} new facts.",
             result.SourceGlob,
             result.FilesMatched,
             result.SourceRows,
@@ -43,7 +43,7 @@ public sealed class ParquetImporter : IParquetImporter
     }
 
     /// <summary>
-    /// Convierte el glob en absoluto con separadores '/' (DuckDB los acepta en todas las plataformas).
+    /// Converts the glob to an absolute path with '/' separators (accepted by DuckDB across all platforms).
     /// </summary>
     public static string ResolveGlob(string glob)
     {

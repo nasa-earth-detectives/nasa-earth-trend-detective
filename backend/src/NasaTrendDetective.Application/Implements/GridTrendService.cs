@@ -7,7 +7,7 @@ namespace NasaTrendDetective.Application.Implements;
 public class GridTrendService : IGridTrendService
 {
     /// <summary>
-    /// Por debajo de ~10 años la aproximación normal de Mann-Kendall deja de ser fiable.
+    /// Below ~10 years, the Mann-Kendall normal approximation is no longer reliable.
     /// </summary>
     public const int MinYearsPerCell = 10;
 
@@ -58,9 +58,9 @@ public class GridTrendService : IGridTrendService
             })
             .ToList();
 
-        // Con miles de celdas probadas a la vez, p < 0,05 deja pasar cientos por azar. Se ajusta sobre
-        // los p del preblanqueo y no sobre los clásicos: el ajuste sólo vale si cada p es fiable, y el
-        // clásico no lo es cuando la serie tiene persistencia.
+        // With thousands of cells tested at once, p < 0.05 lets hundreds pass by chance. Adjust the
+        // prewhitened p-values rather than the classic ones: FDR adjustment only holds when each p-value
+        // is calibrated, and the classic test is not when the series has persistence.
         var adjusted = BenjaminiHochberg.Adjust(cells.Select(cell => cell.PrewhitenedPValue).ToList());
         for (var index = 0; index < cells.Count; index++)
         {

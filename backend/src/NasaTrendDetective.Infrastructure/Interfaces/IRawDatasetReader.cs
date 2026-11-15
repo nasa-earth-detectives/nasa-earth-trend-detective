@@ -3,25 +3,25 @@ using NasaTrendDetective.Infrastructure.Etl.Models;
 namespace NasaTrendDetective.Infrastructure.Interfaces;
 
 /// <summary>
-/// Fuente de datos crudos para el normalizador de grilla. Cada implementación traduce un formato
-/// a un SELECT de DuckDB con las columnas crudas raw_latitude, raw_longitude, raw_time,
-/// raw_value y raw_anomaly (de cualquier tipo; el normalizador aplica TRY_CAST).
+/// Raw data source for the spatial grid normalizer. Each implementation translates a file format
+/// into a DuckDB SELECT producing raw columns raw_latitude, raw_longitude, raw_time,
+/// raw_value, and raw_anomaly (of any type; the normalizer applies TRY_CAST).
 /// </summary>
 /// <remarks>
-/// PUNTO DE EXTENSIÓN: hoy solo existe <c>CsvRawDatasetReader</c>. NetCDF (GISTEMP, GRACE),
-/// HDF5/HDF-EOS (MODIS, OCO-2) y GeoTIFF NO se leen aún: para soportarlos basta registrar otra
-/// implementación (p.ej. vía la extensión spatial de DuckDB o una conversión previa a CSV/Parquet)
-/// sin tocar la lógica de normalización WGS84.
+/// EXTENSION POINT: currently only <c>CsvRawDatasetReader</c> is implemented. NetCDF (GISTEMP, GRACE),
+/// HDF5/HDF-EOS (MODIS, OCO-2), and GeoTIFF are not yet natively read: supporting them requires registering another
+/// implementation (e.g. via DuckDB's spatial extension or prior conversion to CSV/Parquet)
+/// without altering the WGS84 normalization logic.
 /// </remarks>
 public interface IRawDatasetReader
 {
     /// <summary>
-    /// Indica si este lector soporta el archivo (normalmente por extensión).
+    /// Indicates whether this reader supports the file (typically by file extension).
     /// </summary>
     bool CanRead(string sourcePath);
 
     /// <summary>
-    /// Construye el SELECT DuckDB que expone las columnas crudas del archivo.
+    /// Constructs the DuckDB SELECT statement exposing raw columns from the file.
     /// </summary>
     string BuildSelectSql(string sourcePath, GridColumnMapping mapping);
 }

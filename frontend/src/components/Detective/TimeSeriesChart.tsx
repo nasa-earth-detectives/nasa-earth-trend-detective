@@ -8,11 +8,11 @@ interface TimeSeriesChartProps {
   selectedYear?: number;
   onYearSelect?: (year: number) => void;
   accentColor?: string;
-  /** Pendiente mediana de Sen (°C/año). Si llega, se dibuja la recta de tendencia. */
+  /** Median Sen's slope (°C/year). If provided, the trend line is drawn. */
   senSlope?: number;
 }
 
-/** Serie SVG ligera; el control nativo conserva teclado, tacto y lectura accesible. */
+/** Lightweight SVG series; the native control preserves keyboard, touch, and accessible readout. */
 export function TimeSeriesChart({
   data,
   unit,
@@ -26,7 +26,7 @@ export function TimeSeriesChart({
   const observations = [...data].sort((a, b) => a.year - b.year);
 
   if (observations.length === 0) {
-    return <p className="inspection-chart__empty">Sin observaciones temporales disponibles.</p>;
+    return <p className="inspection-chart__empty">No time observations available.</p>;
   }
 
   const width = 320;
@@ -43,7 +43,7 @@ export function TimeSeriesChart({
     : plot.bottom - ((value - minValue) / (maxValue - minValue)) * (plot.bottom - plot.top);
   const points = observations.map(point => `${getX(point.year)},${getY(point.value)}`).join(' ');
   const clampY = (value: number) => Math.min(plot.bottom, Math.max(plot.top, value));
-  // La recta de Sen se ancla en la mediana de la serie para no inventar un intercepto.
+  // Sen's line is anchored at the series median to avoid fabricating an intercept.
   const medianValue = [...values].sort((a, b) => a - b)[Math.floor(values.length / 2)];
   const medianYear = observations[Math.floor(observations.length / 2)].year;
   const trendLine = senSlope !== undefined && Number.isFinite(senSlope) && observations.length > 1
@@ -57,7 +57,7 @@ export function TimeSeriesChart({
     Math.abs(point.year - requestedYear) < Math.abs(observations[nearest].year - requestedYear) ? index : nearest, 0);
   const selectedPoint = observations[selectedIndex];
   const activePoint = observations.find(point => point.year === hoveredYear) ?? selectedPoint;
-  const formatValue = (value: number) => value.toLocaleString('es', {
+  const formatValue = (value: number) => value.toLocaleString('en-US', {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   });
@@ -70,7 +70,7 @@ export function TimeSeriesChart({
             <g key={value}>
               <line className="inspection-chart__guide" x1={plot.left} y1={getY(value)} x2={plot.right} y2={getY(value)} />
               <text className="inspection-chart__axis" x={plot.left - 7} y={getY(value) + 3} textAnchor="end">
-                {value.toLocaleString('es', { maximumFractionDigits: 1 })}
+                {value.toLocaleString('en-US', { maximumFractionDigits: 1 })}
               </text>
             </g>
           ))}
@@ -112,7 +112,7 @@ export function TimeSeriesChart({
           step="1"
           value={selectedIndex}
           disabled={observations.length === 1}
-          aria-label="Año de la serie"
+          aria-label="Series year"
           aria-valuetext={`${selectedPoint.year}: ${formatValue(selectedPoint.value)} ${unit}`}
           onFocus={() => setHoveredYear(null)}
           onChange={event => {
@@ -124,7 +124,7 @@ export function TimeSeriesChart({
         />
       </div>
       <div className="inspection-chart__readout">
-        <span>Año <strong>{activePoint.year}</strong></span>
+        <span>Year <strong>{activePoint.year}</strong></span>
         <span><strong>{formatValue(activePoint.value)}</strong> {unit}</span>
       </div>
     </div>

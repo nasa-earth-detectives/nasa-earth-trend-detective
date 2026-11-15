@@ -1,6 +1,6 @@
 /**
- * Glosario para estudiantes: los conceptos que hacen falta para leer un veredicto de tendencia.
- * Lista numerada sin iconos ni colores por entrada: aquí lo que importa es que se lea bien.
+ * Student glossary: the concepts needed to read a trend verdict.
+ * Numbered list without icons or per-entry colors: readability comes first here.
  */
 import { useEffect, useRef } from 'react';
 import { X } from 'lucide-react';
@@ -16,41 +16,41 @@ interface GlossaryItem {
   term: string;
   definition: string;
   inPlainWords: string;
-  /** Aviso cuando el concepto existe pero la herramienta todavía no tiene sus datos reales. */
+  /** Notice when the concept exists but the tool does not yet have its real data. */
   caveat?: string;
 }
 
 const GLOSSARY_ITEMS: readonly GlossaryItem[] = [
   {
-    term: '¿Qué es una anomalía?',
-    definition: 'No es el valor que marca el instrumento, sino cuánto se aparta de lo normal en ese lugar. Lo normal es el promedio de un periodo de referencia: 1951–1980 en GISTEMP y 1991–2020 en las variables de MERRA-2.',
-    inPlainWords: 'Si tu nota habitual es 80 y hoy sacas 90, tu anomalía es +10.',
+    term: 'What is an anomaly?',
+    definition: 'It is not the raw instrument value, but how far it departs from normal at that location. Normal is the average over a reference baseline: 1951–1980 for GISTEMP and 1991–2020 for MERRA-2 variables.',
+    inPlainWords: 'If your usual grade is 80 and today you get 90, your anomaly is +10.',
   },
   {
-    term: '¿Qué es la pendiente de Sen?',
-    definition: 'Es el ritmo de cambio por año. Se calcula como la mediana de las pendientes entre todos los pares de años, de modo que un solo año extremo no la arrastra.',
-    inPlainWords: 'Dice cuánto sube o baja la variable cada año sin dejarse engañar por un pico aislado.',
+    term: 'What is Sen’s slope?',
+    definition: 'It is the rate of change per year. It is computed as the median of slopes between all pairs of years, so a single extreme year cannot pull it off.',
+    inPlainWords: 'It tells how much the variable rises or falls each year without being misled by an isolated spike.',
   },
   {
-    term: '¿Qué es la prueba de Mann-Kendall y el valor p?',
-    definition: 'Comprueba si la serie sube o baja de forma persistente comparando cada año con todos los demás. El valor p dice con qué frecuencia aparecería una tendencia así por puro azar: si es menor que 0,05, menos de 1 vez de cada 20, la tendencia se llama significativa.',
-    inPlainWords: 'Significativa no quiere decir grande ni grave: quiere decir que es difícil explicarla como casualidad.',
+    term: 'What are the Mann-Kendall test and p-value?',
+    definition: 'It checks whether the series rises or falls persistently by comparing every year against all others. The p-value tells how often such a trend would appear by pure chance: if it is below 0.05—less than 1 time in 20—the trend is called significant.',
+    inPlainWords: 'Significant does not mean large or severe: it means it is hard to explain as coincidence.',
   },
   {
-    term: '¿Qué es MERRA-2?',
-    definition: 'Es un reanálisis de la NASA: un modelo que reconstruye el estado de la atmósfera y de la superficie combinando observaciones de satélites, globos y estaciones. Aquí aporta la temperatura del aire, la precipitación, la evaporación y la humedad del suelo desde 1981.',
-    inPlainWords: 'No es una medición directa: es la reconstrucción más coherente que se puede hacer con muchas mediciones.',
+    term: 'What is MERRA-2?',
+    definition: 'It is a NASA reanalysis: a model that reconstructs the state of the atmosphere and surface by combining observations from satellites, weather balloons, and stations. Here it provides air temperature, precipitation, evaporation, and soil moisture since 1981.',
+    inPlainWords: 'It is not a direct measurement: it is the most consistent reconstruction possible from many measurements.',
   },
   {
-    term: '¿Qué es el NDVI?',
-    definition: 'Es un índice de vegetación. Las plantas sanas absorben la luz roja para hacer la fotosíntesis y reflejan la infrarroja; comparando las dos se estima cuánta vegetación viva hay. Los valores cercanos a 1 son selva densa y los cercanos a 0, suelo desnudo. Aquí viene de MODIS, a bordo del satélite Terra, mes a mes desde 2000.',
-    inPlainWords: 'A mayor NDVI, más hojas verdes.',
+    term: 'What is NDVI?',
+    definition: 'It is a vegetation index. Healthy plants absorb red light for photosynthesis and reflect infrared light; comparing the two estimates how much live vegetation is present. Values near 1 are dense forest and values near 0 are bare ground. Here it comes from MODIS aboard the Terra satellite, month by month since 2000.',
+    inPlainWords: 'Higher NDVI means more green leaves.',
   },
   {
-    term: '¿Qué miden GRACE y GRACE-FO?',
-    definition: 'Son parejas de satélites que vuelan uno detrás de otro y miden variaciones mínimas en la gravedad de la Tierra. Cuando un glaciar se derrite o un acuífero se vacía, hay menos masa en esa zona y la gravedad baja un poco.',
-    inPlainWords: 'Es como pesar el hielo y el agua subterránea del planeta desde la órbita.',
-    caveat: 'En esta herramienta la masa de agua y hielo es todavía un escenario de demostración.',
+    term: 'What do GRACE and GRACE-FO measure?',
+    definition: 'They are pairs of satellites flying in tandem that measure tiny variations in Earth’s gravity. When a glacier melts or an aquifer empties, there is less mass in that area and gravity drops slightly.',
+    inPlainWords: 'It is like weighing the planet’s ice and groundwater from orbit.',
+    caveat: 'In this tool, water and ice mass is still a demonstration scenario.',
   },
 ];
 
@@ -73,11 +73,11 @@ export function DetectiveGlossaryModal({ open, onClose }: DetectiveGlossaryModal
         ref={dialogRef} tabIndex={-1} onClick={event => event.stopPropagation()}>
         <header className="dossier__header">
           <div>
-            <p className="dossier__eyebrow">Glosario<span>{GLOSSARY_ITEMS.length} conceptos</span></p>
-            <h2 id="glossary-title">Cómo leer un veredicto</h2>
-            <p className="dossier__lead">Lo justo para entender qué afirma la herramienta y qué no.</p>
+            <p className="dossier__eyebrow">Glossary<span>{GLOSSARY_ITEMS.length} concepts</span></p>
+            <h2 id="glossary-title">How to read a verdict</h2>
+            <p className="dossier__lead">Just enough to understand what the tool claims and what it does not.</p>
           </div>
-          <button type="button" onClick={onClose} className="dossier__close focus-ring" aria-label="Cerrar">
+          <button type="button" onClick={onClose} className="dossier__close focus-ring" aria-label="Close">
             <X size={18} strokeWidth={1.5} aria-hidden="true" />
           </button>
         </header>
@@ -89,7 +89,7 @@ export function DetectiveGlossaryModal({ open, onClose }: DetectiveGlossaryModal
               <div>
                 <h3>{item.term}</h3>
                 <p>{item.definition}</p>
-                <p className="glossary-entry__plain"><span>En palabras sencillas</span>{item.inPlainWords}</p>
+                <p className="glossary-entry__plain"><span>In plain words</span>{item.inPlainWords}</p>
                 {item.caveat && <p className="glossary-entry__caveat">{item.caveat}</p>}
               </div>
             </li>
