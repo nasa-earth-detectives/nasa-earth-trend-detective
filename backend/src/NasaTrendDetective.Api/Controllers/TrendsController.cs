@@ -54,7 +54,11 @@ public class TrendsController : ControllerBase
         }
 
         var result = await _trendService.AnalyzeTrendsAsync(query, cancellationToken);
-        _cache.Set(cacheKey, result, TimeSpan.FromMinutes(10));
+        _cache.Set(cacheKey, result, new MemoryCacheEntryOptions
+        {
+            Size = 1,
+            SlidingExpiration = TimeSpan.FromMinutes(10)
+        });
         return Ok(result);
     }
 
@@ -96,7 +100,11 @@ public class TrendsController : ControllerBase
             });
         }
 
-        _cache.Set(cacheKey, result, TimeSpan.FromMinutes(10));
+        _cache.Set(cacheKey, result, new MemoryCacheEntryOptions
+        {
+            Size = 16,
+            SlidingExpiration = TimeSpan.FromMinutes(5)
+        });
         return Ok(result);
     }
 
@@ -129,7 +137,11 @@ public class TrendsController : ControllerBase
         }
 
         var observations = await _trendService.GetObservationsByYearAsync(variable, year, cancellationToken);
-        _cache.Set(cacheKey, observations, TimeSpan.FromMinutes(15));
+        _cache.Set(cacheKey, observations, new MemoryCacheEntryOptions
+        {
+            Size = 8,
+            SlidingExpiration = TimeSpan.FromMinutes(5)
+        });
         return Ok(observations);
     }
 

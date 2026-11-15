@@ -18,7 +18,7 @@ if (!string.IsNullOrWhiteSpace(renderPort))
 
 // 1. Dependency Injection (Services, Repositories, and Cache)
 builder.Services.AddControllers();
-builder.Services.AddMemoryCache();
+builder.Services.AddMemoryCache(options => options.SizeLimit = 64);
 builder.Services.AddScoped<ITrendAnalysisService, TrendAnalysisService>();
 builder.Services.AddScoped<IOpposingTrendsService, OpposingTrendsService>();
 builder.Services.AddScoped<IGridTrendService, GridTrendService>();

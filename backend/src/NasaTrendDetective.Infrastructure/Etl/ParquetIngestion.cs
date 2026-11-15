@@ -36,8 +36,11 @@ internal static class ParquetIngestion
             var previousMaxId = await DuckDbEtlCommands
                 .ScalarAsync(connection, ParquetImportSql.MaxObservationId, ct)
                 .ConfigureAwait(false);
+            var checkDuplicates = previousMaxId > 0 && await DuckDbEtlCommands
+                .ScalarAsync(connection, ParquetImportSql.HasExistingVariables(glob), ct)
+                .ConfigureAwait(false) > 0;
             var imported = await ExecuteNonQueryAsync(
-                    connection, ParquetImportSql.InsertFacts(glob, previousMaxId), ct)
+                    connection, ParquetImportSql.InsertFacts(glob, previousMaxId, checkDuplicates), ct)
                 .ConfigureAwait(false);
             await ExecuteNonQueryAsync(connection, ParquetImportSql.InsertLocations(previousMaxId), ct)
                 .ConfigureAwait(false);

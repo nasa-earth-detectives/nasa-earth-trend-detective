@@ -14,7 +14,9 @@ public sealed class DuckDbConnectionFactory : IDuckDbConnectionFactory, IDisposa
 {
     private readonly DuckDBConnection? _memoryAnchor;
     private readonly string? _settingsSql;
-    private int _limitsApplied;
+    private readonly SemaphoreSlim _initLock = new(1, 1);
+    private DuckDBConnection? _fileAnchor;
+    private bool _initialized;
     private bool _disposed;
 
     public DuckDbConnectionFactory(IOptions<DuckDbOptions> options)
@@ -65,6 +67,12 @@ public sealed class DuckDbConnectionFactory : IDuckDbConnectionFactory, IDisposa
             statements.Add($"SET threads = {threads}");
         }
 
+        if (statements.Count > 0)
+        {
+            // Explicit ORDER BY in ingestion handles physical order without retaining insertion-order buffers.
+            statements.Add("SET preserve_insertion_order = false");
+        }
+
         return statements.Count == 0 ? null : string.Join("; ", statements) + ";";
     }
 
@@ -93,6 +101,9 @@ public sealed class DuckDbConnectionFactory : IDuckDbConnectionFactory, IDisposa
         ObjectDisposedException.ThrowIf(_disposed, this);
         cancellationToken.ThrowIfCancellationRequested();
 
+        await EnsureInitializedAsync(cancellationToken).ConfigureAwait(false);
+        ObjectDisposedException.ThrowIf(_disposed, this);
+
         var connection = _memoryAnchor is not null
             ? _memoryAnchor.Duplicate()
             : new DuckDBConnection(ConnectionString);
@@ -100,7 +111,6 @@ public sealed class DuckDbConnectionFactory : IDuckDbConnectionFactory, IDisposa
         try
         {
             await connection.OpenAsync(cancellationToken).ConfigureAwait(false);
-            await ApplyResourceLimitsAsync(connection, cancellationToken).ConfigureAwait(false);
             return connection;
         }
         catch
@@ -111,12 +121,57 @@ public sealed class DuckDbConnectionFactory : IDuckDbConnectionFactory, IDisposa
     }
 
     /// <summary>
-    /// SET memory_limit/temp_directory/threads apply at DuckDB instance level.
-    /// They must only execute on the first connection to avoid 'Cannot switch temporary directory' errors.
+    /// Keeps an open anchor connection in file mode too so DuckDB never tears down its in-process
+    /// database instance between operations (which would reset memory_limit/threads to 80% host RAM).
     /// </summary>
-    private async Task ApplyResourceLimitsAsync(DuckDBConnection connection, CancellationToken cancellationToken)
+    private async Task EnsureInitializedAsync(CancellationToken cancellationToken)
     {
-        if (_settingsSql is null || Interlocked.Exchange(ref _limitsApplied, 1) != 0)
+        if (Volatile.Read(ref _initialized))
+        {
+            return;
+        }
+
+        await _initLock.WaitAsync(cancellationToken).ConfigureAwait(false);
+        try
+        {
+            if (_initialized)
+            {
+                return;
+            }
+
+            ObjectDisposedException.ThrowIf(_disposed, this);
+
+            if (_memoryAnchor is not null)
+            {
+                await ExecuteSettingsAsync(_memoryAnchor, cancellationToken).ConfigureAwait(false);
+            }
+            else
+            {
+                var anchor = new DuckDBConnection(ConnectionString);
+                try
+                {
+                    await anchor.OpenAsync(cancellationToken).ConfigureAwait(false);
+                    await ExecuteSettingsAsync(anchor, cancellationToken).ConfigureAwait(false);
+                    _fileAnchor = anchor;
+                }
+                catch
+                {
+                    await anchor.DisposeAsync().ConfigureAwait(false);
+                    throw;
+                }
+            }
+
+            Volatile.Write(ref _initialized, true);
+        }
+        finally
+        {
+            _initLock.Release();
+        }
+    }
+
+    private async Task ExecuteSettingsAsync(DuckDBConnection connection, CancellationToken cancellationToken)
+    {
+        if (_settingsSql is null)
         {
             return;
         }
@@ -141,7 +196,9 @@ public sealed class DuckDbConnectionFactory : IDuckDbConnectionFactory, IDisposa
         }
 
         _disposed = true;
+        _fileAnchor?.Dispose();
         _memoryAnchor?.Dispose();
+        _initLock.Dispose();
     }
 
     public async ValueTask DisposeAsync()
@@ -152,9 +209,16 @@ public sealed class DuckDbConnectionFactory : IDuckDbConnectionFactory, IDisposa
         }
 
         _disposed = true;
+        if (_fileAnchor is not null)
+        {
+            await _fileAnchor.DisposeAsync().ConfigureAwait(false);
+        }
+
         if (_memoryAnchor is not null)
         {
             await _memoryAnchor.DisposeAsync().ConfigureAwait(false);
         }
+
+        _initLock.Dispose();
     }
 }
