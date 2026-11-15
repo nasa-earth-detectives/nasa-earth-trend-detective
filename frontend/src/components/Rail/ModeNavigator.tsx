@@ -47,7 +47,7 @@ export function ModeNavigator({
           <span className="mode-actuator" aria-hidden="true" />
         </button>
       ))}
-      <div className="scene-utilities">
+      <div id="tour-scene-utilities" className="scene-utilities">
         {onLocateUser && (
           <button
             type="button"

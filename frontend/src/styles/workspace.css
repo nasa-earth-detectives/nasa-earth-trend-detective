@@ -126,7 +126,7 @@
   .earth-workspace { --gutter: 14px; }
   .mission-position { top: max(12px, env(safe-area-inset-top)); left: var(--gutter); }
   .time-position { top: max(12px, env(safe-area-inset-top)); right: var(--gutter); }
-  .observation-position { top: 72px; left: var(--gutter); right: auto; max-width: calc(100vw - 28px); }
+  .observation-position { top: 112px; left: var(--gutter); right: auto; max-width: calc(100vw - 28px); }
   .scene-guidance { display: none; }
   .system-position { bottom: max(23px, env(safe-area-inset-bottom)); right: 22px; }
   .intent-position { left: 22px; right: 22px; bottom: 152px; width: auto; }
