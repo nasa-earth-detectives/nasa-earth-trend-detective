@@ -1,6 +1,6 @@
 # 🤖 Agente de IA Revisor de Pull Requests (GitHub Actions)
 
-- **Workflow:** `.github/workflows/ai-pr-reviewer.yml`
+- **Workflow:** `.github/workflows/pr-governance.yml` (job `pr-audit`, consolidado con gobernanza y autoría limpia)
 - **Script Ejecutor:** `.github/scripts/ai-pr-reviewer.mjs`
 - **Motor de Reglas:** `.github/scripts/pr-audit-rules.mjs`
 - **Modelo de IA:** Google Gemini (`gemini-2.5-flash`)
@@ -21,7 +21,7 @@ Su propósito es **prevenir la entrada de regresiones arquitectónicas, incompat
                                          │
                                          ▼
                   ┌────────────────────────────────────────────────┐
-                  │    GitHub Action (.github/workflows/ai-pr.yml) │
+                  │    GitHub Action (.github/workflows/pr-governance.yml) │
                   │  Extrae el git diff de los archivos alterados  │
                   └──────────────────────┬─────────────────────────┘
                                          │

@@ -85,4 +85,20 @@ Durante el despliegue de `nasa-trend-detective-api` en Render (`512 MB` RAM), la
 - **Cerrada y movida a `Done`:** Issue `#65` (`[S4-T7]`) tras validar el despliegue estable y los endpoints reales en Render.
 - **Actualizada a `Review`:** Issue `#61` (`[S4-T4]`, pendiente solo la auditoría de 60 FPS WebGL y capturas 1080p para las 7 diapositivas).
 - **Actualizadas en curso:** Issues `#62` (`[S4-T5]`) y `#70` (`[PHYS-T5]`) con el estado real de producción.
-- **Siguiente bloque acordado con usuario:** consolidar/simplificar los workflows redundantes de `.github/workflows/*.yml`.
+- **Estado previo completado:** **PR `#87`** (`qa` → `production`) fusionado (`8e63326`), espejo personal actualizado y verificación en vivo de Vercel (`200 OK`) y Render (`/api/datasets` y `/api/trends` `200 OK`).
+
+---
+
+## ⚡ Consolidación del Pipeline CI/CD (`chore/streamline-ci-cd-workflows`)
+
+### Diagnóstico de duplicidad y cuellos de botella previos (7 workflows)
+1. **Doble ejecución `(push)` + `(pull_request)`:** `ci-qa.yml` y `verify-authorship.yml` corrían dos veces sobre los mismos commits en promociones `development` → `qa` → `production`.
+2. **Revisor duplicado:** `ai-pr-reviewer.yml` y `copilot-pr-governance.yml` invocaban ambos `ai-pr-reviewer.mjs` sobre el mismo PR, duplicando comentarios idénticos (`PR #85`).
+3. **Builds innecesarios y jobs sin acción real:** `Docker Build Validation` (`push: false`), `Backend (.NET 10)` sin caché de NuGet y `Frontend Build` corrían incluso en PRs exclusivos de documentación o del stack opuesto; `deploy-qa` y `production-gate` solo ejecutaban `echo`.
+4. **Fallas automáticas y consumo en repo espejo privado:** `mirror-to-personal.yml` pasaba `PERSONAL_REPO_SYNC_TOKEN` a `actions/checkout@v4` contra el repo de la organización (fallando con `fatal: could not read Username`), `auto-sync-dev-to-qa.yml` disparaba corridas rotas de `0 jobs` al abrir PRs como `github-actions[bot]`, y ningún workflow filtraba `github.repository_owner == 'nasa-earth-detectives'`, consumiendo minutos en `brayancortes22/nasa-earth-trend-detective` (`PRIVATE`).
+
+### Nueva arquitectura consolidada (3 workflows + `.github/scripts/ai-pr-reviewer.mjs`)
+- **[`.github/workflows/ci.yml`](../../.github/workflows/ci.yml):** reemplaza `ci-qa.yml` y `react-doctor.yml` en `pull_request` + `workflow_dispatch`; agrega job `changes` por rutas (`frontend`, `backend`, `docker_backend`, `docker_frontend`), caché NuGet (`~/.nuget/packages`), integra `millionco/react-doctor@v2` dentro del job `frontend` y restringe Docker builds a cambios de `Dockerfile`/dependencias/compose o paso a `production`.
+- **[`.github/workflows/pr-governance.yml`](../../.github/workflows/pr-governance.yml):** unifica `verify-authorship.yml`, `ai-pr-reviewer.yml` y `copilot-pr-governance.yml` en `authorship-and-rules` (regla `qa` → `production`, autoría limpia y límite `<= 300` líneas sin instalar Node) + `pr-audit` (one-shot y `/copilot-review` sobre el `head_sha` real del PR).
+- **[`.github/workflows/mirror-to-personal.yml`](../../.github/workflows/mirror-to-personal.yml):** guarda `github.repository_owner == 'nasa-earth-detectives'`, checkout con `persist-credentials: false` usando token de lectura de la org y uso exclusivo de `PERSONAL_REPO_SYNC_TOKEN` vía header transitorio para el `git push` al repo personal.
+- **[`.github/scripts/ai-pr-reviewer.mjs`](../../.github/scripts/ai-pr-reviewer.mjs):** usa `execFileSync` y actualiza en sitio el comentario único (`<!-- nasa-pr-reviewer -->`) mediante `PATCH`/`POST`.
