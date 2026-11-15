@@ -32,7 +32,7 @@ export function DetectiveExportActions({
     const cleanUnit = unit.replace(/"/g, '""');
     const header = 'year,value,unit,variable,latitude,longitude,data_type\n';
     const rows = seriesData.map(d =>
-      `${d.year},${d.value.toFixed(4)},"${cleanUnit}",${variable},${location.lat.toFixed(4)},${location.lng.toFixed(4)},${isObserved ? 'observed' : 'synthetic_demo'}`
+      `${d.year},${d.value.toFixed(4)},"${cleanUnit}",${variable},${location.lat.toFixed(4)},${location.lng.toFixed(4)},${isObserved ? 'observed' : 'unavailable'}`
     ).join('\n');
 
     const blob = new Blob([header + rows], { type: 'text/csv;charset=utf-8;' });

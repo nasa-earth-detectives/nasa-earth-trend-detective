@@ -16,6 +16,7 @@ public interface ITrendObservationRepository
         double? latitude = null,
         double? longitude = null,
         double toleranceDegrees = 1.0,
+        double? longitudeToleranceDegrees = null,
         CancellationToken cancellationToken = default);
 
     Task<IReadOnlyList<TrendObservation>> GetObservationsByYearAsync(

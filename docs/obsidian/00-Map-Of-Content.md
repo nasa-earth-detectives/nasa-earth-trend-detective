@@ -72,6 +72,7 @@ Bienvenido a la bóveda central de documentación y diseño de ingeniería de nu
 - [[40-GRACE-OCO2-Reales-y-Correcciones-de-Significancia]]: GRACE y CO₂ con datos reales (9 de 9 variables), Mann-Kendall con preblanqueo iterativo elegido por simulación, control de falsos descubrimientos y efecto medido en cada mapa.
 - [[41-Registro-Jornada-2026-11-14-Bilingue-y-Promocion]]: bitácora del 14–15 nov 2026 (soporte bilingüe EN/ES `#79`, promoción `#80`, corrección OOM Render 512 MB `#82`–`#84`, ajuste UI responsivo `.workspace-left-rail` y sincronización GitHub Project `#1`).
 - [[42-Auditoria-Datos-Reales-APIs-y-Rendimiento]]: auditoría del 15 nov 2026 — inventario de APIs, eliminación de todo dato simulado (backend y frontend), rótulos corregidos, rendimiento medido antes y después (mapas de tendencias, memoria del servidor en 512 MB, dibujo bajo demanda del globo, con el mismo diseño, para equipos sin tarjeta gráfica) y lista de lo que no se hizo.
+- [[43-Region-Entera-o-Punto-y-Periodo-del-Asistente]]: el asistente deja analizar una región entera (recuadro, media ponderada por área) o un punto; la ficha nombra la región y la zona, el globo la marca, y el periodo elegido ahora se usa.
 
 ---
 

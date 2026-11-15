@@ -2,7 +2,11 @@ import { useCallback, useEffect, useState } from 'react';
 
 export type InstrumentMode = 'observation' | 'layers' | 'time' | 'view' | 'inspection';
 export type LayerTab = 'data' | 'view';
-export interface SelectedLocation { lat: number; lng: number }
+/**
+ * Where the analysis looks. With radii it is a whole region (its box, centred on lat/lng); without
+ * them it is one point and the 2° box around it. regionId names the preset region it belongs to.
+ */
+export interface SelectedLocation { lat: number; lng: number; regionId?: string; latRadius?: number; lngRadius?: number }
 
 /** Intent alters layout composition; scientific state remains independent. */
 export function useImmersiveUi(initialLocation: SelectedLocation | null = null) {
