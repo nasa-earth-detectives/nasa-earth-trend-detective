@@ -19,6 +19,9 @@
 .inspection-coordinates { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 17px 0 15px; }
 .inspection-coordinates dt { color: var(--text-tertiary); font-size: 11px; margin-bottom: 5px; }
 .inspection-coordinates dd { margin: 0; font: 500 19px var(--font-readout); letter-spacing: -.035em; }
+.inspection-coordinates__wide { grid-column: 1 / -1; }
+.inspection-coordinates dd.inspection-coordinates__text { font: 500 13px var(--font-readout); letter-spacing: 0; line-height: 1.45; }
+.inspection-area-note { margin: 0 0 14px; color: var(--text-tertiary); font-size: 11px; line-height: 1.55; }
 .inspection-variable { border-top: 1px solid var(--edge-subtle); padding-top: 12px; }
 .inspection-variable > p:first-child { font-size: 13px; font-weight: 500; margin-bottom: 5px; }
 .inspection-variable > p:last-child { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 14px;

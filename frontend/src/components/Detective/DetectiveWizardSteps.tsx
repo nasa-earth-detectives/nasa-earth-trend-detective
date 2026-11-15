@@ -7,7 +7,8 @@ import { Crosshair } from 'lucide-react';
 import type { ClimateVariable, VariableMetadata } from '../../types/climate.types';
 import type { DatasetCatalog } from '../../types/dataset.types';
 import { CLIMATE_VARIABLES } from '../../config/climateLayers';
-import { WIZARD_REGIONS, type WizardRegion } from '../../config/wizardOptions';
+import { WIZARD_REGIONS, type RegionScope, type WizardRegion } from '../../config/wizardOptions';
+import { formatBox } from '../../utils/regionFormat';
 import { formatTemplate, useI18n } from '../../i18n';
 import { VARIABLE_ACCENT_STYLE, VARIABLE_ICONS } from './variableIcons';
 
@@ -93,11 +94,12 @@ const coordinate = (value: number, positive: string, negative: string) =>
   `${Math.abs(value)}° ${value >= 0 ? positive : negative}`;
 
 interface RegionStepProps {
-  region: WizardRegion; variable: ClimateVariable;
-  onSelect: (region: WizardRegion) => void; onSuggest: (variable: ClimateVariable) => void;
+  region: WizardRegion; scope: RegionScope; variable: ClimateVariable;
+  onSelect: (region: WizardRegion) => void; onScope: (scope: RegionScope) => void;
+  onSuggest: (variable: ClimateVariable) => void;
 }
 
-export function RegionStep({ region, variable, onSelect, onSuggest }: RegionStepProps) {
+export function RegionStep({ region, scope, variable, onSelect, onScope, onSuggest }: RegionStepProps) {
   const { t } = useI18n();
   const compass = t.readouts.compass;
   const suggestions = region.id !== 'custom' && !region.suggestedVariables.includes(variable)
@@ -128,6 +130,22 @@ export function RegionStep({ region, variable, onSelect, onSuggest }: RegionStep
 
       {region.id === 'custom' && (
         <p className="briefing-note">{t.wizard.customGlobeNote}</p>
+      )}
+      {region.box && (
+        <div className="briefing-note">
+          <div role="radiogroup" aria-label={t.wizard.scopeGroupAria} className="briefing-scope">
+            {(['region', 'point'] as const).map(option => (
+              <button key={option} type="button" role="radio" aria-checked={scope === option}
+                className="briefing-scope__option focus-ring" onClick={() => onScope(option)}>
+                {option === 'region' ? t.wizard.scopeRegion : t.wizard.scopePoint}
+              </button>
+            ))}
+          </div>
+          <p>{scope === 'region'
+            ? formatTemplate(t.wizard.scopeRegionNote, { box: formatBox(region.box, compass) })
+            : formatTemplate(t.wizard.scopePointNote, {
+              point: `${coordinate(region.lat, compass.north, compass.south)}, ${coordinate(region.lng, compass.east, compass.west)}` })}</p>
+        </div>
       )}
       {suggestions.length > 0 && (
         <div className="briefing-note">

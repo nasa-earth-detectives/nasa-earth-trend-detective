@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useState } from 'react';
 import { ImmersiveEarthLayout } from '../components/Layout/ImmersiveEarthLayout';
 import { DetectiveWizard, type WizardResult } from '../components/Detective/DetectiveWizard';
-import type { WizardRegion } from '../config/wizardOptions';
+import { regionLocation, type RegionScope, type WizardRegion } from '../config/wizardOptions';
 import { useTrendFilter } from '../hooks/useTrendFilter';
 import { useGlobeData } from '../hooks/useGlobeData';
 import { useDetectiveWizard } from '../hooks/useDetectiveWizard';
@@ -41,18 +41,21 @@ export function DashboardPage() {
   const { data: observations, loading, error, source, provenance } = useGlobeData(filter);
   const wizard = useDetectiveWizard();
   const [focusLocation, setFocusLocation] = useState<SelectedLocation | null>(null);
+  // The third answer of the briefing: the years the analysis covers, independent of the year shown on the globe.
+  const [analysisPeriod, setAnalysisPeriod] = useState<{ startYear: number; endYear: number } | null>(null);
 
   const handleWizardComplete = useCallback((result: WizardResult) => {
     setVariable(result.variable);
     setYearRange(result.startYear, result.endYear);
     // The "region" step previously had no effect: now it flies the globe to that location and opens its analysis.
-    if (result.region.id !== 'custom') setFocusLocation({ lat: result.region.lat, lng: result.region.lng });
+    if (result.region.id !== 'custom') setFocusLocation(regionLocation(result.region, result.scope));
+    setAnalysisPeriod({ startYear: result.startYear, endYear: result.endYear });
     wizard.dismiss();
   }, [setVariable, setYearRange, wizard.dismiss]);
   // Preview: while choosing in the wizard, the globe already displays the variable and turns to the location.
   const [previewLocation, setPreviewLocation] = useState<SelectedLocation | null>(null);
-  const handlePreviewRegion = useCallback((region: WizardRegion) => {
-    if (region.id !== 'custom') setPreviewLocation({ lat: region.lat, lng: region.lng });
+  const handlePreviewRegion = useCallback((region: WizardRegion, scope: RegionScope) => {
+    setPreviewLocation(region.id !== 'custom' ? regionLocation(region, scope) : null);
   }, []);
   const handleYearChange = useCallback((year: number) => setYearRange(Math.min(filter.startYear, year), year),
     [setYearRange, filter.startYear]);
@@ -80,6 +83,7 @@ export function DashboardPage() {
         filter={filter}
         initialLocation={queryConfig.location}
         focusLocation={focusLocation}
+        analysisPeriod={analysisPeriod}
         previewLocation={showWizard ? previewLocation : null}
         briefingOpen={showWizard}
         onVariableChange={setVariable}

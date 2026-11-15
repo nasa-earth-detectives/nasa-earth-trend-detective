@@ -27,7 +27,8 @@ public class TrendAnalysisService : ITrendAnalysisService
             query.EndYear,
             query.Latitude,
             query.Longitude,
-            toleranceDegrees: 1.0,
+            toleranceDegrees: query.LatitudeRadius ?? 1.0,
+            longitudeToleranceDegrees: query.LongitudeRadius ?? query.LatitudeRadius,
             cancellationToken).ConfigureAwait(false);
 
         // No dataset, no series: the result comes back empty and labeled "unavailable". The API used to
