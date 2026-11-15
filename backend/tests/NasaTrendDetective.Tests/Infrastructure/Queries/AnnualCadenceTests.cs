@@ -112,6 +112,34 @@ public sealed class AnnualCadenceTests : IAsyncLifetime
         Assert.Equal(2.0, series[^1].Anomaly);
     }
 
+    /// <summary>
+    /// A whole region is the mean of its cells weighted by area. The fixture has one cell at 10° and one
+    /// at 60° with different values in 2001: the plain mean would be 5.5; weighted by the cosine of the
+    /// latitude the low-latitude cell, which is larger, counts more.
+    /// </summary>
+    [Fact]
+    public async Task AnnualSeries_WholeRegion_IsWeightedByAreaAndThePointWindowIsNot()
+    {
+        // Precipitation (id 6): 1.0 at latitude 10 and 10.0 at latitude 60, same longitude, year 2001.
+        await _repository.ExecuteAsync("""
+            INSERT INTO fact_climate_observations
+            SELECT 5000 + row_number() OVER (), 6, lat, 20, 2001, 1, val, val
+            FROM (VALUES (10.0, 1.0), (60.0, 10.0)) c(lat, val)
+            """);
+        var repository = new TrendObservationRepository(_repository);
+
+        var region = await repository.GetAnnualSeriesAsync(
+            ClimateVariable.Merra2Precipitation, 2001, 2001, latitude: 35, longitude: 20,
+            toleranceDegrees: 30, longitudeToleranceDegrees: 5);
+        var point = await repository.GetAnnualSeriesAsync(
+            ClimateVariable.Merra2Precipitation, 2001, 2001, latitude: 60, longitude: 20);
+
+        var low = Math.Cos(10 * Math.PI / 180);
+        var high = Math.Cos(60 * Math.PI / 180);
+        Assert.Equal((1.0 * low + 10.0 * high) / (low + high), Assert.Single(region).Value, precision: 9);
+        Assert.Equal(10.0, Assert.Single(point).Value, precision: 12);
+    }
+
     [Fact]
     public async Task AnnualSeries_MonthlyDataset_StillDropsTheYearInProgress()
     {

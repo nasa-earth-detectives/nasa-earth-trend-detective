@@ -3,7 +3,7 @@ import type { Object3D } from 'three';
 import { GLOBE_CONFIG } from './globeConfig';
 import type { EarthLiveSystemApi } from './earthLiveSystem';
 import type { EarthUserLocationApi } from './earthUserLocation';
-import type { GlobeLocation, GlobeSceneApi } from '../../types/globe.types';
+import type { AnalysisArea, GlobeLocation, GlobeSceneApi } from '../../types/globe.types';
 
 export interface GlobeSceneContext {
   analysis: {
@@ -20,6 +20,7 @@ export interface GlobeSceneContext {
   };
   liveSystem: EarthLiveSystemApi;
   userLocation: EarthUserLocationApi;
+  analysisArea: { set: (area: AnalysisArea | null) => void };
   globe: GlobeInstance;
   starLayers: Object3D[];
   focusOffset: {
@@ -60,6 +61,7 @@ export function buildGlobeSceneApi(ctx: GlobeSceneContext): GlobeSceneApi {
     setOceanFlowVisible: ctx.liveSystem.setOceanFlowVisible,
     setTeleconnections: ctx.liveSystem.setConnections,
     setUserLocation: (coords) => ctx.userLocation.setLocation(coords),
+    setAnalysisArea: (area) => ctx.analysisArea.set(area),
     flyToGodsEye: (lat, lng, altitude = 0.28, durationMs = 1600) => {
       ctx.setCameraOwned(true);
       ctx.globe.pointOfView({ lat, lng, altitude }, durationMs);

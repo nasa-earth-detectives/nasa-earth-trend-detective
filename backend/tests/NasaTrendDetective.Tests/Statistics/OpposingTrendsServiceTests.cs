@@ -91,7 +91,8 @@ public class OpposingTrendsServiceTests
     {
         public Task<IReadOnlyList<AnnualObservation>> GetAnnualSeriesAsync(
             ClimateVariable variable, int startYear, int endYear, double? latitude = null, double? longitude = null,
-            double toleranceDegrees = 1.0, CancellationToken cancellationToken = default)
+            double toleranceDegrees = 1.0, double? longitudeToleranceDegrees = null,
+            CancellationToken cancellationToken = default)
         {
             var slope = slopeAt(latitude ?? 0, longitude ?? 0);
             IReadOnlyList<AnnualObservation> series = Enumerable.Range(startYear, years)

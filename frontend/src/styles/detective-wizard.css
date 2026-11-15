@@ -188,6 +188,9 @@
 .briefing-note p { margin: 0; }
 .briefing-note__chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 9px; }
 .briefing-chip { padding: 5px 10px; font-size: 12px; color: var(--row-accent); background: rgba(var(--row-rgb), .08); border: 1px solid rgba(var(--row-rgb), .4); border-radius: 3px; cursor: pointer; transition: background-color var(--motion-fast); }
+.briefing-scope { display: flex; gap: 8px; margin-bottom: 10px; }
+.briefing-scope__option { padding: 6px 12px; font-size: 12px; color: var(--text-secondary); background: transparent; border: 1px solid var(--edge-highlight); border-radius: 3px; cursor: pointer; transition: background-color var(--motion-fast), color var(--motion-fast); }
+.briefing-scope__option[aria-checked='true'] { color: var(--text-primary); background: rgba(255, 255, 255, .1); border-color: var(--active-accent); }
 .briefing-chip:hover { background: rgba(var(--row-rgb), .16); }
 
 /* ── Period: readout and year ruler ────────────────────────── */

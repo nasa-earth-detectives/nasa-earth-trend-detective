@@ -13,6 +13,15 @@ export interface GlobeLocation {
   lng: number;
 }
 
+/** What an analysis covers: a box in degrees around a centre. `point` marks the 2° box of a single spot. */
+export interface AnalysisArea {
+  lat: number;
+  lng: number;
+  latRadius: number;
+  lngRadius: number;
+  point: boolean;
+}
+
 /** Imperative surface used by floating UI to interact with the scene. */
 export interface GlobeSceneApi {
   setObservationData(data: ClimateObservation[], variable: ClimateVariable): void;
@@ -37,6 +46,8 @@ export interface GlobeSceneApi {
   setTeleconnections?(connections: Teleconnection[]): void;
   /** Cinematic "God's Eye" maneuver toward a specific observation point. */
   flyToGodsEye?(lat: number, lng: number, altitude?: number, durationMs?: number): void;
+  /** Marks on the globe the region or the point the open analysis covers; null removes the mark. */
+  setAnalysisArea?(area: AnalysisArea | null): void;
   /** Real-time 3D user location marker on the Earth surface. */
   setUserLocation?(coords: GlobeLocation | null): void;
   setLocationSelectHandler(handler: ((location: GlobeLocation) => void) | null): void;

@@ -51,7 +51,18 @@ public class TrendsController : ControllerBase
             });
         }
 
-        var cacheKey = $"trend_{query.Variable}_{query.StartYear}_{query.EndYear}_{query.Latitude:F2}_{query.Longitude:F2}";
+        if (query.LatitudeRadius is <= 0 or > 90 || query.LongitudeRadius is <= 0 or > 180)
+        {
+            return BadRequest(new ProblemDetails
+            {
+                Title = "Invalid region",
+                Detail = "LatitudeRadius must be within (0, 90] and LongitudeRadius within (0, 180].",
+                Status = StatusCodes.Status400BadRequest
+            });
+        }
+
+        var cacheKey = $"trend_{query.Variable}_{query.StartYear}_{query.EndYear}_{query.Latitude:F2}_{query.Longitude:F2}"
+            + $"_{query.LatitudeRadius:F2}_{query.LongitudeRadius:F2}";
         if (_cache.TryGetValue<TrendResultDto>(cacheKey, out var cachedResult) && cachedResult != null)
         {
             return Ok(cachedResult);

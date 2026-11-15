@@ -11,7 +11,7 @@ import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import type { ClimateVariable } from '../../types/climate.types';
 import type { DatasetCatalog } from '../../types/dataset.types';
-import { WIZARD_REGIONS, WIZARD_PERIODS, type WizardRegion, type WizardPeriod } from '../../config/wizardOptions';
+import { WIZARD_REGIONS, WIZARD_PERIODS, type RegionScope, type WizardRegion, type WizardPeriod } from '../../config/wizardOptions';
 import { getDatasetCatalog } from '../../services/datasetCatalog';
 import { useFocusTrap } from '../../hooks/useFocusTrap';
 import { RegionStep, VariableStep } from './DetectiveWizardSteps';
@@ -22,6 +22,8 @@ import '../../styles/detective-wizard.css';
 export interface WizardResult {
   variable: ClimateVariable;
   region: WizardRegion;
+  /** The whole region (its box) or only its reference point. */
+  scope: RegionScope;
   startYear: number;
   endYear: number;
 }
@@ -32,7 +34,7 @@ interface DetectiveWizardProps {
   onSkip: () => void;
   /** Choice is shown on the globe before confirming. */
   onPreviewVariable?: (variable: ClimateVariable) => void;
-  onPreviewRegion?: (region: WizardRegion) => void;
+  onPreviewRegion?: (region: WizardRegion, scope: RegionScope) => void;
 }
 
 const STEP_IDS = ['variable', 'region', 'period'] as const;
@@ -44,6 +46,7 @@ export function DetectiveWizard({ initialVariable = 'Gistemp', onComplete, onSki
   const [direction, setDirection] = useState<'forward' | 'back'>('forward');
   const [variable, setVariable] = useState<ClimateVariable>(initialVariable);
   const [region, setRegion] = useState<WizardRegion>(WIZARD_REGIONS[0]);
+  const [scope, setScope] = useState<RegionScope>('region');
   const [period, setPeriod] = useState<WizardPeriod>(WIZARD_PERIODS[0]);
   const [catalog, setCatalog] = useState<DatasetCatalog | null>(null);
   const dialogRef = useRef<HTMLDivElement>(null);
@@ -76,18 +79,22 @@ export function DetectiveWizard({ initialVariable = 'Gistemp', onComplete, onSki
   }, [onPreviewVariable]);
   const selectRegion = useCallback((next: WizardRegion) => {
     setRegion(next);
-    onPreviewRegion?.(next);
-  }, [onPreviewRegion]);
+    onPreviewRegion?.(next, scope);
+  }, [onPreviewRegion, scope]);
+  const selectScope = useCallback((next: RegionScope) => {
+    setScope(next);
+    onPreviewRegion?.(region, next);
+  }, [onPreviewRegion, region]);
 
   const goTo = (next: Step) => {
     setDirection(next > step ? 'forward' : 'back');
     setStep(next);
     // When arriving at the "location" step, the globe turns to the selected region without waiting for a click.
-    if (next === 1) onPreviewRegion?.(region);
+    if (next === 1) onPreviewRegion?.(region, scope);
   };
   const handleNext = () => {
     if (step < 2) goTo((step + 1) as Step);
-    else onComplete({ variable, region, startYear: period.startYear, endYear: period.endYear });
+    else onComplete({ variable, region, scope, startYear: period.startYear, endYear: period.endYear });
   };
 
   const steps = [
@@ -125,7 +132,8 @@ export function DetectiveWizard({ initialVariable = 'Gistemp', onComplete, onSki
         {/* Key forces step remount so the entrance transition replays. */}
         <div className="briefing__body scrollbar-instrument" key={step} data-direction={direction}>
           {step === 0 && <VariableStep variable={variable} catalog={catalog} onSelect={selectVariable} />}
-          {step === 1 && <RegionStep region={region} variable={variable} onSelect={selectRegion} onSuggest={selectVariable} />}
+          {step === 1 && <RegionStep region={region} scope={scope} variable={variable} onSelect={selectRegion}
+            onScope={selectScope} onSuggest={selectVariable} />}
           {step === 2 && <PeriodStep period={period} variable={variable} catalog={catalog} onSelect={setPeriod} />}
         </div>
 

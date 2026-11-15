@@ -96,7 +96,7 @@ public class OpposingTrendsService : IOpposingTrendsService
     {
         var series = await _repository.GetAnnualSeriesAsync(
             definition.Variable, provenance.CoverageStart, provenance.CoverageEnd,
-            region.Latitude, region.Longitude, toleranceDegrees: 1.0, ct).ConfigureAwait(false);
+            region.Latitude, region.Longitude, toleranceDegrees: 1.0, cancellationToken: ct).ConfigureAwait(false);
         if (series.Count < GridTrendService.MinYearsPerCell)
         {
             return null;

@@ -4,6 +4,7 @@
  */
 import { useEffect, type RefObject } from 'react';
 import { SATELLITE_TIMELINE } from '../../config/climateLayers';
+import { analysisAreaOf, framingAltitude } from '../../config/wizardOptions';
 import type { SelectedLocation } from '../../hooks/useImmersiveUi';
 import type { ClimateObservation } from '../../types/climate.types';
 import type { DatasetProvenance } from '../../types/dataset.types';
@@ -80,11 +81,22 @@ export function useCoverageTimeline(provenance: DatasetProvenance | null,
 export function useFocusLocation(sceneApiRef: SceneRef, focusLocation: SelectedLocation | null,
   previewLocation: SelectedLocation | null, selectLocation: (location: SelectedLocation) => void) {
   useEffect(() => {
-    if (previewLocation) sceneApiRef.current?.flyToGodsEye?.(previewLocation.lat, previewLocation.lng, 1.7, 1300);
+    if (previewLocation) sceneApiRef.current?.flyToGodsEye?.(previewLocation.lat, previewLocation.lng, framingAltitude(previewLocation, 1.7), 1300);
   }, [sceneApiRef, previewLocation]);
   useEffect(() => {
     if (!focusLocation) return;
-    sceneApiRef.current?.flyToGodsEye?.(focusLocation.lat, focusLocation.lng, 0.45, 1500);
+    sceneApiRef.current?.flyToGodsEye?.(focusLocation.lat, focusLocation.lng, framingAltitude(focusLocation, 0.45), 1500);
     selectLocation(focusLocation);
   }, [sceneApiRef, focusLocation, selectLocation]);
+}
+
+/**
+ * What is being analysed is drawn on the globe: the box of the region, or the 2° box and a marker for a
+ * point. While the briefing is open it follows the answer being considered.
+ */
+export function useAnalysisArea(sceneApiRef: SceneRef, location: SelectedLocation | null, previewLocation: SelectedLocation | null) {
+  const shown = previewLocation ?? location;
+  useEffect(() => {
+    sceneApiRef.current?.setAnalysisArea?.(shown ? analysisAreaOf(shown) : null);
+  }, [sceneApiRef, shown]);
 }

@@ -90,6 +90,11 @@ export interface ReadoutAndWizardTranslations {
     unitLabel: string;
     guidingQuestion: string;
     regionGroupAria: string;
+    scopeGroupAria: string;
+    scopeRegion: string;
+    scopePoint: string;
+    scopeRegionNote: string;
+    scopePointNote: string;
     customGlobeNote: string;
     regionSuggestIntro: string;
     switchToVariable: string;
@@ -107,6 +112,16 @@ export interface ReadoutAndWizardTranslations {
   inspection: {
     cellCenter: string;
     selectedLocation: string;
+    wholeRegion: string;
+    regionLabel: string;
+    areaLabel: string;
+    areaWhole: string;
+    areaPoint: string;
+    outsideRegions: string;
+    centerLatitude: string;
+    centerLongitude: string;
+    explainRegion: string;
+    explainPoint: string;
     title: string;
     closeAria: string;
     latitude: string;
