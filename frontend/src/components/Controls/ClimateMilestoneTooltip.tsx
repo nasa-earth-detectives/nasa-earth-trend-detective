@@ -11,7 +11,7 @@ export function ClimateMilestoneTooltip({ milestone, onClose }: ClimateMilestone
     <div
       className="climate-milestone-tooltip"
       role="region"
-      aria-label={`Hito de ${milestone.year}`}
+      aria-label={`${milestone.year} milestone`}
       aria-live="polite"
     >
       <div className="milestone-tooltip-header">
@@ -24,7 +24,7 @@ export function ClimateMilestoneTooltip({ milestone, onClose }: ClimateMilestone
             type="button"
             className="milestone-tooltip-close"
             onClick={onClose}
-            aria-label="Cerrar detalle del hito"
+            aria-label="Close milestone detail"
           >
             <X size={12} />
           </button>
@@ -33,7 +33,7 @@ export function ClimateMilestoneTooltip({ milestone, onClose }: ClimateMilestone
       <h4 className="milestone-tooltip-title">{milestone.title}</h4>
       <p className="milestone-tooltip-summary">{milestone.summary}</p>
       <div className="milestone-tooltip-impact">
-        <span className="impact-label">Impacto Satelital:</span>
+        <span className="impact-label">Satellite Impact:</span>
         <span className="impact-text">{milestone.scientificImpact}</span>
       </div>
     </div>

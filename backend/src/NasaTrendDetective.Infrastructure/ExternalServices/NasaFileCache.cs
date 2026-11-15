@@ -4,8 +4,8 @@ using System.Text;
 namespace NasaTrendDetective.Infrastructure.ExternalServices;
 
 /// <summary>
-/// Caché en disco de archivos descargados. Un archivo solo aparece con su nombre final cuando se
-/// escribió completo (temporal + rename atómico), así que su existencia implica completitud.
+/// On-disk cache for downloaded files. A file only appears under its final name once fully
+/// written (temporary file + atomic rename), so its existence guarantees completeness.
 /// </summary>
 public sealed class NasaFileCache
 {
@@ -15,7 +15,7 @@ public sealed class NasaFileCache
     {
         if (string.IsNullOrWhiteSpace(cacheDirectory))
         {
-            throw new ArgumentException("El directorio de caché no puede estar vacío.", nameof(cacheDirectory));
+            throw new ArgumentException("Cache directory cannot be empty.", nameof(cacheDirectory));
         }
 
         RootDirectory = Path.GetFullPath(cacheDirectory);
@@ -24,7 +24,7 @@ public sealed class NasaFileCache
     public string RootDirectory { get; }
 
     /// <summary>
-    /// Ruta determinista en caché: {raíz}/{host}/{nombre de archivo}.
+    /// Deterministic cache path: {root}/{host}/{filename}.
     /// </summary>
     public string ResolvePath(Uri url, string? fileName = null)
     {
@@ -46,8 +46,8 @@ public sealed class NasaFileCache
     }
 
     /// <summary>
-    /// Copia el contenido en streaming a un temporal y lo renombra al destino final.
-    /// Si se conoce la longitud esperada y no coincide, descarta el temporal y falla.
+    /// Streams content into a temporary file and atomically renames it to the destination path.
+    /// If expected length is known and does not match, drops the temporary file and throws.
     /// </summary>
     public async Task<long> WriteAtomicAsync(
         string path,
@@ -73,7 +73,7 @@ public sealed class NasaFileCache
             if (expectedLength is { } expected && expected != written)
             {
                 throw new NasaEarthDataException(
-                    $"Descarga incompleta: se esperaban {expected} bytes y se recibieron {written}.");
+                    $"Incomplete download: expected {expected} bytes but received {written}.");
             }
 
             File.Move(tempPath, path, overwrite: true);

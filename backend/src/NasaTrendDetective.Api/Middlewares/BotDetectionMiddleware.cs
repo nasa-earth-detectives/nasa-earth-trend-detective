@@ -17,7 +17,7 @@ public class BotDetectionMiddleware
     {
         var path = context.Request.Path.Value ?? string.Empty;
 
-        // Health checks exentos para permitir monitoreo y Docker
+        // Health checks are exempt to allow monitoring and Docker health probes
         if (path.Equals("/health", StringComparison.OrdinalIgnoreCase) ||
             path.Equals("/api/health", StringComparison.OrdinalIgnoreCase))
         {
@@ -27,7 +27,7 @@ public class BotDetectionMiddleware
 
         var userAgent = context.Request.Headers.UserAgent.ToString();
 
-        // 1. Exigencia de User-Agent legítimo (Regla 8)
+        // 1. Legitimate User-Agent header required
         if (string.IsNullOrWhiteSpace(userAgent) || userAgent.Length < 4)
         {
             context.Response.StatusCode = StatusCodes.Status400BadRequest;
@@ -35,7 +35,7 @@ public class BotDetectionMiddleware
             return;
         }
 
-        // 2. Bloqueo de scanners maliciosos conocidos
+        // 2. Block known malicious scanners
         if (BlockedUserAgents.Any(badAgent => userAgent.Contains(badAgent, StringComparison.OrdinalIgnoreCase)))
         {
             context.Response.StatusCode = StatusCodes.Status403Forbidden;
@@ -43,7 +43,7 @@ public class BotDetectionMiddleware
             return;
         }
 
-        // 3. Trampa Honeypot en cabeceras invisibles
+        // 3. Honeypot trap in invisible headers
         if (context.Request.Headers.TryGetValue("X-Honeypot-Token", out var honeypotValue) && !string.IsNullOrEmpty(honeypotValue))
         {
             context.Response.StatusCode = StatusCodes.Status400BadRequest;

@@ -1,7 +1,7 @@
 {
   "name": "@nasa-trend-detective/shared",
   "version": "1.0.0",
-  "description": "Contratos DTO, modelos biofísicos y tipos compartidos para NASA Earth System Trend Detective",
+  "description": "DTO contracts, biophysical models, and shared types for NASA Earth System Trend Detective",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

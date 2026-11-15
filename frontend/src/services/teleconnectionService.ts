@@ -3,7 +3,7 @@ import type { ClimateVariable } from '../types/climate.types';
 import { SCIENCE_ACCENTS } from '../config/scienceTheme';
 import { getJson } from './apiClient';
 
-/** Ids de backend/.../Enums/ClimateVariable.cs: la API puede enviar la variable como número o como texto. */
+/** IDs from backend/.../Enums/ClimateVariable.cs: the API may send the variable as a number or string. */
 const VARIABLE_BY_ID: Record<number, ClimateVariable> = {
   1: 'Gistemp', 2: 'ModisNdvi', 3: 'GraceMass', 4: 'Oco2',
   5: 'Merra2Temperature', 6: 'Merra2Precipitation', 7: 'Merra2Evaporation', 8: 'Merra2SoilMoisture',
@@ -11,21 +11,21 @@ const VARIABLE_BY_ID: Record<number, ClimateVariable> = {
 };
 const NEUTRAL_ARC = '#aaa99d';
 
-/** Cada arco lleva el acento de su variable: el mismo color que tiene en el resto del instrumento. */
+/** Each arc uses its variable's accent color: the same color used across the rest of the instrument. */
 function arcColor(variable: unknown): string {
   const code = typeof variable === 'number' ? VARIABLE_BY_ID[variable] : variable as ClimateVariable;
   return SCIENCE_ACCENTS[code]?.accent ?? NEUTRAL_ARC;
 }
 
 /**
- * Procesos físicos que no son pares de la API: se dibujan como contexto y se marcan 'local'.
- * Las coordenadas son representativas de cada región, no un cálculo.
+ * Physical processes that are not API pairs: drawn as context and marked 'local'.
+ * Coordinates are representative of each region, not a calculation.
  */
 const PHYSICAL: Teleconnection[] = [
-  { id: 'enso-walker', name: 'ENSO · circulación de Walker del Pacífico', color: '#9dc0d2', altitude: 0.32, source: 'local',
-    from: { label: 'Pacífico occidental', lat: 2, lng: 150 }, to: { label: 'Pacífico oriental', lat: -2, lng: -95 } },
-  { id: 'sahara-amazon', name: 'Polvo del Sahara que fertiliza la Amazonía', color: '#bda778', altitude: 0.26, source: 'local',
-    from: { label: 'Depresión de Bodélé (Chad)', lat: 17, lng: 18 }, to: { label: 'Cuenca amazónica', lat: -3.5, lng: -62 } },
+  { id: 'enso-walker', name: 'ENSO · Pacific Walker Circulation', color: '#9dc0d2', altitude: 0.32, source: 'local',
+    from: { label: 'Western Pacific', lat: 2, lng: 150 }, to: { label: 'Eastern Pacific', lat: -2, lng: -95 } },
+  { id: 'sahara-amazon', name: 'Sahara dust fertilizing the Amazon', color: '#bda778', altitude: 0.26, source: 'local',
+    from: { label: 'Bodélé Depression (Chad)', lat: 17, lng: 18 }, to: { label: 'Amazon Basin', lat: -3.5, lng: -62 } },
 ];
 
 function endpoint(region: unknown): TeleconnectionEndpoint | null {
@@ -33,10 +33,10 @@ function endpoint(region: unknown): TeleconnectionEndpoint | null {
   const r = region as Record<string, unknown>;
   const lat = r.latitude; const lng = r.longitude;
   if (typeof lat !== 'number' || typeof lng !== 'number' || Math.abs(lat) > 90 || Math.abs(lng) > 180) return null;
-  return { label: typeof r.regionName === 'string' ? r.regionName : 'Región', lat, lng };
+  return { label: typeof r.regionName === 'string' ? r.regionName : 'Region', lat, lng };
 }
 
-/** Frontera del DTO OpposingTrendPair: descarta pares incompletos en vez de dibujar coordenadas basura. */
+/** Boundary of OpposingTrendPair DTO: discards incomplete pairs instead of drawing bogus coordinates. */
 export function adaptOpposingPairs(payload: unknown): Teleconnection[] {
   if (!Array.isArray(payload)) return [];
   return payload.flatMap((entry: unknown): Teleconnection[] => {
@@ -55,9 +55,9 @@ export function adaptOpposingPairs(payload: unknown): Teleconnection[] {
 let cached: Promise<Teleconnection[]> | null = null;
 
 /**
- * Pares de tendencias opuestas de la API + procesos físicos de contexto. Nunca rechaza. Sin API no
- * hay pares: antes se dibujaba una copia local de regiones inventadas, y eso era presentar como
- * resultado algo que nadie había calculado.
+ * Opposing trend pairs from API + physical context processes. Never rejects. Without an API there
+ * are no pairs: previously a local copy of made-up regions was drawn, presenting uncomputed data
+ * as a real result.
  */
 export function getTeleconnections(): Promise<Teleconnection[]> {
   cached ??= getJson<unknown>('/trends/opposing')

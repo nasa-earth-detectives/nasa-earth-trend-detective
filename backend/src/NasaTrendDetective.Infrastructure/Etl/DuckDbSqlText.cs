@@ -3,8 +3,8 @@ using System.Globalization;
 namespace NasaTrendDetective.Infrastructure.Etl;
 
 /// <summary>
-/// Escapado de literales e identificadores para SQL DuckDB generado dinámicamente
-/// (COPY y read_csv no aceptan parámetros preparados para rutas en todas las posiciones).
+/// Escaping of literals and identifiers for dynamically generated DuckDB SQL
+/// (COPY and read_csv do not accept prepared parameters for paths across all positions).
 /// </summary>
 internal static class DuckDbSqlText
 {
@@ -13,7 +13,7 @@ internal static class DuckDbSqlText
         ArgumentNullException.ThrowIfNull(value);
         if (value.Contains('\0'))
         {
-            throw new ArgumentException("El texto no puede contener caracteres nulos.", nameof(value));
+            throw new ArgumentException("Text cannot contain null characters.", nameof(value));
         }
 
         return $"'{value.Replace("'", "''", StringComparison.Ordinal)}'";
@@ -24,7 +24,7 @@ internal static class DuckDbSqlText
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
         if (name.Contains('\0'))
         {
-            throw new ArgumentException("El identificador no puede contener caracteres nulos.", nameof(name));
+            throw new ArgumentException("Identifier cannot contain null characters.", nameof(name));
         }
 
         return $"\"{name.Replace("\"", "\"\"", StringComparison.Ordinal)}\"";

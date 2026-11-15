@@ -3,8 +3,8 @@ using NasaTrendDetective.Domain.Enums;
 namespace NasaTrendDetective.Infrastructure.Etl.Models;
 
 /// <summary>
-/// Métricas de calidad de una variable tras la etapa de limpieza: observaciones ubicables
-/// (coordenadas y tiempo válidos), válidas antes de imputar, imputadas y válidas después.
+/// Quality metrics for a variable following the cleaning stage: locatable observations
+/// (valid coordinates and timestamp), valid before imputation, imputed, and valid after.
 /// </summary>
 public sealed record DataQualityMetrics(
     ClimateVariable Variable,
@@ -16,12 +16,12 @@ public sealed record DataQualityMetrics(
     public long NullAfterImputation => TotalObservations - ValidAfterImputation;
 
     /// <summary>
-    /// Porcentaje (0-100) de valores válidos antes de la imputación.
+    /// Percentage (0-100) of valid values before imputation.
     /// </summary>
     public double ValidPercentBeforeImputation => Percent(ValidBeforeImputation);
 
     /// <summary>
-    /// Porcentaje (0-100) de valores válidos después de la imputación.
+    /// Percentage (0-100) of valid values after imputation.
     /// </summary>
     public double ValidPercentAfterImputation => Percent(ValidAfterImputation);
 

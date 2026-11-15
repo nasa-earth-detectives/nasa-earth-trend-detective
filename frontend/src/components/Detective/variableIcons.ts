@@ -1,6 +1,6 @@
 /**
- * Iconografía y acento de cada variable para el asistente y los casos. Sustituye a los emojis: un
- * emoji se dibuja distinto en cada sistema operativo y no respeta la paleta mineral del instrumento.
+ * Iconography and accent for each variable in the wizard and cases. Replaces emojis: an
+ * emoji renders differently across operating systems and does not follow the instrument’s mineral palette.
  */
 import type { CSSProperties } from 'react';
 import { CloudRain, CloudRainWind, Droplets, Leaf, Snowflake, Sprout, Thermometer, ThermometerSun, Wind, type LucideIcon } from 'lucide-react';
@@ -20,8 +20,8 @@ export const VARIABLE_ICONS: Record<ClimateVariable, LucideIcon> = {
 };
 
 /**
- * Acento de la variable como propiedades CSS. Se calcula una sola vez: crear el objeto dentro de un
- * map obligaría a React a repintar cada fila en cada render.
+ * Variable accent as CSS custom properties. Computed once: creating the object inside a
+ * map would force React to repaint every row on each render.
  */
 export const VARIABLE_ACCENT_STYLE = Object.fromEntries(
   Object.entries(SCIENCE_ACCENTS).map(([variable, { accent, rgb }]) => [

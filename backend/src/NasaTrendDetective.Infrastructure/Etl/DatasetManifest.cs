@@ -4,9 +4,9 @@ using NasaTrendDetective.Domain.Enums;
 namespace NasaTrendDetective.Infrastructure.Etl;
 
 /// <summary>
-/// Manifiesto de procedencia que acompaña a cada Parquet normalizado (&lt;nombre&gt;.provenance.json
-/// junto a &lt;nombre&gt;.parquet). Es el único punto que cambia al pasar a otra fuente: el conversor de
-/// esa fuente escribe otro manifiesto con el mismo formato y la API lo expone tal cual.
+/// Provenance manifest accompanying each normalized Parquet file (&lt;name&gt;.provenance.json
+/// alongside &lt;name&gt;.parquet). This is the only point that changes when switching sources:
+/// the converter writes a new manifest in the same schema and the API exposes it directly.
 /// </summary>
 public sealed record DatasetManifest
 {
@@ -31,10 +31,10 @@ public sealed record DatasetManifest
     public string LastMonth { get; init; } = string.Empty;
     public string Citation { get; init; } = string.Empty;
 
-    /// <summary>Variable del dominio; validada en <see cref="Load"/>.</summary>
+    /// <summary>Domain variable; validated in <see cref="Validate"/>.</summary>
     public ClimateVariable ClimateVariable => Enum.Parse<ClimateVariable>(Variable, ignoreCase: true);
 
-    /// <summary>Parquet hermano: mismo nombre sin el sufijo del manifiesto.</summary>
+    /// <summary>Sibling Parquet path: same base filename without the manifest suffix.</summary>
     public static string ParquetPathFor(string manifestPath) =>
         manifestPath[..^FileSuffix.Length] + ".parquet";
 
@@ -43,7 +43,7 @@ public sealed record DatasetManifest
         await using var stream = File.OpenRead(path);
         var manifest = await JsonSerializer.DeserializeAsync<DatasetManifest>(stream, JsonOptions, cancellationToken)
             .ConfigureAwait(false)
-            ?? throw new InvalidDataException($"Manifiesto vacío: {Path.GetFileName(path)}");
+            ?? throw new InvalidDataException($"Empty manifest: {Path.GetFileName(path)}");
         manifest.Validate(Path.GetFileName(path));
         return manifest;
     }
@@ -54,7 +54,7 @@ public sealed record DatasetManifest
         if (!Enum.TryParse<ClimateVariable>(Variable, ignoreCase: true, out var variable)
             || !Enum.IsDefined(variable) || int.TryParse(Variable, out _))
         {
-            errors.Add($"variable '{Variable}' no es una de {string.Join(", ", Enum.GetNames<ClimateVariable>())}");
+            errors.Add($"variable '{Variable}' is not one of {string.Join(", ", Enum.GetNames<ClimateVariable>())}");
         }
 
         foreach (var (name, value) in new[]
@@ -66,23 +66,23 @@ public sealed record DatasetManifest
         {
             if (string.IsNullOrWhiteSpace(value))
             {
-                errors.Add($"falta '{name}'");
+                errors.Add($"missing '{name}'");
             }
         }
 
         if (!(ResolutionDegrees > 0 && ResolutionDegrees <= 10))
         {
-            errors.Add("resolutionDegrees debe estar en (0, 10]");
+            errors.Add("resolutionDegrees must be in (0, 10]");
         }
 
         if (CoverageStart > CoverageEnd || CoverageStart < 1800 || CoverageEnd > 2200)
         {
-            errors.Add($"cobertura {CoverageStart}-{CoverageEnd} inválida");
+            errors.Add($"invalid coverage {CoverageStart}-{CoverageEnd}");
         }
 
         if (errors.Count > 0)
         {
-            throw new InvalidDataException($"Manifiesto '{fileName}' inválido: {string.Join("; ", errors)}.");
+            throw new InvalidDataException($"Invalid manifest '{fileName}': {string.Join("; ", errors)}.");
         }
     }
 }

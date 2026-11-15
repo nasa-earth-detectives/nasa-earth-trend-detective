@@ -6,7 +6,7 @@ import { HEX_COLUMN_CONFIG } from './hexColumnState';
 import type { HexColumnAppearance, HexColumnDataset, HexColumnResources, HexColumnState } from './hexColumnState';
 import type { createHexColumnAnimation } from './hexColumnAnimation';
 
-/** Actualiza la geografía sólo si cambia y conserva alturas/colores entre consultas. */
+/** Updates geography only when changed and preserves heights/colors between queries. */
 export function createHexColumnDatasetUpdater(
   resources: HexColumnResources,
   state: HexColumnState,
@@ -42,8 +42,8 @@ export function createHexColumnDatasetUpdater(
     if (!next?.cells.length) {
       if (state.mesh) { state.mesh.count = 0; state.mesh.visible = false; }
       state.animating = false;
-      // null significa consulta pendiente: oculta la lectura anterior pero
-      // conserva la intención por ID. Una respuesta vacía sí la invalida.
+      // null means pending query: hides previous readout but
+      // preserves selection intent by ID. An empty response does invalidate it.
       state.selectedIndex = -1;
       if (next !== null) state.selectedId = null;
       onSelect(null);
@@ -63,7 +63,7 @@ export function createHexColumnDatasetUpdater(
     }
     state.mesh.count = count;
     state.mesh.visible = state.visible;
-    // La anchura es huella visual; no afirma una resolución real de NASA.
+    // Column width is a visual footprint; does not assert actual NASA grid resolution.
     const width = radius * Math.PI / 180 * next.resolutionDegrees * HEX_COLUMN_CONFIG.footprintRatio;
     state.mesh.boundingSphere = new Sphere(new Vector3(), Math.hypot(baseRadius + maxHeight, width));
     if (!sameLayout) {

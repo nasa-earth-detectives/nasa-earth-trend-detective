@@ -1,8 +1,8 @@
 namespace NasaTrendDetective.Infrastructure.Etl.Models;
 
 /// <summary>
-/// Regla de limpieza efectiva para una ejecución: fill values combinados (estándar, variable y
-/// MissingValue del mapeo) y rango físico válido.
+/// Effective cleaning rule for an execution: combined fill values (standard, variable-specific,
+/// and mapping MissingValue) and valid physical range.
 /// </summary>
 public sealed record ResolvedCleaningRule(
     IReadOnlyList<double> FillValues,

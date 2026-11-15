@@ -13,8 +13,8 @@ public sealed class GridTrendRepositoryTests : IAsyncLifetime
         _repository = new DuckDbRepository(_factory);
         await new DuckDbSchemaInitializer(_factory).InitializeAsync();
 
-        // Celda A (10, 20): 2020 y 2021 completos. Celda B (-10, 20): 2020 completo y 2021 con solo
-        // 8 meses (año en curso). Valor = año - 2000 para que la media anual sea exacta.
+        // Cell A (10, 20): complete 2020 and 2021. Cell B (-10, 20): complete 2020 and 2021 with only
+        // 8 months (current year). Value = year - 2000 so that the annual mean is exact.
         await _repository.ExecuteAsync("""
             INSERT INTO fact_climate_observations
             SELECT row_number() OVER (), 1, lat, 20, y, m, y - 2000, y - 2000

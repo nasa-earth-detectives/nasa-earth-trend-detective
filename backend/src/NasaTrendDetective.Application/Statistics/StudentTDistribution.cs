@@ -1,10 +1,10 @@
 namespace NasaTrendDetective.Application.Statistics;
 
 /// <summary>
-/// Distribución t de Student: valor p bilateral y valor crítico. Hace falta para la prueba t de la
-/// pendiente de una regresión lineal, uno de los tres métodos de significancia que nombra el reto.
-/// Se implementa aquí (beta incompleta regularizada por fracción continua) para no añadir una
-/// dependencia numérica por dos funciones; los resultados se contrastan con SciPy en los tests.
+/// Student's t-distribution: two-tailed p-value and critical value. Needed for the linear regression
+/// slope t-test, one of the three significance methods named by the challenge.
+/// Implemented here (regularized incomplete beta via continued fraction) to avoid adding a
+/// numerical dependency for two functions; results are cross-checked against SciPy in tests.
 /// </summary>
 public static class StudentTDistribution
 {
@@ -12,7 +12,7 @@ public static class StudentTDistribution
     private const double Epsilon = 1e-14;
     private const double Tiny = 1e-300;
 
-    /// <summary>Probabilidad de observar |T| mayor o igual que |t| con esos grados de libertad.</summary>
+    /// <summary>Probability of observing |T| greater than or equal to |t| with those degrees of freedom.</summary>
     public static double TwoTailedPValue(double t, int degreesOfFreedom)
     {
         if (degreesOfFreedom < 1 || double.IsNaN(t))
@@ -30,15 +30,15 @@ public static class StudentTDistribution
     }
 
     /// <summary>
-    /// Valor t que deja la probabilidad pedida repartida entre las dos colas (0,05 para el 95 %). El
-    /// valor p decrece con t, así que basta una bisección: sobra precisión para un intervalo de confianza.
+    /// Value t that leaves the requested probability split between both tails (0.05 for 95%). The
+    /// p-value decreases with t, so bisection is enough: more than accurate enough for a confidence interval.
     /// </summary>
     public static double TwoTailedCriticalValue(double tailProbability, int degreesOfFreedom)
     {
         ArgumentOutOfRangeException.ThrowIfLessThan(degreesOfFreedom, 1);
         if (!(tailProbability > 0 && tailProbability < 1))
         {
-            throw new ArgumentOutOfRangeException(nameof(tailProbability), tailProbability, "Debe estar entre 0 y 1.");
+            throw new ArgumentOutOfRangeException(nameof(tailProbability), tailProbability, "Must be between 0 and 1.");
         }
 
         double low = 0, high = 1;
@@ -57,7 +57,7 @@ public static class StudentTDistribution
         return (low + high) / 2;
     }
 
-    /// <summary>I_x(a, b) con la fracción continua de Lentz, usando la simetría para que converja rápido.</summary>
+    /// <summary>I_x(a, b) with Lentz's continued fraction, using symmetry for fast convergence.</summary>
     internal static double RegularizedIncompleteBeta(double a, double b, double x)
     {
         if (x <= 0) return 0;
@@ -97,7 +97,7 @@ public static class StudentTDistribution
         return result;
     }
 
-    /// <summary>Logaritmo de la función gamma (aproximación de Lanczos, g = 7).</summary>
+    /// <summary>Logarithm of the gamma function (Lanczos approximation, g = 7).</summary>
     private static double LogGamma(double value)
     {
         double[] coefficients =

@@ -1,7 +1,7 @@
 namespace NasaTrendDetective.Infrastructure.Etl;
 
 /// <summary>
-/// Error de importación masiva de Parquet: glob sin archivos o esquema distinto al canónico.
+/// Parquet bulk import error: glob matches no files or schema does not match canonical definition.
 /// </summary>
 public sealed class ParquetImportException : InvalidOperationException
 {

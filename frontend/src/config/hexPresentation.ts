@@ -8,99 +8,114 @@ interface HexPresentation {
   explanation: string;
 }
 
-/** Describe la variable medida sin atribuir causas o significancia a su signo. */
+/** Describes the measured variable without attributing causality or significance to its sign. */
 export const HEX_PRESENTATION: Record<ClimateVariable, HexPresentation> = {
   Gistemp: {
-    heading: 'Tendencia de temperatura',
-    subject: 'La anomalía de temperatura',
-    increase: 'Aumento de temperatura',
-    decrease: 'Descenso de temperatura',
-    explanation: 'Ritmo de cambio de la anomalía de temperatura durante el periodo; no es la temperatura actual.',
+    heading: 'Temperature trend',
+    subject: 'The temperature anomaly',
+    increase: 'Temperature increase',
+    decrease: 'Temperature decrease',
+    explanation: 'Rate of change of the temperature anomaly over the period; not the current temperature.',
   },
   ModisNdvi: {
-    heading: 'Tendencia de vegetación',
-    subject: 'El índice NDVI',
-    increase: 'Aumento de NDVI',
-    decrease: 'Descenso de NDVI',
-    explanation: 'Ritmo de cambio del índice de vegetación NDVI durante el periodo; no es el NDVI actual ni confirma deforestación.',
+    heading: 'Vegetation trend',
+    subject: 'The NDVI index',
+    increase: 'NDVI increase',
+    decrease: 'NDVI decrease',
+    explanation: 'Rate of change of the NDVI vegetation index over the period; not the current NDVI nor confirmation of deforestation.',
   },
   GraceMass: {
-    heading: 'Tendencia de agua y hielo',
-    subject: 'La masa de agua y hielo',
-    increase: 'Aumento de masa de agua y hielo',
-    decrease: 'Descenso de masa de agua y hielo',
-    explanation: 'Ritmo de cambio de la masa de agua y hielo durante el periodo; no es una cantidad de agua actual.',
+    heading: 'Water & ice trend',
+    subject: 'Water and ice mass',
+    increase: 'Water & ice mass increase',
+    decrease: 'Water & ice mass decrease',
+    explanation: 'Rate of change of water and ice mass over the period; not a current water quantity.',
   },
   Oco2: {
-    heading: 'Tendencia de CO₂',
-    subject: 'La concentración de CO₂',
-    increase: 'Aumento de CO₂',
-    decrease: 'Descenso de CO₂',
-    explanation: 'Ritmo de cambio de la concentración de CO₂ durante el periodo; no es la concentración actual.',
+    heading: 'CO₂ trend',
+    subject: 'CO₂ concentration',
+    increase: 'CO₂ increase',
+    decrease: 'CO₂ decrease',
+    explanation: 'Rate of change of CO₂ concentration over the period; not the current concentration.',
   },
   Merra2Temperature: {
-    heading: 'Tendencia de temperatura del aire',
-    subject: 'La temperatura del aire a 2 m',
-    increase: 'Aumento de la temperatura del aire',
-    decrease: 'Descenso de la temperatura del aire',
-    explanation: 'Ritmo de cambio de la temperatura media anual del aire durante el periodo; no es la temperatura actual.',
+    heading: 'Air temperature trend',
+    subject: 'The 2 m air temperature',
+    increase: 'Air temperature increase',
+    decrease: 'Air temperature decrease',
+    explanation: 'Rate of change of annual mean air temperature over the period; not the current temperature.',
   },
   Merra2Precipitation: {
-    heading: 'Tendencia de precipitación',
-    subject: 'La precipitación',
-    increase: 'Aumento de la precipitación',
-    decrease: 'Descenso de la precipitación',
-    explanation: 'Ritmo de cambio de la precipitación media anual durante el periodo; no es la lluvia de un año concreto.',
+    heading: 'Precipitation trend',
+    subject: 'Precipitation',
+    increase: 'Precipitation increase',
+    decrease: 'Precipitation decrease',
+    explanation: 'Rate of change of annual mean precipitation over the period; not the rainfall of a specific year.',
   },
   GpmPrecipitation: {
-    heading: 'Tendencia de precipitación (satélite)',
-    subject: 'La precipitación estimada por satélite',
-    increase: 'Aumento de la precipitación',
-    decrease: 'Descenso de la precipitación',
-    explanation: 'Ritmo de cambio de la precipitación media anual de GPM IMERG durante el periodo; no es la lluvia de un año concreto.',
+    heading: 'Precipitation trend (satellite)',
+    subject: 'Satellite-estimated precipitation',
+    increase: 'Precipitation increase',
+    decrease: 'Precipitation decrease',
+    explanation: 'Rate of change of GPM IMERG annual mean precipitation over the period; not the rainfall of a specific year.',
   },
   Merra2Evaporation: {
-    heading: 'Tendencia de evaporación',
-    subject: 'La evaporación en tierra',
-    increase: 'Aumento de la evaporación',
-    decrease: 'Descenso de la evaporación',
-    explanation: 'Ritmo de cambio de la evaporación media anual sobre tierra durante el periodo; por sí sola no indica sequía.',
+    heading: 'Evaporation trend',
+    subject: 'Land evaporation',
+    increase: 'Evaporation increase',
+    decrease: 'Evaporation decrease',
+    explanation: 'Rate of change of annual mean land evaporation over the period; by itself it does not indicate drought.',
   },
   Merra2SoilMoisture: {
-    heading: 'Tendencia de humedad del suelo',
-    subject: 'La humedad del suelo',
-    increase: 'Aumento de la humedad del suelo',
-    decrease: 'Descenso de la humedad del suelo',
-    explanation: 'Ritmo de cambio de la humedad media anual en la zona de raíces durante el periodo; no es la humedad actual.',
+    heading: 'Soil moisture trend',
+    subject: 'Soil moisture',
+    increase: 'Soil moisture increase',
+    decrease: 'Soil moisture decrease',
+    explanation: 'Rate of change of annual mean root-zone soil moisture over the period; not the current moisture level.',
   },
 };
 
-const regular = new Intl.NumberFormat('es-CO', { maximumSignificantDigits: 3 });
-const signedRegular = new Intl.NumberFormat('es-CO', { maximumSignificantDigits: 3, signDisplay: 'exceptZero' });
-const scientific = new Intl.NumberFormat('es-CO', { notation: 'scientific', maximumSignificantDigits: 3 });
-const signedScientific = new Intl.NumberFormat('es-CO', {
+const regular = new Intl.NumberFormat('en-US', { maximumSignificantDigits: 3 });
+const signedRegular = new Intl.NumberFormat('en-US', { maximumSignificantDigits: 3, signDisplay: 'exceptZero' });
+const scientific = new Intl.NumberFormat('en-US', { notation: 'scientific', maximumSignificantDigits: 3 });
+const signedScientific = new Intl.NumberFormat('en-US', {
   notation: 'scientific', maximumSignificantDigits: 3, signDisplay: 'exceptZero',
 });
 
-/** La precisión de lectura no altera los datos; cero se reserva para el valor cero exacto. */
+/** Reading precision does not alter data; zero is reserved for the exact zero value. */
 export function formatHexValue(value: number, signed = false): string {
   if (value === 0) return '0';
   const small = Math.abs(value) < 0.0001;
   return (small ? signed ? signedScientific : scientific : signed ? signedRegular : regular).format(value);
 }
 
-/** Expande sólo bases temporales declaradas por la fuente; nunca presupone una base anual. */
+const UNIT_DENOMINATORS: Record<string, string> = {
+  year: 'year',
+  año: 'year',
+  decade: 'decade',
+  década: 'decade',
+  month: 'month',
+  mes: 'month',
+  day: 'day',
+  día: 'day',
+};
+
+/** Expands only temporal bases declared by the source; never assumes an annual base. */
 export function readableHexUnit(unit: string): string {
-  if (unit === 'pendiente · unidad no declarada') return 'unidad no declarada';
-  return unit.replace(/\s*\/\s*(año|década|mes|día)\s*$/u, ' por $1');
+  if (unit === 'slope · undeclared unit' || unit === 'pendiente · unidad no declarada') return 'undeclared unit';
+  return unit.replace(
+    /\s*\/\s*(year|decade|month|day|año|década|mes|día)\s*$/u,
+    (_match, token: string) => ` per ${UNIT_DENOMINATORS[token] ?? token}`
+  );
 }
 
 export function describeHexTrend(variable: ClimateVariable, slope: number, unit: string, startYear: number, endYear: number): string {
   const context = HEX_PRESENTATION[variable];
-  const period = `entre ${startYear} y ${endYear}`;
-  if (slope === 0) return `${context.heading}: pendiente cero ${period}. ${unit.includes('unidad no declarada') ? 'La fuente no declara la unidad ni la base temporal. ' : ''}${context.explanation}`;
-  if (unit.includes('unidad no declarada')) {
-    return `${context.heading}: pendiente ${slope > 0 ? 'positiva' : 'negativa'} de ${formatHexValue(slope, true)} ${period}. La fuente no declara la unidad ni la base temporal. ${context.explanation}`;
+  const period = `between ${startYear} and ${endYear}`;
+  const isUndeclared = unit.includes('undeclared unit') || unit.includes('unidad no declarada');
+  if (slope === 0) return `${context.heading}: zero slope ${period}. ${isUndeclared ? 'The source does not declare the unit or time base. ' : ''}${context.explanation}`;
+  if (isUndeclared) {
+    return `${context.heading}: ${slope > 0 ? 'positive' : 'negative'} slope of ${formatHexValue(slope, true)} ${period}. The source does not declare the unit or time base. ${context.explanation}`;
   }
-  return `${context.subject} ${slope > 0 ? 'aumenta' : 'disminuye'} ${formatHexValue(Math.abs(slope))} ${readableHexUnit(unit)} ${period}. ${context.explanation}`;
+  return `${context.subject} ${slope > 0 ? 'increases' : 'decreases'} ${formatHexValue(Math.abs(slope))} ${readableHexUnit(unit)} ${period}. ${context.explanation}`;
 }

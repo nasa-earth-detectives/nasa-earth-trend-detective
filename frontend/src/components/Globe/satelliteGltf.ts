@@ -3,10 +3,10 @@ import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
 import { GLTFLoader, type GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
 /**
- * Modelos oficiales de la NASA (NASA-3D-Resources) preparados con
- * scripts/satellites/prepare_nasa_satellites.py: alas solares sobre X, +Y arriba, origen en el
- * cuerpo, tamaño máximo 1 y materiales físicos (lámina dorada, celdas solares, aluminio).
- * Comprimidos con Draco (de 6,2 MB a 1,96 MB los cuatro).
+ * Official NASA 3D models (NASA-3D-Resources) prepared with
+ * scripts/satellites/prepare_nasa_satellites.py: solar arrays along X, +Y up, origin at
+ * bus center, maximum bounding size 1, and physically-based materials (gold foil, solar cells, aluminum).
+ * Draco compressed (reducing all four models from 6.2 MB to 1.96 MB).
  */
 const base = import.meta.env.BASE_URL;
 
@@ -18,7 +18,7 @@ export function createSatelliteGltfLoader(envMap: Texture) {
   const loaded: GLTF[] = [];
   let disposed = false;
 
-  /** Carga el modelo y lo entrega listo para la escena; null si falla (queda el procedural). */
+  /** Loads model and returns it scene-ready; returns null on error (procedural fallback used). */
   const load = async (model: string, size: number): Promise<Group | null> => {
     try {
       const gltf = await loader.loadAsync(`${base}models/satellites/${model}.glb`);
@@ -32,8 +32,8 @@ export function createSatelliteGltfLoader(envMap: Texture) {
         child.raycast = () => {};
         for (const material of Array.isArray(child.material) ? child.material : [child.material]) {
           if (material instanceof MeshStandardMaterial) {
-            // Reflejos tenues: el entorno es una habitación clara y a intensidad 1 el oro salía
-            // casi blanco. En el espacio el fondo es negro y el oro brilla donde le da el sol.
+            // Subtle reflections: environment is a bright room and at intensity 1 gold rendered
+            // almost white. In space the background is black and gold shines where lit by the sun.
             material.envMap = envMap;
             material.envMapIntensity = 0.35;
             material.needsUpdate = true;
@@ -45,7 +45,7 @@ export function createSatelliteGltfLoader(envMap: Texture) {
       holder.add(gltf.scene);
       return holder;
     } catch (error) {
-      console.warn(`Modelo del satélite ${model} no disponible; se usa el procedural.`, error);
+      console.warn(`Satellite model ${model} unavailable; falling back to procedural.`, error);
       return null;
     }
   };
@@ -73,7 +73,7 @@ function disposeGltf(gltf: GLTF): void {
 function disposeMaterial(material: Material): void {
   for (const value of Object.values(material)) {
     if (value && typeof value === 'object' && 'isTexture' in value && (value as Texture).isTexture) {
-      // envMap es compartido: lo libera el kit, no cada modelo.
+      // envMap is shared: disposed by kit, not individual models.
       if ((material as MeshStandardMaterial).envMap !== value) (value as Texture).dispose();
     }
   }

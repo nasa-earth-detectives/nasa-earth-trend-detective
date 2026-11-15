@@ -136,7 +136,7 @@
   .instrument-future { margin-top: 4px; }
 }
 
-/* Lectura de tendencia: la representación anual deja de aplicar. */
+/* Trend readout: annual representation no longer applies. */
 .observation-mode-control[data-disabled='true'] { opacity: .4; }
 .observation-mode-control[data-disabled='true'] button { cursor: not-allowed; }
 .instrument-note {
@@ -145,5 +145,5 @@
   line-height: 16px;
   color: var(--text-tertiary);
 }
-/* Etiqueta de variable anunciada: azul marino del sistema (antes, un celeste puesto en línea). */
+/* Upcoming variable badge: system sea blue (previously an inline light blue). */
 .variable-row__soon { color: var(--science-sea); border-color: rgba(95, 136, 166, .45); }

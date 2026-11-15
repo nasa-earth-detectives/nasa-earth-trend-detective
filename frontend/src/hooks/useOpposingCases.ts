@@ -10,9 +10,9 @@ export type CaseVerdict =
   | { status: 'ready'; trend: CellTrend; startYear: number; endYear: number };
 
 /**
- * Veredicto real (Mann-Kendall / Sen) de cada variable en cada región de los casos de estudio. Se
- * pide al abrir el panel, con todo el periodo que cubre la fuente; si la API no responde o la
- * variable no tiene datos, la celda dice que no hay datos en vez de enseñar una cifra guardada.
+ * Real verdict (Mann-Kendall / Sen) for each variable in each case-study region. Requested when
+ * the panel opens, over the source's full coverage period; if the API fails or the variable has
+ * no data, the cell says no data instead of showing a hardcoded figure.
  */
 export function useOpposingCases(open: boolean): Record<string, CaseVerdict> {
   const [verdicts, setVerdicts] = useState<Record<string, CaseVerdict>>({});

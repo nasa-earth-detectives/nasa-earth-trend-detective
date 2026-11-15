@@ -3,7 +3,7 @@ using NasaTrendDetective.Infrastructure.ExternalServices.Models;
 namespace NasaTrendDetective.Infrastructure.ExternalServices;
 
 /// <summary>
-/// Catálogo mínimo de datasets NASA usados por el detector de tendencias.
+/// Minimal catalog of NASA datasets used by the trend detective.
 /// </summary>
 public static class NasaDatasetCatalog
 {
@@ -15,7 +15,7 @@ public static class NasaDatasetCatalog
 
     public static readonly NasaDataset GistempV4 = new(
         GistempV4Key,
-        "GISS Surface Temperature Analysis v4 (anomalías globales)",
+        "GISS Surface Temperature Analysis v4 (global anomalies)",
         "GISTEMP",
         "v4",
         "NASA GISS",
@@ -67,5 +67,5 @@ public static class NasaDatasetCatalog
     public static NasaDataset Get(string key) =>
         TryGet(key, out var dataset)
             ? dataset
-            : throw new KeyNotFoundException($"Dataset NASA desconocido: '{key}'.");
+            : throw new KeyNotFoundException($"Unknown NASA dataset: '{key}'.");
 }

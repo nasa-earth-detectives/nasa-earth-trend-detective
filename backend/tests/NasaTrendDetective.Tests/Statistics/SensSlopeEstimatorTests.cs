@@ -7,7 +7,7 @@ public class SensSlopeEstimatorTests
     [Fact]
     public void Estimate_WithLinearSeries_ComputesExactSlope()
     {
-        // Serie lineal: y = 2.5 * x + 10 para x = 0..4
+        // Linear series: y = 2.5 * x + 10 for x = 0..4
         var values = new double[] { 10.0, 12.5, 15.0, 17.5, 20.0 };
         var years = new int[] { 2000, 2001, 2002, 2003, 2004 };
 
@@ -22,13 +22,13 @@ public class SensSlopeEstimatorTests
     [Fact]
     public void Estimate_WithOutliers_RemainsRobustComparedToOLS()
     {
-        // Serie con un outlier extremo al final
+        // Series with an extreme outlier at the end
         var values = new double[] { 1.0, 2.0, 3.0, 4.0, 100.0 };
 
         var result = SensSlopeEstimator.Estimate(values);
 
-        // La mediana no se desvía drásticamente por el 100.0
-        Assert.True(result.Slope < 10.0, $"La pendiente de Sen {result.Slope} debe ser robusta frente al outlier");
+        // The median does not deviate drastically due to the 100.0
+        Assert.True(result.Slope < 10.0, $"Sen's slope {result.Slope} must be robust against the outlier");
         Assert.True(result.Slope >= 1.0);
     }
 

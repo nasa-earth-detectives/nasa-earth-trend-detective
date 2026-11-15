@@ -1,11 +1,11 @@
-"""Vista previa de los satélites preparados (Cycles + OptiX en la RTX 4060).
+"""Preview prepared satellites (Cycles + OptiX on RTX 4060).
 
-Por qué: comprobar orientación (alas en X, +Y arriba) y materiales antes de verlos en el globo,
-donde salen pequeños y en movimiento. Aborta si no hay GPU OptiX: en CPU tardaría 20 veces más.
+Rationale: verify orientation (wings along X, +Y up) and materials before viewing on the globe,
+where they appear small and in motion. Aborts without an OptiX GPU: CPU rendering is 20x slower.
 
-Uso:
+Usage:
     blender -b --factory-startup --python scripts/satellites/preview_satellites.py -- \
-        frontend/public/models/satellites <carpeta-salida>
+        frontend/public/models/satellites <output-folder>
 """
 import math
 import os
@@ -21,7 +21,7 @@ def activar_optix() -> None:
     preferencias.get_devices()
     gpus = [d for d in preferencias.devices if d.type == 'OPTIX']
     if not gpus:
-        raise SystemExit('No hay GPU OptiX: se aborta en lugar de renderizar en CPU.')
+        raise SystemExit('No OptiX GPU found: aborting instead of CPU rendering.')
     for dispositivo in preferencias.devices:
         dispositivo.use = dispositivo.type == 'OPTIX'
     escena = bpy.context.scene
@@ -42,7 +42,7 @@ def preparar_escena() -> None:
     fondo.inputs['Color'].default_value = (0.02, 0.025, 0.04, 1)
     fondo.inputs['Strength'].default_value = 1.0
     escena.world = mundo
-    # Sol duro como en órbita, más un relleno azulado tenue (luz de la Tierra).
+    # Harsh sunlight as in orbit, plus faint bluish fill (Earthlight).
     sol = bpy.data.objects.new('sol', bpy.data.lights.new('sol', 'SUN'))
     sol.data.energy = 5
     sol.rotation_euler = (math.radians(50), math.radians(10), math.radians(35))
@@ -72,7 +72,7 @@ def main() -> None:
         bpy.ops.import_scene.gltf(filepath=os.path.join(entrada, archivo))
         bpy.context.scene.render.filepath = os.path.join(salida, archivo.replace('.glb', '.png'))
         bpy.ops.render.render(write_still=True)
-        print('renderizado', bpy.context.scene.render.filepath)
+        print('rendered', bpy.context.scene.render.filepath)
 
 
 if __name__ == '__main__':

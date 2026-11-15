@@ -1,4 +1,4 @@
-/** Ejecutar con playwright-cli run-code; ver docs/s2-t4-palette-performance.md. Sólo instrumenta esta sesión de prueba. */
+/** Run with playwright-cli run-code; see docs/s2-t4-palette-performance.md. Only instruments this test session. */
 async (page) => {
   await page.unroute('**/src/services/hexDataSource.ts*');
   await page.unroute('**/src/components/Globe/useGlobeScene.ts*');
@@ -6,13 +6,13 @@ async (page) => {
     const response = await route.fetch();
     const body = await response.text();
     const needle = 'import.meta.env.VITE_HEX_DEMO_PROFILE ?? "global"';
-    if (!body.includes(needle)) throw new Error('No se encontró el perfil de prueba');
+    if (!body.includes(needle)) throw new Error('Test profile not found');
     await route.fulfill({ response, body: body.replace(needle, '"stress"') });
   });
   await page.route('**/src/components/Globe/useGlobeScene.ts*', async route => {
     const response = await route.fetch();
     const body = await response.text();
-    if (!body.includes('globe.backgroundColor(')) throw new Error('No se encontró Globe');
+    if (!body.includes('globe.backgroundColor(')) throw new Error('Globe not found');
     await route.fulfill({ response, body: body.replace('globe.backgroundColor(', 'window.__hexBenchmarkGlobe = globe; globe.backgroundColor(') });
   });
   const countVisible = () => page.evaluate(() => {
@@ -42,11 +42,11 @@ async (page) => {
   await page.waitForFunction(() => document.querySelector('[data-earth-surface]')?.dataset.earthSurface === 'ready');
   await page.waitForTimeout(1600);
   await page.evaluate(() => { window.__hexBenchmarkCanvas = document.querySelector('canvas'); });
-  // Fuera del muestreo FPS: verifica también que otras columnas no tapen las tapas.
+  // Outside FPS sampling: also verify that other columns do not occlude the column caps.
   const unobstructedCaps = await page.evaluate(async () => {
     const url = performance.getEntriesByType('resource').map(entry => entry.name)
       .find(name => /\/three\.js\?/.test(name));
-    if (!url) throw new Error('No se encontró el runtime Three ya cargado');
+    if (!url) throw new Error('Loaded Three runtime not found');
     const { Raycaster, Vector3 } = await import(url);
     const globe = window.__hexBenchmarkGlobe;
     const mesh = globe.scene().getObjectByName('earth-analysis-hex-columns');
@@ -67,12 +67,12 @@ async (page) => {
     }
     return count;
   });
-  if (unobstructedCaps <= 5000) throw new Error(`Sólo ${unobstructedCaps} tapas sin oclusión`);
+  if (unobstructedCaps <= 5000) throw new Error(`Only ${unobstructedCaps} caps without occlusion`);
   for (const mode of ['idle', 'hover', 'orbit', 'zoom', 'variable', 'timeline']) {
-    await page.getByRole('button', { name: 'Recentrar la Tierra' }).click();
+    await page.getByRole('button', { name: 'Recenter Earth' }).click();
     await page.waitForTimeout(1000);
     const before = await countVisible();
-    if (before <= 5000) throw new Error(`Sólo ${before} columnas frontales al comenzar ${mode}`);
+    if (before <= 5000) throw new Error(`Only ${before} front-facing columns when starting ${mode}`);
     await page.evaluate(() => {
       const renderer = window.__hexBenchmarkGlobe.renderer();
       window.__hexBenchmark = { start: performance.now(), last: performance.now(), frame: renderer.info.render.frame, intervals: [], done: false };
@@ -97,22 +97,22 @@ async (page) => {
       for (let i = 0; i < 4; i++) { await page.mouse.wheel(0, i % 2 ? 110 : -110); await page.waitForTimeout(550); }
     } else if (mode === 'variable') {
       await page.getByRole('button', { name: 'Variables', exact: true }).click();
-      for (const name of ['Vegetación', 'Masa de agua', 'Dióxido', 'Temperatura']) {
+      for (const name of ['Vegetation', 'Water', 'Dioxide', 'Temperature']) {
         await page.getByRole('radio', { name: new RegExp(name) }).click();
         await page.waitForTimeout(500);
       }
       await page.keyboard.press('Escape');
     } else if (mode === 'timeline') {
-      await page.getByRole('button', { name: 'Tiempo', exact: true }).click();
+      await page.getByRole('button', { name: 'Time', exact: true }).click();
       for (const year of ['2010', '2020', '2015', '2024']) {
-        await page.getByRole('slider', { name: 'Año de consulta' }).fill(year);
+        await page.getByRole('slider', { name: 'Query year' }).fill(year);
         await page.waitForTimeout(500);
       }
       await page.keyboard.press('Escape');
     }
     await page.waitForFunction(() => window.__hexBenchmark.done);
     const after = await countVisible();
-    if (after <= 5000) throw new Error(`Sólo ${after} columnas frontales al terminar ${mode}`);
+    if (after <= 5000) throw new Error(`Only ${after} front-facing columns when finishing ${mode}`);
     results.push(await page.evaluate(({ mode, before, after }) => {
       const sample = window.__hexBenchmark;
       let sum = 0, count = 0, worstSecond = Infinity;

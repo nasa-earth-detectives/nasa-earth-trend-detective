@@ -3,18 +3,18 @@ using NasaTrendDetective.Domain.Enums;
 namespace NasaTrendDetective.Application.Implements;
 
 /// <summary>
-/// Cuántos periodos trae cada año de una variable y cuántos hacen falta para que ese año cuente.
-/// GISTEMP es mensual: un año con pocos meses es un año en curso y no se compara de igual a igual
-/// con años completos. MERRA-2 y GPM IMERG llegan ya como media anual de NASA POWER (una fila por celda y año):
-/// exigirle nueve meses dejaría fuera todos sus años. El XCO2 de OCO-2 también entra como media anual: el
-/// satélite mide una franja estrecha y no llena una celda de 2° cada mes, así que el conversor ya decide
-/// qué años tienen meses suficientes (scripts/etl/gibs_oco2_to_csv.py).
+/// How many periods each year contains for a variable and how many are required for that year to count.
+/// GISTEMP is monthly: a year with too few months is an incomplete year in progress and is not comparable
+/// to full years. MERRA-2 and GPM IMERG already arrive as annual means from NASA POWER (one row per cell
+/// and year): requiring nine months would drop every year. OCO-2 XCO2 also enters as an annual mean: the
+/// satellite samples a narrow swath and does not fill a 2-degree cell every month, so the converter
+/// already decides which years have enough months (scripts/etl/gibs_oco2_to_csv.py).
 /// </summary>
 public static class VariableCadence
 {
     /// <summary>
-    /// 9 de 12 meses (75 %): deja fuera un año en curso incompleto sin descartar celdas polares
-    /// con algún mes sin dato. Es una regla del proyecto, no una norma citada.
+    /// 9 out of 12 months (75%): excludes an incomplete year in progress without discarding polar cells
+    /// missing an occasional month. This is a project rule, not a cited standard.
     /// </summary>
     public const int MonthlyMinPeriodsPerYear = 9;
 

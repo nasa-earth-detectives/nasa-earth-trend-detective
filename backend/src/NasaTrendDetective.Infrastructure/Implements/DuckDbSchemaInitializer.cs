@@ -4,14 +4,14 @@ using NasaTrendDetective.Infrastructure.Interfaces;
 namespace NasaTrendDetective.Infrastructure.Implements;
 
 /// <summary>
-/// Ejecuta init_schema.sql sobre una conexión de la fábrica DuckDB. El script es idempotente,
-/// por lo que puede invocarse en cada arranque sin efectos secundarios.
+/// Executes init_schema.sql against a connection from the DuckDB factory. The script is idempotent
+/// and can be invoked on each startup without side effects.
 /// </summary>
 public sealed class DuckDbSchemaInitializer : IDuckDbSchemaInitializer
 {
     /// <summary>
-    /// Las bases creadas antes de MERRA-2 limitan dim_variable a los ids 1-4 con un CHECK, y
-    /// CREATE TABLE IF NOT EXISTS no lo quita: sembrar una variable nueva fallaría para siempre.
+    /// Databases created before MERRA-2 restrict dim_variable to ids 1-4 with a CHECK constraint, and
+    /// CREATE TABLE IF NOT EXISTS does not remove it: seeding a new variable would fail forever.
     /// </summary>
     private const string LegacyVariableCheck = """
         SELECT count(*) FROM duckdb_constraints()
@@ -19,9 +19,9 @@ public sealed class DuckDbSchemaInitializer : IDuckDbSchemaInitializer
         """;
 
     /// <summary>
-    /// DuckDB no permite soltar un CHECK, así que se reconstruyen las tres tablas atadas por la clave
-    /// foránea. No se pierde nada irrecuperable: los hechos y su procedencia salen de los Parquet
-    /// sembrados, y el sembrado que corre después de este paso los vuelve a cargar.
+    /// DuckDB does not allow dropping a CHECK constraint, so the three tables linked by the foreign key
+    /// are rebuilt. Nothing irrecoverable is lost: facts and their provenance come from the seeded
+    /// Parquet files, and the seeding step that runs after this reloads them.
     /// </summary>
     private const string DropLegacyTables = """
         DROP TABLE IF EXISTS dataset_provenance;

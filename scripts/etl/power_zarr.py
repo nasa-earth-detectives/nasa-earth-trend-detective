@@ -1,11 +1,11 @@
-"""Lectura mínima del Zarr público de NASA POWER (bucket abierto `nasa-power`, sin cuenta).
+"""Minimal reader for public NASA POWER Zarr stores (open `nasa-power` bucket, no account required).
 
-Por qué no se usa la librería `zarr`: sólo hacen falta bloques completos de un array 3D y sus ejes.
-Leerlos por HTTPS con `urllib` y decodificarlos con `numcodecs` evita depender de zarr + s3fs + xarray
-(y de sus cambios entre versiones) para algo que son 40 líneas.
+Why the `zarr` library is not used: we only need full chunks of a 3D array and its axes. Reading them
+over HTTPS with `urllib` and decoding with `numcodecs` avoids depending on zarr + s3fs + xarray (and
+breaking changes across their versions) for what is ~40 lines of code.
 
-Cada bloque se guarda tal cual llega (comprimido) en una carpeta de caché: repetir la conversión no
-vuelve a descargar nada y el SHA-256 de la fuente se calcula sobre esos mismos bytes.
+Each chunk is cached as-received (compressed) on disk: repeating a conversion does not re-download
+anything, and the source SHA-256 is computed over those exact bytes.
 """
 from __future__ import annotations
 
@@ -20,8 +20,8 @@ import numpy as np
 from numcodecs import Blosc, FixedScaleOffset
 
 BUCKET_URL = "https://nasa-power.s3.amazonaws.com"
-# Un bloque que no existe en el bucket equivale a "todo relleno" en Zarr; se marca con un archivo
-# vacío para no volver a preguntar por él en cada ejecución.
+# A chunk that does not exist in the bucket means "all fill value" in Zarr; mark it with an empty
+# file so we do not re-request it on subsequent runs.
 AUSENTE = b""
 
 
@@ -55,20 +55,20 @@ class PowerZarr:
         return self.meta[f"{name}/.zattrs" if name else ".zattrs"]
 
     def axis(self, name: str) -> np.ndarray:
-        """Eje 1D (lat, lon, time): un solo bloque, sin filtros."""
+        """1D axis (lat, lon, time): single chunk, no filters."""
         spec = self.meta[f"{name}/.zarray"]
         return np.frombuffer(Blosc().decode(self._fetch(f"{name}/0")), dtype=spec["dtype"]).copy()
 
     def read(self, name: str) -> tuple[np.ndarray, str, int]:
-        """Array (tiempo, lat, lon) completo, SHA-256 de sus bloques crudos y nº de bloques ausentes."""
+        """Full (time, lat, lon) array, SHA-256 of its raw chunks, and count of missing chunks."""
         spec = self.meta[f"{name}/.zarray"]
         shape, chunks = spec["shape"], spec["chunks"]
         if chunks[0] != shape[0]:
-            raise SystemExit(f"{name}: se esperaba un único bloque en el tiempo y hay {shape[0]}/{chunks[0]}.")
+            raise SystemExit(f"{name}: expected a single chunk along time, got {shape[0]}/{chunks[0]}.")
         filters = [FixedScaleOffset(offset=f["offset"], scale=f["scale"], dtype=f["dtype"], astype=f["astype"])
                    for f in spec.get("filters") or [] if f["id"] == "fixedscaleoffset"]
         if len(filters) != len(spec.get("filters") or []):
-            raise SystemExit(f"{name}: filtro Zarr no soportado: {spec['filters']}")
+            raise SystemExit(f"{name}: unsupported Zarr filter: {spec['filters']}")
         sep = spec.get("dimension_separator", ".")
         keys = [(i, j) for i in range(-(-shape[1] // chunks[1])) for j in range(-(-shape[2] // chunks[2]))]
         with ThreadPoolExecutor(self.workers) as pool:
@@ -86,11 +86,11 @@ class PowerZarr:
                 data = codec.decode(data)
             tile = np.frombuffer(data, dtype=spec["dtype"]).reshape(chunks)
             la, lo = i * chunks[1], j * chunks[2]
-            # Los bloques del borde vienen rellenos hasta el tamaño completo: se recorta al array.
+            # Edge chunks are padded to full chunk size: slice down to the array bounds.
             part = out[:, la:la + chunks[1], lo:lo + chunks[2]]
             part[...] = tile[:, :part.shape[1], :part.shape[2]]
         return out, digest.hexdigest(), missing
 
     def retrieved_at(self, name: str) -> float:
-        """Fecha de descarga = el bloque en caché más reciente de la variable."""
+        """Download timestamp = the most recently modified cached chunk for the variable."""
         return max(p.stat().st_mtime for p in (self.cache / name).iterdir())

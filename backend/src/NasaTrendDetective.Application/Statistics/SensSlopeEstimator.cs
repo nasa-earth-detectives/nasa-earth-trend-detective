@@ -1,8 +1,8 @@
 namespace NasaTrendDetective.Application.Statistics;
 
 /// <summary>
-/// Estimador no paramétrico de Pendiente de Sen (Sen's Slope).
-/// Calcula la mediana de las tasas de cambio de todos los pares temporales e intervalos de confianza.
+/// Non-parametric Sen's Slope estimator.
+/// Computes the median of rates of change across all time pairs and confidence intervals.
 /// </summary>
 public static class SensSlopeEstimator
 {
@@ -59,11 +59,11 @@ public static class SensSlopeEstimator
             medianSlope = (slopes[(total / 2) - 1] + slopes[total / 2]) / 2.0;
         }
 
-        // Intervalo de confianza del 95 % según Sen (1968): con las pendientes ordenadas, el límite
-        // inferior es la de rango M1 y el superior la de rango M2 + 1 (contando desde 1), con
-        // M1 = (N - C)/2, M2 = (N + C)/2 y C = z·sqrt(Var(S)). En índices desde 0 son M1 - 1 y M2.
-        // La versión anterior usaba M1 como índice desde 0: el límite inferior quedaba una posición
-        // alto y el intervalo, más estrecho de lo debido. Mismo redondeo que scipy.stats.theilslopes.
+        // 95% confidence interval according to Sen (1968): with sorted slopes, the lower bound
+        // has rank M1 and the upper bound has rank M2 + 1 (1-based), where
+        // M1 = (N - C)/2, M2 = (N + C)/2, and C = z * sqrt(Var(S)). In 0-based indices these are M1 - 1 and M2.
+        // The previous version used M1 as a 0-based index: the lower bound was one position
+        // too high and the interval narrower than it should be. Same rounding as scipy.stats.theilslopes.
         (double Lower, double Upper) ci = (medianSlope, medianSlope);
         if (varianceS > 0)
         {

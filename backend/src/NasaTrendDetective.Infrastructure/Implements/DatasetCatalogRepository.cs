@@ -7,7 +7,7 @@ using NasaTrendDetective.Infrastructure.Interfaces;
 namespace NasaTrendDetective.Infrastructure.Implements;
 
 /// <summary>
-/// Lee la tabla dataset_provenance que escribe el sembrado (<see cref="Etl.DatasetSeeder"/>).
+/// Reads the dataset_provenance table written during seeding (<see cref="Etl.DatasetSeeder"/>).
 /// </summary>
 public sealed class DatasetCatalogRepository : IDatasetCatalogRepository
 {
@@ -62,11 +62,11 @@ public sealed class DatasetCatalogRepository : IDatasetCatalogRepository
             Convert.ToInt64(r.GetValue(16), System.Globalization.CultureInfo.InvariantCulture),
             ToUtc(r.GetValue(17)));
 
-    /// <summary>Las fechas se guardan como TIMESTAMP en UTC (sin zona): se marcan como UTC al leerlas.</summary>
+    /// <summary>Dates are stored as UTC TIMESTAMPs (without zone): marked as UTC upon reading.</summary>
     private static DateTimeOffset ToUtc(object value) => value switch
     {
         DateTime dateTime => new DateTimeOffset(DateTime.SpecifyKind(dateTime, DateTimeKind.Utc)),
         DateTimeOffset offset => offset.ToUniversalTime(),
-        _ => throw new InvalidCastException($"Tipo de fecha inesperado en dataset_provenance: {value.GetType()}")
+        _ => throw new InvalidCastException($"Unexpected date type in dataset_provenance: {value.GetType()}")
     };
 }

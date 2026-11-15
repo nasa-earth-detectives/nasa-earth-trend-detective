@@ -1,16 +1,16 @@
 /**
  * glossary.ts
  *
- * Glosario de variables climáticas en lenguaje accesible para estudiantes
- * de secundaria y público general (audiencia objetivo NASA Space Apps 2026).
+ * Climate variable glossary in plain language for high-school students
+ * and the general public (NASA Space Apps 2026 target audience).
  *
- * Cada entrada define:
- *  - `tagline`    : frase corta de gancho (≤ 8 palabras)
- *  - `plain`      : definición en lenguaje cotidiano (1-2 oraciones)
- *  - `whyMatters` : por qué importa detectar esta tendencia
- *  - `askAbout`   : pregunta que inspira al "detective" a investigar
- *  - `exampleRegion` : región emblemática con tendencia conocida
- *  - `unit`       : unidad en lenguaje cotidiano
+ * Each entry defines:
+ *  - `tagline`       : short hook phrase (<= 8 words)
+ *  - `plain`         : everyday-language definition (1-2 sentences)
+ *  - `whyMatters`    : why detecting this trend matters
+ *  - `askAbout`      : question that inspires the "detective" to investigate
+ *  - `exampleRegion` : landmark region with a known trend
+ *  - `unit`          : unit in everyday language
  */
 
 import type { ClimateVariable } from '../types/climate.types';
@@ -26,105 +26,105 @@ export interface GlossaryEntry {
 
 export const VARIABLE_GLOSSARY: Record<ClimateVariable, GlossaryEntry> = {
   Gistemp: {
-    tagline: '¿Está la Tierra más caliente que antes?',
+    tagline: 'Is Earth warmer than before?',
     plain:
-      'No es la temperatura del día de hoy. Es qué tan diferente está el planeta comparado con el promedio del siglo XX. Un valor positivo significa más calor; negativo, más frío.',
+      'Not today\'s weather temperature. It is how different the planet is compared to the 20th-century average. Positive values mean warmer; negative, cooler.',
     whyMatters:
-      'Cuando la temperatura sube de forma constante año tras año, eso afecta los glaciares, el nivel del mar, las cosechas y los patrones climáticos. Detectar dónde ocurre más rápido ayuda a entender qué zonas del planeta cambian más.',
+      'When temperature rises steadily year after year, it affects glaciers, sea level, crops, and weather patterns. Spotting where it changes fastest helps show which parts of the planet are shifting most.',
     askAbout:
-      '¿Está calentando el Ártico más rápido que el resto del planeta?',
-    exampleRegion: { label: 'Ártico (Svalbard)', lat: 78, lng: 15 },
-    unit: 'grados Celsius de diferencia respecto al siglo pasado',
+      'Is the Arctic warming faster than the rest of the planet?',
+    exampleRegion: { label: 'Arctic (Svalbard)', lat: 78, lng: 15 },
+    unit: 'degrees Celsius difference from the last century',
   },
   Merra2Temperature: {
-    tagline: '¿Hace más calor en el aire que respiramos?',
+    tagline: 'Is the air we breathe getting warmer?',
     plain:
-      'Es la temperatura del aire a dos metros del suelo, promediada en todo el año. La calcula MERRA-2, un modelo de la NASA que combina satélites, globos y estaciones. Aquí se muestra como diferencia respecto al promedio de 1991 a 2020.',
+      'The air temperature two meters above the ground, averaged over the whole year. Computed by MERRA-2, a NASA model combining satellites, balloons, and weather stations. Shown here relative to the 1991–2020 average.',
     whyMatters:
-      'Es la temperatura que sienten las personas, los cultivos y los animales. Cambios pequeños pero sostenidos afectan a las cosechas, al hielo y a la demanda de agua.',
+      'This is the temperature experienced by people, crops, and animals. Small but sustained changes affect harvests, ice, and water demand.',
     askAbout:
-      '¿En qué lugares sube la temperatura del aire y en cuáles baja?',
-    exampleRegion: { label: 'Amazonía central', lat: -3, lng: -61 },
-    unit: 'grados Celsius de diferencia respecto a 1991–2020',
+      'Where is air temperature rising and where is it falling?',
+    exampleRegion: { label: 'Central Amazon', lat: -3, lng: -61 },
+    unit: 'degrees Celsius difference relative to 1991–2020',
   },
   Merra2Precipitation: {
-    tagline: '¿Llueve más o menos que antes?',
+    tagline: 'Is it raining more or less than before?',
     plain:
-      'Es la lluvia y la nieve que caen en promedio cada día del año, en milímetros. Un milímetro equivale a un litro de agua por metro cuadrado. Los valores vienen de MERRA-2, el modelo de la NASA.',
+      'The average daily rain and snow over the year, in millimeters. One millimeter equals one liter of water per square meter. Values come from NASA\'s MERRA-2 model.',
     whyMatters:
-      'De la lluvia dependen los ríos, los cultivos y el agua potable. La misma variable puede subir en una región y bajar en otra: por eso hay que mirar lugar por lugar.',
+      'Rivers, crops, and drinking water depend on rainfall. The same variable can rise in one region and fall in another, so you have to inspect place by place.',
     askAbout:
-      '¿Dónde llueve cada vez más y dónde cada vez menos?',
-    exampleRegion: { label: 'Sahel central', lat: 15, lng: 5 },
-    unit: 'milímetros de agua por día, como diferencia respecto a 1991–2020',
+      'Where is rainfall increasing and where is it decreasing?',
+    exampleRegion: { label: 'Central Sahel', lat: 15, lng: 5 },
+    unit: 'millimeters of water per day, relative to 1991–2020',
   },
   GpmPrecipitation: {
-    tagline: '¿Qué lluvia ven los satélites?',
+    tagline: 'What rainfall do satellites see?',
     plain:
-      'Es la lluvia y la nieve estimadas desde el espacio por la misión GPM, que combina las mediciones de varios satélites en un producto llamado IMERG. Se da en milímetros por día, promediados en el año, desde 1998.',
+      'Rain and snow estimated from space by the GPM mission, which merges measurements from multiple satellites into a product called IMERG. Given in millimeters per day, averaged over the year, since 1998.',
     whyMatters:
-      'Es una medición hecha desde satélites, no un modelo. Compararla con la precipitación de MERRA-2 en el mismo lugar enseña si dos fuentes distintas cuentan la misma historia.',
+      'It is a measurement made from satellites rather than a model. Comparing it with MERRA-2 precipitation in the same spot shows whether two independent sources tell the same story.',
     askAbout:
-      '¿El satélite y el modelo ven la misma tendencia en este lugar?',
-    exampleRegion: { label: 'Bangladés oriental', lat: 23, lng: 91 },
-    unit: 'milímetros de agua por día, como diferencia respecto a 2001–2020',
+      'Do the satellite and the model show the same trend here?',
+    exampleRegion: { label: 'Eastern Bangladesh', lat: 23, lng: 91 },
+    unit: 'millimeters of water per day, relative to 2001–2020',
   },
   Merra2Evaporation: {
-    tagline: '¿Cuánta agua se va del suelo al aire?',
+    tagline: 'How much water leaves the soil for the air?',
     plain:
-      'La evaporación es el agua que pasa del suelo y de las plantas al aire. Se mide en milímetros por día, igual que la lluvia, y aquí sólo existe sobre tierra firme.',
+      'Evaporation is water moving from the soil and plants into the air. It is measured in millimeters per day, just like rainfall, and here exists only over land.',
     whyMatters:
-      'Si se evapora más agua de la que llueve, el suelo se seca. Comparar evaporación y lluvia en un mismo lugar ayuda a entender si esa región gana o pierde agua.',
+      'If more water evaporates than falls as rain, the soil dries out. Comparing evaporation and rainfall in the same place helps reveal whether a region is gaining or losing water.',
     askAbout:
-      '¿La evaporación cambia en el mismo sentido que la lluvia?',
-    exampleRegion: { label: 'Llanura del Ganges', lat: 25, lng: 81 },
-    unit: 'milímetros de agua por día, como diferencia respecto a 1991–2020',
+      'Does evaporation shift in the same direction as rainfall?',
+    exampleRegion: { label: 'Ganges Plain', lat: 25, lng: 81 },
+    unit: 'millimeters of water per day, relative to 1991–2020',
   },
   Merra2SoilMoisture: {
-    tagline: '¿Tiene el suelo agua para las plantas?',
+    tagline: 'Does the soil hold enough water for plants?',
     plain:
-      'Indica cuánta agua hay en la capa de suelo donde crecen las raíces. Va de 0 (completamente seco) a 1 (saturado de agua) y sólo existe sobre tierra firme.',
+      'Indicates how much water is in the root-zone soil layer. It ranges from 0 (bone dry) to 1 (water-saturated) and exists only over land.',
     whyMatters:
-      'Con poca humedad en el suelo las plantas sufren aunque llueva un poco. Es una señal temprana de sequía y afecta directamente a la agricultura.',
+      'With low soil moisture, plants suffer even if a little rain falls. It is an early signal of drought and directly affects agriculture.',
     askAbout:
-      '¿Hay regiones donde el suelo se seca año tras año?',
-    exampleRegion: { label: 'Península ibérica', lat: 39, lng: -3 },
-    unit: 'fracción de 0 a 1, como diferencia respecto a 1991–2020',
+      'Are there regions where the soil dries out year after year?',
+    exampleRegion: { label: 'Iberian Peninsula', lat: 39, lng: -3 },
+    unit: '0 to 1 fraction, relative to 1991–2020',
   },
   ModisNdvi: {
-    tagline: '¿Están los bosques creciendo o desapareciendo?',
+    tagline: 'Are forests growing or disappearing?',
     plain:
-      'El NDVI mide qué tan verde está una zona. Va de 0 (suelo desnudo) a 1 (selva densa). El instrumento MODIS, a bordo del satélite Terra, lo obtiene mirando cómo las plantas reflejan la luz.',
+      'NDVI measures how green an area is, from 0 (bare ground) to 1 (dense rainforest). The MODIS instrument aboard the Terra satellite obtains it by observing how plants reflect light.',
     whyMatters:
-      'Los bosques absorben CO₂ y regulan el agua. Cuando el NDVI baja en una región, puede significar deforestación, sequía o incendios. Cuando sube, puede indicar reforestación o más lluvia.',
+      'Forests absorb CO₂ and regulate water. When NDVI drops in a region, it can signal deforestation, drought, or wildfires. When it rises, it may point to reforestation or more rain.',
     askAbout:
-      '¿Está la Amazonía perdiendo vegetación año tras año?',
-    exampleRegion: { label: 'Amazonía central', lat: -5, lng: -60 },
-    unit: 'índice sin unidad (de 0 a 1, mayor = más vegetación)',
+      'Is the Amazon losing vegetation year after year?',
+    exampleRegion: { label: 'Central Amazon', lat: -5, lng: -60 },
+    unit: 'unitless index (0 to 1, higher = more vegetation)',
   },
   GraceMass: {
-    tagline: '¿Cuánta agua y hielo está desapareciendo?',
+    tagline: 'How much water and ice is disappearing?',
     plain:
-      'Los satélites GRACE y GRACE-FO detectan cambios en la gravedad de la Tierra para medir si hay más o menos agua o hielo bajo tierra o en los glaciares. Es como una balanza gigante en el espacio.',
+      'The GRACE and GRACE-FO satellites detect shifts in Earth\'s gravity to weigh whether there is more or less water or ice underground or in glaciers—like a giant scale in space.',
     whyMatters:
-      'Groenlandia y la Antártida están perdiendo hielo. Esa agua llega al mar y sube el nivel de los océanos. También detecta sequías profundas cuando los acuíferos se agotan.',
+      'Greenland and Antarctica are losing ice. That water flows into the sea and raises ocean levels. It also detects deep droughts when aquifers are depleted.',
     askAbout:
-      '¿Groenlandia está perdiendo hielo cada año?',
-    // El interior de Groenlandia casi no cambia (medido: +0,37 cm/año, p = 0,08); la pérdida está en la costa.
-    exampleRegion: { label: 'Sureste de Groenlandia', lat: 69, lng: -33 },
-    unit: 'centímetros equivalentes de agua (más negativo = menos masa)',
+      'Is Greenland losing ice every year?',
+    // Greenland's interior barely changes (measured: +0.37 cm/yr, p = 0.08); the loss is along the coast.
+    exampleRegion: { label: 'Southeast Greenland', lat: 69, lng: -33 },
+    unit: 'centimeters of equivalent water thickness (more negative = less mass)',
   },
   Oco2: {
-    tagline: '¿Hay más CO₂ en el aire que antes?',
+    tagline: 'Is there more CO₂ in the air than before?',
     plain:
-      'El satélite OCO-2 mide cuánto dióxido de carbono hay en una columna de aire sobre cada punto de la Tierra. Es el gas que más contribuye al efecto invernadero.',
-    // Medido en los datos cargados (2015-2025): sube en las 3.139 celdas con serie, entre 2,30 y 2,70 ppm
-    // por año. La diferencia entre regiones es pequeña: el satélite ve la mezcla, no la chimenea.
+      'The OCO-2 satellite measures how much carbon dioxide sits in an air column above each point on Earth. It is the gas that contributes most to the greenhouse effect.',
+    // Measured in loaded data (2015-2025): rises across all 3,139 cells with series, between 2.30 and 2.70 ppm
+    // per year. Regional differences are small: the satellite sees the well-mixed air, not the smokestack.
     whyMatters:
-      'Las fábricas, los autos y la deforestación emiten CO₂, y el aire lo reparte por todo el planeta. Por eso sube casi al mismo ritmo en todas partes, también en mitad del océano: unas 2,5 partes por millón cada año.',
+      'Factories, cars, and deforestation emit CO₂, and winds mix it across the entire planet. That is why it rises at nearly the same pace everywhere, even over the middle of the ocean: around 2.5 parts per million each year.',
     askAbout:
-      '¿Sube el CO₂ también lejos de las ciudades, en mitad del Pacífico?',
-    exampleRegion: { label: 'Hawái, junto al observatorio de Mauna Loa', lat: 19, lng: -155 },
-    unit: 'partes por millón en el aire (ppm)',
+      'Does CO₂ also rise far from cities, in the middle of the Pacific?',
+    exampleRegion: { label: 'Hawaii, near Mauna Loa Observatory', lat: 19, lng: -155 },
+    unit: 'parts per million in air (ppm)',
   },
 };

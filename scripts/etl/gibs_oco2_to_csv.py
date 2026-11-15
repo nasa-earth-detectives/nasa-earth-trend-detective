@@ -1,33 +1,34 @@
-"""XCO2 de OCO-2 (capa de NASA GIBS) al CSV que consume el normalizador del ETL.
+"""OCO-2 XCO2 (NASA GIBS layer) to the CSV consumed by the ETL normalizer.
 
-Por qué por GIBS: el XCO2 de OCO-2 (producto OCO2_L2_Lite_FP de GES DISC) pide cuenta de Earthdata.
-GIBS, el servicio abierto de imágenes de la NASA, pinta esos mismos sondeos, día a día, con una paleta
-oficial que asigna a cada color un intervalo de 0,4 ppm: el valor se recupera hasta ese ancho.
+Why GIBS: OCO-2 XCO2 (GES DISC product OCO2_L2_Lite_FP) requires an Earthdata account.
+GIBS, NASA's open imagery service, renders those same soundings day by day using an
+official palette that maps each color to a 0.4 ppm bin: values are recovered within that width.
 
-Por qué el WMS y no las teselas: OCO-2 mide una franja de unos 10 km de ancho. En el nivel 2 de la
-pirámide de teselas (0,14° por píxel) quedan unos 1.500 píxeles con dato por día; pidiendo el planeta
-entero al WMS a 0,07° salen unos 6.000, con una sola petición por día en vez de quince.
+Why WMS instead of tiles: OCO-2 measures a swath roughly 10 km wide. At tile pyramid level 2
+(0.14° per pixel) only about 1,500 pixels have data per day; requesting the whole globe
+from WMS at 0.07° yields about 6,000, in a single request per day instead of fifteen.
 
-Qué hace con los datos, y por qué:
-  * Cada píxel con color es un sondeo. No hay "cobertura de área" como en un mapa continuo, así que la
-    regla del 50 % de la celda no sirve aquí.
-  * Da UNA media por celda y año, no una por mes. Medido: exigiendo 10 sondeos por celda y mes y 9 meses
-    al año (la regla de las variables mensuales) sólo unas 158 celdas de 16.200 tienen serie completa,
-    porque la franja no llena una celda de 2° cada mes.
-  * El año de una celda es la media de sus medias mensuales, para que un mes con muchos sondeos no pese
-    más que otro: el CO₂ tiene ciclo estacional y una media directa de sondeos se iría hacia el verano.
-    Un mes cuenta con MIN_SAMPLES sondeos o más; un año, con MIN_MONTHS meses o más.
-  * Las dos clases abiertas de la paleta (menos de 380 ppm y 480 ppm o más) no tienen valor recuperable:
-    se descartan y se cuentan en el manifiesto.
-  * Sólo se piden los días que GIBS declara en su catálogo; un día sin datos no se pide ni se imputa.
-  * Deja la columna anomaly vacía: el XCO2 se analiza como concentración, no como anomalía.
+What it does with the data, and why:
+  * Each colored pixel is a sounding. There is no "area coverage" as in a continuous map,
+    so the 50% cell-area rule does not apply here.
+  * Produces ONE mean per cell and year, not one per month. Measured: requiring 10 soundings per
+    cell and month and 9 months per year (the rule for monthly variables) leaves only about 158
+    cells out of 16,200 with a complete series, because the swath does not fill a 2° cell every month.
+  * A cell's annual value is the mean of its monthly means, so a month with many soundings does not
+    outweigh another: CO₂ has a seasonal cycle and a direct mean of soundings would bias toward summer.
+    A month counts with MIN_SAMPLES or more soundings; a year, with MIN_MONTHS or more months.
+  * The two open-ended palette classes (below 380 ppm and 480 ppm or above) have no recoverable value:
+    they are discarded and counted in the manifest.
+  * Only days declared by GIBS in its catalog are requested; days without data are neither requested
+    nor imputed.
+  * Leaves the anomaly column empty: XCO2 is analyzed as concentration, not as anomaly.
 
-Requisitos: pip install numpy pillow
-Uso (desde la raíz del repo):
+Requirements: pip install numpy pillow
+Usage (from the repo root):
     python scripts/etl/gibs_oco2_to_csv.py
-Salida:
-    data/nasa/raw/oco2_xco2.csv                  lat, lon, time (AAAA-01-01), value, anomaly
-    backend/seed/oco2_xco2.provenance.json       procedencia que la API expone (se versiona)
+Output:
+    data/nasa/raw/oco2_xco2.csv                  lat, lon, time (YYYY-01-01), value, anomaly
+    backend/seed/oco2_xco2.provenance.json       provenance exposed by the API (versioned)
 """
 from __future__ import annotations
 
@@ -51,23 +52,23 @@ LAYER = "OCO-2_Carbon_Dioxide_Total_Column_Average"
 GIBS = "https://gibs.earthdata.nasa.gov"
 CAPABILITIES_URL = GIBS + "/wmts/epsg4326/best/1.0.0/WMTSCapabilities.xml"
 COLORMAP_URL = GIBS + "/colormaps/v1.3/OCO_Carbon_Dioxide_Total_Column_Average.xml"
-WIDTH, HEIGHT = 5120, 2560  # 0,0703° por píxel: unos 7,8 km en el ecuador, del orden del ancho de la franja
+WIDTH, HEIGHT = 5120, 2560  # 0.0703° per pixel: about 7.8 km at the equator, on the order of the swath width
 WMS_URL = (GIBS + "/wms/epsg4326/best/wms.cgi?SERVICE=WMS&REQUEST=GetMap&VERSION=1.1.1&LAYERS=" + LAYER
            + "&STYLES=&FORMAT=image/png&TRANSPARENT=true&SRS=EPSG:4326&BBOX=-180,-90,180,90"
            + f"&WIDTH={WIDTH}&HEIGHT={HEIGHT}" + "&TIME={day}")
-MIN_SAMPLES = 3  # sondeos mínimos para dar por medida una celda en un mes
-MIN_MONTHS = 6  # meses medidos mínimos para dar por medido el año de una celda
-MAX_UNKNOWN_SHARE = 1e-4  # fracción tolerada de píxeles con un color ajeno a la paleta antes de abortar
-# Titulo, version e identificador tal como los declara GIBS en los metadatos de la capa
-# (layer-metadata/v1.0): no se anaden autores ni anio que no se hayan comprobado.
+MIN_SAMPLES = 3  # minimum soundings to consider a cell measured in a month
+MIN_MONTHS = 6  # minimum measured months to consider a cell's year measured
+MAX_UNKNOWN_SHARE = 1e-4  # tolerated share of pixels with an off-palette color before aborting
+# Title, version, and identifier as declared by GIBS in the layer metadata
+# (layer-metadata/v1.0): no unverified authors or years are added.
 CITATION = ("OCO-2 Level 2 bias-corrected XCO2 and other select fields from the full-physics retrieval "
             "aggregated as daily files, Retrospective processing V11.2r (OCO2_L2_Lite_FP). NASA GES DISC, "
-            "concept id C2912085112-GES_DISC. Imagen servida por NASA Global Imagery Browse Services (GIBS), "
+            "concept id C2912085112-GES_DISC. Imagery served by NASA Global Imagery Browse Services (GIBS), "
             "ESDIS.")
 
 
 def fetch(url: str, path: Path) -> bytes:
-    """Descarga con caché en disco: relanzar el script no vuelve a pedir lo que ya está."""
+    """Download with disk cache: re-running the script skips what is already cached."""
     if path.exists() and path.stat().st_size:
         return path.read_bytes()
     with urllib.request.urlopen(url, timeout=180) as response:
@@ -78,14 +79,14 @@ def fetch(url: str, path: Path) -> bytes:
 
 
 def published_days(cache: Path, first: dt.date, last: dt.date) -> list[dt.date]:
-    """Días que el catálogo de GIBS declara para la capa, recortados al periodo pedido."""
+    """Days declared in the GIBS catalog for the layer, clipped to the requested period."""
     xml = fetch(CAPABILITIES_URL, cache / "WMTSCapabilities.xml").decode("utf-8", errors="replace")
     layer = next(block for block in re.findall(r"<Layer>.*?</Layer>", xml, flags=re.S)
                  if f"<ows:Identifier>{LAYER}</ows:Identifier>" in block)
     days: set[dt.date] = set()
     for start, end, period in re.findall(r"<Value>([\d-]+)/([\d-]+)/(P\w+)</Value>", layer):
         if period != "P1D":
-            raise SystemExit(f"La capa ya no es diaria ({period}): revisar el script antes de seguir.")
+            raise SystemExit(f"The layer is no longer daily ({period}): review the script before continuing.")
         day, stop = dt.date.fromisoformat(start), dt.date.fromisoformat(end)
         while day <= stop:
             if first <= day <= last:
@@ -95,7 +96,7 @@ def published_days(cache: Path, first: dt.date, last: dt.date) -> list[dt.date]:
 
 
 def color_table(cache: Path) -> tuple[np.ndarray, np.ndarray]:
-    """Tabla color -> ppm (punto medio del intervalo) y marca de los colores de las clases abiertas."""
+    """Lookup table color -> ppm (bin midpoint) and mask of open-ended class colors."""
     xml = fetch(COLORMAP_URL, cache / "OCO_Carbon_Dioxide_Total_Column_Average.xml").decode("utf-8")
     table = np.full(1 << 24, np.nan, dtype="float32")
     open_ended = np.zeros(1 << 24, dtype=bool)
@@ -116,8 +117,8 @@ def color_table(cache: Path) -> tuple[np.ndarray, np.ndarray]:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--first", default="2015-01-01",
-                        help="primer día (AAAA-MM-DD). La capa empieza el 2014-09-06: 2014 no llega a un año")
-    parser.add_argument("--last", default="2025-12-31", help="último día; se cierra en un año completo")
+                        help="first day (YYYY-MM-DD). The layer starts on 2014-09-06: 2014 is less than a full year")
+    parser.add_argument("--last", default="2025-12-31", help="last day; closed on a full year")
     parser.add_argument("--cache", type=Path, default=Path("data/nasa/raw/gibs_oco2"))
     parser.add_argument("--output", type=Path, default=Path("data/nasa/raw/oco2_xco2.csv"))
     parser.add_argument("--manifest", type=Path, default=Path("backend/seed/oco2_xco2.provenance.json"))
@@ -127,11 +128,11 @@ def main() -> None:
     days = published_days(args.cache, dt.date.fromisoformat(args.first), dt.date.fromisoformat(args.last))
     table, open_ended = color_table(args.cache)
     paths = {day: args.cache / f"{day.year}" / f"{day.isoformat()}.png" for day in days}
-    # Primero se baja todo en paralelo (queda en caché); después se procesa día a día, en orden.
+    # Download everything in parallel first (cached to disk); then process day by day in order.
     with ThreadPoolExecutor(args.workers) as pool:
         list(pool.map(lambda day: fetch(WMS_URL.format(day=day.isoformat()), paths[day]), days))
 
-    # Celda de 2° de cada píxel, por la posición de su centro (el norte está en la primera fila).
+    # 2° cell for each pixel, by its center position (north is in the first row).
     n_lat, n_lon = round(180 / TARGET_DEGREES), round(360 / TARGET_DEGREES)
     pixel = 180 / HEIGHT
     lat_cell = ((180 - (np.arange(HEIGHT) + 0.5) * pixel) // TARGET_DEGREES).astype(int)
@@ -147,8 +148,8 @@ def main() -> None:
     for day in days:
         data = paths[day].read_bytes()
         digest.update(data)
-        # Sólo se miran los píxeles con color (unos miles de 13 millones): convertir la imagen entera
-        # multiplica el tiempo por más de diez.
+        # Only look at colored pixels (a few thousand out of 13 million): converting the entire image
+        # takes more than ten times as long.
         rgba = np.asarray(Image.open(io.BytesIO(data)).convert("RGBA")).reshape(-1, 4)
         visible = np.flatnonzero(rgba[:, 3])
         color = rgba[visible, :3].astype("uint32")
@@ -164,16 +165,16 @@ def main() -> None:
         total, count = months.setdefault(day.strftime("%Y-%m"), (np.zeros(n_lat * n_lon), np.zeros(n_lat * n_lon)))
         total += np.bincount(cell[visible[valid]], weights=value[valid], minlength=n_lat * n_lon)
         count += np.bincount(cell[visible[valid]], minlength=n_lat * n_lon)
-    # Unos pocos píxeles sueltos con un color ajeno a la paleta se descartan y se cuentan. Si fueran muchos,
-    # el WMS estaría mezclando colores al reducir la imagen y ningún valor sería de fiar: ahí sí se aborta.
+    # A few stray pixels with an off-palette color are discarded and counted. If there are many,
+    # WMS would be blending colors when downsampling and no value could be trusted: abort in that case.
     if unknown > MAX_UNKNOWN_SHARE * soundings:
-        raise SystemExit(f"{unknown} píxeles con un color que no está en la paleta: el WMS está mezclando colores.")
+        raise SystemExit(f"{unknown} pixels with an off-palette color: WMS is blending colors.")
     if strangers:
         top = sorted(strangers.items(), key=lambda item: -item[1])[:5]
-        print("colores fuera de la paleta (RGB: píxeles):",
+        print("off-palette colors (RGB: pixels):",
               ", ".join(f"{c >> 16},{(c >> 8) & 255},{c & 255}: {n}" for c, n in top))
 
-    # Media anual = media de las medias mensuales con sondeos suficientes.
+    # Annual mean = mean of monthly means with enough soundings.
     years = sorted({month[:4] for month in months})
     annual: dict[str, np.ndarray] = {}
     for year in years:
@@ -196,25 +197,25 @@ def main() -> None:
     used = sorted(months)
     manifest = {
         "variable": "Oco2", "provider": "nasa-gibs-oco2",
-        "product": "OCO-2 · XCO₂, media de la columna (capa " + LAYER + " de NASA GIBS, media anual por celda)",
-        "baseline": None, "unit": "ppm", "trendUnit": "ppm / año", "interim": False,
+        "product": "OCO-2 · XCO₂, column average (NASA GIBS " + LAYER + " layer, annual cell mean)",
+        "baseline": None, "unit": "ppm", "trendUnit": "ppm / year", "interim": False,
         "resolutionDegrees": TARGET_DEGREES,
-        "sourceUrl": WMS_URL.format(day="{AAAA-MM-DD}"),
-        "sourceFile": f"{LAYER}, WMS {WIDTH}x{HEIGHT}, {len(days)} días",
-        # SHA-256 de las imágenes PNG diarias, concatenadas por fecha.
+        "sourceUrl": WMS_URL.format(day="{YYYY-MM-DD}"),
+        "sourceFile": f"{LAYER}, WMS {WIDTH}x{HEIGHT}, {len(days)} days",
+        # SHA-256 of the daily PNG images, concatenated in date order.
         "sourceSha256": digest.hexdigest(),
         "retrievedAt": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds"),
         "coverageStart": int(years[0]), "coverageEnd": int(years[-1]), "lastMonth": used[-1], "rows": rows,
-        "processing": f"XCO₂ recuperado de la imagen diaria con la paleta oficial de GIBS (clases de 0,4 ppm): "
-                      f"{soundings} sondeos en {len(days)} días. Media anual por celda de 2° = media de sus medias "
-                      f"mensuales; un mes cuenta con {MIN_SAMPLES} sondeos o más y un año con {MIN_MONTHS} meses o "
-                      f"más. Sondeos fuera del rango de la paleta (menos de 380 ppm o 480 ppm o más), descartados: "
-                      f"{discarded}. Píxeles con un color ajeno a la paleta, descartados: {unknown}.",
+        "processing": f"XCO₂ recovered from the daily image using the official GIBS palette (0.4 ppm bins): "
+                      f"{soundings} soundings across {len(days)} days. Annual mean per 2° cell = mean of its monthly "
+                      f"means; a month requires {MIN_SAMPLES} or more soundings and a year requires {MIN_MONTHS} or "
+                      f"more months. Soundings outside the palette range (below 380 ppm or 480 ppm and above), "
+                      f"discarded: {discarded}. Pixels with an off-palette color, discarded: {unknown}.",
         "citation": CITATION,
     }
     args.manifest.write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    print(f"{rows} filas | {years[0]} a {years[-1]} ({len(used)} meses, {len(days)} días) | {soundings} sondeos | "
-          f"descartados {discarded} | celdas por año: {[int(np.isfinite(annual[y]).sum()) for y in years]} | {args.output}")
+    print(f"{rows} rows | {years[0]} to {years[-1]} ({len(used)} months, {len(days)} days) | {soundings} soundings | "
+          f"discarded {discarded} | cells per year: {[int(np.isfinite(annual[y]).sum()) for y in years]} | {args.output}")
 
 
 if __name__ == "__main__":

@@ -4,8 +4,8 @@ using NasaTrendDetective.Domain.Enums;
 namespace NasaTrendDetective.Application.Interfaces;
 
 /// <summary>
-/// Catálogo de datasets observados realmente cargados. Una variable sin procedencia no tiene datos
-/// reales: la API lo declara en vez de rellenar con series inventadas sin avisar.
+/// Catalog of actually loaded observed datasets. A variable without provenance has no real data:
+/// the API declares this explicitly rather than silently populating invented series.
 /// </summary>
 public interface IDatasetCatalogRepository
 {

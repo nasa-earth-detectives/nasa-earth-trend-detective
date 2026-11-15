@@ -5,7 +5,7 @@ interface StatusRowListProps {
   rows: StatusRow[];
 }
 
-/** Lectura de disponibilidad; no simula controles de capacidades futuras. */
+/** Availability readout; does not simulate future capability controls. */
 export function StatusRowList({ title, rows }: StatusRowListProps) {
   return (
     <section className="instrument-status-list" aria-label={title}>
@@ -14,7 +14,7 @@ export function StatusRowList({ title, rows }: StatusRowListProps) {
           <li key={row.id}>
             <span>{row.name}</span>
             <span style={{ color: row.active ? '#93b185' : 'rgba(255,255,255,0.45)', fontWeight: row.active ? 600 : 400 }}>
-              {row.active ? row.status : 'Pronto'}
+              {row.active ? row.status : 'Soon'}
             </span>
           </li>
         ))}

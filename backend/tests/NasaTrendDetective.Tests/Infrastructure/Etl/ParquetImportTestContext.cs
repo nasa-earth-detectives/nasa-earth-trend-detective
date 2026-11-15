@@ -3,13 +3,13 @@ using NasaTrendDetective.Infrastructure.Implements;
 namespace NasaTrendDetective.Tests.Infrastructure.Etl;
 
 /// <summary>
-/// Contexto de prueba del importador: DuckDB en memoria con el esquema estrella inicializado y un
-/// directorio temporal donde se generan Parquet sintéticos con COPY ... TO (sin archivos reales).
+/// Test context for the importer: in-memory DuckDB with initialized star schema and a
+/// temporary directory where synthetic Parquet files are generated via COPY ... TO (without real files).
 /// </summary>
 internal sealed class ParquetImportTestContext : IDisposable
 {
     /// <summary>
-    /// SELECT canónico de ejemplo: 2 variables x 2 celdas x 3 meses de 2020 = 12 filas.
+    /// Example canonical SELECT: 2 variables x 2 cells x 3 months in 2020 = 12 rows.
     /// </summary>
     public const string CanonicalSampleSql = """
         SELECT CAST(v AS TINYINT) AS variable_id,

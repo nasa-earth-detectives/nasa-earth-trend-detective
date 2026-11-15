@@ -3,22 +3,22 @@ using NasaTrendDetective.Infrastructure.ExternalServices.Models;
 namespace NasaTrendDetective.Infrastructure.Interfaces;
 
 /// <summary>
-/// Cliente de NASA EarthData: búsqueda de metadatos en CMR y descarga en streaming con caché en disco.
+/// NASA EarthData client: CMR metadata search and streaming download with disk caching.
 /// </summary>
 public interface INasaEarthDataClient
 {
     /// <summary>
-    /// Busca granules en CMR (search/granules.json). El token se envía solo si está configurado.
+    /// Searches granules in CMR (search/granules.json). The token is sent only if configured.
     /// </summary>
     Task<IReadOnlyList<CmrGranule>> SearchGranulesAsync(
         GranuleSearchRequest request,
         CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Descarga un archivo por URL a la caché en disco. Si ya existe completo, no hace request.
+    /// Downloads a file by URL to disk cache. If it already exists completely, avoids network request.
     /// </summary>
     /// <exception cref="ExternalServices.NasaEarthDataAuthenticationException">
-    /// Si <paramref name="requiresAuthentication"/> es true y no hay token configurado.
+    /// Thrown when <paramref name="requiresAuthentication"/> is true and no token is configured.
     /// </exception>
     Task<NasaDownloadResult> DownloadFileAsync(
         Uri url,
@@ -27,7 +27,7 @@ public interface INasaEarthDataClient
         CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Descarga el archivo directo de un dataset del catálogo (p.ej. GISTEMP v4, público).
+    /// Downloads the direct file of a catalog dataset (e.g. GISTEMP v4, public).
     /// </summary>
     Task<NasaDownloadResult> DownloadDatasetAsync(
         NasaDataset dataset,

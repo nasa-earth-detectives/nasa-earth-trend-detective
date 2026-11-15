@@ -3,7 +3,7 @@ import type { GlobeInstance } from 'globe.gl';
 interface SurfaceLocation { lat: number; lng: number }
 const TAP_TOLERANCE_PX = 5;
 
-/** Selección puntual con raycast actual; no depende del hover del frame anterior. */
+/** Discrete point picking via current raycast; does not depend on previous frame hover state. */
 export function createSurfaceSelection(globe: GlobeInstance, select: (location: SurfaceLocation) => void,
   selectOverlay?: (x: number, y: number) => boolean) {
   const canvas = globe.renderer().domElement;

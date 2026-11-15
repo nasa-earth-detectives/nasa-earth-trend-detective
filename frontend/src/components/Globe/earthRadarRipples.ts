@@ -3,8 +3,8 @@ import { Color } from 'three';
 import type { Teleconnection, TeleconnectionEndpoint } from '../../types/teleconnection.types';
 
 /**
- * Anillos que marcan los extremos de cada teleconexión, del color de su arco. Antes eran cinco
- * "hotspots" fijos con colores propios, desconectados de los arcos; ahora siguen a los datos.
+ * Rings marking the endpoints of each teleconnection, matching its arc color. Previously five
+ * fixed "hotspots" with independent colors, disconnected from arcs; now driven by data.
  */
 interface RingDatum extends TeleconnectionEndpoint {
   rgb: [number, number, number];
@@ -40,7 +40,7 @@ export function createEarthRadarRipples(globe: GlobeInstance) {
       rings = connections.flatMap((connection, index) => {
         const color = new Color(connection.color);
         const rgb: [number, number, number] = [Math.round(color.r * 255), Math.round(color.g * 255), Math.round(color.b * 255)];
-        // Periodos distintos para que los anillos no laten todos a la vez.
+        // Staggered periods so rings do not pulsate in lockstep.
         return [connection.from, connection.to].map((point, k) => ({ ...point, rgb, period: 1700 + ((index * 2 + k) % 5) * 260 }));
       });
       apply();

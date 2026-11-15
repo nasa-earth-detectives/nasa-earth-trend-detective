@@ -1,8 +1,8 @@
 namespace NasaTrendDetective.Infrastructure.Etl.Models;
 
 /// <summary>
-/// Mapeo de columnas de un dataset tabular crudo hacia la tupla canónica
-/// (latitude, longitude, timestamp, value, anomaly). Cada misión nombra sus columnas distinto.
+/// Column mapping from a raw tabular dataset to the canonical tuple
+/// (latitude, longitude, timestamp, value, anomaly). Each mission uses distinct column naming.
 /// </summary>
 public sealed class GridColumnMapping
 {
@@ -15,17 +15,17 @@ public sealed class GridColumnMapping
     public string ValueColumn { get; set; } = "value";
 
     /// <summary>
-    /// Columna de anomalía opcional; si es null la anomalía canónica queda en NULL.
+    /// Optional anomaly column; if null, the canonical anomaly defaults to NULL.
     /// </summary>
     public string? AnomalyColumn { get; set; }
 
     /// <summary>
-    /// Formato strptime de DuckDB (p.ej. "%Y-%m"). Si es null se usa TRY_CAST a TIMESTAMP.
+    /// DuckDB strptime format (e.g. "%Y-%m"). If null, TRY_CAST to TIMESTAMP is used.
     /// </summary>
     public string? TimeFormat { get; set; }
 
     /// <summary>
-    /// Valor de relleno que representa dato faltante (p.ej. 9999 en GISTEMP); se convierte en NULL analítico.
+    /// Fill value representing missing data (e.g. 9999 in GISTEMP); converted to analytical NULL.
     /// </summary>
     public double? MissingValue { get; set; }
 

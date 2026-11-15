@@ -1,4 +1,4 @@
-/* Driver.js controla la geometría del objetivo, el overlay y las flechas. */
+/* Driver.js controls target geometry, overlay, and arrows. */
 .driver-active {
   --driver-animation-duration: var(--motion-fast, 200ms);
 }

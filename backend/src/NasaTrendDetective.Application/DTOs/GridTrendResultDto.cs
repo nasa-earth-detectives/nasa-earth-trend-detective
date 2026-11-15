@@ -3,8 +3,8 @@ using NasaTrendDetective.Domain.Enums;
 namespace NasaTrendDetective.Application.DTOs;
 
 /// <summary>
-/// Tendencia por celda de toda la grilla observada para un periodo. Solo existe con datos reales:
-/// sin dataset cargado la API responde 404 en lugar de inventar una grilla.
+/// Per-cell trend across the entire observed grid for a period. Only exists with real data:
+/// without a loaded dataset, the API responds with 404 instead of inventing a grid.
 /// </summary>
 public class GridTrendResultDto
 {
@@ -12,7 +12,7 @@ public class GridTrendResultDto
     public int StartYear { get; set; }
     public int EndYear { get; set; }
 
-    /// <summary>Unidad de <see cref="GridTrendCellDto.SensSlope"/> (p.ej. "°C / año").</summary>
+    /// <summary>Unit of <see cref="GridTrendCellDto.SensSlope"/> (e.g. "°C / year").</summary>
     public string Unit { get; set; } = string.Empty;
 
     public double ResolutionDegrees { get; set; }
@@ -21,22 +21,22 @@ public class GridTrendResultDto
     public bool Interim { get; set; }
 
     /// <summary>
-    /// Reglas de inclusión aplicadas, para que el cliente pueda explicarlas. En un dataset mensual
-    /// son meses por año (9); en uno anual, como MERRA-2, es 1: el año ya llega completo.
+    /// Applied inclusion rules, so the client can explain them. In a monthly dataset this is
+    /// months per year (9); in an annual one, such as MERRA-2, it is 1: the year already arrives complete.
     /// </summary>
     public int MinMonthsPerYear { get; set; }
     public int MinYearsPerCell { get; set; }
 
-    /// <summary>Tasa de falsos descubrimientos tolerada al marcar una celda como corregida.</summary>
+    /// <summary>Tolerated false discovery rate when marking a cell as corrected-significant.</summary>
     public double FalseDiscoveryRate { get; set; }
 
-    /// <summary>Celdas con p &lt; 0,05 en el Mann-Kendall clásico, sin ninguna corrección.</summary>
+    /// <summary>Cells with p &lt; 0.05 in the classic Mann-Kendall test, without any correction.</summary>
     public int SignificantCells { get; set; }
 
-    /// <summary>Celdas que siguen con p &lt; 0,05 al descontar la persistencia entre años.</summary>
+    /// <summary>Cells that remain at p &lt; 0.05 after removing year-to-year persistence.</summary>
     public int PrewhitenedSignificantCells { get; set; }
 
-    /// <summary>Celdas que superan además el control de comparaciones múltiples.</summary>
+    /// <summary>Cells that also pass multiple-comparison control.</summary>
     public int CorrectedSignificantCells { get; set; }
 
     public IReadOnlyList<GridTrendCellDto> Cells { get; set; } = Array.Empty<GridTrendCellDto>();

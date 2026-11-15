@@ -4,14 +4,14 @@ import {
 import { Lensflare, LensflareElement } from 'three/examples/jsm/objects/Lensflare.js';
 
 /**
- * Sol visible en su dirección real (la misma que ilumina la Tierra) con destello de lente. El
- * Lensflare de three comprueba en pantalla si algo tapa el sol: cuando la Tierra lo oculta, el
- * destello desaparece, y al asomar por el limbo aparece el "amanecer orbital".
+ * Visible Sun in its true direction (the same illuminating Earth) with lens flare. Three.js
+ * Lensflare checks on-screen occlusion: when Earth blocks the sun, the flare disappears,
+ * and peaking past the limb creates an "orbital sunrise".
  */
 export const EARTH_SUN_CONFIG = {
-  /** Más allá de las estrellas (≤ 2.600) y dentro del plano lejano (6.500). */
+  /** Beyond the star field (≤ 2,600) and within the far clip plane (6,500). */
   distance: 4000,
-  /** Tamaño del disco con halo, en unidades a esa distancia (~3,7°). */
+  /** Disk size with halo, in units at that distance (~3.7°). */
   spriteSize: 260,
 } as const;
 
@@ -31,8 +31,8 @@ function radialTexture(stops: Array<[number, string]>, size = 256): CanvasTextur
 }
 
 /**
- * Disco con halo y rayos de difracción: el destello en estrella de las fotos orbitales (las aspas
- * del diafragma). Los rayos son finos y se desvanecen hacia fuera para no tapar la escena.
+ * Disk with halo and diffraction spikes: the starburst look of orbital photography (aperture blades).
+ * The spikes are thin and fade outward to avoid obstructing the scene.
  */
 function starburstTexture(size = 512): CanvasTexture {
   const texture = radialTexture([[0, 'rgba(255,255,255,1)'], [0.05, 'rgba(255,250,238,1)'],
@@ -59,7 +59,7 @@ function starburstTexture(size = 512): CanvasTexture {
   return texture;
 }
 
-/** Fantasma hexagonal (diafragma de la lente), muy tenue. */
+/** Hexagonal aperture ghost (lens diaphragm), very subtle. */
 function hexagonTexture(size = 128): CanvasTexture {
   const canvas = document.createElement('canvas');
   canvas.width = canvas.height = size;
@@ -99,7 +99,7 @@ export function createEarthSunGlare(scene: Scene, sunDirection: Vector3) {
 
   const flare = new Lensflare();
   flare.addElement(new LensflareElement(glow, 420, 0, new Color('#fff1dc')));
-  // Dos fantasmas pequeños y casi transparentes: más grandes parecían manchas sobre la Tierra.
+  // Two small, subtle ghosts: larger ones looked like blemishes across Earth.
   flare.addElement(new LensflareElement(hexagon, 28, 0.6, new Color('#93c5fd')));
   flare.addElement(new LensflareElement(hexagon, 44, 0.9, new Color('#fcd34d')));
   flare.raycast = () => {};
@@ -107,7 +107,7 @@ export function createEarthSunGlare(scene: Scene, sunDirection: Vector3) {
   group.add(sprite, flare);
   const place = (): void => { group.position.copy(sunDirection).multiplyScalar(EARTH_SUN_CONFIG.distance); };
   place();
-  // La dirección del sol cambia ~0,004° por segundo; se recoloca cada vez que se dibuja.
+  // Sun direction shifts ~0.004° per second; repositioned each time it renders.
   sprite.onBeforeRender = place;
   scene.add(group);
 
@@ -117,7 +117,7 @@ export function createEarthSunGlare(scene: Scene, sunDirection: Vector3) {
     },
     dispose(): void {
       scene.remove(group);
-      // Lensflare.dispose() libera también las texturas de sus elementos (glow y hexágono).
+      // Lensflare.dispose() also releases textures of its elements (glow and hexagon).
       flare.dispose();
       spriteMaterial.dispose();
       disc.dispose();

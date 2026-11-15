@@ -1,9 +1,9 @@
 import type { ClimateVariable } from '../../types/climate.types';
 
 /**
- * Variables que tienen un escenario ficticio de demostración. Las de MERRA-2 no lo tienen a
- * propósito: llegaron con datos reales, y sin esos datos no hay nada honesto que dibujar. Para
- * ellas los generadores de demostración devuelven vacío en vez de reutilizar el campo de otra variable.
+ * Variables that have a synthetic demo scenario. MERRA-2 variables intentionally do not:
+ * they arrived with real data, and without that data there is nothing honest to render. For
+ * them, demo generators return empty instead of reusing another variable's field.
  */
 const DEMO_VARIABLES: readonly ClimateVariable[] = ['Gistemp', 'ModisNdvi', 'GraceMass', 'Oco2'];
 

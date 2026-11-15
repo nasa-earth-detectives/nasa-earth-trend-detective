@@ -8,19 +8,18 @@ using NasaTrendDetective.Domain.Enums;
 namespace NasaTrendDetective.Tests.ScientificValidation;
 
 /// <summary>
-/// Las dos correcciones de la significancia (2026-11-14). El ajuste de Benjamini-Hochberg se contrasta
-/// con SciPy 1.18.1 (`stats.false_discovery_control(p, method="bh")`). El Mann-Kendall con preblanqueo
-/// iterativo no tiene una implementación de terceros en Python (la de referencia es el paquete zyp, de
-/// R): se contrasta con un prototipo aparte en numpy (`referencia_preblanqueo.py`), cuyo Mann-Kendall
-/// y cuya pendiente de Sen sí se comprueban contra pymannkendall 1.4.3 y SciPy. Lo que respalda el
-/// método es la simulación de falsos positivos y potencia (`simulacion_prewhitening_iterativo.py`).
+/// Both significance corrections (2026-11-14). Benjamini-Hochberg adjustment is verified against
+/// SciPy 1.18.1 (`stats.false_discovery_control(p, method="bh")`). Iterative prewhitened
+/// Mann-Kendall has no third-party Python implementation (the reference implementation is R's `zyp`
+/// package): it is checked against a standalone NumPy prototype whose Mann-Kendall and Sen's slope
+/// match pymannkendall 1.4.3 and SciPy, backed by false-positive and power simulations.
 /// </summary>
 public class SignificanceCorrectionsTests
 {
     private static readonly double[] ShortSeries = [1.2, 0.8, 1.9, 2.4, 1.7, 3.1, 2.6, 3.9, 3.3, 4.8, 4.1, 5.5];
     private static readonly double[] FlatSeries = [2.0, 3.1, 1.4, 2.8, 2.2, 3.4, 1.9, 2.5, 3.0, 1.6, 2.7, 2.3];
 
-    // Real: anomalía anual de precipitación de MERRA-2 (NASA POWER) en la celda 5° S, 61° O, 1981-2025.
+    // Real data: annual MERRA-2 (NASA POWER) precipitation anomaly at cell 5 S, 61 W, 1981-2025.
     private static readonly double[] AmazonPrecipitation =
     [
         0.777, 1.134, -0.161, 0.534, 0.366, 1.17, 0.784, -0.154, 0.334, -0.556, -0.82, -0.581, 2.047, 0.935, 0.254,
@@ -28,7 +27,7 @@ public class SignificanceCorrectionsTests
         -0.064, -0.209, 0.249, -0.159, -1.817, -0.382, -0.346, -1.59, -0.963, 0.405, 2.042, 1.572, -0.533, -1.192, -0.858,
     ];
 
-    // Simulada: proceso AR(1) con φ = 0,7 y SIN tendencia (numpy, semilla 12). Tiene rachas, no tendencia.
+    // Simulated: AR(1) process with phi = 0.7 and NO trend (NumPy, seed 12). Has streaks, not a trend.
     private static readonly double[] PersistentWithoutTrend =
     [
         0, 1.046, 1.474, 1.756, 2.848, 0.788, -0.075, -1.373, -1.069, 0.25, 0.153, 0.603, -1.489, -0.895, -1.533, 0.702,
@@ -36,7 +35,7 @@ public class SignificanceCorrectionsTests
         -0.913, -1.185, -2.18, -1.671, -1.417, -0.8, -1.094, -0.672, 1.349,
     ];
 
-    // Simulada: el mismo tipo de persistencia (φ = 0,6) MÁS una tendencia real de +0,08 por año (semilla 3).
+    // Simulated: same persistence (phi = 0.6) PLUS a real trend of +0.08 per year (seed 3).
     private static readonly double[] PersistentWithTrend =
     [
         0, -2.476, -0.955, -0.997, -0.875, -0.532, -2.099, -1.22, -1.293, 2.883, 2.324, 1.442, 1.016, 0.405, -0.316,
@@ -53,10 +52,10 @@ public class SignificanceCorrectionsTests
         0.59668, 0.0688,
     ];
 
-    // Serie, r1 final, tamaño tras el preblanqueo, Z, valor p y si sigue siendo significativa.
+    // Series, final r1, sample size after prewhitening, Z, p-value, and whether it remains significant.
     public static TheoryData<string, double, int, double, double, bool> PrewhiteningReferences => new()
     {
-        // r1 negativo: sin persistencia que descontar, el veredicto es el clásico con la serie entera.
+        // Negative r1: no persistence to remove, so the verdict stays the classic one over the full series.
         { "short", -0.573383884, 12, 3.634345051, 2.786876842e-04, true },
         { "flat", -0.690176863, 12, 0.0, 1.0, false },
         { "amazon", 0.297712306, 44, -1.689081804, 9.120375438e-02, false },
@@ -74,7 +73,7 @@ public class SignificanceCorrectionsTests
         Assert.Equal(lag1, prewhitened.Lag1Autocorrelation, precision: 6);
         Assert.Equal(sampleSize, prewhitened.SampleSize);
         Assert.Equal(z, prewhitened.ZScore, precision: 6);
-        // Tolerancia absoluta: la normal del backend es una aproximación con error del orden de 1e-7.
+        // Absolute tolerance: the backend normal CDF approximation has error on the order of 1e-7.
         Assert.InRange(prewhitened.PValue, pValue - 1e-6, pValue + 1e-6);
         Assert.Equal(significant, prewhitened.IsSignificant);
     }
@@ -82,7 +81,7 @@ public class SignificanceCorrectionsTests
     [Fact]
     public void PersistenceOnTopOfARealTrend_StaysSignificant()
     {
-        // Lo que el preblanqueo simple hace mal: aquí la tendencia existe y tiene que sobrevivir.
+        // What simple prewhitening gets wrong: here the trend is real and must survive.
         var verdict = TrendStatisticsEngine.Analyze(Observations("persistent-trend"));
 
         Assert.Equal(4.587907968, verdict.ZScore, precision: 6);
@@ -96,7 +95,7 @@ public class SignificanceCorrectionsTests
     {
         var verdict = TrendStatisticsEngine.Analyze(Observations("persistent"));
 
-        // pymannkendall.original_test: z = -2,877805536, p = 0,004.
+        // pymannkendall.original_test: z = -2.877805536, p = 0.004.
         Assert.Equal(-2.877805536, verdict.ZScore, precision: 6);
         Assert.True(verdict.IsSignificant);
         Assert.False(verdict.Prewhitened.IsSignificant);
@@ -105,8 +104,8 @@ public class SignificanceCorrectionsTests
     [Fact]
     public void RealAmazonSeries_ItsDeclineDoesNotSurviveThePersistenceCorrection()
     {
-        // Lo que hay que contar en la demo: el descenso de lluvia de esta celda pasa el test clásico
-        // (p = 0,016) pero no el preblanqueo (p = 0,09). No se puede presentar como tendencia sólida.
+        // Key demo takeaway: the rainfall decline in this cell passes the classic test
+        // (p = 0.016) but not prewhitening (p = 0.09). It cannot be presented as a solid trend.
         var verdict = TrendStatisticsEngine.Analyze(Observations("amazon"));
 
         Assert.True(verdict.IsSignificant);
@@ -116,8 +115,8 @@ public class SignificanceCorrectionsTests
     [Fact]
     public void GapInTheYears_IsNotBridgedByThePrewhitening()
     {
-        // La serie de la Amazonía sin 2017 ni 2018, como le pasa a GRACE: quedan 43 años y 41 pares de
-        // años seguidos (el salto de 2016 a 2019 no cuenta). Referencia: el mismo prototipo.
+        // Amazon series without 2017 or 2018, matching GRACE: 43 years and 41 consecutive year pairs
+        // remain (the jump from 2016 to 2019 does not count). Reference: the same prototype.
         var observations = Observations("amazon").Where(o => o.Year is not (2017 or 2018)).ToList();
 
         var prewhitened = TrendStatisticsEngine.Analyze(observations).Prewhitened;
@@ -132,12 +131,12 @@ public class SignificanceCorrectionsTests
     public void TooShortOrConstantSeries_IsInconclusiveInsteadOfThrowing()
     {
         Assert.Equal(PrewhitenedTrendVerdict.Inconclusive, PrewhiteningTrendTest.Calculate([1.0, 2.0, 3.0], [2000, 2001, 2002]));
-        // Ningún par de años seguidos: no hay cómo estimar la persistencia.
+        // No consecutive year pairs: no way to estimate persistence.
         var everyOtherYear = Enumerable.Range(0, 10).Select(index => 2000 + 2 * index).ToList();
         Assert.Equal(PrewhitenedTrendVerdict.Inconclusive,
             PrewhiteningTrendTest.Calculate(everyOtherYear.Select(year => year * 0.5).ToList(), everyOtherYear));
 
-        // Constante, o una recta exacta: nada que descontar, queda el veredicto clásico.
+        // Constant, or an exact line: nothing to remove, leaving the classic verdict.
         var years = Enumerable.Range(2000, 10).ToList();
         Assert.False(PrewhiteningTrendTest.Calculate(years.Select(_ => 4.0).ToList(), years).IsSignificant);
         var line = PrewhiteningTrendTest.Calculate(years.Select(year => 0.5 * year).ToList(), years);
@@ -169,7 +168,7 @@ public class SignificanceCorrectionsTests
     [Fact]
     public void BenjaminiHochberg_WhenNothingIsHappening_FlagsNothing()
     {
-        // Mil valores p repartidos por igual entre 0 y 1: lo que se espera si ninguna celda cambia.
+        // One thousand p-values evenly spread between 0 and 1: what is expected when no cell changes.
         var uniform = Enumerable.Range(0, 1000).Select(index => (index + 0.5) / 1000.0).ToList();
 
         var adjusted = BenjaminiHochberg.Adjust(uniform);
@@ -183,7 +182,7 @@ public class SignificanceCorrectionsTests
     [Fact]
     public async Task GridTrendService_ReportsHowManyCellsSurviveEachCorrection()
     {
-        // 20 celdas con tendencia clara y 380 de puro ruido (semilla fija): un mapa donde casi nada cambia.
+        // 20 cells with a clear trend and 380 pure noise (fixed seed): a map where almost nothing changes.
         var random = new Random(20261114);
         var cells = Enumerable.Range(0, 400).Select(index => new CellAnnualSeries(
             Latitude: index / 20, Longitude: index % 20,
@@ -201,9 +200,9 @@ public class SignificanceCorrectionsTests
         Assert.Equal(result.Cells.Count(cell => cell.IsSignificant), result.SignificantCells);
         Assert.Equal(result.Cells.Count(cell => cell.IsSignificantCorrected), result.CorrectedSignificantCells);
         Assert.True(result.CorrectedSignificantCells <= result.PrewhitenedSignificantCells);
-        // Las 20 tendencias reales sobreviven a las dos correcciones.
+        // All 20 real trends survive both corrections.
         Assert.All(result.Cells.Where(cell => cell.Latitude < 1), cell => Assert.True(cell.IsSignificantCorrected));
-        // El ruido cuela falsos hallazgos sin corregir, y casi ninguno después.
+        // Noise sneaks in uncorrected false findings, and almost none afterwards.
         Assert.InRange(noise.Count(cell => cell.IsSignificant), 10, 30);
         Assert.InRange(noise.Count(cell => cell.IsSignificantCorrected), 0, 2);
         Assert.All(result.Cells, cell => Assert.InRange(cell.AdjustedPValue, cell.PrewhitenedPValue, 1.0));
@@ -234,8 +233,8 @@ public class SignificanceCorrectionsTests
     private sealed class FakeCatalog : IDatasetCatalogRepository
     {
         private static readonly DatasetProvenance Provenance = new(
-            ClimateVariable.Merra2Temperature, "prueba", "serie de prueba", "°C", "°C / año", "1991-2020", 2.0,
-            "https://example.invalid", "prueba", "0", DateTimeOffset.UnixEpoch, 1981, 2025, "2025-12", false, "prueba", 0,
+            ClimateVariable.Merra2Temperature, "test", "test series", "°C", "°C / year", "1991-2020", 2.0,
+            "https://example.invalid", "test", "0", DateTimeOffset.UnixEpoch, 1981, 2025, "2025-12", false, "test", 0,
             DateTimeOffset.UnixEpoch);
 
         public Task<IReadOnlyList<DatasetProvenance>> GetAllAsync(CancellationToken cancellationToken = default) =>

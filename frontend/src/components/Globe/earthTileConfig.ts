@@ -1,13 +1,13 @@
 /**
- * Detalle satelital por niveles (LOD) al acercar la cámara.
+ * Level of Detail (LOD) satellite imagery upon camera zoom.
  *
- * Fuentes verificadas el 2026-10-04 contra el GetCapabilities EPSG:3857 de NASA GIBS
- * y con peticiones reales: todas responden 200 con `Access-Control-Allow-Origin: *`.
- * - Blue Marble NG: mosaico sin nubes, nivel máximo 8 (≈611 m/px en el ecuador).
- * - Landsat WELD 2000: color verdadero anual, nivel máximo 12 (≈38 m/px). Sobre el
- *   océano devuelve un relleno negro puro (RGB 0,0,0 medido), que se descarta.
- * - Terrain Tiles (AWS Open Data, formato Terrarium): elevación derivada en gran parte
- *   del SRTM de NASA; sólo se usa para sombrear relieve, no para desplazar geometría.
+ * Sources verified on 2026-10-04 against NASA GIBS EPSG:3857 GetCapabilities
+ * and live HTTP queries: all return 200 with `Access-Control-Allow-Origin: *`.
+ * - Blue Marble NG: cloudless mosaic, maximum level 8 (≈611 m/px at equator).
+ * - Landsat WELD 2000: annual true color, maximum level 12 (≈38 m/px). Over
+ *   oceans it returns pure black fill (measured RGB 0,0,0), which is keyed out.
+ * - Terrain Tiles (AWS Open Data, Terrarium format): elevation largely derived
+ *   from NASA SRTM; used only for hillshade relief, not geometry displacement.
  */
 import { GLOBE_RADIUS } from './globeConfig';
 
@@ -15,22 +15,22 @@ const GIBS_3857 = 'https://gibs.earthdata.nasa.gov/wmts/epsg3857/best';
 
 export interface EarthTileSource {
   id: string;
-  /** Recibe columna, fila y nivel en el esquema Web Mercator de Google Maps. */
+  /** Receives column, row, and zoom level in Google Maps Web Mercator layout. */
   url: (x: number, y: number, level: number) => string;
   minLevel: number;
   maxLevel: number;
-  /** Rellenos negros sin dato que deben dejar ver la capa inferior. */
+  /** Black no-data fills that must reveal underlying layers. */
   keyBlack: boolean;
-  /** Imagen nocturna emisiva: se ve sólo en la cara de noche. */
+  /** Emissive night imagery: rendered only on the night side. */
   night: boolean;
-  /** Pide elevación para sombrear relieve (de noche no aporta nada). */
+  /** Requests elevation to shade terrain relief (adds nothing at night). */
   terrain: boolean;
-  /** Se ve también de noche, oscurecida (Esri: "que funcione en toda la Tierra"). */
+  /** Also rendered at night, darkened (Esri: "works across all of Earth"). */
   allSides?: boolean;
   /**
-   * Sólo las luces: el fondo azul oscuro de Black Marble se vuelve transparente para dejar ver la
-   * imagen de detalle de noche. No se usa mezcla aditiva: la librería superpone varios niveles y el
-   * fondo se sumaba dos y tres veces, en bandas en zigzag.
+   * City lights only: Black Marble's dark blue background becomes transparent to reveal
+   * underlying detail imagery at night. Additive blending is avoided because tile overlays
+   * caused the dark background to sum multiple times in visible zigzag stripes.
    */
   lightsOnly?: boolean;
 }
@@ -46,8 +46,8 @@ export const EARTH_TILE_SOURCES = {
     night: false,
     terrain: true,
   },
-  // Misma edición 2016 que la textura nocturna de la superficie, pero a ≈611 m/px en lugar
-  // de ≈9,8 km/px: las ciudades dejan de ser manchas al acercar de noche.
+  // Same 2016 edition as the base surface night texture, but at ≈611 m/px instead
+  // of ≈9.8 km/px: city clusters no longer look pixelated when zooming in at night.
   nightLights: {
     id: 'gibs-viirs-black-marble-2016',
     url: (x, y, level) =>
@@ -71,13 +71,13 @@ export const EARTH_TILE_SOURCES = {
 } satisfies Record<string, EarthTileSource>;
 
 /**
- * Alta resolución opcional: Esri World Imagery (hasta nivel 19 ≈ 0,3 m/px: coches, barcos, casas).
- * Se activa sólo si existe VITE_ESRI_API_KEY (configurada en frontend/.env.local para desarrollo
- * o en Vercel/GitHub Secrets para producción); sin clave
- * se queda Landsat de la NASA. Verificado el 2026-10-05 en developers.arcgis.com: plantilla
- * ibasemaps-api.../World_Imagery/MapServer/tile/{z}/{y}/{x}?token=…, CORS `*`. La clave viaja en
- * el JavaScript público: hay que restringirla por dominio en el panel de ArcGIS.
- * Sin relieve: Terrarium llega al nivel 15 y la foto ya trae sus sombras reales.
+ * Optional high resolution: Esri World Imagery (up to level 19 ≈ 0.3 m/px: cars, ships, buildings).
+ * Activated only if VITE_ESRI_API_KEY is present (configured in frontend/.env.local for development
+ * or Vercel/GitHub Secrets for production); without a key it falls back to NASA Landsat.
+ * Verified on 2026-10-05 at developers.arcgis.com: template
+ * ibasemaps-api.../World_Imagery/MapServer/tile/{z}/{y}/{x}?token=…, CORS `*`.
+ * The key travels in public client JS: restrict by domain in the ArcGIS developer dashboard.
+ * Without relief: Terrarium stops at level 15 and aerial imagery already contains natural shadows.
  */
 const ESRI_KEY = String(import.meta.env.VITE_ESRI_API_KEY ?? '').trim();
 
@@ -93,12 +93,12 @@ const esriImagery = (key: string): EarthTileSource => ({
   allSides: true,
 });
 
-/** Fuente del detalle cercano y lo que cambia con ella (cámara mínima y plano cercano). */
+/** Close-range detail source and dependent settings (minimum camera altitude and near plane). */
 export const EARTH_HIGH_RES = ESRI_KEY
   ? {
     provider: 'esri' as const,
     source: esriImagery(ESRI_KEY),
-    /** El nivel 19 se pide por debajo de ~390 m (32/2^19 radios); 250 m deja verlo entero. */
+    /** Level 19 is requested below ~390 m (32/2^19 radii); 250 m shows it in full resolution. */
     minAltitudeKm: 0.25,
     nearPlaneMin: 0.0004,
   }
@@ -109,44 +109,44 @@ export const EARTH_HIGH_RES = ESRI_KEY
     nearPlaneMin: 0.02,
   };
 
-/** Terrarium usa el orden z/x/y, a diferencia de GIBS (z/y/x). */
+/** Terrarium uses z/x/y tile order, unlike GIBS (z/y/x). */
 export const terrainTileUrl = (x: number, y: number, level: number): string =>
   `https://s3.amazonaws.com/elevation-tiles-prod/terrarium/${level}/${x}/${y}.png`;
 
 /**
- * Con Esri la cámara baja a 250 m: las capas no pueden flotar a 127-255 m. Como los mosaicos no
- * escriben profundidad y se dibujan por renderOrder, basta con pegarlos a 13-25 m.
+ * With Esri the camera drops to 250 m: layers cannot float at 127-255 m. Since tiles do not
+ * write depth and are sorted by renderOrder, lifting them 13-25 m is sufficient.
  */
 const TILE_LIFT = EARTH_HIGH_RES.provider === 'esri' ? 0.1 : 1;
 
 export const EARTH_TILE_CONFIG = {
-  /** Apenas sobre la superficie base (≈127-255 m; ≈13-25 m con Esri) más polygonOffset. */
+  /** Just above base surface (≈127-255 m; ≈13-25 m with Esri) plus polygonOffset. */
   blueMarbleRadius: GLOBE_RADIUS * (1 + 0.00002 * TILE_LIFT),
   nightLightsRadius: GLOBE_RADIUS * (1 + 0.00003 * TILE_LIFT),
   landsatRadius: GLOBE_RADIUS * (1 + 0.00004 * TILE_LIFT),
-  /** Brillo de las luces de ciudad; igual criterio que la emisión nocturna de la superficie. */
+  /** City lights brightness; matches surface nocturnal emission threshold. */
   nightIntensity: 1.4,
   /**
-   * La librería pide el nivel n cuando la altitud baja de 8/2^n radios. Multiplicar por 4
-   * adelanta dos niveles: así el mosaico iguala la densidad de píxeles de la pantalla en
-   * lugar de verse borroso hasta estar muy cerca.
+   * The library requests level n when altitude falls below 8/2^n radii. Multiplying by 4
+   * pulls two levels ahead: matching screen pixel density rather than appearing blurry
+   * until very close.
    */
   thresholdScale: 4,
-  /** Altitud en radios: por encima de `fadeStart` la capa no se muestra ni pide mosaicos. */
+  /** Altitude in radii: above `fadeStart` the layer is hidden and stops requesting tiles. */
   blueMarble: { fadeStart: 1.1, fadeEnd: 0.75 },
   landsat: { fadeStart: 0.075, fadeEnd: 0.045 },
-  /** Las nubes son 2K: al acercar serían manchas borrosas, así que se retiran. */
+  /** Clouds are 2K: zooming in would make them blurry artifacts, so they fade out. */
   clouds: { hiddenBelow: 0.05, fullAbove: 0.45 },
-  /** Exageración del sombreado de relieve. La geometría no se desplaza. */
+  /** Terrain relief hillshading exaggeration. Geometry is not displaced. */
   reliefExaggeration: 2.5,
-  /** Plano cercano adaptativo: fracción de la distancia a la superficie (mínimo en EARTH_HIGH_RES). */
+  /** Adaptive near clipping plane: fraction of distance to surface (minimum in EARTH_HIGH_RES). */
   nearPlane: { fraction: 0.35 },
   maxAnisotropy: 8,
-  /** Antes del calor (0.5), las nubes (1) y la atmósfera (2). */
+  /** Rendered before heat (0.5), clouds (1), and atmosphere (2). */
   renderOrder: { blueMarble: 0.1, nightLights: 0.15, landsat: 0.2 },
 } as const;
 
-// Esri exige "Powered by Esri" y los proveedores de datos siempre visibles mientras se muestre su capa.
+// Esri requires "Powered by Esri" and data attribution always visible when its layer is displayed.
 export const EARTH_TILE_ATTRIBUTION = EARTH_HIGH_RES.provider === 'esri'
-  ? 'Imágenes: NASA GIBS · Blue Marble NG · VIIRS Black Marble · Powered by Esri · Esri, Maxar, Earthstar Geographics, and the GIS User Community · Relieve: Terrain Tiles (SRTM)'
-  : 'Imágenes: NASA GIBS · Blue Marble NG · VIIRS Black Marble · Landsat WELD 2000 · Relieve: Terrain Tiles (SRTM)';
+  ? 'Imagery: NASA GIBS · Blue Marble NG · VIIRS Black Marble · Powered by Esri · Esri, Maxar, Earthstar Geographics, and the GIS User Community · Relief: Terrain Tiles (SRTM)'
+  : 'Imagery: NASA GIBS · Blue Marble NG · VIIRS Black Marble · Landsat WELD 2000 · Relief: Terrain Tiles (SRTM)';

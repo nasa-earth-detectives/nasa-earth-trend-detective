@@ -1,4 +1,4 @@
-/* La lectura de la capa ocupa el instrumento existente, sin una nueva tarjeta. */
+/* Layer readout occupies existing instrument space, without adding a new card. */
 .hex-readout { width: 310px; max-width: 100%; border-top: 2px solid var(--edge-highlight); padding-top: 9px; }
 .hex-readout__heading { display: flex; align-items: baseline; justify-content: space-between; gap: 12px;
   color: var(--text-secondary); font-size: 11px; }
@@ -13,7 +13,7 @@
 .hex-readout__measurement > span { color: var(--text-secondary); font: 11px var(--font-readout); }
 .hex-readout__direction { margin-top: 3px; font-size: 11px; line-height: 1.5; color: var(--text-secondary); }
 .hex-readout__direction > span { color: var(--text-primary); }
-/* Significancia: tres recuentos del más permisivo al más exigente; el último es el que se sostiene. */
+/* Significance: three counts from most permissive to strictest; the last one is what holds up. */
 .hex-significance { display: grid; gap: 3px; margin: 9px 0 0; }
 .hex-significance > div { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
 .hex-significance dt { font-size: 11px; line-height: 1.4; color: var(--text-secondary); }
@@ -74,7 +74,7 @@
 .hex-layer-control .instrument-switch { min-height: 62px; }
 [data-mode='time'] .hex-height-key, [data-mode='time'] .hex-cell-picker,
 [data-mode='inspection'] .hex-height-key, [data-mode='inspection'] .hex-cell-picker { display: none; }
-/* En el archivo temporal, la escala acompaña al año sin invadir su espacio. */
+/* In time archive mode, the scale accompanies the year without crowding its space. */
 [data-mode='time'] .hex-readout { border: 0; padding-top: 0; }
 [data-mode='time'] .hex-readout__heading,
 [data-mode='time'] .observation-readout[data-state='ready'] .hex-readout__body,
@@ -106,7 +106,7 @@
 }
 @media (max-width: 600px) {
   [data-mode='time'] .system-position[data-hex-active='true'] { max-height: 84px; }
-  /* Reserva la lectura seleccionada sin desplazar controles al elegir una celda. */
+  /* Reserves selected readout without shifting controls when picking a cell. */
   [data-mode='observation'][data-hex-visible='true'] .intent-position { bottom: 198px; }
   .hex-readout { width: 100%; padding-top: 5px; border-top-width: 1px; }
   .hex-readout__heading { font-size: 10px; line-height: 12px; }

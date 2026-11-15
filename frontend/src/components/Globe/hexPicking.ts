@@ -10,9 +10,9 @@ interface PickNode {
 }
 
 /**
- * BVH de las huellas terrestres. Sus cajas incluyen la altura máxima, por lo que
- * no se reconstruye al animar años. El raycast exacto de Three sólo examina hojas
- * atravesadas; también acelera las consultas internas de Globe.gl.
+ * BVH for terrestrial footprints. Bounding boxes include maximum height, so
+ * it is not rebuilt when animating between years. Exact Three.js raycasting only inspects
+ * pierced leaf nodes; also accelerates Globe.gl internal queries.
  */
 export function createHexPicking(mesh: InstancedMesh, earthRadius: number) {
   const inverseWorld = new Matrix4();
@@ -38,7 +38,7 @@ export function createHexPicking(mesh: InstancedMesh, earthRadius: number) {
         const low = direction * baseRadius;
         const high = direction * (baseRadius + maxHeight);
         centers[index * 3 + axis] = (low + high) / 2;
-        // ±width contiene cualquier orientación de la sección hexagonal.
+        // ±width encloses any orientation of the hexagonal cross-section.
         boxes[index * 6 + axis] = Math.min(low, high) - width;
         boxes[index * 6 + axis + 3] = Math.max(low, high) + width;
       }
@@ -101,7 +101,7 @@ export function createHexPicking(mesh: InstancedMesh, earthRadius: number) {
         exactHits.length = 0;
         exactMesh.raycast(raycaster, exactHits);
         for (const hit of exactHits) {
-          // La esfera oculta el hemisferio lejano, incluso en raycasts de Globe.
+          // The sphere occludes the far hemisphere, including in Globe raycasts.
           if (hit.distance > worldLimit) continue;
           hit.instanceId = instanceId;
           hit.object = mesh;

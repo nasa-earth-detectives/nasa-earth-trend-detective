@@ -16,14 +16,14 @@ public sealed record StatisticalVerdict(
     public bool IsSignificant => Math.Abs(ZScore) > 1.95996398454 || PValue < 0.05;
 
     /// <summary>
-    /// Prueba t de la regresión lineal sobre la misma serie: el segundo método que nombra el reto.
-    /// Va aparte de los parámetros posicionales para no romper a quien ya construye el veredicto.
+    /// Linear regression t-test on the same series: the second method named by the challenge.
+    /// Kept separate from positional parameters to avoid breaking callers that already construct the verdict.
     /// </summary>
     public LinearTrendVerdict Linear { get; init; } = LinearTrendVerdict.Inconclusive;
 
     /// <summary>
-    /// El mismo Mann-Kendall después de descontar la persistencia entre años. El veredicto clásico
-    /// supone años independientes; éste dice si la tendencia sigue ahí cuando no se supone.
+    /// Same Mann-Kendall test after removing year-to-year persistence. The classic verdict assumes
+    /// independent years; this indicates whether the trend still holds when independence is not assumed.
     /// </summary>
     public PrewhitenedTrendVerdict Prewhitened { get; init; } = PrewhitenedTrendVerdict.Inconclusive;
 }

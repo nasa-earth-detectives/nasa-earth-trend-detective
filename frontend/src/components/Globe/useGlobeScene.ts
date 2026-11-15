@@ -1,4 +1,4 @@
-/** Escena imperativa estable: la instrumentación no recrea WebGL ni renderiza React por frame. */
+/** Stable imperative scene: instrumentation does not recreate WebGL or trigger React re-renders per frame. */
 import { useEffect, type RefObject } from 'react';
 import Globe, { type GlobeInstance } from 'globe.gl';
 import type { Object3D } from 'three';
@@ -53,7 +53,7 @@ export function useGlobeScene(
     }, analysis.pick);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, GLOBE_CONFIG.maxPixelRatio));
 
-    // Controles orbitales
+    // Orbit controls
     const controls = globe.controls();
     controls.enableDamping = true;
     controls.dampingFactor = GLOBE_CONFIG.dampingFactor;

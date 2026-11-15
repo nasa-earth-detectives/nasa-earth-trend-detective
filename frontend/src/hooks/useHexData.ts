@@ -10,7 +10,7 @@ interface HexDataState {
   error: string | null;
 }
 
-/** Solo consulta al activar la capa o cambiar el filtro; nunca participa del render loop. */
+/** Only queries upon activating the layer or changing the filter; never participates in the render loop. */
 export function useHexData(filter: TrendFilterParams, enabled: boolean) {
   const { variable, startYear, endYear, minConfidence } = filter;
   const key = `${variable}:${startYear}:${endYear}:${minConfidence ?? ''}`;
@@ -30,14 +30,14 @@ export function useHexData(filter: TrendFilterParams, enabled: boolean) {
       (error: unknown) => {
         if (controller.signal.aborted) return;
         setState({ key, data: null, loading: false,
-          error: error instanceof Error ? error.message : 'No se pudieron obtener las tendencias.' });
+          error: error instanceof Error ? error.message : 'Could not fetch trends.' });
       },
     );
     return () => controller.abort();
   }, [enabled, variable, startYear, endYear, minConfidence, key]);
 
   return {
-    // Nunca mostrar una respuesta vieja bajo el nombre de la siguiente variable o periodo.
+    // Never display an outdated response under the name of the next variable or period.
     data: enabled && state.key === key ? state.data : null,
     loading: enabled && (state.key !== key || state.loading),
     error: enabled && state.key === key ? state.error : null,

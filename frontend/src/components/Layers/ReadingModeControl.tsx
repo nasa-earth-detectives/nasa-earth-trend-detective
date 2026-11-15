@@ -12,7 +12,7 @@ interface RadioGroupProps<T extends string> {
   onChange: (value: T) => void;
 }
 
-/** Radiogroup de una sola fila; conserva las flechas, Home y End del patrón nativo. */
+/** Single-row radio group; preserves native pattern Arrow, Home, and End keys. */
 function RadioGroup<T extends string>({ label, options, value, disabled = false, onChange }: RadioGroupProps<T>) {
   const index = Math.max(0, options.findIndex(option => option.id === value));
   const move = (event: KeyboardEvent<HTMLButtonElement>) => {
@@ -39,14 +39,14 @@ function RadioGroup<T extends string>({ label, options, value, disabled = false,
 }
 
 const READINGS: readonly RadioOption<GlobeReading>[] = [
-  { id: 'annual', label: 'Valor del año' },
-  { id: 'trend', label: 'Tendencia (Sen)' },
+  { id: 'annual', label: 'Annual value' },
+  { id: 'trend', label: 'Trend (Sen)' },
 ];
 
 const MODES: readonly RadioOption<ObservationLayerMode>[] = [
-  { id: 'hex', label: 'Hexágonos 3D' },
-  { id: 'heat', label: 'Mapa de calor' },
-  { id: 'none', label: 'Sin capa' },
+  { id: 'hex', label: '3D Hexagons' },
+  { id: 'heat', label: 'Heatmap' },
+  { id: 'none', label: 'No layer' },
 ];
 
 interface ReadingModeControlProps {
@@ -60,8 +60,8 @@ interface ReadingModeControlProps {
 }
 
 /**
- * Dos preguntas distintas sobre el mismo planeta: el valor de un año concreto
- * y el ritmo de cambio de todo el periodo. La representación sólo aplica a la primera.
+ * Two distinct questions about the same planet: the value in a specific year
+ * versus the rate of change across the entire period. Representation only applies to the former.
  */
 export function ReadingModeControl({
   reading, onReadingChange, observationMode, onObservationModeChange,
@@ -69,17 +69,17 @@ export function ReadingModeControl({
 }: ReadingModeControlProps) {
   return (
     <div className="hex-layer-control">
-      <h3 className="instrument-kicker">Lectura</h3>
-      <RadioGroup label="Qué pregunta responde el globo" options={READINGS}
+      <h3 className="instrument-kicker">Reading</h3>
+      <RadioGroup label="What question the globe answers" options={READINGS}
         value={reading} onChange={onReadingChange} />
       <h3 className="instrument-kicker" style={{ marginTop: '0.85rem' }}
-        title={reading === 'trend' ? 'La tendencia se dibuja siempre en columnas' : undefined}>Representación</h3>
-      <RadioGroup label="Representación de observaciones" options={MODES}
+        title={reading === 'trend' ? 'Trend is always drawn as columns' : undefined}>Representation</h3>
+      <RadioGroup label="Observation representation" options={MODES}
         value={observationMode} disabled={reading === 'trend'} onChange={onObservationModeChange} />
       {reading === 'trend' && <p className="instrument-note">
-        La tendencia usa una sola geometría de columnas; la altura es el ritmo de cambio, no el valor del año.
+        Trend mode uses a single column geometry; height represents rate of change, not the annual value.
       </p>}
-      {showCoverage && <InstrumentSwitch label="Incluir océanos" description="La vista inicial muestra tierra firme"
+      {showCoverage && <InstrumentSwitch label="Include oceans" description="Initial view shows land only"
         checked={coverage === 'global'} onChange={enabled => onCoverageChange(enabled ? 'global' : 'land')} />}
     </div>
   );

@@ -15,7 +15,7 @@ export const trendService = {
     return getJson<{ status: string; service: string; timestamp: string }>('/health');
   },
 
-  /** Mann-Kendall / Sen por celda de toda la grilla observada (GET /api/trends/grid). */
+  /** Mann-Kendall / Sen's slope per cell for the entire observed grid (GET /api/trends/grid). */
   async getGridTrends(params: TrendFilterParams, signal?: AbortSignal): Promise<unknown> {
     return getJson<unknown>('/trends/grid', {
       variable: params.variable,
@@ -24,7 +24,7 @@ export const trendService = {
     }, { signal });
   },
 
-  /** Serie anual y veredicto de una celda (GET /api/trends con latitud y longitud). */
+  /** Annual series and verdict for a cell (GET /api/trends with latitude and longitude). */
   async getCellTrend(query: CellTrendQuery, signal?: AbortSignal): Promise<unknown> {
     return getJson<unknown>('/trends', { ...query }, { signal });
   },

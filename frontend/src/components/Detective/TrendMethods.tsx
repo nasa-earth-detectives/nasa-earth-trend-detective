@@ -1,39 +1,39 @@
 /**
- * Lo que acompaña al veredicto de Mann-Kendall: el intervalo de confianza de la pendiente, la prueba t
- * de una regresión lineal (los otros dos métodos que nombra el reto) y el mismo Mann-Kendall después de
- * descontar la persistencia entre años. Enseñar si el veredicto se sostiene vale más que dar un solo
- * número: si depende del método, o de suponer que cada año es independiente, conviene decirlo.
+ * Supporting context for the Mann-Kendall verdict: the slope confidence interval, the linear
+ * regression t-test (the other two methods named by the challenge), and Mann-Kendall after
+ * removing year-to-year persistence. Showing whether the verdict holds up is worth more than a
+ * single number: if it depends on the method or on assuming independent years, it should be stated.
  */
 import type { CellTrend } from '../../hooks/useCellTrend';
 
-const rate = new Intl.NumberFormat('es', { maximumSignificantDigits: 3, signDisplay: 'exceptZero' });
-const twoDigits = new Intl.NumberFormat('es', { maximumSignificantDigits: 2 });
-const probability = (p: number) => (p < 0.001 ? 'p < 0,001' : `p = ${twoDigits.format(p)}`);
+const rate = new Intl.NumberFormat('en-US', { maximumSignificantDigits: 3, signDisplay: 'exceptZero' });
+const twoDigits = new Intl.NumberFormat('en-US', { maximumSignificantDigits: 2 });
+const probability = (p: number) => (p < 0.001 ? 'p < 0.001' : `p = ${twoDigits.format(p)}`);
 
 function agreement(trend: CellTrend): string | null {
   const { linear, prewhitened } = trend;
   if (!linear) return null;
-  if (!trend.isSignificant && !linear.isSignificant) return 'Sí: ningún método distingue la tendencia del azar.';
+  if (!trend.isSignificant && !linear.isSignificant) return 'Yes: neither method distinguishes the trend from chance.';
   if (trend.isSignificant && linear.isSignificant && Math.sign(trend.sensSlope) === Math.sign(linear.slope)) {
     if (prewhitened && !prewhitened.isSignificant) {
-      return 'Con reservas: los dos métodos ven la tendencia, pero no supera la corrección por persistencia. '
-        + 'Puede ser una racha larga y no un cambio sostenido.';
+      return 'With caveats: both methods detect the trend, but it does not pass the persistence correction. '
+        + 'It may be a long streak rather than a sustained shift.';
     }
-    return prewhitened ? 'Sí: los métodos coinciden y la tendencia supera la corrección por persistencia.'
-      : 'Sí: los dos ven la misma tendencia.';
+    return prewhitened ? 'Yes: the methods agree and the trend passes the persistence correction.'
+      : 'Yes: both show the same trend.';
   }
-  return 'No: el veredicto depende del método. Hay que leerlo con prudencia.';
+  return 'No: the verdict depends on the method. Interpret with caution.';
 }
 
-/** Con r1 por debajo de 0,05 el backend no toca la serie: el veredicto corregido es el clásico. */
+/** When r1 is below 0.05 the backend leaves the series untouched: the corrected verdict matches the classic one. */
 function persistence(trend: CellTrend): string | null {
   const { prewhitened } = trend;
   if (!prewhitened) return null;
   const r1 = `r₁ = ${twoDigits.format(prewhitened.lag1Autocorrelation)}`;
-  if (prewhitened.lag1Autocorrelation < 0.05) return `${r1} · despreciable: el veredicto no cambia`;
-  const outcome = prewhitened.isSignificant ? 'sigue siendo significativa'
-    : trend.isSignificant ? 'deja de ser significativa' : 'no significativa';
-  return `${r1} · ${probability(prewhitened.pValue)} al descontarla · ${outcome}`;
+  if (prewhitened.lag1Autocorrelation < 0.05) return `${r1} · negligible: verdict unchanged`;
+  const outcome = prewhitened.isSignificant ? 'remains significant'
+    : trend.isSignificant ? 'no longer significant' : 'not significant';
+  return `${r1} · ${probability(prewhitened.pValue)} after removal · ${outcome}`;
 }
 
 export function TrendMethods({ trend, unit }: { trend: CellTrend; unit: string }) {
@@ -45,25 +45,25 @@ export function TrendMethods({ trend, unit }: { trend: CellTrend; unit: string }
     <dl className="inspection-methods">
       {interval && (
         <div>
-          <dt>Intervalo de confianza del 95 % · Sen</dt>
-          <dd>{rate.format(interval[0])} a {rate.format(interval[1])} <span>{unit}</span></dd>
+          <dt>95% confidence interval · Sen</dt>
+          <dd>{rate.format(interval[0])} to {rate.format(interval[1])} <span>{unit}</span></dd>
         </div>
       )}
       {linear && (
         <div>
-          <dt>Prueba t · regresión lineal</dt>
-          <dd>{rate.format(linear.slope)} <span>{unit}</span> · {probability(linear.pValue)} · {linear.isSignificant ? 'significativa' : 'no significativa'}</dd>
+          <dt>t-test · linear regression</dt>
+          <dd>{rate.format(linear.slope)} <span>{unit}</span> · {probability(linear.pValue)} · {linear.isSignificant ? 'significant' : 'not significant'}</dd>
         </div>
       )}
       {persistent && (
         <div>
-          <dt>Persistencia entre años · Mann-Kendall con preblanqueo</dt>
+          <dt>Year-to-year persistence · prewhitened Mann–Kendall</dt>
           <dd>{persistent}</dd>
         </div>
       )}
       {verdict && (
         <div>
-          <dt>¿Se sostiene el veredicto?</dt>
+          <dt>Does the verdict hold up?</dt>
           <dd>{verdict}</dd>
         </div>
       )}

@@ -1,99 +1,99 @@
 /**
- * Configuración centralizada de la escena WebGL del globo terráqueo.
- * Parte 1 (S1-T4): cimientos de escena, cámara, controles y campo estelar.
+ * Centralized WebGL configuration for the Earth globe scene.
+ * Part 1 (S1-T4): foundations of scene, camera, controls, and starfield.
  *
- * Todas las constantes de ajuste viven aquí para evitar números mágicos
- * dispersos por los módulos de renderizado.
+ * All tuning constants live here to prevent magic numbers
+ * scattered across rendering modules.
  */
 
-/** Radio interno del globo en unidades de escena (three-globe usa 100). */
+/** Internal globe radius in scene units (three-globe uses 100). */
 export const GLOBE_RADIUS = 100;
 
 export interface StarLayerConfig {
-  /** Número de estrellas de la capa (una sola draw call por capa). */
+  /** Number of stars in the layer (single draw call per layer). */
   count: number;
-  /** Tamaño en píxeles (sizeAttenuation desactivado). */
+  /** Size in pixels (sizeAttenuation disabled). */
   size: number;
-  /** Opacidad base de la capa. */
+  /** Base layer opacity. */
   opacity: number;
-  /** Brillo mínimo por estrella; el resto se distribuye aleatoriamente. */
+  /** Minimum brightness per star; remaining brightness distributes randomly. */
   minBrightness: number;
 }
 
 export const GLOBE_CONFIG = {
-  // ─── Cámara ────────────────────────────────────────────────────────────
+  // ─── Camera ────────────────────────────────────────────────────────────
   /**
-   * Altitud inicial en múltiplos del radio del globo (paneles apaisados).
-   * Calibrada para que el planeta domine el viewport sin tocar los bordes.
+   * Initial altitude in multiples of globe radius (landscape viewports).
+   * Calibrated so the planet dominates the viewport without touching boundaries.
    */
   initialAltitude: 2.2,
   wideInitialAltitude: 2.1,
   /**
-   * Relación de aspecto a partir de la cual no hace falta alejar la cámara.
-   * Por debajo de este valor el planeta se saldría por los lados, porque el
-   * encuadre de Globe.gl se rige por el campo de visión vertical.
+   * Aspect ratio above which camera pullback is unnecessary.
+   * Below this value the planet would spill beyond screen borders, because
+   * Globe.gl framing is governed by vertical field of view.
    */
   referenceAspect: 1.4,
-  /** Tope de alejamiento en paneles estrechos o verticales (móvil en vertical). */
+  /** Pullback cap on narrow or portrait viewports (vertical mobile). */
   maxInitialAltitude: 6,
-  /** Relación de aspecto mínima considerada: por debajo no se sigue alejando. */
+  /** Minimum aspect ratio considered: below this no further pullback occurs. */
   minAspect: 0.42,
   initialLat: 18,
   initialLng: -12,
   /**
-   * Distancia mínima: ≈9,6 km sobre la superficie (0,0015 radios), donde Landsat WELD
-   * ya muestra su nivel 12. El plano cercano se adapta para no recortar el suelo.
+   * Minimum distance: ≈9.6 km above surface (0.0015 radii), where Landsat WELD
+   * displays its full level 12. Near plane adapts to prevent ground clipping.
    */
   minDistance: GLOBE_RADIUS * 1.0015,
-  /** Distancia de recorte: da precisión de profundidad a la capa de nubes (R + 0.12). */
+  /** Near clipping plane: provides depth precision to cloud layer (R + 0.12). */
   nearPlane: 1,
   /**
-   * Distancia máxima de órbita: impide que la Tierra se vuelva irrelevante.
-   * Debe superar la distancia inicial más lejana (`maxInitialAltitude`).
+   * Maximum orbital distance: prevents Earth from becoming negligible.
+   * Must exceed farthest initial distance (`maxInitialAltitude`).
    */
   maxDistance: GLOBE_RADIUS * 8.5,
-  /** Tope de densidad de píxeles para no saturar pantallas 4K/Retina. */
+  /** Pixel ratio cap to prevent oversaturating 4K/Retina displays. */
   maxPixelRatio: 2,
 
-  // ─── Rotación e interacción ────────────────────────────────────────────
-  /** Velocidad de rotación en reposo: lenta y sobria. */
+  // ─── Rotation & Interaction ──────────────────────────────────────────
+  /** Idle rotation speed: slow and restrained. */
   autoRotateSpeed: 0.12,
-  /** Amortiguación de los controles orbitales. */
+  /** Orbit controls damping factor. */
   dampingFactor: 0.08,
-  /** Tiempo sin interacción antes de reanudar la rotación en reposo. */
+  /** Idle time before resuming rotation. */
   idleResumeMs: 2600,
-  /** Sensibilidad de la rueda de zoom. */
+  /** Zoom wheel sensitivity. */
   zoomSpeed: 0.7,
   rotateSpeed: 0.55,
-  /** Duración de la transición al recentrar la cámara desde la barra flotante. */
+  /** Transition duration when recentering camera from floating bar. */
   resetCameraMs: 800,
-  /** Desplazamiento compositivo temporal, independiente de la tasa de refresco. */
+  /** Temporary compositional focus offset, independent of frame rate. */
   focusOffsetMs: 420,
 
-  // ─── Entorno; material y assets centralizados en earthConfig ────────────
+  // ─── Environment; material and assets centralized in earthConfig ────────
   backgroundColor: '#05070a',
   atmosphereColor: '#94aec8',
   atmosphereAltitude: 0.045,
 
-  // ─── Campo estelar ─────────────────────────────────────────────────────
-  /** Cascarón esférico donde se distribuyen las estrellas. */
+  // ─── Starfield ─────────────────────────────────────────────────────────
+  /** Spherical shell where stars are distributed. */
   starInnerRadius: GLOBE_RADIUS * 16,
   starOuterRadius: GLOBE_RADIUS * 26,
-  /** Matiz azulado sutil (HSL) para evitar estrellas de blanco plano. */
+  /** Subtle bluish tint (HSL) avoiding flat white stars. */
   starHue: 0.58,
   starHueSpread: 0.08,
   starSaturation: 0.22,
   /**
-   * Tres capas uniformes (débiles, medias, brillantes) => variación de tamaño con 3 draw calls.
-   * Los tamaños son en píxeles con un sprite redondo, por eso son algo mayores que con cuadrados.
+   * Three uniform layers (faint, medium, bright) => size variation with 3 draw calls.
+   * Sizes in pixels using round sprite points, slightly larger than square points.
    */
   starLayers: [
     { count: 5200, size: 1.4, opacity: 0.7, minBrightness: 0.25 },
     { count: 1100, size: 2.2, opacity: 0.85, minBrightness: 0.45 },
     { count: 150, size: 3.6, opacity: 1, minBrightness: 0.7 },
   ] as StarLayerConfig[],
-  /** Estrellas débiles concentradas en el plano galáctico (nubes de estrellas de la Vía Láctea). */
+  /** Faint stars concentrated along galactic plane (Milky Way star clouds). */
   galacticStarLayer: { count: 7000, size: 1.2, opacity: 0.55, minBrightness: 0.2 } as StarLayerConfig,
-  /** Aporte de la banda horneada sobre el negro del espacio (0-1). */
+  /** Contribution of baked band over deep space black (0-1). */
   milkyWayBrightness: 0.3,
 } as const;

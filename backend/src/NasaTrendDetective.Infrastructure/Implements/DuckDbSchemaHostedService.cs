@@ -4,7 +4,7 @@ using NasaTrendDetective.Infrastructure.Interfaces;
 namespace NasaTrendDetective.Infrastructure.Implements;
 
 /// <summary>
-/// Inicializa el esquema estrella de DuckDB al arrancar el host, antes de atender peticiones.
+/// Initializes the DuckDB star schema on application startup, prior to serving requests.
 /// </summary>
 public sealed class DuckDbSchemaHostedService : IHostedService
 {

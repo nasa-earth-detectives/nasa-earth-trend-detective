@@ -22,8 +22,8 @@ export interface EarthUserLocationApi {
 }
 
 /**
- * Marcador 3D "Tú estás aquí" en la superficie de la Tierra.
- * Presenta un núcleo brillante con ondas de radar concéntricas pulsantes.
+ * 3D "You are here" marker on Earth's surface.
+ * Features a glowing core with pulsating concentric radar rings.
  */
 export function createEarthUserLocation(scene: Scene): EarthUserLocationApi {
   const root = new Group();
@@ -31,7 +31,7 @@ export function createEarthUserLocation(scene: Scene): EarthUserLocationApi {
   root.visible = false;
   scene.add(root);
 
-  // Núcleo central luminoso
+  // Glowing central core
   const coreGeo = new SphereGeometry(0.7, 16, 16);
   const coreMat = new MeshBasicMaterial({
     color: 0x38bdf8, // Cyan NASA / Sci-fi
@@ -41,7 +41,7 @@ export function createEarthUserLocation(scene: Scene): EarthUserLocationApi {
   coreMesh.raycast = () => {};
   root.add(coreMesh);
 
-  // Anillos concéntricos pulsantes
+  // Pulsating concentric rings
   const ringGeo = new RingGeometry(0.8, 1.4, 32);
   const ringMat1 = new MeshBasicMaterial({
     color: 0x38bdf8,
@@ -73,7 +73,7 @@ export function createEarthUserLocation(scene: Scene): EarthUserLocationApi {
   const updatePosition = (lat: number, lng: number) => {
     const phi = (90 - lat) * (Math.PI / 180);
     const theta = (lng + 180) * (Math.PI / 180);
-    const radius = GLOBE_RADIUS + 0.45; // Ligeramente elevado sobre los hexágonos y el relieve
+    const radius = GLOBE_RADIUS + 0.45; // Slightly elevated above hex columns and relief
 
     const x = -(radius * Math.sin(phi) * Math.cos(theta));
     const y = radius * Math.cos(phi);
@@ -87,12 +87,12 @@ export function createEarthUserLocation(scene: Scene): EarthUserLocationApi {
   const animate = () => {
     progress = (progress + 0.015) % 1;
 
-    // Primer anillo
+    // First ring
     const scale1 = 1 + progress * 2.8;
     ringMesh1.scale.set(scale1, scale1, 1);
     ringMat1.opacity = Math.max(0, 1 - progress) * 0.75;
 
-    // Segundo anillo (desfasado medio ciclo)
+    // Second ring (offset by half a cycle)
     const progress2 = (progress + 0.5) % 1;
     const scale2 = 1 + progress2 * 2.8;
     ringMesh2.scale.set(scale2, scale2, 1);

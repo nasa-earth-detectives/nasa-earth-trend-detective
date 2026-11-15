@@ -4,20 +4,20 @@ import {
 import { GLOBE_RADIUS } from './globeConfig';
 
 /**
- * Halo atmosférico aditivo y consciente del sol real (BackSide, 1,10 R): para cada píxel se calcula
- * a qué altura pasa el rayo de visión sobre la Tierra y el brillo cae exponencialmente con esa
- * altura, como la densidad del aire. Así el borde es un anillo nítido pegado al limbo y no un
- * degradado plano.
+ * Additive atmospheric halo aware of the true sun direction (BackSide, 1.10 R): for each pixel,
+ * the sight ray altitude above Earth is computed and brightness decays exponentially with that
+ * altitude, matching air density. This keeps the edge as a sharp ring hugging the limb rather than
+ * a flat gradient.
  *
- * Se probó además una bruma Fresnel sobre el disco (esfera a 1,0016 R): producía un muaré en panal
- * de abeja sobre el lado de día y se retiró; el halo solo da el borde azul de las fotos orbitales.
+ * A Fresnel haze on the planetary disk (sphere at 1.0016 R) was tested, but caused honeycomb moiré
+ * patterns on the day side and was removed; the halo alone yields the blue rim of orbital photos.
  *
- * Detalles que dan el aspecto de foto orbital: el terminador tiñe el halo de naranja y, a contraluz
- * (sol detrás de la Tierra), la dispersión hacia delante enciende el limbo.
+ * Details providing an orbital photo look: the terminator tints the halo orange and, in backlighting
+ * (sun behind Earth), forward scattering lights up the limb.
  */
 export const EARTH_ATMOSPHERE_CONFIG = {
   haloRadius: 1.1,
-  /** Altura de escala del brillo, en radios terrestres. */
+  /** Brightness scale height, in Earth radii. */
   scaleHeight: 0.011,
   dayColor: '#3f8cff',
   twilightColor: '#ff9a52',
@@ -46,12 +46,12 @@ uniform float scaleHeight;
 uniform float intensity;
 varying vec3 vWorldPosition;
 
-// pow(x, 2.0) es indefinido en GLSL si x < 0, y aquí la base es negativa en el lado nocturno.
+// pow(x, 2.0) is undefined in GLSL if x < 0, and here the base is negative on the night side.
 float sq(float x) { return x * x; }
 
 void main() {
   vec3 ray = normalize(vWorldPosition - cameraPosition);
-  // Punto del rayo más cercano al centro de la Tierra (el centro está en el origen).
+  // Ray point closest to Earth center (center is at the origin).
   float t = max(-dot(cameraPosition, ray), 0.0);
   vec3 closest = cameraPosition + ray * t;
   float altitude = (length(closest) - planetRadius) / planetRadius;
@@ -61,7 +61,7 @@ void main() {
   float sunCos = dot(normalize(closest), sun);
   float day = smoothstep(-0.28, 0.35, sunCos);
   float twilight = exp(-sq((sunCos + 0.02) / 0.11));
-  // Contraluz: sólo el aire más denso (density²) brilla al mirar hacia el sol, como un anillo fino.
+  // Backlight: only the densest air (density²) glows when looking toward the sun, forming a thin ring.
   float forward = pow(max(dot(ray, sun), 0.0), 18.0) * density;
 
   vec3 color = mix(nightColor, dayColor, day);

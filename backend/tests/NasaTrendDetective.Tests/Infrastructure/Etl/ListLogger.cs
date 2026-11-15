@@ -3,7 +3,7 @@ using Microsoft.Extensions.Logging;
 namespace NasaTrendDetective.Tests.Infrastructure.Etl;
 
 /// <summary>
-/// Logger de prueba que acumula los mensajes formateados para verificar lo logueado.
+/// Test logger that accumulates formatted messages to verify logged output.
 /// </summary>
 internal sealed class ListLogger<T> : ILogger<T>
 {

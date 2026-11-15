@@ -1,6 +1,6 @@
 /**
- * Efectos del layout que sólo sincronizan estado con la escena 3D. Viven aparte para que
- * ImmersiveEarthLayout quede por debajo del límite de líneas de la CI; no añaden estado propio.
+ * Layout effects that only synchronize state with the 3D scene. Kept separate so
+ * ImmersiveEarthLayout stays below the CI line limit; they add no own state.
  */
 import { useEffect, type RefObject } from 'react';
 import { SATELLITE_TIMELINE } from '../../config/climateLayers';
@@ -13,7 +13,7 @@ import type { GlobeSceneApi } from '../Globe/useGlobeScene';
 
 type SceneRef = RefObject<GlobeSceneApi | null>;
 
-/** Lectura de tendencia: modo de la escena, datos de la grilla y selección de celda. */
+/** Trend reading: scene mode, grid data, and cell selection. */
 export function useTrendReadingSync(sceneApiRef: SceneRef, reading: GlobeReading, trendData: HexDataset | null,
   setSelectedTrendCell: (cell: HexCell | null) => void, setSelectedObservation: (item: ClimateObservation | null) => void) {
   const trendReading = reading === 'trend';
@@ -35,8 +35,8 @@ export function useTrendReadingSync(sceneApiRef: SceneRef, reading: GlobeReading
 }
 
 /**
- * Desplaza el encuadre para que un panel abierto no tape el planeta: a la izquierda si se abre el
- * panel de capas (derecha) y a la derecha si está el expediente de inicio (izquierda).
+ * Shifts framing so an open panel does not cover the planet: left when the layer panel opens
+ * (right) and right when the startup briefing is open (left).
  */
 export function useFocusOffset(sceneApiRef: SceneRef, panelOpen: boolean, briefingOpen = false) {
   useEffect(() => {
@@ -55,9 +55,9 @@ export function useFocusOffset(sceneApiRef: SceneRef, panelOpen: boolean, briefi
 }
 
 /**
- * Rango de años de la línea de tiempo. Cada fuente real trae su cobertura (MERRA-2: 1981-2025;
- * GISTEMP: 2000-hoy): con el rango fijo, al elegir una variable de MERRA-2 el año en curso quedaba
- * sin datos y el globo, vacío. Si el año activo cae fuera, se lleva al extremo más cercano.
+ * Timeline year range. Each real source provides its coverage (MERRA-2: 1981-2025;
+ * GISTEMP: 2000-present): with a fixed range, choosing a MERRA-2 variable left the current year
+ * without data and the globe empty. If the active year falls outside, it clamps to the nearest end.
  */
 export function useCoverageTimeline(source: ObservationSource, provenance: DatasetProvenance | null,
   loading: boolean, year: number, onYearChange: (year: number) => void) {
@@ -65,7 +65,7 @@ export function useCoverageTimeline(source: ObservationSource, provenance: Datas
   const startYear = real ? provenance.coverageStart : SATELLITE_TIMELINE.startYear;
   const endYear = real ? provenance.coverageEnd : SATELLITE_TIMELINE.endYear;
   useEffect(() => {
-    // Mientras carga, la procedencia todavía es la de la variable anterior: no se corrige con ella.
+    // While loading, provenance still belongs to the previous variable: do not clamp using it.
     if (loading) return;
     if (year > endYear) onYearChange(endYear);
     else if (year < startYear) onYearChange(startYear);
@@ -74,8 +74,8 @@ export function useCoverageTimeline(source: ObservationSource, provenance: Datas
 }
 
 /**
- * Lugares pedidos desde fuera de la escena por el asistente. La vista previa sólo orienta el globo,
- * desde lejos; al confirmar, la cámara baja al lugar y se abre su inspección.
+ * Locations requested from outside the scene by the wizard. Preview only points the globe
+ * from afar; on confirm, the camera descends to the place and opens its inspection.
  */
 export function useFocusLocation(sceneApiRef: SceneRef, focusLocation: SelectedLocation | null,
   previewLocation: SelectedLocation | null, selectLocation: (location: SelectedLocation) => void) {

@@ -66,7 +66,7 @@ public sealed class DuckDbSchemaInitializerTests : IDisposable
     [Fact]
     public async Task InitializeAsync_LegacyDatabaseLimitedToFourVariables_IsRebuiltAndAcceptsNewOnes()
     {
-        // Base creada por una versión anterior: dim_variable con CHECK 1..4 y un hecho ya cargado.
+        // Database created by a previous version: dim_variable with CHECK 1..4 and an already loaded fact.
         await _repository.ExecuteAsync("""
             CREATE TABLE dim_variable (
                 variable_id TINYINT PRIMARY KEY, variable_code VARCHAR NOT NULL UNIQUE,
@@ -84,7 +84,7 @@ public sealed class DuckDbSchemaInitializerTests : IDisposable
         await _initializer.InitializeAsync();
 
         Assert.Equal(9L, await CountAsync("dim_variable"));
-        // Los hechos antiguos se sueltan a propósito: el sembrado los recarga desde los Parquet.
+        // Legacy facts are intentionally dropped: seeding reloads them from the Parquet files.
         Assert.Equal(0L, await CountAsync("fact_climate_observations"));
         await _repository.ExecuteAsync(
             "INSERT INTO fact_climate_observations VALUES (1, 8, 10, 20, 2020, 1, 0.5, 0.1)");

@@ -1,20 +1,20 @@
 {
   "variable": "ModisNdvi",
   "provider": "nasa-gibs-modis-terra",
-  "product": "MODIS Terra L3 · NDVI mensual (capa MODIS_Terra_L3_NDVI_Monthly de NASA GIBS, media por celda)",
+  "product": "MODIS Terra L3 · monthly NDVI (NASA GIBS MODIS_Terra_L3_NDVI_Monthly layer, cell mean)",
   "baseline": null,
   "unit": "NDVI",
-  "trendUnit": "NDVI / año",
+  "trendUnit": "NDVI / year",
   "interim": false,
   "resolutionDegrees": 2.0,
-  "sourceUrl": "https://gibs.earthdata.nasa.gov/wmts/epsg4326/best/MODIS_Terra_L3_NDVI_Monthly/default/{AAAA-MM}-01/1km/2/{fila}/{columna}.png",
-  "sourceFile": "MODIS_Terra_L3_NDVI_Monthly, nivel 2, 309 meses",
+  "sourceUrl": "https://gibs.earthdata.nasa.gov/wmts/epsg4326/best/MODIS_Terra_L3_NDVI_Monthly/default/{YYYY-MM}-01/1km/2/{row}/{col}.png",
+  "sourceFile": "MODIS_Terra_L3_NDVI_Monthly, level 2, 309 months",
   "sourceSha256": "03a81fe6a5628c1686eccb8badcc5bd628e7959e98dc753aa02dd4d83850c846",
   "retrievedAt": "2026-11-14T17:54:06+00:00",
   "coverageStart": 2000,
   "coverageEnd": 2025,
   "lastMonth": "2025-12",
   "rows": 1010695,
-  "processing": "NDVI recuperado de la imagen con la paleta oficial de GIBS (142 clases de 0,005 a 0,01 de ancho) y promediado por área a 2°. Los píxeles transparentes (agua, sin dato o NDVI menor o igual que 0) no entran. Meses que GIBS no publica: 2025-04.",
-  "citation": "Didan, K. (2021). MODIS/Terra Vegetation Indices Monthly L3 Global 1km SIN Grid V061. NASA EOSDIS Land Processes DAAC. doi:10.5067/MODIS/MOD13A3.061. Imagen servida por NASA Global Imagery Browse Services (GIBS), ESDIS."
+  "processing": "NDVI recovered from the image using the official GIBS palette (142 classes from 0.005 to 0.01 wide) and area-averaged to 2°. Transparent pixels (water, no data, or NDVI less than or equal to 0) are excluded. Months not published by GIBS: 2025-04.",
+  "citation": "Didan, K. (2021). MODIS/Terra Vegetation Indices Monthly L3 Global 1km SIN Grid V061. NASA EOSDIS Land Processes DAAC. doi:10.5067/MODIS/MOD13A3.061. Imagery served by NASA Global Imagery Browse Services (GIBS), ESDIS."
 }

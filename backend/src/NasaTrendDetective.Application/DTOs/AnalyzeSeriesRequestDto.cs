@@ -10,7 +10,7 @@ public class AnalyzeSeriesRequestDto
     public ClimateVariable Variable { get; set; } = ClimateVariable.Gistemp;
 
     [Required]
-    [MinLength(3, ErrorMessage = "Se requieren al menos 3 observaciones para el cálculo de Mann-Kendall.")]
+    [MinLength(3, ErrorMessage = "At least 3 observations are required for the Mann-Kendall calculation.")]
     public List<AnnualObservation> Observations { get; set; } = new();
 
     [Range(-90.0, 90.0)]

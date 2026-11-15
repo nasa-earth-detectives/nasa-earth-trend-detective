@@ -8,7 +8,7 @@ interface InstrumentSwitchProps {
   onChange: (value: boolean) => void;
 }
 
-/** Botón nativo: Espacio y Enter conservan su comportamiento accesible. */
+/** Native button: Space and Enter keys retain accessible behavior. */
 export function InstrumentSwitch({ label, description, checked, disabled = false, onChange }: InstrumentSwitchProps) {
   const id = useId();
   return (
@@ -19,7 +19,7 @@ export function InstrumentSwitch({ label, description, checked, disabled = false
         <span id={id + '-label'} className="instrument-switch__label">{label}</span>
         {description && <span id={id + '-description'} className="instrument-switch__description">{description}</span>}
       </span>
-      <span className="instrument-switch__state" aria-hidden="true">{checked ? 'Sí' : 'No'}</span>
+      <span className="instrument-switch__state" aria-hidden="true">{checked ? 'On' : 'Off'}</span>
       <span className="instrument-switch__track" aria-hidden="true"><span /></span>
     </button>
   );

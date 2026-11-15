@@ -8,7 +8,7 @@ import { createEarthLighting } from './earthLighting';
 import { createEarthMaterial } from './earthMaterial';
 import { createEarthEnvelope } from './earthEnvelope';
 
-/** Propietario del material y mapas: conserva la geometría, instancia y renderer de Globe. */
+/** Material and texture map owner: preserves Globe geometry, instance, and renderer. */
 export function createEarthSurface(globe: GlobeInstance, container: HTMLElement,
   onStatus?: (status: EarthSurfaceStatus) => void) {
   const renderer = globe.renderer();
@@ -70,7 +70,7 @@ export function createEarthSurface(globe: GlobeInstance, container: HTMLElement,
       || globe.pointOfView().altitude > EARTH_DETAIL_CONFIG.maxAltitude) return;
     detailRequested = true;
     void load(detailAsset, true).then(texture => {
-      if (disposed || !texture) return; // Un fallo opcional conserva el mapa inicial y no reintenta.
+      if (disposed || !texture) return; // An optional failure preserves base map and does not retry.
       const previous = material.map;
       material.map = texture;
       container.dataset.earthDetail = detailConfig.label;
@@ -136,7 +136,7 @@ export function createEarthSurface(globe: GlobeInstance, container: HTMLElement,
     dispose,
     setAtmosphereVisible: envelope.setAtmosphereVisible,
     setCloudFade: envelope.setCloudFade,
-    /** Misma referencia que ilumina el material: los mosaicos comparten el sol UTC real. */
+    /** Same reference illuminating material: tiles share the real UTC sun direction. */
     sunDirection: lighting.sunDirection,
   };
 }

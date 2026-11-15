@@ -5,10 +5,10 @@ const DEG = Math.PI / 180;
 const OBLIQUITY = 23.439 * DEG;
 
 /**
- * Posición de la Luna con una serie de baja precisión (términos principales: ecuación del centro,
- * evección, variación y ecuación anual). Comprobado contra el calendario lunar de octubre de 2026:
- * iluminación 39,5 % / 28,8 % / ~19 % el 4, 5 y 6 a las 12:00 UTC, frente a 40 % / 29 % / 20 %
- * publicados; luna nueva el 11 y llena el 26. Error del orden de pocos grados: de sobra para verla.
+ * Lunar position via a low-precision analytical series (principal terms: equation of the center,
+ * evection, variation, and annual equation). Verified against October 2026 lunar calendar:
+ * illumination 39.5% / 28.8% / ~19% on Oct 4, 5, 6 at 12:00 UTC vs 40% / 29% / 20%
+ * published; new moon on Oct 11, full moon on Oct 26. Error within a few degrees: plenty for visual rendering.
  */
 export function lunarEclipticPosition(timeMs: number): { longitude: number; latitude: number; distanceKm: number } {
   const d = timeMs / 86_400_000 + 2440587.5 - 2451545.0;
@@ -26,12 +26,12 @@ export function lunarEclipticPosition(timeMs: number): { longitude: number; lati
   return { longitude: longitude * DEG, latitude: latitude * DEG, distanceKm };
 }
 
-/** Dirección de la Luna en el marco fijo a la Tierra de la escena (el de getCoords de three-globe). */
+/** Moon direction in scene's Earth-fixed frame (three-globe getCoords frame). */
 export function lunarDirection(timeMs: number, target: Vector3): Vector3 {
   const { longitude: l, latitude: b } = lunarEclipticPosition(timeMs);
   const rightAscension = Math.atan2(Math.sin(l) * Math.cos(OBLIQUITY) - Math.tan(b) * Math.sin(OBLIQUITY), Math.cos(l));
   const declination = Math.asin(Math.sin(b) * Math.cos(OBLIQUITY) + Math.cos(b) * Math.sin(OBLIQUITY) * Math.sin(l));
-  // La Tierra gira bajo el cielo: longitud terrestre = ascensión recta − tiempo sidéreo.
+  // Earth rotates beneath the sky: Earth longitude = right ascension − sidereal time.
   const hourAngle = rightAscension - greenwichSiderealAngle(timeMs);
   return target.set(
     Math.cos(declination) * Math.sin(hourAngle),

@@ -8,10 +8,10 @@ using NasaTrendDetective.Infrastructure.Interfaces;
 namespace NasaTrendDetective.Infrastructure.Etl;
 
 /// <summary>
-/// Siembra DuckDB con los pares Parquet + manifiesto de una carpeta, reutilizando el importador
-/// canónico. El orden (borrar procedencia, borrar hechos, importar, registrar procedencia) garantiza
-/// que nunca queda una procedencia apuntando a hechos a medio cargar: si algo falla a mitad, la
-/// variable queda sin procedencia, la API la declara "synthetic" y el siguiente arranque reintenta.
+/// Seeds DuckDB with Parquet + manifest pairs from a directory, reusing the canonical
+/// importer. The execution order (delete provenance, delete facts, import, record provenance)
+/// ensures provenance never points to half-loaded facts: if a failure occurs halfway,
+/// the variable has no provenance, the API declares it "synthetic", and the next boot retries.
 /// </summary>
 public sealed class DatasetSeeder : IDatasetSeeder
 {
@@ -40,7 +40,7 @@ public sealed class DatasetSeeder : IDatasetSeeder
         var folder = Path.GetFullPath(string.IsNullOrWhiteSpace(directory) ? _options.Directory : directory);
         if (!Directory.Exists(folder))
         {
-            _logger.LogInformation("Sin carpeta de datasets en {Folder}: la API servirá solo datos sintéticos.", folder);
+            _logger.LogInformation("No datasets folder found at {Folder}: the API will serve synthetic data only.", folder);
             return [];
         }
 
@@ -50,7 +50,7 @@ public sealed class DatasetSeeder : IDatasetSeeder
             var outcome = await SeedOneAsync(manifestPath, cancellationToken).ConfigureAwait(false);
             _logger.Log(
                 outcome.Status == DatasetSeedStatus.Failed ? LogLevel.Error : LogLevel.Information,
-                "Dataset {File} ({Variable}): {Status} · {Rows} hechos · {Seconds:F1} s · {Message}",
+                "Dataset {File} ({Variable}): {Status} · {Rows} facts · {Seconds:F1} s · {Message}",
                 outcome.ManifestFile, outcome.Variable, outcome.Status, outcome.Rows,
                 outcome.Elapsed.TotalSeconds, outcome.Message);
             outcomes.Add(outcome);
@@ -73,7 +73,7 @@ public sealed class DatasetSeeder : IDatasetSeeder
             if (!File.Exists(parquetPath))
             {
                 return new(file, manifest.ClimateVariable, DatasetSeedStatus.Skipped, 0, clock.Elapsed,
-                    $"falta {Path.GetFileName(parquetPath)}");
+                    $"missing {Path.GetFileName(parquetPath)}");
             }
 
             var parquetSha = await HashAsync(parquetPath, ct).ConfigureAwait(false);
@@ -83,7 +83,12 @@ public sealed class DatasetSeeder : IDatasetSeeder
             {
                 var rows = await _repository.ExecuteScalarAsync<long>(DatasetSeedSql.CountFacts, parameters, ct)
                     .ConfigureAwait(false);
-                return new(file, manifest.ClimateVariable, DatasetSeedStatus.Unchanged, rows, clock.Elapsed, "ya cargado");
+                await _repository.ExecuteAsync(
+                        DatasetSeedSql.UpdateProvenance,
+                        ProvenanceParameters(manifest, variableId, Path.GetFileName(parquetPath), parquetSha, rows),
+                        ct)
+                    .ConfigureAwait(false);
+                return new(file, manifest.ClimateVariable, DatasetSeedStatus.Unchanged, rows, clock.Elapsed, "already loaded");
             }
 
             var duckPath = parquetPath.Replace('\\', '/');
@@ -92,7 +97,7 @@ public sealed class DatasetSeeder : IDatasetSeeder
             if (variables.Count != 1 || variables[0] != variableId)
             {
                 throw new InvalidDataException(
-                    $"el Parquet trae variable_id [{string.Join(", ", variables)}] y el manifiesto declara {variableId}");
+                    $"Parquet contains variable_id [{string.Join(", ", variables)}] but manifest declares {variableId}");
             }
 
             await _repository.ExecuteAsync(DatasetSeedSql.DeleteProvenance, parameters, ct).ConfigureAwait(false);

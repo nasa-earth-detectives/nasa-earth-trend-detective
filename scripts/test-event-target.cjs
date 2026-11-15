@@ -1,4 +1,4 @@
-// Registro de eventos mínimo para comprobar suscripciones y limpieza sin navegador.
+// Minimal event target to verify subscriptions and cleanup without a browser.
 function eventTarget() {
   const listeners = new Map();
   return {

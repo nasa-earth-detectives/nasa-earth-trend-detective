@@ -1,6 +1,6 @@
 /**
- * Una celda (<td>) del tablero de casos: la serie real de una variable en una región, con su pendiente
- * y su veredicto. No recibe cifras preparadas: sólo lo que acaba de devolver la API.
+ * A cell (<td>) in the case board: the real series for one variable in one region, with its slope
+ * and verdict. Receives no precomputed figures: only what the API just returned.
  */
 import { ArrowDownRight, ArrowUpRight, Minus } from 'lucide-react';
 import type { CaseVerdict } from '../../hooks/useOpposingCases';
@@ -9,10 +9,10 @@ import { verdictTone } from '../../utils/caseVerdict';
 
 const WIDTH = 132;
 const HEIGHT = 36;
-const perDecade = new Intl.NumberFormat('es', { maximumSignificantDigits: 3, signDisplay: 'exceptZero' });
-const probability = new Intl.NumberFormat('es', { maximumSignificantDigits: 2 });
+const perDecade = new Intl.NumberFormat('en-US', { maximumSignificantDigits: 3, signDisplay: 'exceptZero' });
+const probability = new Intl.NumberFormat('en-US', { maximumSignificantDigits: 2 });
 
-/** Serie anual y recta de Sen (pasa por la mediana de los residuos, como define el estimador). */
+/** Annual series and Sen line (passes through the median of residuals, as defined by the estimator). */
 function Sparkline({ series, slope }: { series: TimeSeriesDataPoint[]; slope: number }) {
   if (series.length < 2) return null;
   const firstYear = series[0].year;
@@ -35,7 +35,7 @@ function Sparkline({ series, slope }: { series: TimeSeriesDataPoint[]; slope: nu
 
 interface OpposingCaseCellProps {
   verdict: CaseVerdict | undefined;
-  /** Unidad del valor, p. ej. "mm/día"; la pendiente se muestra por década. */
+  /** Value unit, e.g. "mm/day"; slope is shown per decade. */
   unit: string;
   placeLabel: string;
   onOpen: () => void;
@@ -47,25 +47,25 @@ export function OpposingCaseCell({ verdict, unit, placeLabel, onOpen }: Opposing
     return (
       <td>
         <div className="case-cell" data-tone={tone}>
-          <p className="case-cell__empty">{verdict?.status === 'error' ? 'Sin conexión con los datos' : 'Calculando con la serie real…'}</p>
+          <p className="case-cell__empty">{verdict?.status === 'error' ? 'Data connection unavailable' : 'Computing from real series…'}</p>
         </div>
       </td>
     );
   }
   const { trend } = verdict;
   const Icon = tone === 'up' ? ArrowUpRight : tone === 'down' ? ArrowDownRight : Minus;
-  const reading = tone === 'up' ? 'Sube' : tone === 'down' ? 'Baja' : 'Sin tendencia concluyente';
-  // El p que se enseña es el más exigente disponible: el que ya descuenta la persistencia entre años.
+  const reading = tone === 'up' ? 'Rising' : tone === 'down' ? 'Falling' : 'No conclusive trend';
+  // Display the strictest p-value available: the one that accounts for year-to-year persistence.
   const pValue = trend.prewhitened?.pValue ?? trend.pValue;
-  const p = pValue < 0.001 ? 'p < 0,001' : `p = ${probability.format(pValue)}`;
+  const p = pValue < 0.001 ? 'p < 0.001' : `p = ${probability.format(pValue)}`;
   return (
     <td>
       <div className="case-cell" data-tone={tone}>
         <Sparkline series={trend.series} slope={trend.sensSlope} />
-        <p className="case-cell__slope"><strong>{perDecade.format(trend.sensSlope * 10)}</strong><span>{unit} por década</span></p>
+        <p className="case-cell__slope"><strong>{perDecade.format(trend.sensSlope * 10)}</strong><span>{unit} per decade</span></p>
         <p className="case-cell__verdict"><Icon size={14} strokeWidth={1.8} aria-hidden="true" />{reading}<span>{p}</span></p>
         <button type="button" className="case-cell__open focus-ring" onClick={onOpen}
-          aria-label={`Ver ${placeLabel} en el globo`}>Ver en el globo</button>
+          aria-label={`View ${placeLabel} on the globe`}>View on globe</button>
       </div>
     </td>
   );
