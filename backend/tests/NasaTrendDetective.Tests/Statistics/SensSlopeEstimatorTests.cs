@@ -11,7 +11,7 @@ public class SensSlopeEstimatorTests
         var values = new double[] { 10.0, 12.5, 15.0, 17.5, 20.0 };
         var years = new int[] { 2000, 2001, 2002, 2003, 2004 };
 
-        var result = SensSlopeEstimator.Estimate(values, years, varianceS: 25.0);
+        var result = SensSlopeEstimator.Estimate(values, years, varianceS: 50.0 / 3.0);
 
         Assert.Equal(2.5, result.Slope);
         Assert.Equal(25.0, result.SlopePerDecade);
@@ -28,8 +28,9 @@ public class SensSlopeEstimatorTests
         var result = SensSlopeEstimator.Estimate(values);
 
         // La mediana no se desvía drásticamente por el 100.0
-        Assert.True(result.Slope < 10.0, $"La pendiente de Sen {result.Slope} debe ser robusta frente al outlier");
-        Assert.True(result.Slope >= 1.0);
+        // Assert.True(result.Slope < 10.0, $"La pendiente de Sen {result.Slope} debe ser robusta frente al outlier");
+        // Assert.True(result.Slope >= 1.0);
+        Assert.Equal(1.0, result.Slope); // Seis de las diez pendientes valen 1.
     }
 
     [Fact]
@@ -41,5 +42,18 @@ public class SensSlopeEstimatorTests
 
         Assert.Equal(0.0, result.Slope);
         Assert.Equal(0.0, result.SlopePerDecade);
+    }
+
+    [Fact]
+    public void Estimate_WithIrregularYears_UsesActualTimeIntervals()
+    {
+        var values = new double[] { 10.0, 15.0, 25.0 };
+        var years = new int[] { 2000, 2002, 2006 };
+
+        var result = SensSlopeEstimator.Estimate(values, years);
+
+        // Todas las parejas tienen pendiente 2.5 unidades/año.
+        Assert.Equal(2.5, result.Slope);
+        Assert.Equal(25.0, result.SlopePerDecade);
     }
 }
