@@ -1,6 +1,7 @@
-// Behaviour check for on-demand rendering of the globe (docs/obsidian/42, section 4.4): a scene at rest
-// must not draw, and everything that changes the picture (hovering a column, dragging, zooming until
-// tiles arrive, a switch, the trend reading, a change of profile) must still be shown.
+// Behaviour check for the paced rendering of the globe (docs/obsidian/42, section 4.4, and 44): a scene
+// at rest keeps moving on its own (satellites, ripples, arcs) without drawing every frame, and everything
+// that changes the picture (hovering a column, dragging, zooming until tiles arrive, a switch, the trend
+// reading, a change of profile) must still be shown.
 // It counts WebGL draw calls in headless Edge/Chrome drawing by software and saves screenshots.
 //
 // Usage: node scripts/check-adaptive-rendering.mjs <url> <folder for screenshots>
@@ -66,15 +67,21 @@ try {
   let s = await state();
   const restCanvas = s.canvas;
   const atRest = await callsDuring(2000);
-  check('rest', atRest === 0 && s.quality !== 'full', `${atRest} draw calls in 2 s; canvas ${s.canvas}; profile ${s.quality}`);
+  check('rest', atRest > 0 && s.quality !== 'full', `${atRest} draw calls in 2 s with nobody touching the globe; canvas ${s.canvas}; profile ${s.quality}`);
+  // Nobody touches anything between the two pictures: if they differ, the scene is moving on its own.
+  const still = async () => (await cdp('Page.captureScreenshot', { format: 'png' })).result.data;
+  const first = await still();
+  await sleep(1500);
+  check('moves on its own at rest', first !== await still(), 'two pictures 1.5 s apart, untouched');
   await shot('1-rest.png');
 
-  const beforeHover = s.calls;
+  const beforeHover = (await state()).calls;
   for (let i = 0; i < 12; i++) { await cdp('Input.dispatchMouseEvent', { type: 'mouseMoved', x: 640 + i * 6, y: 300 + i * 4, button: 'none' }); await sleep(80); }
   await sleep(600);
   const hovering = (await state()).calls - beforeHover;
-  check('hover', hovering > 0 && hovering < 1000, `${hovering} draw calls while the pointer crossed the globe (a frame is about 100; dragging would be about 2,700)`);
-  check('rest after hover', await callsDuring(1500) === 0 && (await state()).canvas === restCanvas, `canvas ${(await state()).canvas}`);
+  // Hovering is not a camera move: the highlight comes with the next picture, at the resolution of rest.
+  check('hover', hovering > 0 && (await state()).canvas === restCanvas, `${hovering} draw calls while the pointer crossed the globe; canvas ${(await state()).canvas}`);
+  check('rest after hover', (await state()).canvas === restCanvas, `canvas ${(await state()).canvas}`);
   await cdp('Input.dispatchMouseEvent', { type: 'mouseMoved', x: 60, y: 740, button: 'none' });
 
   await cdp('Input.dispatchMouseEvent', { type: 'mousePressed', x: 700, y: 380, button: 'left', clickCount: 1 });
@@ -111,7 +118,7 @@ try {
   await viewSwitch(0);
   await sleep(7000);
   s = await state();
-  check('back to on-demand', s.quality !== 'full' && await callsDuring(2000) === 0 && s.readout !== '0', `profile ${s.quality}; canvas ${s.canvas}; readout ${s.readout}`);
+  check('back to paced', s.quality !== 'full' && s.readout !== '0', `profile ${s.quality}; canvas ${s.canvas}; readout ${s.readout}`);
   await shot('5-back-on-demand.png');
 
   await press('/^Data$/');
@@ -119,7 +126,7 @@ try {
   const beforeTrend = (await state()).calls;
   await press('/Trend \\(Sen\\)/');
   await sleep(5000);
-  check('trend reading', (await state()).calls > beforeTrend && await callsDuring(2000) === 0, `${(await state()).calls - beforeTrend} draw calls after the change, then at rest`);
+  check('trend reading', (await state()).calls > beforeTrend, `${(await state()).calls - beforeTrend} draw calls after the change`);
   await shot('6-trend.png');
 
   check('console', errors.length === 0, errors.length ? errors.slice(0, 4).join(' | ') : 'no errors');
