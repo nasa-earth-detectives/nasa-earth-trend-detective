@@ -57,7 +57,6 @@ export interface CommonTranslations {
     guidanceSurface: string;
     globeFallback: string;
     globeDegraded: string;
-    liteNotice: string;
     teleconnectionIllustrative: string;
   };
   context: {
@@ -121,8 +120,8 @@ export interface CommonTranslations {
     satLabel: string;
     satDesc: string;
     motionHeading: string;
-    liteLabel: string;
-    liteDesc: string;
+    adaptiveLabel: string;
+    adaptiveDesc: string;
     autoRotateLabel: string;
     autoRotateDesc: string;
     starsLabel: string;

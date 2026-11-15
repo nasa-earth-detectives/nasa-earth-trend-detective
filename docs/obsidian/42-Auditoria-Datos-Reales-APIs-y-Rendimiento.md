@@ -19,7 +19,7 @@ Cada cifra de esta nota está medida y dice dónde. Lo que no se pudo medir figu
 | Rendimiento del mapa de tendencias | En vivo, la primera petición tardaba de 20 a 36 s por variable | Precalentado al arrancar y caché sin caducidad: **0,003 a 0,05 s**; el cálculo en sí, 3,7 veces más rápido |
 | Dos mapas a la vez | Error 500: DuckDB se quedaba sin memoria | Se calculan de uno en uno |
 | El servidor se quedaba sin memoria | Cada mapa de un periodo no precalculado dejaba el proceso más alto; al décimo, el contenedor de 512 MB **moría**. Y si DuckDB agotaba su límite en una consulta, **todas las siguientes fallaban** hasta reiniciar | Tabla anual ya calculada, mapas por defecto dentro de la imagen y el asignador de DuckDB devolviendo memoria: 16 mapas seguidos, **225–270 MiB estables y ningún error** |
-| El globo 3D en equipos sin tarjeta gráfica | Dibujando por software a 1366×768, la web iba a **4,9 cuadros por segundo** y pasaba 42,6 s bloqueada | Modo ligero automático: **23,5 cuadros/s** al girar, la página libre en reposo y 1,52 MB descargados en vez de 7,27 |
+| El globo 3D en equipos sin tarjeta gráfica | Dibujando por software a 1366×768, la web iba a **5,2 cuadros por segundo**, también parada, y pasaba 22,4 s bloqueada antes de que nadie la tocara | **Mismo diseño**, dibujado sólo cuando algo cambia: página libre en reposo, **19–20 cuadros/s** al girar, 7,6–8,3 s; satélites de 156.000 a 40.000 triángulos |
 | APIs conectadas | 5 de los 8 puntos de la API los usa la web; los otros 3 no | Inventariado (sección 2). No se borró ninguno |
 
 Comprobado: 243 tests del backend (213 antes), `dotnet build -warnaserror` sin avisos, `type-check` y
@@ -218,62 +218,120 @@ Edge sin ventana dibujando WebGL **por software** (SwiftShader, sin tarjeta grá
 
 El banco da dos cifras por tramo, porque no son lo mismo: cuántas veces por segundo el navegador
 atiende a la página («hilo libre», lo que se nota al hacer clic) y en cuántos de esos cuadros el globo
-dibujó de verdad. Sin la segunda, una escena en pausa parecería un milagro.
+dibujó de verdad. Sin la segunda, una escena en reposo parecería un milagro.
 
-**Qué pasaba.** El globo se redibujaba entero en cada cuadro aunque nada cambiase: 151 órdenes de
-dibujo por cuadro, con nubes, atmósfera, Vía Láctea, cuatro satélites 3D y texturas de hasta 8K. Cada
-cuadro ocupaba unos 200 ms del hilo principal: a 5 por segundo la página no puede atender un clic.
+**Primer intento, rechazado.** La primera solución de hoy fue un «modo ligero» que quitaba nubes,
+atmósfera, relieve, cielo, satélites y suavizado de bordes. Subía a 23,5 cuadros/s, pero Diego lo
+rechazó al verlo: «se ve horrible, ¿no es mejor optimizarlo pero que mantenga el diseño?». Tenía
+razón también en lo técnico, como muestra la medida siguiente. Ese modo ya no existe en el código.
 
-**Qué se hizo.** Un perfil de calidad «ligero» (`components/Globe/renderQuality.ts`) y un vigilante de
-cuadros (`components/Globe/frameGovernor.ts`):
+**Dónde se iba el tiempo.** Se midió el coste de cada elemento por separado, dibujando sin parar
+(software, 1366×768, CPU ×4):
 
-- **Se elige solo al cargar** si el navegador dibuja por software o con gráfica integrada (Intel, Mali,
-  Adreno…), si declara 4 GB de memoria o menos, o 4 núcleos o menos. Se fuerza con `?quality=lite` o
-  `?quality=full`, y se cambia a mano en Escena → Vista → «Modo ligero» (se recuerda en ese equipo).
-- **Red de seguridad:** un equipo que parecía capaz y resulta lento (dos ventanas seguidas de 2 s por
-  debajo de 22 cuadros/s, pasados los 5 s de arranque) baja solo a modo ligero. Una elección manual no
-  se pisa.
-- **Qué quita:** suavizado de bordes, nubes, atmósfera, relieve sombreado, Vía Láctea, brillo del Sol,
-  Luna, los cuatro modelos de satélite, las teselas de detalle de GIBS y las texturas de 4K y 8K. No se
-  descargan; no es que se oculten.
-- **Qué no quita: ningún dato.** Las mismas columnas, el mismo mapa de tendencias, los mismos arcos.
-- **Deja de dibujar cuando nada cambia** (3 s sin actividad) y vuelve al instante con el ratón, el
-  teclado, un dato nuevo o una textura que llega tarde. Con la autorrotación encendida no se pausa.
-- **Baja la resolución del lienzo** por pasos (×0,8, hasta la mitad) si aun así va por debajo de 22
-  cuadros/s.
-- Cuando se activa solo, lo dice en pantalla: «Modo ligero · menos efectos visuales para este equipo,
-  los mismos datos».
+| Escena | ms por cuadro |
+| :--- | ---: |
+| Sólo el globo, los datos, los arcos y las estrellas | 45,9 |
+| + nubes | +4,9 |
+| + atmósfera | +6,7 |
+| + cielo (Vía Láctea, Sol y Luna) | +7,9 |
+| + relieve y texturas de 4K | +9,7 |
+| + suavizado por hardware (multimuestreo) | +12,9 |
+| + los cuatro modelos de satélite | +19,0 |
+| **Todo el diseño, sin multimuestreo** | **86** |
+| **Todo el diseño, con multimuestreo (como estaba)** | **204** |
 
-Medido el 2026-11-15 con el mismo banco y la misma API (contenedor local), salvo la primera columna,
-que es la web en producción:
+Lo visual, pieza a pieza, cuesta poco. Lo caro era el multimuestreo aplicado a todo a la vez (118 de
+los 204 ms) y la geometría de los satélites: 156.366 triángulos en 88 órdenes de dibujo para cuatro
+objetos de unos 60 píxeles. Con todo el diseño y sin multimuestreo, el cuadro cuesta 86 ms a
+resolución completa, 70 ms al 75 % y 59 ms al 50 %; un cuadro con el doble de píxeles por lado, 189 ms.
 
-| Medida | Producción | Compilación nueva, calidad completa forzada | Compilación nueva, automático |
+Un perfil del hilo principal mientras se gira lo confirma: el 80,1 % del tiempo es espera al dibujado
+por software, el 13,3 % es three.js y el código propio no llega al 0,5 %. No había nada que ganar
+optimizando JavaScript. El rayo que Globe.gl lanza en cada cuadro para detectar el ratón, que parecía
+sospechoso, no influye (17,0 frente a 16,8 cuadros/s).
+
+**Qué se hizo.** El contenido de la escena es el mismo en todos los equipos; cambia cuándo y con
+cuántos píxeles se dibuja (`components/Globe/frameGovernor.ts`, `renderQuality.ts`, `sceneFrames.ts`):
+
+1. **Dibujar sólo cuando algo cambia.** Globe.gl redibuja en cada cuadro aunque nada se mueva. Ahora
+   la escena dibuja mientras gira la cámara, dura una transición o llega algo (una textura, una tesela,
+   un modelo, el resaltado de una columna) y después se detiene. En reposo no cuesta nada.
+2. **Menos píxeles sólo mientras se mueve, y sólo si hace falta.** Si al moverse baja de 22 cuadros/s,
+   la resolución baja por pasos (hasta la mitad); si va sobrada, vuelve a subir. Al parar se dibuja un
+   cuadro a resolución completa.
+3. **El suavizado se conserva por otra vía donde el multimuestreo es caro.** Con dibujo por software,
+   el cuadro en reposo se dibuja con el doble de píxeles por lado y el navegador lo reduce: cuatro
+   muestras por píxel, como el multimuestreo, pagadas una sola vez.
+4. **Satélites más ligeros** (`scripts/satellites/reduce_satellite_models.py`, Blender): de 156.366 a
+   39.961 triángulos, de 88 a 40 órdenes de dibujo y de 2,26 MB a 0,69 MB. Comparados en capturas
+   ampliadas cuatro veces, no se distinguen. Esto beneficia a todos los equipos.
+5. **La inercia al soltar dura lo mismo en un equipo lento.** Los controles amortiguan una fracción
+   fija por cuadro, así que a 17 cuadros/s el deslizamiento duraba más del triple. Ahora se ajusta a
+   los cuadros medidos.
+6. **La textura de 8K no se pide en los perfiles bajo demanda** (4,25 MB y unos 170 MB de memoria de
+   vídeo). Las de 4K, las teselas de detalle y todo lo demás se cargan igual.
+
+Tres perfiles, elegidos al cargar según la gráfica (se pueden forzar con `?quality=`, y hay un
+interruptor en Escena → Vista → «Dibujo adaptable»):
+
+| Perfil | Para | Multimuestreo | Dibuja |
+| :--- | :--- | :--- | :--- |
+| `full` | Tarjeta gráfica dedicada | Sí | Siempre, como hasta ahora |
+| `adaptive` | Gráfica integrada (Intel, Mali, Adreno), poca memoria o pocos núcleos | Sí | Siempre mientras el equipo vaya rápido; bajo demanda si no |
+| `lean` | Dibujo por software, o cualquier equipo que resulte lento en otro perfil | No; reposo supermuestreado | Bajo demanda |
+
+El equipo se juzga en ventanas tranquilas, justo antes de reposar, porque las medidas tomadas
+mientras carga la página mezclan trabajo que no dice nada de la máquina. Un equipo que no llega ni a
+media resolución pasa solo a `lean`, y el cambio (que reconstruye la escena) se hace con la escena
+quieta, nunca en mitad de un arrastre. Una elección manual no se pisa.
+
+**Resultado**, mismo banco para las tres columnas (la primera es la web en producción):
+
+| Medida | Producción | Compilación nueva, `full` forzado | Compilación nueva, automático (`lean`) |
 | :--- | ---: | ---: | ---: |
-| Perfil | no existía | completo | **ligero** (detectado solo) |
-| En reposo, hilo libre | 4,9 /s | 5,0 /s | **60,1 /s** (escena en pausa, 0 cuadros dibujados) |
-| Girando el globo, cuadros dibujados | 5,0 /s (mediana 200 ms) | 5,2 /s (200 ms) | **23,5 /s** (50 ms) |
-| Órdenes de dibujo por cuadro | 151 | 152 | 24 |
-| Tareas largas (más de 50 ms) | 187, con 42,6 s en total | 184, con 41,9 s | 35, con 3,9 s |
-| Descargado | 7,27 MB en 30 peticiones | 7,57 MB en 27 | **1,52 MB en 12** |
-| Datos reales en pantalla | no comparable (otra red y otra API) | 7,1 s | 3,2 s |
-| Memoria de JavaScript | 79 MB | 79 MB | 59 MB |
-| Lienzo | 1366×768 | 1366×768 | 1092×614 |
+| En reposo, hilo libre | 5,2 /s | 8,2 /s | **60 /s** (0 cuadros dibujados) |
+| Girando el globo, cuadros dibujados | 5,2 /s | 8,3 /s | **18,9–19,6 /s** |
+| Resolución del lienzo girando / en reposo | 1366×768 / 1366×768 | 1366×768 / 1366×768 | 683×384 / **2732×1536** |
+| Órdenes de dibujo por cuadro | 129–130 | 102–104 | 100–101 |
+| Página bloqueada antes de tocar nada (tareas de más de 50 ms) | 91 tareas, 22,4 s | 128 tareas, 20,9 s | 33–37 tareas, **7,6–8,3 s** |
+| Página bloqueada en toda la prueba | 46,1 s | 35,8 s | 14,5–16,3 s |
+| Datos reales en pantalla | 9,2 s (otra red y otra API) | 6,9 s | 6,6–7,7 s |
+| Tras soltar, cuadro final nítido | — | — | a los 1,5–1,6 s |
+| Descargado | 6,88 MB | 6,04 MB | 6,04 MB |
+| Memoria de JavaScript | 82 MB | 67 MB | 65 MB |
 
-La columna central es la comprobación de que la compilación nueva no cambia nada en calidad completa:
-da lo mismo que producción. El modo automático se midió dos veces: 23,4 y 23,5 cuadros/s.
+La columna `lean` son cuatro pasadas. La columna central muestra lo que ganan los satélites reducidos
+por sí solos, sin cambiar nada más: de 5,2 a 8,3 cuadros/s. Mientras el globo gira en `lean` no hay
+suavizado y la resolución es la mitad (en este caso peor): se nota al arrastrar y desaparece al soltar.
 
-**Equipo mal detectado.** Se repitió anunciando a la página una tarjeta potente («NVIDIA GeForce RTX
-3050», 8 GB, 8 núcleos) mientras se seguía dibujando por software: arranca en calidad completa, el
-vigilante lo nota y termina en modo ligero con 22,8 cuadros/s al girar y los mismos 24 órdenes de
-dibujo. Ese equipo ya había descargado los 7,97 MB del perfil completo y acumuló 12,2 s de tareas
-largas antes del cambio: la red de seguridad arregla la fluidez, no la carga.
+Las otras rutas, medidas con el mismo banco:
 
-**Un fallo que destapó la medida.** La primera prueba de ese cambio automático dio 40 cuadros/s, más
-que el modo ligero normal. Era un resultado demasiado bueno: al reconstruir la escena con el perfil
-nuevo, el globo se quedaba **sin las columnas de datos** (11 órdenes de dibujo en vez de 24), porque
-la página sólo envía los datos a la escena cuando cambian. Corregido: la escena recuerda lo último que
-recibió y la vista de la cámara, y lo repone al reconstruirse. Comprobado en el navegador cambiando de
-perfil en caliente en los dos sentidos: 3.151 muestras antes y después, misma vista.
+- **Gráfica integrada lenta** (se anuncia a la página una Intel UHD 620 mientras se dibuja por
+  software): arranca en `adaptive`, las dos ventanas de prueba salen lentas y pasa a `lean` al terminar
+  la carga, antes del primer arrastre; después, 19,7 cuadros/s al girar.
+- **Equipo mal detectado como potente** (se anuncia una RTX 3050): arranca en `full`, el vigilante lo
+  nota y pasa a `lean`; 19,5–20 cuadros/s. Ese equipo acumula unos 14 s bloqueado antes del cambio.
+- **Gráfica real** (RTX 4060, CPU ×4) con `?quality=adaptive`: la escena se queda viva, 126–131
+  cuadros/s dibujados en reposo y 114–124 girando, igual que en `full` (128 y 125).
+
+**Comportamiento comprobado** con `scripts/check-adaptive-rendering.mjs` (cuenta órdenes de dibujo y
+guarda capturas): en reposo no dibuja; al pasar el ratón por una columna dibuja unos cinco cuadros y
+vuelve al reposo; al arrastrar baja la resolución y al soltar la recupera; tras un zoom las teselas se
+ven aunque lleguen con la escena ya quieta; el interruptor de estrellas, la lectura de tendencias
+(16.021 celdas) y el cambio de perfil en caliente en los dos sentidos funcionan y conservan los datos
+(3.151 muestras); sin errores en la consola.
+
+**Fallos que destaparon las medidas** (míos, corregidos):
+
+- Al cambiar de perfil la escena se reconstruye, y la página sólo le envía los datos cuando cambian:
+  el globo quedaba **sin columnas**. Lo delató una medida demasiado buena (40 cuadros/s con 11 órdenes
+  de dibujo en vez de 24). La escena recuerda ahora lo último que recibió y la vista de la cámara.
+- **El banco no giraba el globo.** El asistente abre con un velo que cubre el lienzo, y el arrastre
+  simulado nunca llegaba. Las cifras «girando» de la primera versión de esta nota medían el dibujo,
+  pero no un giro real. El banco cierra ahora el asistente y todas las cifras de esta sección están
+  repetidas así, incluidas las de producción.
+- El cambio automático a `lean` saltaba **en mitad del primer arrastre** y lo interrumpía. Ahora espera
+  a que nada se mueva.
 
 ### 4.5 Memoria: por qué el servidor se moría y cómo quedó
 
@@ -359,7 +417,7 @@ Coste: la base de datos dentro de la imagen pasa a 273 MB y la imagen a 1,22 GB 
   - `DuckDbResourceLimitTests`: los ajustes del asignador se validan y DuckDB los acepta.
 - Los tests de validación estadística (SciPy y el prototipo del preblanqueo) siguen pasando a 6
   decimales con el código optimizado.
-- Frontend: `type-check` y `build` sin errores; React Doctor, 0 avisos en 39 archivos. El script
+- Frontend: `type-check` y `build` sin errores; React Doctor, 0 avisos (39 archivos en el primer commit, 18 en el segundo). El script
   `lint` del frontend no se pudo pasar: `eslint` no está instalado en el proyecto.
 
 ---
@@ -377,7 +435,9 @@ Coste: la base de datos dentro de la imagen pasa a 273 MB y la imagen a 1,22 GB 
 - Configuración nueva, toda opcional: `GridCache:Directory` (carpeta de los mapas por defecto),
   `GridCache:ExportAndExit` (sólo para la construcción de la imagen), `DuckDb:AllocatorBackgroundThreads`
   y `DuckDb:AllocatorFlushThreshold`. Sin ellas, en local, todo funciona como antes.
-- Web: parámetro `?quality=lite|full` y el interruptor «Modo ligero» en Escena → Vista.
+- Web: parámetro `?quality=full|adaptive|lean` y el interruptor «Dibujo adaptable» en Escena → Vista.
+- Los cuatro modelos de satélite (`frontend/public/models/satellites/*.glb`) son versiones reducidas
+  de los anteriores; los originales están en el historial de git.
 
 ---
 
@@ -412,26 +472,33 @@ Coste: la base de datos dentro de la imagen pasa a 273 MB y la imagen a 1,22 GB 
 
 **Frontend**
 
-9. **El modo ligero no se probó en los portátiles que fallaron.** Las cifras son del banco simulado.
-   Conviene abrir la web en uno de ellos y confirmar que aparece el aviso «Modo ligero».
-10. **En calidad completa no cambia nada.** Un equipo capaz ve lo mismo que antes; forzar
-    `?quality=full` en uno flojo da los mismos 5 cuadros por segundo.
-11. **Los umbrales (22 cuadros/s, 3 s de reposo, pasos de ×0,8) los elegí yo**; no están ajustados con
-    equipos reales. La detección por nombre de la gráfica es una lista: una integrada de AMD no está en
-    ella y depende de la red de seguridad, que tarda unos segundos en actuar.
-12. **Con la escena en pausa las animaciones se congelan** (los arcos dejan de moverse hasta que se
-    toca algo). Sólo en modo ligero.
-13. **El paquete del frontend sigue siendo un solo archivo de 2,60 MB** (753 KB con gzip). No se partió.
-14. **No se volvió a probar en móvil.**
-15. **Los textos nuevos** en inglés y español los escribí yo: conviene que alguien del equipo los lea.
-16. **Sin dataset la web espera 3 minutos** antes de rendirse. Es un valor elegido, no medido en Render.
+9. **No se probó en los portátiles que fallaron el sábado.** Todas las cifras son del equipo simulado.
+   Conviene abrir la web en uno de ellos; en la consola, `document.documentElement.dataset.quality`
+   dice qué perfil eligió, y el interruptor «Adaptive rendering» de Scene → View debe salir encendido.
+10. **El perfil `adaptive` no se midió en una gráfica integrada real.** Su lógica está probada sobre la
+    RTX 4060 (se queda viva) y con una Intel anunciada sobre dibujo por software (pasa a `lean`), pero
+    no sé cuánto rinde una Intel de verdad con multimuestreo.
+11. **En `lean`, mientras el globo se mueve, no hay suavizado y la resolución puede bajar a la mitad.**
+    Es el precio de que responda; al soltar vuelve la imagen nítida en 1,5–1,6 s.
+12. **En reposo las animaciones se detienen** (satélites, ondas) en `lean`, y en `adaptive` si el equipo
+    no es rápido. Vuelven en cuanto se toca el globo.
+13. **Los umbrales** (22 y 50 cuadros/s, 140 ms para dar un giro por terminado, pasos de ×0,75) los elegí
+    yo; no están ajustados con equipos reales. La detección por nombre de la gráfica es una lista: una
+    integrada de AMD no está en ella y depende del vigilante de cuadros.
+14. **Los satélites reducidos** se compararon en capturas ampliadas; no los miré con la cámara pegada a
+    uno de ellos.
+15. **En `full` no cambia nada** salvo los satélites, más ligeros.
+16. **El paquete del frontend sigue siendo un solo archivo de 2,60 MB** (753 KB con gzip). No se partió.
+17. **No se volvió a probar en móvil.** Un móvil entra ahora en `adaptive` (antes dibujaba siempre).
+18. **Los textos nuevos** en inglés y español los escribí yo: conviene que alguien del equipo los lea.
+19. **Sin dataset la web espera 3 minutos** antes de rendirse. Es un valor elegido, no medido en Render.
 
 **Contenido**
 
-17. **Las corrientes oceánicas siguen siendo un esquema**, ahora rotulado. No se cargaron datos de OSCAR.
-18. **Los satélites siguen en órbitas nominales**, ahora rotulado. No se usan sus posiciones reales.
-19. **Las cifras de los hitos** no se recalcularon con nuestros datos: están citadas.
-20. **Quedan en el repositorio los scripts y documentos históricos del escenario de demostración**
+20. **Las corrientes oceánicas siguen siendo un esquema**, ahora rotulado. No se cargaron datos de OSCAR.
+21. **Los satélites siguen en órbitas nominales**, ahora rotulado. No se usan sus posiciones reales.
+22. **Las cifras de los hitos** no se recalcularon con nuestros datos: están citadas.
+23. **Quedan en el repositorio los scripts y documentos históricos del escenario de demostración**
     (`scripts/build-global-hex-demo.py`, `scripts/build-hex-demo-coverage.py`,
     `scripts/benchmark-*-browser.js`, `docs/s2-*.md`, `docs/validation/hex-demo-*.json`). Ya no generan
     ni miden nada que use la web; no los borré porque son historia del equipo.
@@ -460,8 +527,17 @@ scripts/stress-api-memory.sh nasa-api:nuevo 512m
 node scripts/benchmark-weak-laptop.mjs https://nasa-earth-trend-detective.vercel.app/ "produccion"
 node scripts/benchmark-weak-laptop.mjs "http://localhost:4173/?quality=full" "completo"
 node scripts/benchmark-weak-laptop.mjs http://localhost:4173/ "automatico" software 4 captura.png
-# Equipo mal detectado: anuncia una tarjeta potente mientras dibuja por software
+# Equipo mal detectado: anuncia una tarjeta potente (o una integrada) mientras dibuja por software
 node scripts/benchmark-weak-laptop.mjs http://localhost:4173/ "mal detectado" software 4 "" "ANGLE (NVIDIA, NVIDIA GeForce RTX 3050 Direct3D11 vs_5_0 ps_5_0)"
+node scripts/benchmark-weak-laptop.mjs http://localhost:4173/ "integrada lenta" software 4 "" "ANGLE (Intel, Intel(R) UHD Graphics 620 Direct3D11 vs_5_0 ps_5_0, D3D11)"
+# Con la tarjeta real del equipo
+node scripts/benchmark-weak-laptop.mjs "http://localhost:4173/?quality=adaptive" "adaptable, GPU real" gpu
+
+# Comportamiento del dibujo bajo demanda (sección 4.4), con capturas
+node scripts/check-adaptive-rendering.mjs http://localhost:4173/ ./capturas
+
+# Reducir los modelos de satélite (no hace falta repetirlo: los reducidos ya están en el repositorio)
+blender -b --factory-startup --python scripts/satellites/reduce_satellite_models.py -- <carpeta con los .glb> <carpeta de salida> 12000
 ```
 
 `http://localhost:4173` es la compilación de producción del frontend (`npm run build` y

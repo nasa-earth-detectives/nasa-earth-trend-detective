@@ -23,8 +23,8 @@ export function GlobeViewer({ apiRef, preferencesRef }: GlobeViewerProps) {
   const { t } = useI18n();
   const containerRef = useRef<HTMLDivElement>(null);
   const [surfaceStatus, setSurfaceStatus] = useState<EarthSurfaceStatus>('loading');
-  // Changing the profile rebuilds the scene: antialiasing and what gets downloaded are decided when it is created.
-  const { quality, reason } = useSyncExternalStore(subscribeRenderQuality, getRenderQuality);
+  // Changing the profile rebuilds the scene: multisampling is decided when the WebGL context is created.
+  const { quality } = useSyncExternalStore(subscribeRenderQuality, getRenderQuality);
   useGlobeScene(containerRef, apiRef, preferencesRef, setSurfaceStatus, quality);
 
   return (
@@ -37,10 +37,6 @@ export function GlobeViewer({ apiRef, preferencesRef }: GlobeViewerProps) {
         group-has-[[data-earth-tiles=active]]:opacity-100">
         {EARTH_TILE_ATTRIBUTION}
       </p>
-      {quality === 'lite' && reason !== 'manual' &&
-        <p role="status" className="absolute bottom-2 left-1/2 -translate-x-1/2 text-[11px] text-[color:var(--text-tertiary)] pointer-events-none">
-          {t.workspace.liteNotice}
-        </p>}
       {(surfaceStatus === 'fallback' || surfaceStatus === 'degraded') &&
         <p role="status" className="absolute bottom-2 right-5 text-[11px] text-[color:var(--text-tertiary)] pointer-events-none">
           {surfaceStatus === 'fallback' ? t.workspace.globeFallback : t.workspace.globeDegraded}
