@@ -47,7 +47,7 @@ export function LiveSystemSwitches({
       />
       <InstrumentSwitch
         label="Satellite constellation"
-        description="Real-time orbits of Terra, Aqua, GRACE-FO, and OCO-2"
+        description="Illustrative accelerated orbits of Terra, Aqua, GRACE-FO, and OCO-2"
         checked={satellitesVisible}
         onChange={onSatellitesChange}
       />

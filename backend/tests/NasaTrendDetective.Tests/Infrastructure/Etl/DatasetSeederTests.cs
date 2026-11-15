@@ -64,6 +64,29 @@ public sealed class DatasetSeederTests : IAsyncLifetime
     }
 
     [Fact]
+    public async Task SeedAsync_UnchangedParquetWithUpdatedManifest_RefreshesProvenanceWithoutReimporting()
+    {
+        await _context.WriteParquetAsync("gistemp.parquet", GistempSql);
+        await WriteManifestAsync("gistemp", "Gistemp", "Legacy Spanish Name", "°C / año", "Legacy citation");
+
+        var first = Assert.Single(await _seeder.SeedAsync());
+        Assert.Equal(DatasetSeedStatus.Imported, first.Status);
+
+        await WriteManifestAsync("gistemp", "Gistemp", "GISTEMP v4 250km", "°C / year", "NASA GISS 2026 citation");
+        var second = Assert.Single(await _seeder.SeedAsync());
+
+        Assert.Equal(DatasetSeedStatus.Unchanged, second.Status);
+        Assert.Equal(48L, second.Rows);
+        Assert.Equal(48L, await _context.CountAsync("fact_climate_observations"));
+
+        var provenance = await new DatasetCatalogRepository(_context.Repository).GetAsync(ClimateVariable.Gistemp);
+        Assert.NotNull(provenance);
+        Assert.Equal("GISTEMP v4 250km", provenance.Product);
+        Assert.Equal("°C / year", provenance.TrendUnit);
+        Assert.Equal("NASA GISS 2026 citation", provenance.Citation);
+    }
+
+    [Fact]
     public async Task SeedAsync_ChangedParquet_ReplacesFactsOfThatVariableOnly()
     {
         await _context.WriteParquetAsync("gistemp.parquet", GistempSql);
@@ -97,7 +120,7 @@ public sealed class DatasetSeederTests : IAsyncLifetime
     [Fact]
     public async Task SeedAsync_ManifestWithoutParquet_IsSkipped()
     {
-        await WriteManifestAsync("huerfano", "Gistemp");
+        await WriteManifestAsync("orphan", "Gistemp");
 
         Assert.Equal(DatasetSeedStatus.Skipped, Assert.Single(await _seeder.SeedAsync()).Status);
     }
@@ -105,32 +128,37 @@ public sealed class DatasetSeederTests : IAsyncLifetime
     [Fact]
     public async Task SeedAsync_MissingDirectory_ReturnsNothing()
     {
-        Assert.Empty(await _seeder.SeedAsync(Path.Combine(_context.WorkDirectory, "no-existe")));
+        Assert.Empty(await _seeder.SeedAsync(Path.Combine(_context.WorkDirectory, "does-not-exist")));
     }
 
     [Fact]
     public async Task LoadAsync_InvalidManifest_ListsEveryProblem()
     {
-        var path = Path.Combine(_context.WorkDirectory, "malo" + DatasetManifest.FileSuffix);
-        await File.WriteAllTextAsync(path, """{ "variable": "Ozono", "resolutionDegrees": 0 }""");
+        var path = Path.Combine(_context.WorkDirectory, "invalid" + DatasetManifest.FileSuffix);
+        await File.WriteAllTextAsync(path, """{ "variable": "Ozone", "resolutionDegrees": 0 }""");
 
         var error = await Assert.ThrowsAsync<InvalidDataException>(() => DatasetManifest.LoadAsync(path));
 
-        Assert.Contains("Ozono", error.Message);
+        Assert.Contains("Ozone", error.Message);
         Assert.Contains("trendUnit", error.Message);
         Assert.Contains("resolutionDegrees", error.Message);
     }
 
-    private Task WriteManifestAsync(string stem, string variable)
+    private Task WriteManifestAsync(
+        string stem,
+        string variable,
+        string product = "Test product",
+        string trendUnit = "°C / year",
+        string citation = "Test citation")
     {
         var manifest = new
         {
             variable,
             provider = "test",
-            product = "Test product",
+            product,
             baseline = "1951-1980",
             unit = "°C Anomaly",
-            trendUnit = "°C / year",
+            trendUnit,
             interim = true,
             resolutionDegrees = 2.0,
             sourceUrl = "https://example.invalid/source.nc",
@@ -140,7 +168,7 @@ public sealed class DatasetSeederTests : IAsyncLifetime
             coverageStart = 2020,
             coverageEnd = 2021,
             lastMonth = "2021-12",
-            citation = "Test citation"
+            citation
         };
         return File.WriteAllTextAsync(
             Path.Combine(_context.WorkDirectory, stem + DatasetManifest.FileSuffix), JsonSerializer.Serialize(manifest));

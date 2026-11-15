@@ -89,10 +89,24 @@ export function formatHexValue(value: number, signed = false): string {
   return (small ? signed ? signedScientific : scientific : signed ? signedRegular : regular).format(value);
 }
 
+const UNIT_DENOMINATORS: Record<string, string> = {
+  year: 'year',
+  año: 'year',
+  decade: 'decade',
+  década: 'decade',
+  month: 'month',
+  mes: 'month',
+  day: 'day',
+  día: 'day',
+};
+
 /** Expands only temporal bases declared by the source; never assumes an annual base. */
 export function readableHexUnit(unit: string): string {
   if (unit === 'slope · undeclared unit' || unit === 'pendiente · unidad no declarada') return 'undeclared unit';
-  return unit.replace(/\s*\/\s*(year|decade|month|day|año|década|mes|día)\s*$/u, ' per $1');
+  return unit.replace(
+    /\s*\/\s*(year|decade|month|day|año|década|mes|día)\s*$/u,
+    (_match, token: string) => ` per ${UNIT_DENOMINATORS[token] ?? token}`
+  );
 }
 
 export function describeHexTrend(variable: ClimateVariable, slope: number, unit: string, startYear: number, endYear: number): string {

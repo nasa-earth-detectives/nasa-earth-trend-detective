@@ -83,6 +83,11 @@ public sealed class DatasetSeeder : IDatasetSeeder
             {
                 var rows = await _repository.ExecuteScalarAsync<long>(DatasetSeedSql.CountFacts, parameters, ct)
                     .ConfigureAwait(false);
+                await _repository.ExecuteAsync(
+                        DatasetSeedSql.UpdateProvenance,
+                        ProvenanceParameters(manifest, variableId, Path.GetFileName(parquetPath), parquetSha, rows),
+                        ct)
+                    .ConfigureAwait(false);
                 return new(file, manifest.ClimateVariable, DatasetSeedStatus.Unchanged, rows, clock.Elapsed, "already loaded");
             }
 
