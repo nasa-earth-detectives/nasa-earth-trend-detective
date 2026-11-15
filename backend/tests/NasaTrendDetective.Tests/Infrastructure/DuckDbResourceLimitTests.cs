@@ -63,6 +63,39 @@ public sealed class DuckDbResourceLimitTests
     }
 
     [Fact]
+    public void BuildSettingsSql_AllocatorOptions_AreValidatedAndEmitted()
+    {
+        var sql = DuckDbConnectionFactory.BuildSettingsSql(new DuckDbOptions
+        {
+            DatabasePath = ":memory:",
+            AllocatorFlushThreshold = "16MB",
+            AllocatorBackgroundThreads = true
+        });
+
+        Assert.Contains("SET allocator_flush_threshold = '16MB'", sql);
+        Assert.Contains("SET allocator_background_threads = true", sql);
+        Assert.Throws<ArgumentException>(() => DuckDbConnectionFactory.BuildSettingsSql(
+            new DuckDbOptions { DatabasePath = ":memory:", AllocatorFlushThreshold = "16MB'; DROP TABLE dim_variable; --" }));
+    }
+
+    /// <summary>
+    /// The engine must accept the allocator settings as written: a misspelt one would stop the API at startup.
+    /// </summary>
+    [Fact]
+    public async Task CreateOpenConnectionAsync_AppliesTheAllocatorSettings()
+    {
+        using var factory = new DuckDbConnectionFactory(Microsoft.Extensions.Options.Options.Create(
+            new DuckDbOptions { DatabasePath = ":memory:", AllocatorFlushThreshold = "16MB", AllocatorBackgroundThreads = false }));
+        await using var connection = await factory.CreateOpenConnectionAsync();
+        await using var command = connection.CreateCommand();
+        command.CommandText = "SELECT current_setting('allocator_flush_threshold')";
+
+        var value = Convert.ToString(await command.ExecuteScalarAsync());
+
+        Assert.Matches(@"^(15\.2 MiB|16\.0 MiB|16\.0 MB)$", value);
+    }
+
+    [Fact]
     public async Task CreateOpenConnectionAsync_FileMode_PreservesLimitsAcrossDisposedConnections()
     {
         var folder = DuckDbTestHelpers.CreateTempDirectory();

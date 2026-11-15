@@ -5,6 +5,12 @@
 .scene-guidance { position: absolute; z-index: 10; }
 .observation-position { top: clamp(130px, 16vh, 200px); left: var(--gutter); pointer-events: none; }
 .mission-position { top: 24px; left: var(--gutter); pointer-events: none; }
+/* What the app is waiting for when there is no data yet. It replaces the simulated scenario. */
+.data-connection { position: absolute; top: 18px; left: 50%; z-index: 45; transform: translateX(-50%); display: flex; align-items: center; gap: 10px; max-width: min(560px, calc(100vw - 32px)); margin: 0; padding: 9px 16px; font-size: 12px; line-height: 1.45; color: var(--text-primary); background: var(--surface-deep-instrument); border: 1px solid var(--edge-highlight); border-radius: 3px; box-shadow: 0 12px 34px rgba(0, 0, 0, .5); }
+.data-connection > span { flex: none; width: 7px; height: 7px; border-radius: 50%; background: var(--active-accent); animation: data-connection-pulse 1.4s ease-in-out infinite; }
+.data-connection[data-state='failed'] > span { background: var(--status-local, #d08172); animation: none; }
+@keyframes data-connection-pulse { 50% { opacity: .25; } }
+@media (prefers-reduced-motion: reduce) { .data-connection > span { animation: none; } }
 .system-position { bottom: 38px; left: var(--gutter); pointer-events: none; }
 .intent-position { right: var(--gutter); top: 40%; width: 236px; z-index: 40;
   transition: width var(--motion-panel) var(--ease-panel), right var(--motion-panel) var(--ease-panel); }

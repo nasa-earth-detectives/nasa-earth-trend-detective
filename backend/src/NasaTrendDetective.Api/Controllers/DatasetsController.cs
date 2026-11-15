@@ -5,8 +5,8 @@ using NasaTrendDetective.Application.Interfaces;
 namespace NasaTrendDetective.Api.Controllers;
 
 /// <summary>
-/// Which variables have real data and where they come from. The frontend queries this to decide, per
-/// variable, whether to request data from the API or use its demonstration scenario (and to label the source).
+/// Which variables have real data and where they come from. The frontend queries this to know, per
+/// variable, whether the data is ready, still loading, or missing (and to label the source).
 /// </summary>
 [ApiController]
 [Route("api/[controller]")]

@@ -74,7 +74,7 @@ function ObservationPicker({ observations, selected, onSelect }: Pick<Observatio
 }
 
 /** Annual values, distinct from a temporal slope. Hexagons and heat share a scale. */
-export function ObservationReadout({ observations, variable, year, source, provenance = null, mode, coverage, loading, error,
+export function ObservationReadout({ observations, variable, year, provenance = null, mode, coverage, loading, error,
   selected, onSelect }: ObservationReadoutProps) {
   const { locale, t } = useI18n();
   const formatNumber = (value: number) => value.toLocaleString(intlLocale(locale), { maximumFractionDigits: 3 });
@@ -115,8 +115,8 @@ export function ObservationReadout({ observations, variable, year, source, prove
       </div>
       <p className="observation-readout__method">{mode === 'heat' ? t.readouts.methodHeat : t.readouts.methodHex}</p>
     </>}
-    <p className="hex-readout__source" title={provenance?.citation}><span aria-hidden="true" />{source === 'demo'
-      ? t.readouts.simulatedFooter : provenanceLabelLocalized(provenance, locale)}</p>
+    <p className="hex-readout__source" title={provenance?.citation}><span aria-hidden="true" />{provenance
+      ? provenanceLabelLocalized(provenance, locale) : t.readouts.noVisibleData}</p>
     {ready && observations.length > 0 && mode === 'hex' && <ObservationPicker key={variable} observations={observations} selected={cell} onSelect={onSelect} />}
   </section>;
 }

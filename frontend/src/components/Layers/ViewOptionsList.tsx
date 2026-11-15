@@ -1,4 +1,6 @@
+import { useSyncExternalStore } from 'react';
 import { VISUAL_SYSTEM_ROWS } from '../../config/climateLayers';
+import { getRenderQuality, setRenderQuality, subscribeRenderQuality } from '../Globe/renderQuality';
 import { InstrumentSwitch } from '../UI/InstrumentSwitch';
 import { StatusRowList } from './StatusRowList';
 import { useI18n } from '../../i18n';
@@ -20,9 +22,12 @@ export function ViewOptionsList({
   onAutoRotateChange, onStarsChange, onGridChange, onAtmosphereChange,
 }: ViewOptionsListProps) {
   const { t } = useI18n();
+  const { quality } = useSyncExternalStore(subscribeRenderQuality, getRenderQuality);
   return (
     <div className="scene-instrument">
-      <h3 className="instrument-kicker">{t.layers.motionHeading}</h3>
+      <InstrumentSwitch label={t.layers.liteLabel} description={t.layers.liteDesc}
+        checked={quality === 'lite'} onChange={value => setRenderQuality(value ? 'lite' : 'full')} />
+      <h3 className="instrument-kicker scene-instrument__section">{t.layers.motionHeading}</h3>
       <InstrumentSwitch label={t.layers.autoRotateLabel} description={t.layers.autoRotateDesc}
         checked={autoRotate} onChange={onAutoRotateChange} />
       <InstrumentSwitch label={t.layers.starsLabel} description={t.layers.starsDesc}

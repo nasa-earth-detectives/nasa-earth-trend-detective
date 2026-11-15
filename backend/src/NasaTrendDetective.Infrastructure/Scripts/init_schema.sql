@@ -110,6 +110,20 @@ INSERT OR IGNORE INTO dim_variable (variable_id, variable_code, variable_name, u
     (8, 'Merra2SoilMoisture',  'Root zone soil moisture',         'fraction', 'MERRA-2 (NASA POWER)'),
     (9, 'GpmPrecipitation',    'Satellite-estimated precipitation', 'mm/day', 'GPM IMERG (NASA POWER)');
 
+-- Annual value per cell, derived from fact_climate_observations when a dataset is loaded
+-- (see Etl/AnnualCellTable.cs). Trend grids read it instead of reducing months to years on every
+-- request: for GISTEMP that reduction covers 5.1 million facts and ran DuckDB out of its memory limit
+-- on the 512 MB host. month_count is the number of months behind each average.
+CREATE TABLE IF NOT EXISTS fact_annual_cell (
+    variable_id     TINYINT      NOT NULL,
+    latitude        DECIMAL(6,3) NOT NULL,
+    longitude       DECIMAL(6,3) NOT NULL,
+    year            SMALLINT     NOT NULL,
+    average_value   DOUBLE,
+    average_anomaly DOUBLE,
+    month_count     SMALLINT     NOT NULL
+);
+
 -- Seed dim_time: months from 1880 (GISTEMP start) to 2100 (idempotent).
 INSERT OR IGNORE INTO dim_time (year, month, decade, quarter, season, first_day)
 SELECT

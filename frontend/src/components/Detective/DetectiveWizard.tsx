@@ -53,8 +53,13 @@ export function DetectiveWizard({ initialVariable = 'Gistemp', onComplete, onSki
   // The catalog reports which variables have real loaded data and which years each covers.
   useEffect(() => {
     let active = true;
-    void getDatasetCatalog().then(loaded => { if (active) setCatalog(loaded); });
-    return () => { active = false; };
+    // The API may still be waking up or loading datasets: keep asking while the briefing is open, so the
+    // list does not stay on "no data" for something that arrives a few seconds later. Once the catalog is
+    // complete the service answers from memory, with the same object, and nothing re-renders.
+    const load = () => void getDatasetCatalog().then(loaded => { if (active) setCatalog(loaded); });
+    load();
+    const timer = window.setInterval(load, 4000);
+    return () => { active = false; window.clearInterval(timer); };
   }, []);
 
   useEffect(() => {

@@ -136,14 +136,14 @@ export const scienceEs: ScienceTranslations = {
     },
   },
   upcomingVariables: {
-    sentinel6: { name: 'Nivel del mar', status: 'Altimetría' },
+    sentinel6: { name: 'Nivel del mar', status: 'Previsto · sin datos' },
   },
   scientificOverlays: {
-    'ocean-flow': { name: 'Corrientes oceánicas 3D (ECCO/OSCAR)', status: 'Operativo' },
-    teleconnections: { name: 'Teleconexiones climáticas (ENSO/AMOC)', status: 'Operativo' },
-    hotspots: { name: 'Ondas radar de focos extremos', status: 'Operativo' },
+    'ocean-flow': { name: 'Corrientes oceánicas principales (esquema)', status: 'Ilustrativo' },
+    teleconnections: { name: 'Arcos de tendencias opuestas y dos procesos de contexto', status: 'Calculado + ilustrativo' },
+    hotspots: { name: 'Marcadores en los extremos de cada arco', status: 'Calculado' },
     opposing: { name: 'Motor de tendencias opuestas', status: 'Algoritmo' },
-    satellites: { name: 'Constelación satelital en órbita', status: 'Operativo' },
+    satellites: { name: 'Satélites en órbitas nominales', status: 'Ilustrativo' },
   },
   visualSystemRows: {
     atmosphere: { name: 'Atmósfera', status: 'Integrado' },

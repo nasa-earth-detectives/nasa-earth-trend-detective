@@ -8,8 +8,8 @@ namespace NasaTrendDetective.Infrastructure.Implements;
 
 /// <summary>
 /// Seeds datasets in the background upon application startup. Does not block startup: while loading, the API
-/// responds declaring variables as "synthetic"; once finished, they transition to "observed".
-/// Failures are logged without terminating the process.
+/// declares the pending variables as "loading" and returns no data for them; once finished, they
+/// transition to "observed". Failures are logged without terminating the process.
 /// </summary>
 /// <remarks>
 /// Depends on <see cref="DuckDbSchemaHostedService"/> having created the schema: the host starts
@@ -20,16 +20,19 @@ namespace NasaTrendDetective.Infrastructure.Implements;
 public sealed class DatasetSeedHostedService : BackgroundService
 {
     private readonly IDatasetSeeder _seeder;
+    private readonly DatasetSeedState _state;
     private readonly DatasetSeedOptions _options;
     private readonly ILogger<DatasetSeedHostedService> _logger;
 
     public DatasetSeedHostedService(
         IDatasetSeeder seeder,
+        DatasetSeedState state,
         IOptions<DatasetSeedOptions> options,
         ILogger<DatasetSeedHostedService> logger)
     {
         ArgumentNullException.ThrowIfNull(options);
         _seeder = seeder ?? throw new ArgumentNullException(nameof(seeder));
+        _state = state ?? throw new ArgumentNullException(nameof(state));
         _options = options.Value;
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
@@ -38,6 +41,7 @@ public sealed class DatasetSeedHostedService : BackgroundService
     {
         if (!_options.Enabled)
         {
+            _state.MarkCompleted();
             return;
         }
 
@@ -51,7 +55,12 @@ public sealed class DatasetSeedHostedService : BackgroundService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Dataset seeding failed; the API will continue serving synthetic data.");
+            _logger.LogError(ex, "Dataset seeding failed; the variables without a dataset stay unavailable.");
+        }
+        finally
+        {
+            // Whatever happened, nothing else is going to load: waiters (catalog status, grid warm-up) move on.
+            _state.MarkCompleted();
         }
     }
 }

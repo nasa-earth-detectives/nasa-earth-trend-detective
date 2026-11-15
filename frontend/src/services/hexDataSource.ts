@@ -1,9 +1,8 @@
 import type { HexCell, HexDataset } from '../types/hex.types';
 import type { ClimateVariable } from '../types/climate.types';
 import type { TrendFilterParams } from '../types/trend.types';
-import { createDemoHexDataset, HEX_VARIABLE_PROFILES } from './demo/hexDemoData';
-import { readDataSourceMode, resolveVariableSource } from './datasetCatalog';
-import { SATELLITE_TIMELINE } from '../config/climateLayers';
+import { HEX_VARIABLE_PROFILES } from '../config/hexProfiles';
+import { resolveVariableSource } from './datasetCatalog';
 import { trendService } from './trendService';
 import { readCellSignificance, readGridSignificance } from './hexSignificance';
 
@@ -15,7 +14,7 @@ const API_VARIABLE_IDS: Record<ClimateVariable, number> = {
 };
 
 /**
- * API scale: /trends/grid returns Sen's slope per year, the same unit as the demo profile
+ * API scale: /trends/grid returns Sen's slope per year, the unit of each variable profile
  * (e.g., °C / year), so heights share the same domain and both scenarios read identically.
  */
 export const HEX_API_PRESENTATION: Record<ClimateVariable, { heightDomain: number; resolutionDegrees: number }> = {
@@ -160,15 +159,8 @@ export async function getHexDataset(filter: TrendFilterParams, signal?: AbortSig
     || !Object.hasOwn(HEX_VARIABLE_PROFILES, filter.variable)) {
     throw new Error('Observation period or variable is invalid.');
   }
-  const mode = readDataSourceMode(import.meta.env.VITE_HEX_DATA_SOURCE, 'VITE_HEX_DATA_SOURCE');
-  const resolved = await withAbort(resolveVariableSource(mode, filter.variable), signal);
-  if (resolved.source === 'demo') {
-    const profile: unknown = import.meta.env.VITE_HEX_DEMO_PROFILE ?? 'global';
-    if (profile !== 'global' && profile !== 'regional' && profile !== 'stress') throw new Error('VITE_HEX_DEMO_PROFILE must be global, regional, or stress.');
-    // Synthetic scenario starts in 2000: do not label it with earlier years.
-    const demoFilter = { ...filter, startYear: Math.min(filter.endYear, Math.max(filter.startYear, SATELLITE_TIMELINE.startYear)) };
-    return withAbort(Promise.resolve().then(() => createDemoHexDataset(demoFilter, profile)), signal);
-  }
+  // Waits for the API to have this variable; there is no simulated grid to fall back to.
+  const resolved = await withAbort(resolveVariableSource(filter.variable, signal), signal);
   // Trim requested period to the source's real coverage: requesting 1981-2026 from a dataset
   // starting in 2000 would return the same grid labeled with years it does not have.
   const coverage = resolved.provenance;

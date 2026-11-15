@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Caching.Memory;
+using NasaTrendDetective.Api.Services;
 using NasaTrendDetective.Application.DTOs;
 using NasaTrendDetective.Application.Interfaces;
 using NasaTrendDetective.Domain.Enums;
@@ -15,6 +16,7 @@ public class TrendsController : ControllerBase
     private readonly IOpposingTrendsService _opposingTrendsService;
     private readonly IGridTrendService _gridTrendService;
     private readonly IMemoryCache _cache;
+    private readonly GridTrendCache _gridCache;
     private readonly ILogger<TrendsController> _logger;
 
     public TrendsController(
@@ -22,12 +24,14 @@ public class TrendsController : ControllerBase
         IOpposingTrendsService opposingTrendsService,
         IGridTrendService gridTrendService,
         IMemoryCache cache,
+        GridTrendCache gridCache,
         ILogger<TrendsController> logger)
     {
         _trendService = trendService ?? throw new ArgumentNullException(nameof(trendService));
         _opposingTrendsService = opposingTrendsService ?? throw new ArgumentNullException(nameof(opposingTrendsService));
         _gridTrendService = gridTrendService ?? throw new ArgumentNullException(nameof(gridTrendService));
         _cache = cache ?? throw new ArgumentNullException(nameof(cache));
+        _gridCache = gridCache ?? throw new ArgumentNullException(nameof(gridCache));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
@@ -64,7 +68,7 @@ public class TrendsController : ControllerBase
 
     /// <summary>
     /// Mann-Kendall / Sen on each observed cell for the variable. Returns 404 if no real dataset is loaded:
-    /// the client must use its demonstration scenario and indicate it, rather than receiving an invented grid.
+    /// the client must say there is no data, rather than receiving an invented grid.
     /// </summary>
     [HttpGet("grid")]
     [EnableRateLimiting("HeavyAnalysis")]
@@ -83,14 +87,9 @@ public class TrendsController : ControllerBase
             });
         }
 
-        var cacheKey = $"grid_{query.Variable}_{query.StartYear}_{query.EndYear}";
-        if (_cache.TryGetValue<GridTrendResultDto>(cacheKey, out var cached) && cached != null)
-        {
-            return Ok(cached);
-        }
-
-        var result = await _gridTrendService.AnalyzeGridAsync(query, cancellationToken);
-        if (result == null)
+        var body = await _gridCache.GetOrComputeAsync(
+            query, token => _gridTrendService.AnalyzeGridAsync(query, token), pinned: false, cancellationToken);
+        if (body == null)
         {
             return NotFound(new ProblemDetails
             {
@@ -100,12 +99,27 @@ public class TrendsController : ControllerBase
             });
         }
 
-        _cache.Set(cacheKey, result, new MemoryCacheEntryOptions
+        return GridBody(body);
+    }
+
+    /// <summary>
+    /// Sends a grid from its cached, already compressed body. Browsers accept Brotli; for a client that
+    /// does not, the body is expanded and the compression middleware picks whatever that client takes.
+    /// </summary>
+    private IActionResult GridBody(byte[] brotli)
+    {
+        Response.Headers.CacheControl = GridTrendCache.CacheControl;
+        Response.Headers.Vary = "Accept-Encoding";
+        var acceptsBrotli = Request.Headers.AcceptEncoding
+            .SelectMany(header => (header ?? string.Empty).Split(','))
+            .Any(token => token.Trim().Split(';')[0].Equals("br", StringComparison.OrdinalIgnoreCase));
+        if (!acceptsBrotli)
         {
-            Size = 16,
-            SlidingExpiration = TimeSpan.FromMinutes(5)
-        });
-        return Ok(result);
+            return File(GridTrendCache.Decompress(brotli), "application/json; charset=utf-8");
+        }
+
+        Response.Headers.ContentEncoding = "br";
+        return File(brotli, "application/json; charset=utf-8");
     }
 
     [HttpPost("analyze")]
@@ -133,10 +147,21 @@ public class TrendsController : ControllerBase
         var cacheKey = $"obs_{variable}_{year}";
         if (_cache.TryGetValue(cacheKey, out var cachedObs))
         {
+            Response.Headers.CacheControl = GridTrendCache.CacheControl;
             return Ok(cachedObs);
         }
 
-        var observations = await _trendService.GetObservationsByYearAsync(variable, year, cancellationToken);
+        var observations = (await _trendService.GetObservationsByYearAsync(variable, year, cancellationToken)).ToList();
+        if (observations.Count == 0)
+        {
+            // An empty year can be a dataset that has not finished loading: it must not be remembered,
+            // neither here nor by a browser or a CDN, or the data would stay hidden after it arrives.
+            Response.Headers.CacheControl = "no-store";
+            return Ok(observations);
+        }
+
+        // A year of observations of a loaded dataset does not change until the next deploy.
+        Response.Headers.CacheControl = GridTrendCache.CacheControl;
         _cache.Set(cacheKey, observations, new MemoryCacheEntryOptions
         {
             Size = 8,

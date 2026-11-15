@@ -30,15 +30,11 @@ public class TrendAnalysisService : ITrendAnalysisService
             toleranceDegrees: 1.0,
             cancellationToken).ConfigureAwait(false);
 
-        // Only a variable without a dataset receives the demonstration series. With a loaded dataset,
-        // a cell without data returns an empty series: fabricating data there would pass fiction off as observation.
+        // No dataset, no series: the result comes back empty and labeled "unavailable". The API used to
+        // fabricate a demonstration series here; with every variable backed by real data that only
+        // served to show invented numbers while seeding was still running.
         var observed = observations.Count > 0
             || await IsObservedAsync(query.Variable, cancellationToken).ConfigureAwait(false);
-        if (!observed)
-        {
-            observations = SyntheticClimateData.AnnualSeries(
-                query.Variable, query.StartYear, query.EndYear, query.Latitude ?? 0, query.Longitude ?? 0);
-        }
 
         var verdict = TrendStatisticsEngine.Analyze(observations);
 
@@ -61,7 +57,7 @@ public class TrendAnalysisService : ITrendAnalysisService
             Linear = verdict.Linear,
             Prewhitened = verdict.Prewhitened,
             Observations = observations,
-            Source = observed ? DatasetStatusDto.Observed : DatasetStatusDto.Synthetic
+            Source = observed ? DatasetStatusDto.Observed : DatasetStatusDto.Unavailable
         };
     }
 
@@ -102,14 +98,9 @@ public class TrendAnalysisService : ITrendAnalysisService
         int year,
         CancellationToken cancellationToken = default)
     {
-        var observations = await _repository.GetObservationsByYearAsync(variable, year, cancellationToken)
+        // Only what DuckDB holds: an empty list when the dataset is missing or has nothing for that year.
+        return await _repository.GetObservationsByYearAsync(variable, year, cancellationToken)
             .ConfigureAwait(false);
-        if (observations.Count > 0 || await IsObservedAsync(variable, cancellationToken).ConfigureAwait(false))
-        {
-            return observations;
-        }
-
-        return SyntheticClimateData.GridSnapshot(variable, year);
     }
 
     private async Task<bool> IsObservedAsync(ClimateVariable variable, CancellationToken cancellationToken) =>

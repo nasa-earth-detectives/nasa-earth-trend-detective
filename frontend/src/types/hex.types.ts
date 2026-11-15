@@ -30,7 +30,7 @@ export interface HexDataset {
   startYear: number;
   endYear: number;
   unit: string;
-  source: 'demo' | 'api';
+  source: 'api';
   /** Magnitude that fills the vertical scale; remains fixed when dates change. */
   heightDomain: number;
   /** Nominal center spacing; visual footprint does not imply NASA coverage. */

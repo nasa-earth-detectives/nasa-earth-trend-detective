@@ -67,6 +67,9 @@ public static class EtlServiceCollectionExtensions
             });
 
         services.AddSingleton<IDatasetSeeder, DatasetSeeder>();
+        services.AddSingleton<DatasetSeedState>();
+        services.AddSingleton<NasaTrendDetective.Application.Interfaces.IDatasetSeedState>(
+            provider => provider.GetRequiredService<DatasetSeedState>());
         services.AddHostedService<DatasetSeedHostedService>();
         return services;
     }

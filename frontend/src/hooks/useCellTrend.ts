@@ -68,7 +68,7 @@ function prewhitenedTrend(value: unknown): PrewhitenedTrend | null {
   return { lag1Autocorrelation: row.lag1Autocorrelation, pValue: row.pValue, isSignificant: row.isSignificant === true };
 }
 
-/** TrendResultDto boundary. Requires Source = "observed": a synthetic series is never drawn as real. */
+/** TrendResultDto boundary. Requires Source = "observed": without a dataset the API returns no series. */
 export function adaptCellTrend(payload: unknown): CellTrend {
   if (!payload || typeof payload !== 'object') throw new Error('Invalid trend response.');
   const row = payload as Record<string, unknown>;
@@ -86,7 +86,7 @@ export function adaptCellTrend(payload: unknown): CellTrend {
     prewhitened: prewhitenedTrend(row.prewhitened) };
 }
 
-/** Only queries when an API cell is selected; in demo mode returns null without fetching. */
+/** Only queries when a cell with known provenance is selected; otherwise returns null without fetching. */
 export function useCellTrend(variable: ClimateVariable, provenance: DatasetProvenance | null,
   cell: { latitude: number; longitude: number } | null) {
   const latitude = cell?.latitude ?? null;
