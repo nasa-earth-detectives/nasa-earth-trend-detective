@@ -145,17 +145,19 @@ export function ImmersiveEarthLayout({
     <main className="earth-workspace" data-mode={ui.mode} data-idle={isIdle}
       data-hex-visible={layerVisible} data-hex-selected={selectedObservation !== null} data-observation-layer={observationMode} data-reading={reading}>
       <GlobeViewer apiRef={sceneApiRef} preferencesRef={scene.preferencesRef} />
-      <div className="observation-position quiet-instrument"><ObservationContext variable={filter.variable} /></div>
       <div className="mission-position quiet-instrument"><MissionHeader onStartTour={handleStartTour} onOpenWizard={onOpenWizard} onOpenMissions={() => setMissionsOpen(true)} onOpenGlossary={() => setGlossaryOpen(true)} /></div>
-      <div className="system-position quiet-instrument" data-hex-active={true}>
-        {trendReading ? (
-          <HexReadout data={hexData.data} provenance={provenance} loading={hexData.loading} error={hexData.error}
-            selectedCell={selectedTrendCell} onSelectCell={id => sceneApiRef.current?.setObservationSelection(id)} />
-        ) : (
-          <ObservationReadout observations={visibleObservations} variable={filter.variable} year={filter.endYear}
-            source={source} provenance={provenance} mode={observationMode} coverage={coverage} loading={loading} error={observationError}
-            selected={selectedObservation} onSelect={id => sceneApiRef.current?.setObservationSelection(id)} />
-        )}
+      <div className="workspace-left-rail">
+        <div className="observation-position quiet-instrument"><ObservationContext variable={filter.variable} /></div>
+        <div className="system-position quiet-instrument" data-hex-active={true}>
+          {trendReading ? (
+            <HexReadout data={hexData.data} provenance={provenance} loading={hexData.loading} error={hexData.error}
+              selectedCell={selectedTrendCell} onSelectCell={id => sceneApiRef.current?.setObservationSelection(id)} />
+          ) : (
+            <ObservationReadout observations={visibleObservations} variable={filter.variable} year={filter.endYear}
+              source={source} provenance={provenance} mode={observationMode} coverage={coverage} loading={loading} error={observationError}
+              selected={selectedObservation} onSelect={id => sceneApiRef.current?.setObservationSelection(id)} />
+          )}
+        </div>
       </div>
       <div className="intent-position quiet-instrument">
         <ModeNavigator mode={ui.mode} variable={filter.variable} year={filter.endYear}
