@@ -21,7 +21,27 @@ const getMissionSteps = (callbacks: TourCallbacks, locale: Locale): ObservationS
   return [
     {
       element: '#tour-launch-button', prepare: callbacks.onResetView,
-      popover: { title: steps.launchTitle, side: 'bottom', align: 'start', description: steps.launchBody },
+      popover: { title: steps.launchTitle, side: 'bottom', align: 'center', description: steps.launchBody },
+    },
+    {
+      element: '#tour-cases-button', prepare: callbacks.onResetView,
+      popover: { title: steps.casesTitle, side: 'bottom', align: 'center', description: steps.casesBody },
+    },
+    {
+      element: '#tour-glossary-button', prepare: callbacks.onResetView,
+      popover: { title: steps.glossaryTitle, side: 'bottom', align: 'center', description: steps.glossaryBody },
+    },
+    {
+      element: '#tour-investigate-button', prepare: callbacks.onResetView,
+      popover: { title: steps.investigateTitle, side: 'bottom', align: 'center', description: steps.investigateBody },
+    },
+    {
+      element: '#tour-lang-switch', prepare: callbacks.onResetView,
+      popover: { title: steps.languageTitle, side: 'bottom', align: 'end', description: steps.languageBody },
+    },
+    {
+      element: '#tour-place-search', prepare: callbacks.onResetView,
+      popover: { title: steps.placeSearchTitle, side: 'bottom', align: 'start', description: steps.placeSearchBody },
     },
     {
       element: '#tour-observation-context', prepare: callbacks.onResetView,
@@ -36,7 +56,11 @@ const getMissionSteps = (callbacks: TourCallbacks, locale: Locale): ObservationS
       popover: { title: steps.sceneTitle, side: 'left', align: 'center', description: steps.sceneBody },
     },
     {
-      element: '#mission-time-navigator', prepare: callbacks.onOpenTime,
+      element: '#tour-scene-utilities', prepare: callbacks.onResetView,
+      popover: { title: steps.utilitiesTitle, side: 'left', align: 'end', description: steps.utilitiesBody },
+    },
+    {
+      element: '#tour-time-navigator', prepare: callbacks.onOpenTime,
       popover: {
         title: steps.timeTitle, side: 'top', align: 'center',
         description: formatTemplate(steps.timeBody, {

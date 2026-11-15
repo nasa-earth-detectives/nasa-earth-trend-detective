@@ -69,7 +69,7 @@ export const readoutsWizardEn: ReadoutAndWizardTranslations = {
     compass: { north: 'N', south: 'S', east: 'E', west: 'W' },
   },
   wizard: {
-    brand: 'Trend Detective',
+    brand: 'ASTRA',
     eventBadge: 'NASA Space Apps 2026',
     stepsAria: 'Wizard steps',
     stepVariable: 'Variable',

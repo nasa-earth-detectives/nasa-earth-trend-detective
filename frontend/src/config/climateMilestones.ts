@@ -93,7 +93,7 @@ export const CLIMATE_MILESTONES: Record<number, ClimateMilestone> = {
     title: 'NASA Space Apps Challenge 2026',
     category: 'mission',
     categoryLabel: 'This project',
-    summary: 'Earth Trend Detective is born at the Neiva hackathon. It is a student team project, not a NASA mission.',
+    summary: 'ASTRA is born at the Neiva hackathon. It is a student team project, not a NASA mission.',
     scientificImpact: 'Nine variables from open NASA data, each with its provenance in view.',
     badgeColor: '#7fb2c9',
   },

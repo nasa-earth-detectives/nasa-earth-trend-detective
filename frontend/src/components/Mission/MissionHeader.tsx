@@ -38,6 +38,7 @@ export function MissionHeader({
       <nav className="mission-actions" aria-label={t.header.actionsAria}>
         {onOpenMissions && (
           <button
+            id="tour-cases-button"
             type="button"
             onClick={onOpenMissions}
             className="mission-action-btn focus-ring"
@@ -52,6 +53,7 @@ export function MissionHeader({
 
         {onOpenGlossary && (
           <button
+            id="tour-glossary-button"
             type="button"
             onClick={onOpenGlossary}
             className="mission-action-btn focus-ring"
@@ -66,6 +68,7 @@ export function MissionHeader({
 
         {onOpenWizard && (
           <button
+            id="tour-investigate-button"
             type="button"
             onClick={onOpenWizard}
             className="mission-action-btn focus-ring wizard-reopen-btn"
@@ -93,7 +96,7 @@ export function MissionHeader({
           </button>
         )}
 
-        <div className="mission-lang-switch" role="group" aria-label={t.header.langGroupAria} data-ui-control>
+        <div id="tour-lang-switch" className="mission-lang-switch" role="group" aria-label={t.header.langGroupAria} data-ui-control>
           <button
             type="button"
             className="mission-lang-btn focus-ring"
