@@ -50,9 +50,12 @@ COPY --from=publish /app/publish .
 COPY --from=build /src/seed /app/seed
 ENV DATASET_SEED_DIRECTORY=/app/seed
 
-# Free-tier Render has 512 MB. Without limits, GISTEMP import peaked at 647 MB (measured
-# locally); with 256 MB and 2 threads, the complete API (loading + queries) stayed at 423 MB.
-ENV DuckDb__MemoryLimit=256MB
-ENV DuckDb__Threads=2
+# Constrain managed GC, glibc malloc arenas, and DuckDB buffers to fit Render's 512 MB tier across all 9 datasets.
+ENV DOTNET_gcServer=0
+ENV DOTNET_GCConserveMemory=9
+ENV DOTNET_GCHeapHardLimit=0x8000000
+ENV MALLOC_ARENA_MAX=2
+ENV DuckDb__MemoryLimit=110MB
+ENV DuckDb__Threads=1
 
 ENTRYPOINT ["dotnet", "NasaTrendDetective.Api.dll"]

@@ -54,6 +54,10 @@ public sealed class DatasetSeeder : IDatasetSeeder
                 outcome.ManifestFile, outcome.Variable, outcome.Status, outcome.Rows,
                 outcome.Elapsed.TotalSeconds, outcome.Message);
             outcomes.Add(outcome);
+            if (outcome.Status == DatasetSeedStatus.Imported)
+            {
+                await _repository.ExecuteAsync("CHECKPOINT", null, cancellationToken).ConfigureAwait(false);
+            }
         }
 
         return outcomes;
