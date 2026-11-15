@@ -15,8 +15,8 @@ export interface WizardRegion {
   suggestedVariables: ClimateVariable[];
 }
 
-// Suggested variables are those backed by real data (GISTEMP and MERRA-2): suggesting a demo-only
-// variable would drop a student into a synthetic scenario without asking for one.
+// Suggested variables are the long reanalysis and temperature records (GISTEMP and MERRA-2), which
+// cover every suggested region; satellite products such as OCO-2 have no series under persistent cloud.
 export const WIZARD_REGIONS: WizardRegion[] = [
   {
     id: 'arctic',

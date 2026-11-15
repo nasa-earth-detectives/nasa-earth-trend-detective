@@ -94,7 +94,7 @@ export function greenwichSiderealAngle(timeMs: number): number {
 }
 
 /** Creates celestial sphere and adds to scene. Returns a single group for starfield toggle. */
-export function createStarField(scene: Scene, renderer: WebGLRenderer): Object3D[] {
+export function createStarField(scene: Scene, renderer: WebGLRenderer, withMilkyWay = true): Object3D[] {
   const random = mulberry32(20261004);
   const sprite = createStarSprite();
   const sky = new Group();
@@ -114,12 +114,18 @@ export function createStarField(scene: Scene, renderer: WebGLRenderer): Object3D
   for (const layer of GLOBE_CONFIG.starLayers) sky.add(createStarLayer(layer, random, sprite, uniform));
   sky.add(createStarLayer(GLOBE_CONFIG.galacticStarLayer, random, sprite, galactic));
 
-  const milkyWay = createMilkyWay(renderer, GLOBE_CONFIG.starInnerRadius * 0.95,
-    GLOBE_CONFIG.milkyWayBrightness, window.matchMedia('(pointer: coarse)').matches ? 1024 : 2048);
-  // No timer: updates strictly when sky renders (≈0.004° per second).
-  milkyWay.mesh.onBeforeRender = () => { sky.rotation.y = -greenwichSiderealAngle(Date.now()); };
-  sky.add(milkyWay.mesh);
-  sky.userData.dispose = () => { milkyWay.dispose(); sprite.dispose(); };
+  if (withMilkyWay) {
+    const milkyWay = createMilkyWay(renderer, GLOBE_CONFIG.starInnerRadius * 0.95,
+      GLOBE_CONFIG.milkyWayBrightness, window.matchMedia('(pointer: coarse)').matches ? 1024 : 2048);
+    // No timer: updates strictly when sky renders (≈0.004° per second).
+    milkyWay.mesh.onBeforeRender = () => { sky.rotation.y = -greenwichSiderealAngle(Date.now()); };
+    sky.add(milkyWay.mesh);
+    sky.userData.dispose = () => { milkyWay.dispose(); sprite.dispose(); };
+  } else {
+    // Lite profile: stars only. The band is a textured sphere that fills the whole screen behind the planet.
+    sky.rotation.y = -greenwichSiderealAngle(Date.now());
+    sky.userData.dispose = () => { sprite.dispose(); };
+  }
   scene.add(sky);
   return [sky];
 }

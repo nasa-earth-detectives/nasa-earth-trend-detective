@@ -12,8 +12,9 @@ export interface OceanCurrentPath {
 }
 
 /**
- * Scientific catalog of Earth's major ocean currents.
- * Based on NASA oceanographic datasets (ECCO v4 and OSCAR).
+ * Schematic of Earth's major ocean currents, for context. The paths are drawn by hand from the
+ * well-known layout of each current; they are NOT derived from ECCO or OSCAR data and carry no
+ * measured speed or temperature. The interface labels this layer as illustrative.
  */
 export const OCEAN_CURRENTS: OceanCurrentPath[] = [
   {

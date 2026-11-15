@@ -32,6 +32,20 @@ public sealed class DuckDbOptions
     /// <summary>DuckDB worker threads; null = all CPU cores. Fewer threads reduce simultaneous buffer allocations.</summary>
     public int? Threads { get; set; }
 
+    /// <summary>
+    /// Peak allocation of a task above which DuckDB hands the memory it freed back to the system
+    /// (allocator_flush_threshold, e.g. "16MB"); empty = DuckDB default (128 MB).
+    /// <see cref="MemoryLimit"/> bounds what DuckDB uses, not what its allocator keeps after freeing it.
+    /// Measured in a 512 MB container with a 110 MB limit: each trend grid query left the process
+    /// higher (157 MB at startup, 439 MB after nine grids, the managed heap under 40 MB all along)
+    /// until the tenth got the container killed. No query here peaks above the default threshold, so
+    /// the allocator never gave anything back.
+    /// </summary>
+    public string? AllocatorFlushThreshold { get; set; }
+
+    /// <summary>Lets the allocator return freed memory from a background thread (allocator_background_threads).</summary>
+    public bool? AllocatorBackgroundThreads { get; set; }
+
     public bool IsInMemory =>
         string.IsNullOrWhiteSpace(DatabasePath)
         || string.Equals(DatabasePath.Trim(), InMemoryPath, StringComparison.OrdinalIgnoreCase);

@@ -10,7 +10,8 @@ import { createEarthEnvelope } from './earthEnvelope';
 
 /** Material and texture map owner: preserves Globe geometry, instance, and renderer. */
 export function createEarthSurface(globe: GlobeInstance, container: HTMLElement,
-  onStatus?: (status: EarthSurfaceStatus) => void) {
+  onStatus?: (status: EarthSurfaceStatus) => void,
+  options: { surfaceDetail: boolean; clouds: boolean; onTexture?: () => void } = { surfaceDetail: true, clouds: true }) {
   const renderer = globe.renderer();
   const originalMaterial = globe.globeMaterial();
   const lighting = createEarthLighting(globe);
@@ -24,14 +25,15 @@ export function createEarthSurface(globe: GlobeInstance, container: HTMLElement,
     container.dataset.earthSurface = value;
     onStatus?.(value);
   };
-  const quality = chooseEarthQuality(container.clientWidth, renderer.capabilities.maxTextureSize,
-    window.matchMedia('(pointer: coarse)').matches);
+  // The lite profile always takes the small texture set, skips relief shading and never upgrades to 8K.
+  const quality = options.surfaceDetail ? chooseEarthQuality(container.clientWidth, renderer.capabilities.maxTextureSize,
+    window.matchMedia('(pointer: coarse)').matches) : 'mobile';
   const envelope = createEarthEnvelope(globe, lighting.sunDirection, quality);
   globe.showAtmosphere(false);
   const deviceMemory = (navigator as Navigator & { deviceMemory?: number }).deviceMemory;
   const detailConfig = EARTH_DETAIL_CONFIG[quality];
   const detailAsset = quality === 'desktop' ? EARTH_ASSETS.dayDetail : EARTH_ASSETS.day.desktop;
-  const canLoadDetail = renderer.capabilities.maxTextureSize >= detailConfig.minTextureSize
+  const canLoadDetail = options.surfaceDetail && renderer.capabilities.maxTextureSize >= detailConfig.minTextureSize
     && (deviceMemory === undefined ? quality === 'desktop' : deviceMemory >= detailConfig.minDeviceMemory);
   const controls = globe.controls();
   let interacted = false;
@@ -54,9 +56,12 @@ export function createEarthSurface(globe: GlobeInstance, container: HTMLElement,
       loaded.minFilter = LinearMipmapLinearFilter;
       loaded.magFilter = LinearFilter;
       loaded.generateMipmaps = true;
-      loaded.anisotropy = Math.min(EARTH_MATERIAL_CONFIG.anisotropy, renderer.capabilities.getMaxAnisotropy());
+      loaded.anisotropy = options.surfaceDetail
+        ? Math.min(EARTH_MATERIAL_CONFIG.anisotropy, renderer.capabilities.getMaxAnisotropy()) : 1;
       loaded.needsUpdate = true;
       resolve(loaded);
+      // A scene that stopped drawing while idle would not show a texture that arrives late.
+      options.onTexture?.();
     }, undefined, () => {
       texture.dispose();
       ownedTextures.delete(texture);
@@ -89,7 +94,7 @@ export function createEarthSurface(globe: GlobeInstance, container: HTMLElement,
     requestDetail();
     return texture;
   });
-  const elevation = load(EARTH_ASSETS.elevation[quality], false).then(texture => {
+  const elevation = (options.surfaceDetail ? load(EARTH_ASSETS.elevation[quality], false) : Promise.resolve(null)).then(texture => {
     if (disposed) return null;
     if (texture) { material.bumpMap = texture; material.needsUpdate = true; }
     return texture;
@@ -108,14 +113,16 @@ export function createEarthSurface(globe: GlobeInstance, container: HTMLElement,
     container.dataset.earthNight = texture ? 'ready' : 'unavailable';
     return texture;
   });
-  const clouds = load(EARTH_ASSETS.clouds[quality], false).then(texture => {
+  const clouds = (options.clouds ? load(EARTH_ASSETS.clouds[quality], false) : Promise.resolve(null)).then(texture => {
     if (disposed) return null;
     if (texture) envelope.setCloudTexture(texture);
     container.dataset.earthClouds = texture ? 'ready' : 'unavailable';
     return texture;
   });
   void Promise.all([day, elevation, water, night, clouds]).then(([dayMap, bumpMap, waterMap, nightMap, cloudMap]) => {
-    status(!dayMap ? 'fallback' : bumpMap && waterMap && nightMap && cloudMap ? 'ready' : 'degraded');
+    // What the profile left out on purpose is not a degraded surface.
+    const complete = (bumpMap || !options.surfaceDetail) && waterMap && nightMap && (cloudMap || !options.clouds);
+    status(!dayMap ? 'fallback' : complete ? 'ready' : 'degraded');
   });
 
   const dispose = (): void => {

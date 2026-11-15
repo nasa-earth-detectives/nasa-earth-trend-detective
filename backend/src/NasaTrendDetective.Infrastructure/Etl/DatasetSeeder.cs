@@ -40,7 +40,7 @@ public sealed class DatasetSeeder : IDatasetSeeder
         var folder = Path.GetFullPath(string.IsNullOrWhiteSpace(directory) ? _options.Directory : directory);
         if (!Directory.Exists(folder))
         {
-            _logger.LogInformation("No datasets folder found at {Folder}: the API will serve synthetic data only.", folder);
+            _logger.LogInformation("No datasets folder found at {Folder}: every variable stays unavailable.", folder);
             return [];
         }
 
@@ -87,6 +87,13 @@ public sealed class DatasetSeeder : IDatasetSeeder
             {
                 var rows = await _repository.ExecuteScalarAsync<long>(DatasetSeedSql.CountFacts, parameters, ct)
                     .ConfigureAwait(false);
+                // A database loaded before the annual table existed has the facts but not their annual rows.
+                if (rows > 0 && await _repository.ExecuteScalarAsync<long>(AnnualCellTable.Count, parameters, ct)
+                        .ConfigureAwait(false) == 0)
+                {
+                    await AnnualCellTable.RefreshAsync(_repository, variableId, ct).ConfigureAwait(false);
+                }
+
                 await _repository.ExecuteAsync(
                         DatasetSeedSql.UpdateProvenance,
                         ProvenanceParameters(manifest, variableId, Path.GetFileName(parquetPath), parquetSha, rows),
@@ -106,6 +113,7 @@ public sealed class DatasetSeeder : IDatasetSeeder
 
             await _repository.ExecuteAsync(DatasetSeedSql.DeleteProvenance, parameters, ct).ConfigureAwait(false);
             await _repository.ExecuteAsync(DatasetSeedSql.DeleteFacts, parameters, ct).ConfigureAwait(false);
+            await _repository.ExecuteAsync(AnnualCellTable.Delete, parameters, ct).ConfigureAwait(false);
             await _importer.ImportAsync(duckPath, ct).ConfigureAwait(false);
             var imported = await _repository.ExecuteScalarAsync<long>(DatasetSeedSql.CountFacts, parameters, ct)
                 .ConfigureAwait(false);

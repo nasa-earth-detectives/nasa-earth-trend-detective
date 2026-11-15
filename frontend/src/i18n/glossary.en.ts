@@ -109,13 +109,13 @@ export const glossaryEn: Pick<GlossaryAndModalTranslations, 'variableGlossary' |
   ],
   milestones: {
     2002: { title: 'Larsen B Ice Shelf Collapse', categoryLabel: 'Glacier Record', summary: 'Breakup of 3,250 km² of ice on the Antarctic Peninsula in just 35 days.', scientificImpact: 'Acceleration of tributary glacier flow into the Southern Ocean.' },
-    2005: { title: 'Record Cyclone Season (Katrina)', categoryLabel: 'Ocean Anomaly', summary: 'Record warming in the Gulf of Mexico and 28 named storms in the Atlantic.', scientificImpact: 'First satellite evidence of thermal intensification in major hurricanes.' },
+    2005: { title: 'Record Cyclone Season (Katrina)', categoryLabel: 'Ocean Anomaly', summary: 'Very warm waters in the Gulf of Mexico and 28 named storms in the Atlantic.', scientificImpact: 'Spurred satellite monitoring of ocean heat as fuel for hurricanes.' },
     2012: { title: 'Historic Arctic Sea Ice Minimum', categoryLabel: 'Cryosphere Low', summary: 'Polar sea ice extent dropped to 3.41 million km² (lowest satellite record).', scientificImpact: 'Accelerated Arctic amplification driven by ocean albedo feedback.' },
-    2015: { title: 'Paris Climate Agreement', categoryLabel: 'Global Governance', summary: 'International signing of COP21 setting the goal to limit warming to 1.5°C.', scientificImpact: 'Establishment of satellite-based global emissions inventories.' },
+    2015: { title: 'Paris Climate Agreement', categoryLabel: 'Global Governance', summary: 'Adopted at COP21: hold warming well below 2 °C and pursue efforts to limit it to 1.5 °C.', scientificImpact: 'Countries committed to report their emissions regularly.' },
     2016: { title: 'El Niño Global Thermal Peak', categoryLabel: 'Thermal Peak', summary: 'Anomaly of +1.02°C above the baseline average, driven by an extreme El Niño event.', scientificImpact: 'Mass coral bleaching on the Great Barrier Reef and tropical reefs.' },
     2020: { title: 'Anthropause Effect (COVID-19)', categoryLabel: 'Forcing Anomaly', summary: 'Sudden 7% drop in global emissions and aerosol reduction detected by satellites.', scientificImpact: 'Empirical demonstration of climate response to abrupt aerosol changes.' },
     2023: { title: 'Hottest Year in 174 Years', categoryLabel: 'All-Time Record', summary: 'Consecutive months with unprecedented global surface temperatures (+1.18°C).', scientificImpact: 'Record Antarctic ice loss and record sea surface temperatures.' },
     2024: { title: 'GISTEMP v4 Anomaly Peak', categoryLabel: 'Instrumental Peak', summary: 'All-time high in global mean surface temperature (+1.28 °C over 1951–1980 baseline, GISTEMP v4).', scientificImpact: 'Imminent risk of temporarily exceeding the 1.5°C Paris threshold.' },
-    2026: { title: 'NASA Earth Trend Detective Mission', categoryLabel: 'Active Mission', summary: 'Interactive 3D platform for geo-temporal detection of trends and teleconnections.', scientificImpact: 'Analytical democratization of petabytes of NASA satellite mission data.' },
+    2026: { title: 'NASA Space Apps Challenge 2026', categoryLabel: 'This project', summary: 'Earth Trend Detective is born at the Neiva hackathon. It is a student team project, not a NASA mission.', scientificImpact: 'Nine variables from open NASA data, each with its provenance in view.' },
   },
 };

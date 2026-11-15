@@ -43,12 +43,7 @@ public sealed class DuckDbConnectionFactory : IDuckDbConnectionFactory, IDisposa
         var statements = new List<string>();
         if (!string.IsNullOrWhiteSpace(options.MemoryLimit))
         {
-            var limit = options.MemoryLimit.Trim();
-            if (!System.Text.RegularExpressions.Regex.IsMatch(limit, @"^\d+(\.\d+)?\s*(KB|MB|GB|KiB|MiB|GiB)$",
-                    System.Text.RegularExpressions.RegexOptions.IgnoreCase))
-            {
-                throw new ArgumentException($"Invalid DuckDb:MemoryLimit: '{limit}'. Example: 256MB.", nameof(options));
-            }
+            var limit = ValidatedSize(options.MemoryLimit, "DuckDb:MemoryLimit", nameof(options));
 
             statements.Add($"SET memory_limit = '{limit}'");
             if (!options.IsInMemory || !string.IsNullOrWhiteSpace(options.TempDirectory))
@@ -67,6 +62,17 @@ public sealed class DuckDbConnectionFactory : IDuckDbConnectionFactory, IDisposa
             statements.Add($"SET threads = {threads}");
         }
 
+        if (!string.IsNullOrWhiteSpace(options.AllocatorFlushThreshold))
+        {
+            var threshold = ValidatedSize(options.AllocatorFlushThreshold, "DuckDb:AllocatorFlushThreshold", nameof(options));
+            statements.Add($"SET allocator_flush_threshold = '{threshold}'");
+        }
+
+        if (options.AllocatorBackgroundThreads is { } background)
+        {
+            statements.Add($"SET allocator_background_threads = {(background ? "true" : "false")}");
+        }
+
         if (statements.Count > 0)
         {
             // Explicit ORDER BY in ingestion handles physical order without retaining insertion-order buffers.
@@ -74,6 +80,19 @@ public sealed class DuckDbConnectionFactory : IDuckDbConnectionFactory, IDisposa
         }
 
         return statements.Count == 0 ? null : string.Join("; ", statements) + ";";
+    }
+
+    /// <summary>A size such as "110MB": SET takes no parameters, so the text is validated before it is interpolated.</summary>
+    private static string ValidatedSize(string value, string setting, string parameterName)
+    {
+        var size = value.Trim();
+        if (!System.Text.RegularExpressions.Regex.IsMatch(size, @"^\d+(\.\d+)?\s*(KB|MB|GB|KiB|MiB|GiB)$",
+                System.Text.RegularExpressions.RegexOptions.IgnoreCase))
+        {
+            throw new ArgumentException($"Invalid {setting}: '{size}'. Example: 256MB.", parameterName);
+        }
+
+        return size;
     }
 
     public bool IsInMemory { get; }

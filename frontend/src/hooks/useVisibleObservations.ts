@@ -1,21 +1,20 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { ClimateObservation } from '../types/climate.types';
 import type { DatasetProvenance } from '../types/dataset.types';
-import type { ObservationCoverage, ObservationSource } from '../types/observationLayer.types';
-import { filterObservationCoverage } from '../services/demo/observationDemoData';
+import type { ObservationCoverage } from '../types/observationLayer.types';
 import { thinRegularGrid } from '../utils/gridThinning';
 import { filterLandCells, loadLandMask, type LandMask } from '../utils/landMask';
 
 const EMPTY: ClimateObservation[] = [];
 
 /**
- * What is actually rendered. The demo brings its own cartography; the API grid is thinned at
- * the poles and, with "land" coverage (initial view), is clipped using the globe mask:
- * covering the oceans as well covers the planet with columns and obscures the Earth.
+ * What is actually rendered. The API grid is thinned at the poles and, with "land" coverage
+ * (initial view), is clipped using the globe mask: covering the oceans as well covers the planet
+ * with columns and obscures the Earth.
  */
-export function useVisibleObservations(observations: ClimateObservation[], source: ObservationSource,
+export function useVisibleObservations(observations: ClimateObservation[],
   coverage: ObservationCoverage, provenance: DatasetProvenance | null) {
-  const needsMask = source === 'api' && coverage === 'land';
+  const needsMask = coverage === 'land';
   const [mask, setMask] = useState<LandMask | null>(null);
   const [maskFailed, setMaskFailed] = useState(false);
 
@@ -30,9 +29,8 @@ export function useVisibleObservations(observations: ClimateObservation[], sourc
   }, [needsMask, mask]);
 
   return useMemo(() => {
-    if (source === 'demo') return filterObservationCoverage(observations, coverage);
     const thinned = thinRegularGrid(observations);
     if (coverage === 'global' || maskFailed) return thinned;
     return mask ? filterLandCells(thinned, mask, provenance?.resolutionDegrees ?? 2) : EMPTY;
-  }, [observations, source, coverage, mask, maskFailed, provenance]);
+  }, [observations, coverage, mask, maskFailed, provenance]);
 }

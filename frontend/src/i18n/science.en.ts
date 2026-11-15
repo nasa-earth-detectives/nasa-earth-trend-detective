@@ -136,14 +136,14 @@ export const scienceEn: ScienceTranslations = {
     },
   },
   upcomingVariables: {
-    sentinel6: { name: 'Sea level', status: 'Altimetry' },
+    sentinel6: { name: 'Sea level', status: 'Planned · no data yet' },
   },
   scientificOverlays: {
-    'ocean-flow': { name: '3D ocean currents (ECCO/OSCAR)', status: 'Operational' },
-    teleconnections: { name: 'Climate teleconnections (ENSO/AMOC)', status: 'Operational' },
-    hotspots: { name: 'Extreme hotspot radar waves', status: 'Operational' },
+    'ocean-flow': { name: 'Major ocean currents (schematic)', status: 'Illustrative' },
+    teleconnections: { name: 'Opposing-trend arcs and two context processes', status: 'Computed + illustrative' },
+    hotspots: { name: 'Markers at the ends of each arc', status: 'Computed' },
     opposing: { name: 'Opposing trends engine', status: 'Algorithm' },
-    satellites: { name: 'Orbital satellite constellation', status: 'Operational' },
+    satellites: { name: 'Satellites on nominal orbits', status: 'Illustrative' },
   },
   visualSystemRows: {
     atmosphere: { name: 'Atmosphere', status: 'Built-in' },

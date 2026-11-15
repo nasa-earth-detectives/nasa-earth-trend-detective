@@ -118,16 +118,20 @@ export interface StatusRow {
  * do not support it yet. Declared as upcoming rather than simulating support.
  */
 export const UPCOMING_VARIABLES: StatusRow[] = [
-  { id: 'sentinel6', name: 'Sea level', detail: 'Sentinel-6 / ECCO', status: 'Altimetry', active: true },
+  { id: 'sentinel6', name: 'Sea level', detail: 'Sentinel-6 / ECCO', status: 'Planned · no data yet', active: false },
 ];
 
-/** Operational global planetary dynamics and analysis overlays. */
+/**
+ * Overlays on the globe. The status says what each one is made of: "Computed" comes from the API
+ * (real series), "Illustrative" is context drawn by hand or from nominal parameters, not a dataset.
+ * They used to read "Operational" and name NASA products (ECCO/OSCAR) that the app does not load.
+ */
 export const SCIENTIFIC_OVERLAYS: StatusRow[] = [
-  { id: 'ocean-flow', name: '3D ocean currents (ECCO/OSCAR)', status: 'Operational', active: true },
-  { id: 'teleconnections', name: 'Climate teleconnections (ENSO/AMOC)', status: 'Operational', active: true },
-  { id: 'hotspots', name: 'Extreme hotspot radar waves', status: 'Operational', active: true },
+  { id: 'ocean-flow', name: 'Major ocean currents (schematic)', status: 'Illustrative', active: true },
+  { id: 'teleconnections', name: 'Opposing-trend arcs and two context processes', status: 'Computed + illustrative', active: true },
+  { id: 'hotspots', name: 'Markers at the ends of each arc', status: 'Computed', active: true },
   { id: 'opposing', name: 'Opposing trends engine', status: 'Algorithm', active: true },
-  { id: 'satellites', name: 'Orbital satellite constellation', status: 'Operational', active: true },
+  { id: 'satellites', name: 'Satellites on nominal orbits', status: 'Illustrative', active: true },
 ];
 
 /** Capabilities built into earthSurface; toggles are shown only when a real API exists. */

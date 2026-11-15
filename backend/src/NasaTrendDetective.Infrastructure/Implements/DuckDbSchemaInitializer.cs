@@ -24,6 +24,7 @@ public sealed class DuckDbSchemaInitializer : IDuckDbSchemaInitializer
     /// Parquet files, and the seeding step that runs after this reloads them.
     /// </summary>
     private const string DropLegacyTables = """
+        DROP TABLE IF EXISTS fact_annual_cell;
         DROP TABLE IF EXISTS dataset_provenance;
         DROP TABLE IF EXISTS fact_climate_observations;
         DROP TABLE IF EXISTS dim_variable;

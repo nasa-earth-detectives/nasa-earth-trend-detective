@@ -1,7 +1,8 @@
-import { useRef, useState, type RefObject } from 'react';
+import { useRef, useState, useSyncExternalStore, type RefObject } from 'react';
 import { useGlobeScene, type GlobeSceneApi, type ScenePreferences } from './useGlobeScene';
 import type { EarthSurfaceStatus } from './earthConfig';
 import { EARTH_TILE_ATTRIBUTION } from './earthTileConfig';
+import { getRenderQuality, subscribeRenderQuality } from './renderQuality';
 import { useI18n } from '../../i18n';
 
 interface GlobeViewerProps {
@@ -22,7 +23,9 @@ export function GlobeViewer({ apiRef, preferencesRef }: GlobeViewerProps) {
   const { t } = useI18n();
   const containerRef = useRef<HTMLDivElement>(null);
   const [surfaceStatus, setSurfaceStatus] = useState<EarthSurfaceStatus>('loading');
-  useGlobeScene(containerRef, apiRef, preferencesRef, setSurfaceStatus);
+  // Changing the profile rebuilds the scene: antialiasing and what gets downloaded are decided when it is created.
+  const { quality, reason } = useSyncExternalStore(subscribeRenderQuality, getRenderQuality);
+  useGlobeScene(containerRef, apiRef, preferencesRef, setSurfaceStatus, quality);
 
   return (
     <div className="group absolute inset-0 scene-vignette scene-grain">
@@ -34,6 +37,10 @@ export function GlobeViewer({ apiRef, preferencesRef }: GlobeViewerProps) {
         group-has-[[data-earth-tiles=active]]:opacity-100">
         {EARTH_TILE_ATTRIBUTION}
       </p>
+      {quality === 'lite' && reason !== 'manual' &&
+        <p role="status" className="absolute bottom-2 left-1/2 -translate-x-1/2 text-[11px] text-[color:var(--text-tertiary)] pointer-events-none">
+          {t.workspace.liteNotice}
+        </p>}
       {(surfaceStatus === 'fallback' || surfaceStatus === 'degraded') &&
         <p role="status" className="absolute bottom-2 right-5 text-[11px] text-[color:var(--text-tertiary)] pointer-events-none">
           {surfaceStatus === 'fallback' ? t.workspace.globeFallback : t.workspace.globeDegraded}

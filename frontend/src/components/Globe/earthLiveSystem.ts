@@ -25,13 +25,16 @@ export interface EarthLiveSystemApi {
  * 3D teleconnection arcs, hotspot radar ripples, NASA satellite constellation,
  * and fluid ocean currents (NASA ECCO/OSCAR).
  */
-export function createEarthLiveSystem(globe: GlobeInstance, sunDirection: Vector3): EarthLiveSystemApi {
+export function createEarthLiveSystem(globe: GlobeInstance, sunDirection: Vector3,
+  options: { celestial: boolean; satellites: boolean } = { celestial: true, satellites: true }): EarthLiveSystemApi {
+  // What the lite profile leaves out is never built: no models or textures are downloaded for it.
+  const absent = { setVisible: (_visible: boolean): void => {}, dispose: (): void => {} };
   const arcs = createEarthTeleconnectionArcs(globe);
   const ripples = createEarthRadarRipples(globe);
-  const satellites = createEarthSatelliteOrbits(globe.scene(), globe.renderer(), sunDirection);
+  const satellites = options.satellites ? createEarthSatelliteOrbits(globe.scene(), globe.renderer(), sunDirection) : absent;
   const oceanFlow = createEarthOceanFlow(globe);
-  const sun = createEarthSunGlare(globe.scene(), sunDirection);
-  const moon = createEarthMoon(globe.scene());
+  const sun = options.celestial ? createEarthSunGlare(globe.scene(), sunDirection) : absent;
+  const moon = options.celestial ? createEarthMoon(globe.scene()) : absent;
 
   // Close to ground, arcs (~14 km tubes) and rings appeared as thick bars crossing
   // the screen: below 0.15 radii they are hidden, respecting user preference.

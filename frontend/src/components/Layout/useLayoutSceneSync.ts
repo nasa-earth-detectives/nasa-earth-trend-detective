@@ -8,7 +8,7 @@ import type { SelectedLocation } from '../../hooks/useImmersiveUi';
 import type { ClimateObservation } from '../../types/climate.types';
 import type { DatasetProvenance } from '../../types/dataset.types';
 import type { HexCell, HexDataset } from '../../types/hex.types';
-import type { GlobeReading, ObservationSource } from '../../types/observationLayer.types';
+import type { GlobeReading } from '../../types/observationLayer.types';
 import type { GlobeSceneApi } from '../Globe/useGlobeScene';
 
 type SceneRef = RefObject<GlobeSceneApi | null>;
@@ -59,9 +59,9 @@ export function useFocusOffset(sceneApiRef: SceneRef, panelOpen: boolean, briefi
  * GISTEMP: 2000-present): with a fixed range, choosing a MERRA-2 variable left the current year
  * without data and the globe empty. If the active year falls outside, it clamps to the nearest end.
  */
-export function useCoverageTimeline(source: ObservationSource, provenance: DatasetProvenance | null,
+export function useCoverageTimeline(provenance: DatasetProvenance | null,
   loading: boolean, year: number, onYearChange: (year: number) => void) {
-  const real = source === 'api' && provenance !== null;
+  const real = provenance !== null;
   const startYear = real ? provenance.coverageStart : SATELLITE_TIMELINE.startYear;
   const endYear = real ? provenance.coverageEnd : SATELLITE_TIMELINE.endYear;
   useEffect(() => {

@@ -1,6 +1,6 @@
 /**
- * Catalog of NASA historical climate milestones (2000-2026).
- * Data sources: NASA Earth Observatory, NASA GISTEMP v4, NSIDC, and NOAA.
+ * Climate milestones shown on the timeline (2000-2026). Editorial context, not computed by the app:
+ * the figures are quoted from NASA Earth Observatory, NASA GISTEMP v4, NSIDC, and NOAA.
  */
 
 export type MilestoneCategory = 'anomaly' | 'agreement' | 'record' | 'mission';
@@ -30,8 +30,8 @@ export const CLIMATE_MILESTONES: Record<number, ClimateMilestone> = {
     title: 'Record Cyclone Season (Katrina)',
     category: 'anomaly',
     categoryLabel: 'Ocean Anomaly',
-    summary: 'Record warming in the Gulf of Mexico and 28 named storms in the Atlantic.',
-    scientificImpact: 'First satellite evidence of thermal intensification in major hurricanes.',
+    summary: 'Very warm waters in the Gulf of Mexico and 28 named storms in the Atlantic.',
+    scientificImpact: 'Spurred satellite monitoring of ocean heat as fuel for hurricanes.',
     badgeColor: '#d4834a',
   },
   2012: {
@@ -48,8 +48,8 @@ export const CLIMATE_MILESTONES: Record<number, ClimateMilestone> = {
     title: 'Paris Climate Agreement',
     category: 'agreement',
     categoryLabel: 'Global Governance',
-    summary: 'International signing of COP21 setting the goal to limit warming to 1.5°C.',
-    scientificImpact: 'Establishment of satellite-based global emissions inventories.',
+    summary: 'Adopted at COP21: hold warming well below 2 °C and pursue efforts to limit it to 1.5 °C.',
+    scientificImpact: 'Countries committed to report their emissions regularly.',
     badgeColor: '#93b185',
   },
   2016: {
@@ -90,11 +90,11 @@ export const CLIMATE_MILESTONES: Record<number, ClimateMilestone> = {
   },
   2026: {
     year: 2026,
-    title: 'NASA Earth Trend Detective Mission',
+    title: 'NASA Space Apps Challenge 2026',
     category: 'mission',
-    categoryLabel: 'Active Mission',
-    summary: 'Interactive 3D platform for geo-temporal detection of trends and teleconnections.',
-    scientificImpact: 'Analytical democratization of petabytes of NASA satellite mission data.',
+    categoryLabel: 'This project',
+    summary: 'Earth Trend Detective is born at the Neiva hackathon. It is a student team project, not a NASA mission.',
+    scientificImpact: 'Nine variables from open NASA data, each with its provenance in view.',
     badgeColor: '#7fb2c9',
   },
 };

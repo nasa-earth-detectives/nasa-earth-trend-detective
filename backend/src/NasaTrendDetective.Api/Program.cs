@@ -3,6 +3,7 @@ using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.AspNetCore.ResponseCompression;
 using NasaTrendDetective.Api.Middlewares;
+using NasaTrendDetective.Api.Services;
 using NasaTrendDetective.Application.Implements;
 using NasaTrendDetective.Application.Interfaces;
 using NasaTrendDetective.Infrastructure.Extensions;
@@ -18,12 +19,18 @@ if (!string.IsNullOrWhiteSpace(renderPort))
 
 // 1. Dependency Injection (Services, Repositories, and Cache)
 builder.Services.AddControllers();
-builder.Services.AddMemoryCache(options => options.SizeLimit = 64);
+// Bounded in units, not bytes: a trend grid (kept compressed, about 1 MB) and a year of observations
+// count 8 each, a single-cell trend 1. 160 units hold the nine default grids plus eleven more entries.
+builder.Services.AddMemoryCache(options => options.SizeLimit = 160);
+builder.Services.AddSingleton<GridTrendCache>();
+builder.Services.AddSingleton<GridFileStore>();
 builder.Services.AddScoped<ITrendAnalysisService, TrendAnalysisService>();
 builder.Services.AddScoped<IOpposingTrendsService, OpposingTrendsService>();
 builder.Services.AddScoped<IGridTrendService, GridTrendService>();
 builder.Services.AddScoped<IDatasetCatalogService, DatasetCatalogService>();
 builder.Services.AddInfrastructure(builder.Configuration);
+// Registered after the infrastructure so it starts after seeding: it waits for it to finish anyway.
+builder.Services.AddHostedService<GridWarmupService>();
 
 // The trend grid and annual observations are multi-megabyte, highly repetitive JSON payloads.
 // Only public data is transmitted (no sessions or secrets), so HTTPS compression poses no security risk.

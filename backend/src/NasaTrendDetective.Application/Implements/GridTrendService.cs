@@ -41,7 +41,7 @@ public class GridTrendService : IGridTrendService
             .Where(cell => cell.Years.Count >= MinYearsPerCell)
             .Select(cell =>
             {
-                var verdict = TrendStatisticsEngine.Analyze(cell.Years);
+                var verdict = TrendStatisticsEngine.AnalyzeCell(cell.Years);
                 return new GridTrendCellDto
                 {
                     Latitude = cell.Latitude,
@@ -51,7 +51,7 @@ public class GridTrendService : IGridTrendService
                     MannKendallZ = verdict.ZScore,
                     PValue = verdict.PValue,
                     IsSignificant = verdict.IsSignificant,
-                    PrewhitenedPValue = verdict.Prewhitened.PValue,
+                    PrewhitenedPValue = verdict.PrewhitenedPValue,
                     Direction = verdict.Direction.ToString(),
                     Years = cell.Years.Count
                 };
