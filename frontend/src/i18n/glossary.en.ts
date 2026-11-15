@@ -116,6 +116,6 @@ export const glossaryEn: Pick<GlossaryAndModalTranslations, 'variableGlossary' |
     2020: { title: 'Anthropause Effect (COVID-19)', categoryLabel: 'Forcing Anomaly', summary: 'Sudden 7% drop in global emissions and aerosol reduction detected by satellites.', scientificImpact: 'Empirical demonstration of climate response to abrupt aerosol changes.' },
     2023: { title: 'Hottest Year in 174 Years', categoryLabel: 'All-Time Record', summary: 'Consecutive months with unprecedented global surface temperatures (+1.18°C).', scientificImpact: 'Record Antarctic ice loss and record sea surface temperatures.' },
     2024: { title: 'GISTEMP v4 Anomaly Peak', categoryLabel: 'Instrumental Peak', summary: 'All-time high in global mean surface temperature (+1.28 °C over 1951–1980 baseline, GISTEMP v4).', scientificImpact: 'Imminent risk of temporarily exceeding the 1.5°C Paris threshold.' },
-    2026: { title: 'NASA Space Apps Challenge 2026', categoryLabel: 'This project', summary: 'Earth Trend Detective is born at the Neiva hackathon. It is a student team project, not a NASA mission.', scientificImpact: 'Nine variables from open NASA data, each with its provenance in view.' },
+    2026: { title: 'NASA Space Apps Challenge 2026', categoryLabel: 'This project', summary: 'ASTRA is born at the Neiva hackathon. It is a student team project, not a NASA mission.', scientificImpact: 'Nine variables from open NASA data, each with its provenance in view.' },
   },
 };

@@ -2,13 +2,13 @@ import type { CommonTranslations } from './types';
 
 export const commonEs: CommonTranslations = {
   meta: {
-    pageTitle: 'Detective de Tendencias del Sistema Terrestre · NASA',
-    pageDescription: 'Plataforma 3D de visualización y análisis geoespacial de tendencias climáticas con datos NASA',
+    pageTitle: 'ASTRA · Observatorio del Sistema Terrestre NASA',
+    pageDescription: 'ASTRA: plataforma 3D de visualización y análisis geoespacial de tendencias climáticas con datos NASA',
   },
   header: {
     projectIdentityAria: 'Identidad del proyecto',
     domain: 'Sistema Terrestre',
-    projectName: 'Detective de Tendencias',
+    projectName: 'ASTRA',
     edition: 'NASA Space Apps · 2026',
     actionsAria: 'Acciones del proyecto',
     casesLabel: 'Casos',
@@ -19,7 +19,7 @@ export const commonEs: CommonTranslations = {
     glossaryTitle: 'Glosario para estudiantes y evaluadores',
     investigateLabel: 'Investigar',
     investigateAria: 'Asistente de investigación',
-    investigateTitle: 'Detective: abrir asistente guiado',
+    investigateTitle: 'ASTRA: abrir asistente guiado',
     tourLabel: 'Guía',
     tourAria: 'Iniciar guía interactiva',
     tourTitle: 'Guía interactiva',

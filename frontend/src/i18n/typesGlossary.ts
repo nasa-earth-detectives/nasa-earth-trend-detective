@@ -41,12 +41,24 @@ export interface GlossaryAndModalTranslations {
     steps: {
       launchTitle: string;
       launchBody: string;
+      placeSearchTitle: string;
+      placeSearchBody: string;
+      casesTitle: string;
+      casesBody: string;
+      glossaryTitle: string;
+      glossaryBody: string;
+      investigateTitle: string;
+      investigateBody: string;
+      languageTitle: string;
+      languageBody: string;
       contextTitle: string;
       contextBody: string;
       variableTitle: string;
       variableBody: string;
       sceneTitle: string;
       sceneBody: string;
+      utilitiesTitle: string;
+      utilitiesBody: string;
       timeTitle: string;
       timeBody: string;
       inspectorTitle: string;

@@ -53,7 +53,7 @@ export function PlaceSearch({ onSelect }: PlaceSearchProps) {
   const status = search.loading ? t.places.searching : search.failed ? t.places.unavailable : count === 0 ? t.places.noResults : null;
 
   return (
-    <search className="place-search" data-ui-control data-busy={busy} aria-busy={busy}>
+    <search id="tour-place-search" className="place-search" data-ui-control data-busy={busy} aria-busy={busy}>
       <Search size={14} strokeWidth={1.8} aria-hidden="true" />
       <input ref={inputRef} type="search" className="place-search__input" value={query} autoComplete="off" spellCheck={false}
         placeholder={t.places.placeholder} aria-label={t.places.searchAria} role="combobox"
