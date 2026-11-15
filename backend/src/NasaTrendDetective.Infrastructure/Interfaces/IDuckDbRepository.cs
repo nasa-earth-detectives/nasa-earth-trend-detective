@@ -25,6 +25,12 @@ public interface IDuckDbRepository
         IReadOnlyDictionary<string, object?>? parameters = null,
         CancellationToken cancellationToken = default);
 
+    Task StreamQueryAsync(
+        string sql,
+        Action<IDataRecord> handleRow,
+        IReadOnlyDictionary<string, object?>? parameters = null,
+        CancellationToken cancellationToken = default);
+
     Task<int> ExecuteAsync(
         string sql,
         IReadOnlyDictionary<string, object?>? parameters = null,

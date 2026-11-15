@@ -49,33 +49,41 @@ public sealed class GridTrendRepository : IGridTrendRepository
             ["minMonths"] = minMonthsPerYear
         };
 
-        var rows = await _repository.QueryAsync(Sql, MapRow, parameters, cancellationToken).ConfigureAwait(false);
-
         var cells = new List<CellAnnualSeries>();
-        var years = new List<AnnualObservation>();
-        for (var i = 0; i < rows.Count; i++)
+        List<AnnualObservation>? years = null;
+        double currentLat = 0;
+        double currentLng = 0;
+
+        await _repository.StreamQueryAsync(Sql, record =>
         {
-            var row = rows[i];
-            years.Add(row.Observation);
-            var isLastOfCell = i == rows.Count - 1
-                || rows[i + 1].Latitude != row.Latitude
-                || rows[i + 1].Longitude != row.Longitude;
-            if (isLastOfCell)
+            var latitude = record.GetDouble(0);
+            var longitude = record.GetDouble(1);
+            var anomaly = record.IsDBNull(4) ? (double?)null : record.GetDouble(4);
+            var value = record.IsDBNull(3) ? anomaly ?? 0.0 : record.GetDouble(3);
+            var observation = new AnnualObservation(record.GetInt32(2), value, anomaly);
+
+            if (years is null)
             {
-                cells.Add(new CellAnnualSeries(row.Latitude, row.Longitude, years));
+                currentLat = latitude;
+                currentLng = longitude;
                 years = new List<AnnualObservation>();
             }
+            else if (latitude != currentLat || longitude != currentLng)
+            {
+                cells.Add(new CellAnnualSeries(currentLat, currentLng, years));
+                currentLat = latitude;
+                currentLng = longitude;
+                years = new List<AnnualObservation>();
+            }
+
+            years.Add(observation);
+        }, parameters, cancellationToken).ConfigureAwait(false);
+
+        if (years is not null)
+        {
+            cells.Add(new CellAnnualSeries(currentLat, currentLng, years));
         }
 
         return cells;
     }
-
-    private static CellYear MapRow(IDataRecord record)
-    {
-        var anomaly = record.IsDBNull(4) ? (double?)null : record.GetDouble(4);
-        var value = record.IsDBNull(3) ? anomaly ?? 0.0 : record.GetDouble(3);
-        return new CellYear(record.GetDouble(0), record.GetDouble(1), new AnnualObservation(record.GetInt32(2), value, anomaly));
-    }
-
-    private readonly record struct CellYear(double Latitude, double Longitude, AnnualObservation Observation);
 }

@@ -61,4 +61,43 @@ public sealed class DuckDbResourceLimitTests
         // DuckDB reports this in its own units (MiB/MB); it is sufficient that it is no longer 80% of RAM.
         Assert.Matches(@"^(286\.\d MiB|300\.0 MB)$", value);
     }
+
+    [Fact]
+    public async Task CreateOpenConnectionAsync_FileMode_PreservesLimitsAcrossDisposedConnections()
+    {
+        var folder = DuckDbTestHelpers.CreateTempDirectory();
+        try
+        {
+            using var factory = new DuckDbConnectionFactory(Microsoft.Extensions.Options.Options.Create(
+                new DuckDbOptions
+                {
+                    DatabasePath = System.IO.Path.Combine(folder, "limits.duckdb"),
+                    MemoryLimit = "140MB",
+                    Threads = 1
+                }));
+
+            await using (await factory.CreateOpenConnectionAsync())
+            {
+            }
+
+            await using var second = await factory.CreateOpenConnectionAsync();
+            await using var command = second.CreateCommand();
+            command.CommandText =
+                "SELECT current_setting('memory_limit'), current_setting('threads'), current_setting('preserve_insertion_order')";
+            await using var reader = await command.ExecuteReaderAsync();
+            Assert.True(await reader.ReadAsync());
+
+            var memoryLimit = Convert.ToString(reader.GetValue(0));
+            var threads = Convert.ToInt64(reader.GetValue(1));
+            var preserveOrder = Convert.ToBoolean(reader.GetValue(2));
+
+            Assert.Matches(@"^(133\.\d MiB|140\.0 MB)$", memoryLimit);
+            Assert.Equal(1L, threads);
+            Assert.False(preserveOrder);
+        }
+        finally
+        {
+            DuckDbTestHelpers.TryDeleteDirectory(folder);
+        }
+    }
 }

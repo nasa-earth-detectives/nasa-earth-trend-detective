@@ -66,6 +66,24 @@ public sealed class DuckDbRepository : IDuckDbRepository
         return results;
     }
 
+    public async Task StreamQueryAsync(
+        string sql,
+        Action<IDataRecord> handleRow,
+        IReadOnlyDictionary<string, object?>? parameters = null,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(handleRow);
+        await using var connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken)
+            .ConfigureAwait(false);
+        await using var command = DuckDbCommandHelper.CreateCommand(connection, sql, parameters);
+        await using var reader = await command.ExecuteReaderAsync(cancellationToken).ConfigureAwait(false);
+
+        while (await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
+        {
+            handleRow(reader);
+        }
+    }
+
     public async Task<int> ExecuteAsync(
         string sql,
         IReadOnlyDictionary<string, object?>? parameters = null,

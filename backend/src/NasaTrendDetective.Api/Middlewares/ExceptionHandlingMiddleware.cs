@@ -20,6 +20,14 @@ public class ExceptionHandlingMiddleware
         {
             await _next(context);
         }
+        catch (Exception ex) when (context.RequestAborted.IsCancellationRequested)
+        {
+            _logger.LogDebug(ex, "Client disconnected before completing {Path}", context.Request.Path);
+            if (!context.Response.HasStarted)
+            {
+                context.Response.StatusCode = StatusCodes.Status499ClientClosedRequest;
+            }
+        }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Unhandled exception during request processing on path {Path}", context.Request.Path);
