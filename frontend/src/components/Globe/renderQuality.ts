@@ -9,9 +9,10 @@
  * when and with how many pixels the scene is drawn (see frameGovernor.ts), not its content:
  *
  *  - full: every frame, multisampled. For dedicated graphics cards.
- *  - adaptive: multisampled, but drawn only while something changes unless the machine proves fast, and
- *    with fewer pixels while it moves if it proves slow. For integrated chips, where multisampling is cheap.
- *  - lean: the same on-demand drawing without multisampling; the resting picture is supersampled
+ *  - adaptive: multisampled, drawn at the pace the machine can hold: every frame if it proves fast,
+ *    fewer pixels while the camera moves and fewer pictures a second at rest if it proves slow. For
+ *    integrated chips, where multisampling is cheap.
+ *  - lean: the same pacing without multisampling; a picture in which nothing moves is supersampled
  *    instead. For software rendering, where multisampling more than doubles every frame, and for any
  *    machine that proved too slow in another profile.
  *
@@ -28,7 +29,7 @@ export interface QualityState { quality: RenderQuality; reason: QualityReason }
 export interface QualityProfile {
   /** Hardware multisampling. Without a graphics card it more than doubles the cost of every frame. */
   antialias: boolean;
-  /** Draw only while something changes, with fewer pixels while it moves if the frame rate needs it. */
+  /** Draw at the pace the machine can hold: fewer pixels while the camera moves, fewer pictures a second at rest. */
   adaptiveFrames: boolean;
   /** Keep drawing every frame (orbits and ripples stay alive) for as long as the machine does it fast. */
   liveWhenFast: boolean;

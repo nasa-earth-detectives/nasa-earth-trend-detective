@@ -99,7 +99,7 @@ export const commonEs: CommonTranslations = {
     satDesc: 'Órbitas nominales aceleradas de Terra, Aqua, GRACE-FO y OCO-2. Ilustrativo: no es su posición real',
     motionHeading: 'Movimiento y referencias',
     adaptiveLabel: 'Dibujo adaptable',
-    adaptiveDesc: 'Dibuja el globo sólo cuando cambia y con menos resolución mientras se mueve. Mismo aspecto, mismos datos',
+    adaptiveDesc: 'Dibuja el globo al ritmo que aguanta este equipo y con menos resolución mientras lo mueves. Mismo aspecto, mismos datos',
     autoRotateLabel: 'Autorrotación',
     autoRotateDesc: 'Rotación orbital en reposo',
     starsLabel: 'Campo estelar',
