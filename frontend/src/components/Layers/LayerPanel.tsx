@@ -9,6 +9,7 @@ import { StatusRowList } from './StatusRowList';
 import { LiveSystemSwitches } from './LiveSystemSwitches';
 import { ReadingModeControl } from './ReadingModeControl';
 import type { GlobeReading, ObservationCoverage, ObservationLayerMode } from '../../types/observationLayer.types';
+import { useI18n } from '../../i18n';
 import '../../styles/layers.css';
 
 interface LayerPanelProps {
@@ -43,12 +44,6 @@ interface LayerPanelProps {
   onSatellitesChange?: (value: boolean) => void;
 }
 
-const TABS: { id: LayerTab; label: string }[] = [
-  { id: 'data', label: 'Data' },
-  { id: 'view', label: 'View' },
-];
-
-/** The instrument opens next to navigation; it never alters the WebGL scene. */
 export function LayerPanel({
   id, open, onClose, activeTab, onTabChange, selectedVariable, onVariableSelect,
   autoRotate, starsVisible, gridVisible, atmosphereVisible,
@@ -60,10 +55,15 @@ export function LayerPanel({
   onOceanFlowChange = () => {}, onTeleconnectionsChange = () => {},
   onRadarRipplesChange = () => {}, onSatellitesChange = () => {},
 }: LayerPanelProps) {
+  const { t } = useI18n();
+  const tabs: { id: LayerTab; label: string }[] = [
+    { id: 'data', label: t.layers.tabData },
+    { id: 'view', label: t.layers.tabView },
+  ];
   const panelRef = useRef<HTMLElement>(null);
   const triggerRef = useRef<HTMLElement | null>(null);
   const wasOpen = useRef(false);
-  const activeIndex = TABS.findIndex((tab) => tab.id === activeTab);
+  const activeIndex = tabs.findIndex((tab) => tab.id === activeTab);
 
   useEffect(() => {
     const panel = panelRef.current;
@@ -81,12 +81,12 @@ export function LayerPanel({
   const moveTab = (event: KeyboardEvent<HTMLDivElement>) => {
     const offsets: Record<string, number> = { ArrowRight: 1, ArrowLeft: -1 };
     let next = activeIndex;
-    if (event.key in offsets) next = (activeIndex + offsets[event.key] + TABS.length) % TABS.length;
+    if (event.key in offsets) next = (activeIndex + offsets[event.key] + tabs.length) % tabs.length;
     else if (event.key === 'Home') next = 0;
-    else if (event.key === 'End') next = TABS.length - 1;
+    else if (event.key === 'End') next = tabs.length - 1;
     else return;
     event.preventDefault();
-    onTabChange(TABS[next].id);
+    onTabChange(tabs[next].id);
     panelRef.current?.querySelectorAll<HTMLButtonElement>('[role="tab"]')[next]?.focus();
   };
 
@@ -96,16 +96,16 @@ export function LayerPanel({
       <span className="earth-instrument__handle" aria-hidden="true" />
       <header className="earth-instrument__header">
         <div>
-          <p className="instrument-kicker">{activeTab === 'data' ? 'Observation catalog' : 'Scene references'}</p>
-          <h2 id={id + '-title'}>{activeTab === 'data' ? 'Earth lenses' : 'Orbit & visibility'}</h2>
+          <p className="instrument-kicker">{activeTab === 'data' ? t.layers.kickerData : t.layers.kickerView}</p>
+          <h2 id={id + '-title'}>{activeTab === 'data' ? t.layers.titleData : t.layers.titleView}</h2>
         </div>
-        <button type="button" onClick={onClose} aria-label="Close instrument"
+        <button type="button" onClick={onClose} aria-label={t.layers.closeAria}
           className="instrument-close focus-ring"><X size={18} aria-hidden="true" /></button>
       </header>
 
-      <div className="instrument-tabs" role="tablist" aria-label="Instrument sections"
+      <div className="instrument-tabs" role="tablist" aria-label={t.layers.tabsAria}
         onKeyDown={moveTab} data-active={activeIndex}>
-        {TABS.map((tab) => (
+        {tabs.map((tab) => (
           <button type="button" key={tab.id} id={id + '-tab-' + tab.id} role="tab"
             aria-selected={tab.id === activeTab} aria-controls={id + '-content-' + tab.id}
             tabIndex={tab.id === activeTab ? 0 : -1} onClick={() => onTabChange(tab.id)}
@@ -124,7 +124,7 @@ export function LayerPanel({
           <VariableLayerList selected={selectedVariable} onSelect={onVariableSelect} />
 
           <div className="instrument-live-section" style={{ marginTop: '1.25rem', paddingTop: '1rem', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
-            <h3 className="instrument-kicker" style={{ marginBottom: '0.6rem' }}>Live Systems & 3D Dynamics</h3>
+            <h3 className="instrument-kicker" style={{ marginBottom: '0.6rem' }}>{t.layers.liveHeading}</h3>
             <LiveSystemSwitches
               oceanFlowVisible={oceanFlowVisible}
               teleconnectionsVisible={teleconnectionsVisible}
@@ -138,8 +138,8 @@ export function LayerPanel({
           </div>
 
           <details className="instrument-future" style={{ marginTop: '0.85rem' }}>
-            <summary className="focus-ring">Analytical capabilities matrix <span aria-hidden="true">+</span></summary>
-            <StatusRowList title="Spatial analysis and layers" rows={SCIENTIFIC_OVERLAYS} />
+            <summary className="focus-ring">{t.layers.matrixSummary} <span aria-hidden="true">+</span></summary>
+            <StatusRowList title={t.layers.matrixAria} rows={SCIENTIFIC_OVERLAYS} />
           </details>
         </div>
         <div id={id + '-content-view'} role="tabpanel" aria-labelledby={id + '-tab-view'}

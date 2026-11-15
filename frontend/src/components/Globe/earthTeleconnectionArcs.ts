@@ -1,6 +1,7 @@
 import type { GlobeInstance } from 'globe.gl';
 import { Color } from 'three';
 import type { Teleconnection, TeleconnectionEndpoint } from '../../types/teleconnection.types';
+import { getActiveLocale, getTranslations } from '../../i18n';
 
 /**
  * Thin continuous arcs between connected regions, with a gradient from origin (faint) to target
@@ -52,7 +53,8 @@ export function createEarthTeleconnectionArcs(globe: GlobeInstance) {
       .arcCurveResolution(96)
       .arcLabel((d: object) => {
         const { connection } = d as ArcDatum;
-        const note = connection.source === 'local' ? '<br/><i>Physical process · illustrative</i>' : '';
+        const t = getTranslations(getActiveLocale());
+        const note = connection.source === 'local' ? `<br/><i>${escapeHtml(t.workspace.teleconnectionIllustrative)}</i>` : '';
         return `<b>${escapeHtml(connection.name)}</b><br/>${escapeHtml(connection.from.label)} → ${escapeHtml(connection.to.label)}${note}`;
       })
       .pointsMerge(false)

@@ -6,14 +6,13 @@ import { useEffect, useRef } from 'react';
 import { X } from 'lucide-react';
 import type { ClimateVariable } from '../../types/climate.types';
 import type { SelectedLocation } from '../../hooks/useImmersiveUi';
-import { CLIMATE_VARIABLES } from '../../config/climateLayers';
 import { CASE_REGIONS, CASE_VARIABLES, caseKey, type CaseRegion } from '../../config/opposingCases';
-import { OBSERVATION_SCALES } from '../../utils/colorScales';
 import { useFocusTrap } from '../../hooks/useFocusTrap';
 import { useOpposingCases, type CaseVerdict } from '../../hooks/useOpposingCases';
 import { verdictTone } from '../../utils/caseVerdict';
 import { OpposingCaseCell } from './OpposingCaseCell';
 import { VARIABLE_ACCENT_STYLE, VARIABLE_ICONS } from './variableIcons';
+import { formatCoordinatesPair, formatTemplate, useI18n, type Translations } from '../../i18n';
 import '../../styles/detective-modals.css';
 
 /** What the globe needs to open a case: which variable, where, and in which year. */
@@ -23,15 +22,18 @@ export interface MissionPreset {
   year: number;
 }
 
-const coordinates = (region: CaseRegion) =>
-  `${Math.abs(region.lat)}° ${region.lat >= 0 ? 'N' : 'S'} · ${Math.abs(region.lng)}° ${region.lng >= 0 ? 'E' : 'W'}`;
-
 /** Pair reading: only called "Opposing" if both trends are significant and have opposite signs. */
-function pairReading(first: CaseVerdict | undefined, second: CaseVerdict | undefined): { tone: string; label: string } {
+function pairReading(
+  first: CaseVerdict | undefined,
+  second: CaseVerdict | undefined,
+  modals: Translations['modals'],
+): { tone: string; label: string } {
   const tones = [verdictTone(first), verdictTone(second)];
   if (tones.includes('none')) return { tone: 'pending', label: '—' };
-  if (tones.includes('flat')) return { tone: 'open', label: 'Inconclusive' };
-  return tones[0] === tones[1] ? { tone: 'same', label: 'Same direction' } : { tone: 'opposite', label: 'Opposing' };
+  if (tones.includes('flat')) return { tone: 'open', label: modals.casesInconclusive };
+  return tones[0] === tones[1]
+    ? { tone: 'same', label: modals.casesSameDirection }
+    : { tone: 'opposite', label: modals.casesOpposing };
 }
 
 interface DetectiveMissionsModalProps {
@@ -41,6 +43,7 @@ interface DetectiveMissionsModalProps {
 }
 
 export function DetectiveMissionsModal({ open, onClose, onSelectMission }: DetectiveMissionsModalProps) {
+  const { t } = useI18n();
   const dialogRef = useRef<HTMLDivElement>(null);
   const verdicts = useOpposingCases(open);
   useFocusTrap(dialogRef, open);
@@ -67,49 +70,57 @@ export function DetectiveMissionsModal({ open, onClose, onSelectMission }: Detec
         ref={dialogRef} tabIndex={-1} onClick={event => event.stopPropagation()}>
         <header className="dossier__header">
           <div>
-            <p className="dossier__eyebrow">Case studies<span>MERRA-2 · NASA POWER</span></p>
-            <h2 id="cases-title">Two regions, opposing directions</h2>
-            <p className="dossier__lead">
-              The same variable can rise in one place and fall in another. Every figure on this board is computed
-              right now from that cell&apos;s real time series: nothing is hardcoded.
-            </p>
+            <p className="dossier__eyebrow">{t.modals.casesEyebrow}<span>MERRA-2 · NASA POWER</span></p>
+            <h2 id="cases-title">{t.modals.casesTitle}</h2>
+            <p className="dossier__lead">{t.modals.casesLead}</p>
           </div>
-          <button type="button" onClick={onClose} className="dossier__close focus-ring" aria-label="Close">
+          <button type="button" onClick={onClose} className="dossier__close focus-ring" aria-label={t.modals.closeAria}>
             <X size={18} strokeWidth={1.5} aria-hidden="true" />
           </button>
         </header>
 
         <div className="case-board scrollbar-instrument">
           <table className="case-board__table">
-            <caption className="sr-only">Trends by variable across two regions</caption>
+            <caption className="sr-only">{t.modals.casesCaption}</caption>
             <thead>
               <tr className="case-board__head">
-                <th scope="col">Variable</th>
+                <th scope="col">{t.modals.casesColVariable}</th>
                 {CASE_REGIONS.map(region => (
-                  <th key={region.id} scope="col" className="case-board__place">{region.name}<small>{coordinates(region)}</small></th>
+                  <th key={region.id} scope="col" className="case-board__place">
+                    {t.caseRegions[region.id] ?? region.name}
+                    <small>{formatCoordinatesPair(region.lat, region.lng, 0, t.readouts.compass)}</small>
+                  </th>
                 ))}
-                <th scope="col">Reading</th>
+                <th scope="col">{t.modals.casesColReading}</th>
               </tr>
             </thead>
             <tbody>
               {CASE_VARIABLES.map(variable => {
-                const meta = CLIMATE_VARIABLES.find(item => item.id === variable);
+                const variableName = t.variables[variable]?.name ?? variable;
+                const unit = t.scales[variable].unit;
                 const Icon = VARIABLE_ICONS[variable];
                 const [first, second] = CASE_REGIONS.map(region => verdicts[caseKey(variable, region.id)]);
-                const reading = pairReading(first, second);
+                const reading = pairReading(first, second, t.modals);
                 return (
                   <tr key={variable} className="case-board__row" style={VARIABLE_ACCENT_STYLE[variable]}>
                     <th scope="row">
                       <div className="case-board__variable">
                         <span className="case-board__icon" aria-hidden="true"><Icon size={17} strokeWidth={1.5} /></span>
-                        <span>{meta?.name}<small>{OBSERVATION_SCALES[variable].unit}</small></span>
+                        <span>{variableName}<small>{unit}</small></span>
                       </div>
                     </th>
-                    {CASE_REGIONS.map((region, index) => (
-                      <OpposingCaseCell key={region.id} verdict={index === 0 ? first : second}
-                        unit={OBSERVATION_SCALES[variable].unit} placeLabel={`${meta?.name} in ${region.name}`}
-                        onOpen={() => openCase(variable, region)} />
-                    ))}
+                    {CASE_REGIONS.map((region, index) => {
+                      const regionName = t.caseRegions[region.id] ?? region.name;
+                      const placeLabel = formatTemplate(t.modals.casesPlaceConnector, {
+                        variable: variableName,
+                        region: regionName,
+                      });
+                      return (
+                        <OpposingCaseCell key={region.id} verdict={index === 0 ? first : second}
+                          unit={unit} placeLabel={placeLabel}
+                          onOpen={() => openCase(variable, region)} />
+                      );
+                    })}
                     <td><span className="case-board__reading" data-tone={reading.tone}>{reading.label}</span></td>
                   </tr>
                 );
@@ -118,12 +129,7 @@ export function DetectiveMissionsModal({ open, onClose, onSelectMission }: Detec
           </table>
         </div>
 
-        <p className="dossier__foot">
-          Mann–Kendall test and Sen&apos;s slope across all available years at 95% confidence.
-          The p-value already accounts for year-to-year persistence; a series is only reported as rising or falling if it passes that check.
-          MERRA-2 is a NASA reanalysis model that reconstructs the atmosphere from observations, not a direct
-          measurement: this board shows what its data indicate, not why it happens.
-        </p>
+        <p className="dossier__foot">{t.modals.casesFootnote}</p>
       </div>
     </div>
   );

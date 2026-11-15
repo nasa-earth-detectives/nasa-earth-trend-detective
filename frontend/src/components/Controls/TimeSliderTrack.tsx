@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { CLIMATE_MILESTONES, MILESTONE_YEARS } from '../../config/climateMilestones';
 import { ClimateMilestoneTooltip } from './ClimateMilestoneTooltip';
+import { useI18n } from '../../i18n';
 
 interface TimeSliderTrackProps {
   startYear: number;
@@ -19,6 +20,7 @@ export function TimeSliderTrack({
   onSelectYear,
   onPausePlayback,
 }: TimeSliderTrackProps) {
+  const { t } = useI18n();
   const [dismissedMilestoneYear, setDismissedMilestoneYear] = useState<number | null>(null);
   const span = Math.max(endYear - startYear, 0);
   const years = Array.from({ length: span + 1 }, (_, index) => startYear + index);
@@ -40,7 +42,7 @@ export function TimeSliderTrack({
           disabled={span === 0}
           onChange={(event) => onSelectYear(Number(event.target.value))}
           onPointerDown={onPausePlayback}
-          aria-label="Query year"
+          aria-label={t.timeline.eyebrow}
           aria-valuetext={`${currentYear}, ${missionLabel}`}
           className="time-range"
         />
@@ -68,7 +70,7 @@ export function TimeSliderTrack({
           {MILESTONE_YEARS.filter((yr) => yr >= startYear && yr <= endYear).map((year) => {
             const position = ((year - startYear) / (span || 1)) * 100;
             const isSelected = year === currentYear;
-            const milestone = CLIMATE_MILESTONES[year];
+            const localizedTitle = t.milestones[year]?.title ?? CLIMATE_MILESTONES[year].title;
 
             return (
               <button
@@ -77,8 +79,8 @@ export function TimeSliderTrack({
                 className={`milestone-beacon ${isSelected ? 'selected' : ''}`}
                 style={{ left: `${position}%` }}
                 onClick={() => { setDismissedMilestoneYear(null); onSelectYear(year); }}
-                aria-label={`${year} milestone: ${milestone.title}`}
-                title={`${year}: ${milestone.title}`}
+                aria-label={`${year} ${t.timeline.milestoneSuffix}: ${localizedTitle}`}
+                title={`${year}: ${localizedTitle}`}
               >
                 <span className="beacon-dot" />
               </button>

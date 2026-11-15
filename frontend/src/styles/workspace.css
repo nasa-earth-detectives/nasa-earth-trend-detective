@@ -82,7 +82,7 @@
   .earth-workspace { --gutter: 20px; }
   .mission-position { top: 16px; left: var(--gutter); }
   .time-position { top: 16px; right: var(--gutter); }
-  .observation-position { top: 76px; left: var(--gutter); }
+  .observation-position { top: 86px; left: var(--gutter); }
   .scene-guidance { display: none; }
   .intent-position { top: auto; bottom: 162px; left: 40px; right: 40px; width: auto; }
   .scene-guidance { bottom: 46px; right: 30px; left: auto; transform: none; text-align: right; }
@@ -98,7 +98,7 @@
   .earth-workspace { --gutter: 14px; }
   .mission-position { top: max(12px, env(safe-area-inset-top)); left: var(--gutter); }
   .time-position { top: max(12px, env(safe-area-inset-top)); right: var(--gutter); }
-  .observation-position { top: 62px; left: var(--gutter); right: auto; max-width: calc(100vw - 28px); }
+  .observation-position { top: 72px; left: var(--gutter); right: auto; max-width: calc(100vw - 28px); }
   .scene-guidance { display: none; }
   .system-position { bottom: max(23px, env(safe-area-inset-bottom)); right: 22px; }
   .intent-position { left: 22px; right: 22px; bottom: 152px; width: auto; }

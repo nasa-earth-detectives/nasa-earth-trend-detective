@@ -2,6 +2,7 @@ import type { CSSProperties, KeyboardEvent } from 'react';
 import type { ClimateVariable } from '../../types/climate.types';
 import { CLIMATE_VARIABLES, UPCOMING_VARIABLES } from '../../config/climateLayers';
 import { OBSERVATION_LENSES } from '../../config/observationLenses';
+import { useI18n } from '../../i18n';
 
 interface VariableLayerListProps {
   selected: ClimateVariable;
@@ -10,6 +11,7 @@ interface VariableLayerListProps {
 
 /** Stable height rows: marker navigates index without querying the DOM. */
 export function VariableLayerList({ selected, onSelect }: VariableLayerListProps) {
+  const { t } = useI18n();
   const selectedIndex = CLIMATE_VARIABLES.findIndex((variable) => variable.id === selected);
   const moveSelection = (event: KeyboardEvent<HTMLDivElement>) => {
     const offsets: Record<string, number> = { ArrowDown: 1, ArrowRight: 1, ArrowUp: -1, ArrowLeft: -1 };
@@ -25,46 +27,54 @@ export function VariableLayerList({ selected, onSelect }: VariableLayerListProps
 
   return (
     <div className="variable-instrument">
-      <div className="variable-index" role="radiogroup" aria-label="Primary scientific variable"
+      <div className="variable-index" role="radiogroup" aria-label={t.layers.variableGroupAria}
         onKeyDown={moveSelection} style={{ '--variable-index': selectedIndex } as CSSProperties}>
         <span className="variable-index__marker" aria-hidden="true" />
-        {CLIMATE_VARIABLES.map((variable) => (
-          <button key={variable.id} type="button" role="radio" aria-checked={variable.id === selected}
-            tabIndex={variable.id === selected ? 0 : -1} onClick={() => onSelect(variable.id)}
-            className="variable-row focus-ring" data-band={OBSERVATION_LENSES[variable.id].band}>
-            <span className="variable-row__symbol" aria-hidden="true">{OBSERVATION_LENSES[variable.id].symbol}</span>
-            <span className="variable-row__text">
-              <span className="variable-row__name">{variable.name}</span>
-              <span className="variable-row__source" aria-hidden={variable.id !== selected}>
-                {variable.satelliteMission}
-                <span className="variable-row__mobile-unit"> / {variable.unit}</span>
+        {CLIMATE_VARIABLES.map((variable) => {
+          const vCopy = t.variables[variable.id];
+          return (
+            <button key={variable.id} type="button" role="radio" aria-checked={variable.id === selected}
+              tabIndex={variable.id === selected ? 0 : -1} onClick={() => onSelect(variable.id)}
+              className="variable-row focus-ring" data-band={OBSERVATION_LENSES[variable.id].band}>
+              <span className="variable-row__symbol" aria-hidden="true">{OBSERVATION_LENSES[variable.id].symbol}</span>
+              <span className="variable-row__text">
+                <span className="variable-row__name">{vCopy.name}</span>
+                <span className="variable-row__source" aria-hidden={variable.id !== selected}>
+                  {variable.satelliteMission}
+                  <span className="variable-row__mobile-unit"> / {vCopy.unit}</span>
+                </span>
               </span>
-            </span>
-            <span className="variable-row__rail" aria-hidden="true" />
-          </button>
-        ))}
-        {UPCOMING_VARIABLES.map((variable) => (
-          <button key={variable.id} type="button" role="radio" aria-checked={false} disabled
-            className="variable-row variable-row--future">
-            <span className="variable-row__symbol" aria-hidden="true">Δh</span>
-            <span className="variable-row__name">{variable.name}</span>
-            <span className="variable-row__soon">
-              {variable.status}
-            </span>
-          </button>
-        ))}
+              <span className="variable-row__rail" aria-hidden="true" />
+            </button>
+          );
+        })}
+        {UPCOMING_VARIABLES.map((variable) => {
+          const localized = t.upcomingVariables[variable.id];
+          return (
+            <button key={variable.id} type="button" role="radio" aria-checked={false} disabled
+              className="variable-row variable-row--future">
+              <span className="variable-row__symbol" aria-hidden="true">Δh</span>
+              <span className="variable-row__name">{localized?.name ?? variable.name}</span>
+              <span className="variable-row__soon">{localized?.status ?? variable.status}</span>
+            </button>
+          );
+        })}
       </div>
 
       <div className="variable-readout" aria-live="polite" aria-atomic="true">
-        {CLIMATE_VARIABLES.map((variable) => (
-          <div key={variable.id} className="variable-readout__entry" data-active={variable.id === selected}
-            aria-hidden={variable.id !== selected}>
-            <p className="variable-readout__domain">{OBSERVATION_LENSES[variable.id].domain}</p>
-            <p className="variable-readout__focus">{OBSERVATION_LENSES[variable.id].focus}</p>
-            <p className="variable-readout__unit"><span>Magnitude</span>{variable.unit}</p>
-            <p className="variable-readout__description">{variable.description}</p>
-          </div>
-        ))}
+        {CLIMATE_VARIABLES.map((variable) => {
+          const vCopy = t.variables[variable.id];
+          const lensCopy = t.lenses[variable.id];
+          return (
+            <div key={variable.id} className="variable-readout__entry" data-active={variable.id === selected}
+              aria-hidden={variable.id !== selected}>
+              <p className="variable-readout__domain">{lensCopy.domain}</p>
+              <p className="variable-readout__focus">{lensCopy.focus}</p>
+              <p className="variable-readout__unit"><span>{t.layers.magnitudeLabel}</span>{vCopy.unit}</p>
+              <p className="variable-readout__description">{vCopy.description}</p>
+            </div>
+          );
+        })}
       </div>
     </div>
   );

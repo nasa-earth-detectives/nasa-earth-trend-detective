@@ -11,12 +11,12 @@ import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import type { ClimateVariable } from '../../types/climate.types';
 import type { DatasetCatalog } from '../../types/dataset.types';
-import { CLIMATE_VARIABLES } from '../../config/climateLayers';
 import { WIZARD_REGIONS, WIZARD_PERIODS, type WizardRegion, type WizardPeriod } from '../../config/wizardOptions';
 import { getDatasetCatalog } from '../../services/datasetCatalog';
 import { useFocusTrap } from '../../hooks/useFocusTrap';
 import { RegionStep, VariableStep } from './DetectiveWizardSteps';
 import { PeriodStep } from './DetectiveWizardPeriod';
+import { useI18n } from '../../i18n';
 import '../../styles/detective-wizard.css';
 
 export interface WizardResult {
@@ -35,17 +35,11 @@ interface DetectiveWizardProps {
   onPreviewRegion?: (region: WizardRegion) => void;
 }
 
-const STEPS = [
-  { label: 'Variable', question: 'What do you want to investigate?',
-    hint: 'Pick an Earth system variable. The globe updates as you choose.' },
-  { label: 'Location', question: 'Where do you want to look?',
-    hint: 'Almost no trend is global: the same variable rises in one place and falls in another.' },
-  { label: 'Period', question: 'How many years do you want to analyze?',
-    hint: 'With more years, the statistical test better distinguishes a real trend from chance.' },
-] as const;
+const STEP_IDS = ['variable', 'region', 'period'] as const;
 type Step = 0 | 1 | 2;
 
 export function DetectiveWizard({ initialVariable = 'Gistemp', onComplete, onSkip, onPreviewVariable, onPreviewRegion }: DetectiveWizardProps) {
+  const { t } = useI18n();
   const [step, setStep] = useState<Step>(0);
   const [direction, setDirection] = useState<'forward' | 'back'>('forward');
   const [variable, setVariable] = useState<ClimateVariable>(initialVariable);
@@ -91,29 +85,36 @@ export function DetectiveWizard({ initialVariable = 'Gistemp', onComplete, onSki
     else onComplete({ variable, region, startYear: period.startYear, endYear: period.endYear });
   };
 
-  const variableName = CLIMATE_VARIABLES.find(item => item.id === variable)?.name ?? variable;
+  const steps = [
+    { id: STEP_IDS[0], label: t.wizard.stepVariable, question: t.wizard.stepVariableQuestion, hint: t.wizard.stepVariableHint },
+    { id: STEP_IDS[1], label: t.wizard.stepLocation, question: t.wizard.stepLocationQuestion, hint: t.wizard.stepLocationHint },
+    { id: STEP_IDS[2], label: t.wizard.stepPeriod, question: t.wizard.stepPeriodQuestion, hint: t.wizard.stepPeriodHint },
+  ];
+  const variableName = t.variables[variable]?.name ?? variable;
+  const regionLabel = t.regions[region.id]?.label ?? region.label;
+  const periodLabel = t.periods[period.id]?.label ?? period.label;
   const summary = [
     { id: 'variable', label: variableName },
-    ...(step > 0 ? [{ id: 'region', label: region.label }] : []),
-    ...(step > 1 ? [{ id: 'period', label: period.label }] : []),
+    ...(step > 0 ? [{ id: 'region', label: regionLabel }] : []),
+    ...(step > 1 ? [{ id: 'period', label: periodLabel }] : []),
   ];
 
   return (
     <div className="briefing" role="dialog" aria-modal="true" aria-labelledby={headingId} ref={dialogRef} tabIndex={-1}>
       <div className="briefing__sheet">
         <header className="briefing__header">
-          <p className="briefing__eyebrow">Trend Detective<span>NASA Space Apps 2026</span></p>
-          <ol className="briefing__rail" data-step={step} aria-label="Wizard steps">
-            {STEPS.map((item, index) => (
-              <li key={item.label} data-state={index === step ? 'current' : index < step ? 'done' : 'todo'}
+          <p className="briefing__eyebrow">{t.wizard.brand}<span>{t.wizard.eventBadge}</span></p>
+          <ol className="briefing__rail" data-step={step} aria-label={t.wizard.stepsAria}>
+            {steps.map((item, index) => (
+              <li key={item.id} data-state={index === step ? 'current' : index < step ? 'done' : 'todo'}
                 aria-current={index === step ? 'step' : undefined}>
                 <span className="briefing__rail-index">{String(index + 1).padStart(2, '0')}</span>
                 <span className="briefing__rail-label">{item.label}</span>
               </li>
             ))}
           </ol>
-          <h1 id={headingId} className="briefing__question">{STEPS[step].question}</h1>
-          <p className="briefing__hint">{STEPS[step].hint}</p>
+          <h1 id={headingId} className="briefing__question">{steps[step].question}</h1>
+          <p className="briefing__hint">{steps[step].hint}</p>
         </header>
 
         {/* Key forces step remount so the entrance transition replays. */}
@@ -129,14 +130,14 @@ export function DetectiveWizard({ initialVariable = 'Gistemp', onComplete, onSki
           </p>
           <div className="briefing__actions">
             {step === 0 ? (
-              <button type="button" className="briefing__ghost focus-ring" onClick={onSkip}>Explore without guide</button>
+              <button type="button" className="briefing__ghost focus-ring" onClick={onSkip}>{t.wizard.exploreWithoutGuide}</button>
             ) : (
               <button type="button" className="briefing__ghost focus-ring" onClick={() => goTo((step - 1) as Step)}>
-                <ArrowLeft size={15} strokeWidth={1.7} aria-hidden="true" />Back
+                <ArrowLeft size={15} strokeWidth={1.7} aria-hidden="true" />{t.wizard.back}
               </button>
             )}
             <button type="button" className="briefing__primary focus-ring" onClick={handleNext}>
-              {step < 2 ? 'Continue' : 'Open dossier'}
+              {step < 2 ? t.wizard.continue : t.wizard.openDossier}
               <ArrowRight size={16} strokeWidth={1.8} aria-hidden="true" />
             </button>
           </div>
