@@ -6,20 +6,20 @@ import {
   TRANSITION_MS, VISIBLE_ANGLE, WARMUP_MS, WATCH_WINDOW_MS, type FrameGovernorOptions,
 } from './frameGovernorConfig';
 import { registerSceneFrames } from './sceneFrames';
+import { createAmbientFrames } from './ambientFrames';
 
 /**
  * Decides when the globe is drawn and with how many pixels, without changing what is drawn.
  *
- * Globe.gl draws every frame whether or not anything changed. Measured in a browser rendering by
- * software (1366x768, CPU slowed 4x) the complete scene took 204 ms per frame, 118 of them in hardware
- * multisampling: at 5 frames per second the page cannot answer a click. A managed scene keeps every
- * visual element and instead:
- *  - draws only while something moves, then stops until the next change;
- *  - while it moves, lowers the resolution as far as the frame rate needs (never below half);
- *  - when it stops, draws one picture at full resolution and, where multisampling is off, shortly
- *    after one supersampled picture that takes its place.
- * A resting globe therefore looks as designed, and costs nothing. Where the machine proves fast, a
- * scene allowed to stay alive never rests: orbits and ripples keep moving, as on a capable machine.
+ * Globe.gl draws every frame at full cost. Measured in a browser rendering by software (1366x768, CPU
+ * slowed 4x) the complete scene took 204 ms per frame, 118 of them in hardware multisampling: at 5
+ * frames per second the page cannot answer a click. A managed scene keeps every visual element and:
+ *  - while the camera moves, lowers the resolution as far as the frame rate needs (never below half);
+ *  - when it stops, goes back to full resolution and keeps drawing what moves with the clock
+ *    (satellites, ripples, arcs) at the pace the machine can hold (see ambientFrames.ts);
+ *  - only where nothing moves on its own does it stop and, where multisampling is off, replace the
+ *    still picture with a supersampled one.
+ * Where the machine proves fast, a scene allowed to stay alive never rests at all.
  *
  * Speed is judged in quiet windows, just before the scene would rest: windows measured while the page
  * loads or the camera moves mix in work that says nothing about the machine. A change of profile
@@ -69,6 +69,7 @@ export function createFrameGovernor(globe: GlobeInstance, renderer: WebGLRendere
   const draw = (): void => { globe.postProcessingComposer().render(); };
   /** A machine that moves the full picture this fast can afford the sharpest one without an intermediate step. */
   const quick = (): boolean => motionScale === 1 && lastMotionFps > FAST_FPS;
+  const ambient = createAmbientFrames(draw, globe.scene());
 
   const refine = (): void => {
     if (disposed || phase === 'moving') return;
@@ -81,6 +82,11 @@ export function createFrameGovernor(globe: GlobeInstance, renderer: WebGLRendere
     cancelAnimationFrame(frame);
     frame = 0;
     globe.pauseAnimation();
+    if (options.keepsMoving()) {
+      if (setRatio(screenRatio())) draw();
+      ambient.start();
+      return;
+    }
     if (quick()) { refine(); return; }
     if (setRatio(screenRatio())) draw();
     clearTimeout(refineTimer);
@@ -160,6 +166,7 @@ export function createFrameGovernor(globe: GlobeInstance, renderer: WebGLRendere
     trial = 'none';
     triedSinceLastMove = false;
     if (!options.manage || disposed || phase === 'moving') return;
+    ambient.stop();
     clearTimeout(refineTimer);
     clearTimeout(refreshTimer);
     refreshTimer = undefined;
@@ -175,7 +182,8 @@ export function createFrameGovernor(globe: GlobeInstance, renderer: WebGLRendere
 
   /** Something changed the picture without moving it (a texture arrived, a column is hovered): one new picture. */
   const refresh = (): void => {
-    if (!options.manage || disposed || phase === 'moving' || refreshFrame || refreshTimer !== undefined) return;
+    // A scene that keeps moving at rest shows the change with its next picture.
+    if (!options.manage || disposed || phase === 'moving' || ambient.running() || refreshFrame || refreshTimer !== undefined) return;
     // Tiles arrive by the dozen after a zoom: on a slow machine one full picture for each would bring
     // back the blocked page this governor exists to avoid.
     const wait = quick() ? 0 : REFRESH_INTERVAL_MS - (performance.now() - lastRefresh);
@@ -226,6 +234,7 @@ export function createFrameGovernor(globe: GlobeInstance, renderer: WebGLRendere
     },
     dispose(): void {
       disposed = true;
+      ambient.stop();
       cancelAnimationFrame(frame);
       cancelAnimationFrame(refreshFrame);
       clearTimeout(refineTimer);

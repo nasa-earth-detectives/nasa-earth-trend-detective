@@ -99,7 +99,7 @@ export const commonEn: CommonTranslations = {
     satDesc: 'Accelerated nominal orbits of Terra, Aqua, GRACE-FO, and OCO-2. Illustrative: not their real position',
     motionHeading: 'Motion & references',
     adaptiveLabel: 'Adaptive rendering',
-    adaptiveDesc: 'Draws the globe only when it changes, at lower resolution while it moves. Same look, same data',
+    adaptiveDesc: 'Draws the globe at the pace this device can hold, at lower resolution while you move it. Same look, same data',
     autoRotateLabel: 'Auto-rotate',
     autoRotateDesc: 'Idle camera rotation',
     starsLabel: 'Star field',

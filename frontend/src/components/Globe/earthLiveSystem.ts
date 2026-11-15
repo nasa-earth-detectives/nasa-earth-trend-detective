@@ -17,6 +17,8 @@ export interface EarthLiveSystemApi {
   setConnections(connections: Teleconnection[]): void;
   /** Sun, lens flare, and Moon follow the star field toggle: they are part of the same celestial background. */
   setSunVisible(visible: boolean): void;
+  /** Something visible moves with the clock, so a picture drawn once would show it frozen. */
+  isMoving(): boolean;
   dispose(): void;
 }
 
@@ -39,6 +41,8 @@ export function createEarthLiveSystem(globe: GlobeInstance, sunDirection: Vector
   const controls = globe.controls();
   let arcsWanted = true;
   let ripplesWanted = true;
+  let satellitesVisible = true;
+  let oceanFlowVisible = true;
   let nearGround = false;
   const apply = (): void => {
     arcs.setVisible(arcsWanted && !nearGround);
@@ -56,9 +60,10 @@ export function createEarthLiveSystem(globe: GlobeInstance, sunDirection: Vector
   return {
     setArcsVisible: (v) => { arcsWanted = v; apply(); },
     setRipplesVisible: (v) => { ripplesWanted = v; apply(); },
-    setSatellitesVisible: (v) => satellites.setVisible(v),
-    setOceanFlowVisible: (v) => oceanFlow.setVisible(v),
+    setSatellitesVisible: (v) => { satellitesVisible = v; satellites.setVisible(v); },
+    setOceanFlowVisible: (v) => { oceanFlowVisible = v; oceanFlow.setVisible(v); },
     setSunVisible: (v) => { sun.setVisible(v); moon.setVisible(v); },
+    isMoving: () => satellitesVisible || oceanFlowVisible || ((arcsWanted || ripplesWanted) && !nearGround),
     setConnections: (connections) => {
       arcs.setConnections(connections);
       ripples.setConnections(connections);

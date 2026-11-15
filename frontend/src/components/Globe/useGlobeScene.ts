@@ -88,6 +88,9 @@ export function useGlobeScene(
       liveWhenFast: profile.liveWhenFast,
       restSupersampling: profile.restSupersampling,
       isAnimating: () => controls.autoRotate,
+      // Satellites, ripples and arcs must not freeze when the camera stops; a visitor who asked the
+      // system for less motion gets the still picture.
+      keepsMoving: () => !reducedMotion.matches && liveSystem.isMoving(),
       // The controls damp a fixed fraction per frame, so at 17 frames per second the glide after a drag
       // lasted over three times longer than designed. Scaled to the measured rate it lasts the same.
       onMotionRate: framesPerSecond => {
