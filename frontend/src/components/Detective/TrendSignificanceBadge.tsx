@@ -4,7 +4,7 @@ import type { ClimateVariable } from '../../types/climate.types';
 import type { SignificanceInput } from '../../utils/detectiveAnalysis';
 import '../../styles/significance-badge.css';
 
-import { describeSignificanceLocalized, intlLocale, formatTemplate, useI18n } from '../../i18n';
+import { describeSignificanceLocalized, formatNumber, formatTemplate, useI18n } from '../../i18n';
 
 interface TrendSignificanceBadgeProps {
   result: SignificanceInput;
@@ -19,8 +19,6 @@ interface TrendSignificanceBadgeProps {
  */
 export function TrendSignificanceBadge({ result, variable, unit = '' }: TrendSignificanceBadgeProps) {
   const { locale, t } = useI18n();
-  const frequency = new Intl.NumberFormat(intlLocale(locale), { maximumSignificantDigits: 2 });
-  const slopeFmt = new Intl.NumberFormat(intlLocale(locale), { maximumFractionDigits: 3, signDisplay: 'exceptZero' });
   const [open, setOpen] = useState(false);
   const tooltipId = useId();
   const info = describeSignificanceLocalized(variable, result, locale);
@@ -41,9 +39,9 @@ export function TrendSignificanceBadge({ result, variable, unit = '' }: TrendSig
           <strong>{info.claim}</strong>
           <span>{info.caveat}</span>
           <span className="significance-badge__figures">
-            {result.zScore !== undefined && <span>Z = {result.zScore >= 0 ? '+' : ''}{frequency.format(result.zScore)}</span>}
-            <span>p = {result.pValue < 0.001 ? '< 0.001' : frequency.format(result.pValue)}</span>
-            <span>Sen = {slopeFmt.format(result.sensSlope)} {unit}</span>
+            {result.zScore !== undefined && <span>Z = {result.zScore >= 0 ? '+' : ''}{formatNumber(result.zScore, 'sig2', locale)}</span>}
+            <span>p = {result.pValue < 0.001 ? '< 0.001' : formatNumber(result.pValue, 'sig2', locale)}</span>
+            <span>Sen = {formatNumber(result.sensSlope, 'signedMaxDec3', locale)} {unit}</span>
           </span>
         </span>
       )}

@@ -6,7 +6,7 @@ import { ArrowDownRight, ArrowUpRight, Minus } from 'lucide-react';
 import type { CaseVerdict } from '../../hooks/useOpposingCases';
 import type { TimeSeriesDataPoint } from '../../types/detective.types';
 import { verdictTone } from '../../utils/caseVerdict';
-import { formatTemplate, intlLocale, useI18n } from '../../i18n';
+import { formatNumber, formatProbability, formatTemplate, useI18n } from '../../i18n';
 
 const WIDTH = 132;
 const HEIGHT = 36;
@@ -42,8 +42,6 @@ interface OpposingCaseCellProps {
 
 export function OpposingCaseCell({ verdict, unit, placeLabel, onOpen }: OpposingCaseCellProps) {
   const { locale, t } = useI18n();
-  const perDecade = new Intl.NumberFormat(intlLocale(locale), { maximumSignificantDigits: 3, signDisplay: 'exceptZero' });
-  const probability = new Intl.NumberFormat(intlLocale(locale), { maximumSignificantDigits: 2 });
   const tone = verdictTone(verdict);
   if (verdict?.status !== 'ready') {
     return (
@@ -59,12 +57,12 @@ export function OpposingCaseCell({ verdict, unit, placeLabel, onOpen }: Opposing
   const reading = tone === 'up' ? t.modals.cellRising : tone === 'down' ? t.modals.cellFalling : t.modals.cellNoConclusive;
   // Display the strictest p-value available: the one that accounts for year-to-year persistence.
   const pValue = trend.prewhitened?.pValue ?? trend.pValue;
-  const p = pValue < 0.001 ? 'p < 0.001' : `p = ${probability.format(pValue)}`;
+  const p = formatProbability('p', pValue, locale);
   return (
     <td>
       <div className="case-cell" data-tone={tone}>
         <Sparkline series={trend.series} slope={trend.sensSlope} />
-        <p className="case-cell__slope"><strong>{perDecade.format(trend.sensSlope * 10)}</strong><span>{formatTemplate(t.modals.cellPerDecade, { unit })}</span></p>
+        <p className="case-cell__slope"><strong>{formatNumber(trend.sensSlope * 10, 'signedSig3', locale)}</strong><span>{formatTemplate(t.modals.cellPerDecade, { unit })}</span></p>
         <p className="case-cell__verdict"><Icon size={14} strokeWidth={1.8} aria-hidden="true" />{reading}<span>{p}</span></p>
         <button type="button" className="case-cell__open focus-ring" onClick={onOpen}
           aria-label={formatTemplate(t.modals.cellViewAria, { place: placeLabel })}>{t.modals.cellViewOnGlobe}</button>

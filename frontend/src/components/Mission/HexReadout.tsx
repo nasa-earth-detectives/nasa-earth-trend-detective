@@ -7,8 +7,8 @@ import {
   describeHexTrendLocalized,
   formatCoordinatesPair,
   formatHexValueLocalized,
+  formatNumber,
   formatTemplate,
-  intlLocale,
   provenanceLabelLocalized,
   readableHexUnitLocalized,
   useI18n,
@@ -36,7 +36,6 @@ function CellPicker({ data, cell, onSelectCell }: {
   const { locale, t } = useI18n();
   const [open, setOpen] = useState(false);
   const [requestedPage, setPage] = useState(0);
-  const number = new Intl.NumberFormat(intlLocale(locale), { maximumFractionDigits: 4 });
   const coordinates = (item: HexCell) => formatCoordinatesPair(item.latitude, item.longitude, 1, t.readouts.compass);
   const pageCount = Math.ceil(data.cells.length / PAGE_SIZE);
   const page = Math.min(requestedPage, Math.max(0, pageCount - 1));
@@ -67,8 +66,8 @@ function CellPicker({ data, cell, onSelectCell }: {
       <div className="hex-cell-picker__pagination">
         <button className="focus-ring" type="button" aria-label={t.readouts.pickerPrev}
           disabled={page === 0} onClick={() => setPage(page - 1)}>←</button>
-        <output aria-live="polite">{number.format(start + 1)}–{number.format(start + pageCells.length)}
-          <span> {t.readouts.pickerOf} {number.format(data.cells.length)}</span></output>
+        <output aria-live="polite">{formatNumber(start + 1, 'maxDec4', locale)}–{formatNumber(start + pageCells.length, 'maxDec4', locale)}
+          <span> {t.readouts.pickerOf} {formatNumber(data.cells.length, 'maxDec4', locale)}</span></output>
         <button className="focus-ring" type="button" aria-label={t.readouts.pickerNext}
           disabled={page >= pageCount - 1} onClick={() => setPage(page + 1)}>→</button>
       </div>
@@ -117,7 +116,7 @@ export function HexReadout({ data, provenance = null, loading, error, selectedCe
           </p>
           <HexCellVerdict cell={cell} />
         </> : <div className="hex-readout__count">
-          <strong>{loading || error ? '—' : count.toLocaleString(intlLocale(locale))}</strong>
+          <strong>{loading || error ? '—' : formatNumber(count, 'whole', locale)}</strong>
           <span>{loading ? t.readouts.preparingLayer : error ? t.readouts.layerUnavailable :
             count === 0 ? t.readouts.noCellsPeriod : data?.source === 'demo' ? t.readouts.sampleCells : t.readouts.analysisCells}</span>
         </div>}

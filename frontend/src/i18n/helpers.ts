@@ -4,21 +4,16 @@ import type { Teleconnection } from '../types/teleconnection.types';
 import type { SignificanceInput, SignificancePresentation } from '../utils/detectiveAnalysis';
 import type { RegionalBiomeInfo } from '../utils/regionalContext';
 import { getTranslations } from './dictionaries';
-import { formatTemplate, intlLocale, localizeUnit } from './format';
+import { formatNumber, formatTemplate, localizeUnit, type NumberFormatKind } from './format';
 import type { Locale } from './types';
-
-function numberFormat(locale: Locale, options: Intl.NumberFormatOptions): Intl.NumberFormat {
-  return new Intl.NumberFormat(intlLocale(locale), options);
-}
 
 export function formatHexValueLocalized(value: number, locale: Locale, signed = false): string {
   if (value === 0) return '0';
   const small = Math.abs(value) < 0.0001;
-  return numberFormat(locale, {
-    ...(small ? { notation: 'scientific' } : {}),
-    maximumSignificantDigits: 3,
-    ...(signed ? { signDisplay: 'exceptZero' } : {}),
-  }).format(value);
+  const kind: NumberFormatKind = small
+    ? (signed ? 'signedSciSig3' : 'sciSig3')
+    : (signed ? 'signedSig3' : 'sig3');
+  return formatNumber(value, kind, locale);
 }
 
 const DENOMINATOR_MAP: Record<string, Record<Locale, string>> = {
@@ -85,8 +80,7 @@ export function describeSignificanceLocalized(
   const t = getTranslations(locale);
   const s = t.significance;
   const subject = t.hexPresentation[variable];
-  const freq = numberFormat(locale, { maximumSignificantDigits: 2 });
-  const p = mk.pValue < 0.001 ? '< 0.001' : `= ${freq.format(mk.pValue)}`;
+  const p = mk.pValue < 0.001 ? '< 0.001' : `= ${formatNumber(mk.pValue, 'sig2', locale)}`;
 
   if (!mk.isSignificant) {
     const sign = mk.sensSlope > 0 ? s.signPositive : mk.sensSlope < 0 ? s.signNegative : s.signZero;
