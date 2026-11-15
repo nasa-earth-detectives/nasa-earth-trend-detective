@@ -6,6 +6,7 @@ import type { HexCell } from '../../types/hex.types';
 import { acquireEarthAnalysisRoot } from './earthAnalysisRoot';
 import { createHexColumnAnimation } from './hexColumnAnimation';
 import { createHexColumnDatasetUpdater } from './hexColumnDataset';
+import { requestSceneFrame } from './sceneFrames';
 import { createHexColumnState, HEX_COLUMN_CONFIG } from './hexColumnState';
 import type { HexColumnAppearance, HexColumnResources } from './hexColumnState';
 
@@ -52,6 +53,7 @@ export function createHexColumns(globe: GlobeInstance, onSelect: (cell: HexCell 
     state.selectedId = state.selectedIndex >= 0 ? id : null;
     if (previous >= 0 && previous !== state.selectedIndex) paint(previous);
     if (state.selectedIndex >= 0) paint(state.selectedIndex);
+    if (previous !== state.selectedIndex) requestSceneFrame(globe.scene());
     onSelect(state.selectedIndex >= 0 ? state.data!.cells[state.selectedIndex] : null);
   };
 
@@ -75,11 +77,13 @@ export function createHexColumns(globe: GlobeInstance, onSelect: (cell: HexCell 
     if (previous >= 0) paint(previous);
     if (next >= 0) paint(next);
     canvas.style.cursor = next >= 0 ? 'pointer' : originalCursor;
+    // The highlight is a colour change with no motion: a scene at rest needs to be told to show it.
+    requestSceneFrame(globe.scene());
   };
   const clearHover = () => {
     const previous = state.hoverIndex;
     state.hoverIndex = -1;
-    if (previous >= 0) paint(previous);
+    if (previous >= 0) { paint(previous); requestSceneFrame(globe.scene()); }
     canvas.style.cursor = originalCursor;
   };
   canvas.addEventListener('pointermove', onMove, { passive: true });

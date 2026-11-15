@@ -6,10 +6,11 @@ import type { GlobeInstance } from 'globe.gl';
 import type { ClimateObservation, ClimateVariable } from '../../types/climate.types';
 import { acquireEarthAnalysisRoot } from './earthAnalysisRoot';
 import { EARTH_HEAT_CONFIG, rasterizeEarthHeat } from './earthHeatRaster';
+import { requestSceneFrame } from './sceneFrames';
 import type { HeatWorkerResponse } from './earthHeatWorker';
 
 /** Value map, not density KDE: Globe.gl sums weights and applies abs to color. */
-export function createEarthHeatLayer(globe: GlobeInstance, onAsyncChange?: () => void) {
+export function createEarthHeatLayer(globe: GlobeInstance) {
   const root = acquireEarthAnalysisRoot(globe);
   const { width, height, transitionMs, opacity } = EARTH_HEAT_CONFIG;
   const createTexture = (pixels: Uint8Array): DataTexture => {
@@ -88,8 +89,8 @@ export function createEarthHeatLayer(globe: GlobeInstance, onAsyncChange?: () =>
     material.uniforms.progress.value = reducedMotion.matches ? 1 : 0;
     started = performance.now();
     dirty = false;
-    // The raster comes back from a worker: by then an idle scene may have stopped drawing.
-    onAsyncChange?.();
+    // The raster comes back from a worker, possibly with the scene at rest: draw the cross-fade.
+    requestSceneFrame(mesh, transitionMs);
   };
   const applyData = (): void => {
     if (!dirty || !pending || disposed || busy || !mesh.visible) return;

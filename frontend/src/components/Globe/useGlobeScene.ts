@@ -14,6 +14,7 @@ import { buildGlobeSceneApi } from './globeApiBuilder';
 import type { EarthSurfaceStatus } from './earthConfig';
 import { createFocusOffsetController, extendCameraFarPlane, resolveInitialAltitude } from './globeSetup';
 import { createFrameGovernor } from './frameGovernor';
+import { TRANSITION_MS } from './frameGovernorConfig';
 import { QUALITY_PROFILES, getRenderQuality, setRenderQuality, type RenderQuality } from './renderQuality';
 import type { GlobeLocation, GlobeSceneApi, ScenePreferences } from '../../types/globe.types';
 export type { GlobeLocation, GlobeSceneApi, ScenePreferences };
@@ -30,8 +31,9 @@ export function useGlobeScene(
   onSurfaceStatus?: (status: EarthSurfaceStatus) => void,
   quality: RenderQuality = 'full',
 ): void {
-  // The page only sends data when it changes, and a change of quality profile builds a new scene:
-  // without this memory the rebuilt globe would come up empty and back at the starting view.
+  // A change of quality profile builds a new scene (multisampling is decided when the WebGL context is
+  // created), and the page only sends data when it changes: without this memory the rebuilt globe
+  // would come up empty and back at the starting view.
   const memoryRef = useRef<SceneMemory>({ calls: new Map(), pov: null });
   useEffect(() => {
     const container = containerRef.current;
@@ -41,8 +43,6 @@ export function useGlobeScene(
     const memory = memoryRef.current;
     let locationSelectHandler: ((location: GlobeLocation) => void) | null = null;
     const profile = QUALITY_PROFILES[quality];
-    // Assigned once the governor exists: a texture that arrives late must be drawn even if the scene is idle.
-    let wakeScene = (): void => {};
     const globe: GlobeInstance = new Globe(container, {
       rendererConfig: { antialias: profile.antialias, alpha: false, powerPreference: 'high-performance' },
     });
@@ -55,16 +55,14 @@ export function useGlobeScene(
       .width(container.clientWidth)
       .height(container.clientHeight);
 
-    const surface = createEarthSurface(globe, container, status => { wakeScene(); onSurfaceStatus?.(status); },
-      { surfaceDetail: profile.surfaceDetail, clouds: profile.clouds, onTexture: () => wakeScene() });
+    const surface = createEarthSurface(globe, container, onSurfaceStatus, { detailUpgrade: profile.detailUpgrade });
     surface.setAtmosphereVisible(initialPreferences?.atmosphereVisible ?? true);
     extendCameraFarPlane(globe);
-    const detailTiles = profile.detailTiles ? createEarthDetailTiles(globe, container, surface) : { dispose(): void {} };
+    const detailTiles = createEarthDetailTiles(globe, container, surface);
 
     const renderer = globe.renderer();
-    const analysis = createEarthObservationLayers(globe, location => locationSelectHandler?.(location), () => wakeScene());
-    const liveSystem = createEarthLiveSystem(globe, surface.sunDirection,
-      { celestial: profile.celestial, satellites: profile.satellites });
+    const analysis = createEarthObservationLayers(globe, location => locationSelectHandler?.(location));
+    const liveSystem = createEarthLiveSystem(globe, surface.sunDirection);
     const userLocation = createEarthUserLocation(globe.scene());
     const disposeSelection = createSurfaceSelection(globe, location => {
       analysis.select(null);
@@ -82,14 +80,21 @@ export function useGlobeScene(
     controls.maxDistance = GLOBE_CONFIG.maxDistance;
     controls.autoRotateSpeed = GLOBE_CONFIG.autoRotateSpeed;
 
-    const governor = createFrameGovernor(globe, renderer, container, {
-      basePixelRatio: () => Math.min(window.devicePixelRatio, GLOBE_CONFIG.maxPixelRatio, profile.maxPixelRatio),
-      manage: profile.frameGovernor,
+    const governor = createFrameGovernor(globe, renderer, {
+      devicePixelRatio: () => Math.min(window.devicePixelRatio, GLOBE_CONFIG.maxPixelRatio),
+      manage: profile.adaptiveFrames,
+      liveWhenFast: profile.liveWhenFast,
+      restSupersampling: profile.restSupersampling,
       isAnimating: () => controls.autoRotate,
-      // A machine judged capable that cannot keep up: rebuild the scene in the lite profile.
-      onTooSlow: () => { if (getRenderQuality().reason !== 'manual') setRenderQuality('lite', 'slow-frames'); },
+      // The controls damp a fixed fraction per frame, so at 17 frames per second the glide after a drag
+      // lasted over three times longer than designed. Scaled to the measured rate it lasts the same.
+      onMotionRate: framesPerSecond => {
+        const framesPerDesignFrame = Math.min(6, Math.max(1, 60 / framesPerSecond));
+        controls.dampingFactor = 1 - (1 - GLOBE_CONFIG.dampingFactor) ** framesPerDesignFrame;
+      },
+      // A machine that cannot keep up in this profile: rebuild the scene in the lean one.
+      onTooSlow: () => { if (getRenderQuality().reason !== 'manual') setRenderQuality('lean', 'slow-frames'); },
     });
-    wakeScene = governor.wake;
 
     const moveToInitialPov = (transitionMs: number): void => {
       globe.pointOfView({
@@ -100,7 +105,7 @@ export function useGlobeScene(
     moveToInitialPov(0);
     if (memory.pov) globe.pointOfView(memory.pov, 0);
 
-    const starLayers: Object3D[] = createStarField(globe.scene(), renderer, profile.celestial);
+    const starLayers: Object3D[] = createStarField(globe.scene(), renderer);
     const focusOffset = createFocusOffsetController(globe, container);
     if (initialPreferences && !initialPreferences.starsVisible) {
       starLayers.forEach((layer) => { layer.visible = false; });
@@ -140,8 +145,7 @@ export function useGlobeScene(
       const { clientWidth, clientHeight } = container;
       if (clientWidth === 0 || clientHeight === 0) return;
       globe.width(clientWidth).height(clientHeight);
-      governor.applyPixelRatio();
-      governor.wake();
+      governor.resized();
       if (!cameraOwnedByUser) moveToInitialPov(0);
       focusOffset.reapply();
     });
@@ -157,13 +161,14 @@ export function useGlobeScene(
         getLocationSelectHandler: () => locationSelectHandler,
         setLocationSelectHandler: (handler) => { locationSelectHandler = handler; },
       });
-      // Every call into the scene (new data, a camera move, a toggle) changes what is on screen: wake it first.
+      // Every call into the scene (new data, a camera flight, a toggle) changes what is on screen, usually
+      // with a transition: keep drawing while it lasts. Registering a handler changes nothing visible.
       apiRef.current = new Proxy(sceneApi, {
         get(target, key, receiver) {
           const value: unknown = Reflect.get(target, key, receiver);
           if (typeof value !== 'function') return value;
           return (...args: unknown[]): unknown => {
-            governor.wake();
+            if (typeof key === 'string' && !key.endsWith('Handler')) governor.move(TRANSITION_MS);
             if (typeof key === 'string' && REMEMBERED_CALL.test(key)) { memory.calls.delete(key); memory.calls.set(key, args); }
             return (value as SceneCall).apply(target, args);
           };
@@ -193,6 +198,8 @@ export function useGlobeScene(
       controls.removeEventListener('start', handleInteractionStart);
       controls.removeEventListener('end', handleInteractionEnd);
       disposeStarField(globe.scene(), starLayers);
+      // Safe under React StrictMode: this globe was created by this same run of the effect, so the
+      // second mount in development builds its own and never touches one that is still in use.
       globe._destructor();
       while (container.firstChild) container.removeChild(container.firstChild);
     };

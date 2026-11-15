@@ -6,6 +6,7 @@
  * above the surface, appearing only when the camera zooms in.
  */
 import SlippyMapGlobe from 'three-slippy-map-globe';
+import { requestSceneFrame } from './sceneFrames';
 import {
   ImageBitmapLoader, Mesh, MeshLambertMaterial, NearestFilter, NoColorSpace, Texture,
   type Camera, type Object3D, type Scene, type WebGLRenderer,
@@ -76,6 +77,8 @@ export function createEarthTileLayer(scene: Scene, options: EarthTileLayerOption
     const [level, row, column] = [Number(match[1]), Number(match[2]), Number(match[3])];
 
     tile.raycast = () => {};
+    // Tiles keep arriving after the camera stops: a scene that draws on demand has to show each one.
+    requestSceneFrame(layer);
     // Higher zoom levels above lower ones preserved underneath by the library.
     tile.renderOrder = options.renderOrder + level * 0.001;
     material.map.anisotropy = anisotropy;
@@ -109,6 +112,7 @@ export function createEarthTileLayer(scene: Scene, options: EarthTileLayerOption
       terrain.value = texture;
       terrainReady.value = 1;
       terrainByTile.set(tile, texture);
+      requestSceneFrame(layer);
     }, undefined, () => { /* Without relief: tile still renders, just without hillshading. */ });
   };
 

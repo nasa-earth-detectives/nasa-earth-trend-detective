@@ -4,6 +4,7 @@ import {
 } from 'three';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 import { createSatelliteGltfLoader } from './satelliteGltf';
+import { requestSceneFrame } from './sceneFrames';
 
 /**
  * Generic Earth observation satellite: MLI gold foil body, radiator,
@@ -104,6 +105,7 @@ export function createSatelliteKit(renderer: WebGLRenderer) {
       if (!real) return;
       holder.remove(procedural);
       holder.add(real);
+      requestSceneFrame(holder);
     });
     return holder;
   };
