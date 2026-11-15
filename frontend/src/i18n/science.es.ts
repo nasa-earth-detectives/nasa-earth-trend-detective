@@ -157,6 +157,7 @@ export const scienceEs: ScienceTranslations = {
     sahara: { label: 'Sahara', description: 'El desierto cálido más grande del planeta' },
     greenland: { label: 'Groenlandia', description: 'Mayor reserva de hielo del hemisferio norte' },
     southasia: { label: 'Asia del Sur', description: 'Una de las regiones agrícolas más pobladas del mundo' },
+    neiva: { label: 'Neiva, Huila', description: 'Ciudad del alto Magdalena, Colombia · donde se hizo este proyecto' },
     custom: { label: 'Elegir en el globo', description: 'Haz clic en cualquier punto de la Tierra para seleccionarlo' },
   },
   periods: {

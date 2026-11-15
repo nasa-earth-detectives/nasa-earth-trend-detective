@@ -13,6 +13,8 @@ import { formatCoordinate } from '../../utils/detectiveAnalysis';
 import { TrendSignificanceBadge } from './TrendSignificanceBadge';
 import { TimeSeriesChart } from './TimeSeriesChart';
 import { TrendMethods } from './TrendMethods';
+import { TrendProjection } from './TrendProjection';
+import { trendOutlook } from '../../utils/trendProjection';
 import { DetectiveExportActions } from './DetectiveExportActions';
 import { getObservationValue, OBSERVATION_SCALES } from '../../utils/colorScales';
 import {
@@ -60,7 +62,7 @@ export function DetectiveCard({ open, location, variable, year, provenance = nul
   const unit = localizeUnit(provenance?.trendUnit ?? `${OBSERVATION_SCALES[variable].unit} / year`, locale);
   const biomeInfo = location && !wholeRegion ? getRegionalBiomeLocalized(location.lat, location.lng, locale) : null;
   const region = location ? WIZARD_REGIONS.find(item => item.id === location.regionId) ?? regionContaining(location.lat, location.lng) : null;
-  const regionName = region ? t.regions[region.id]?.label ?? region.label : null;
+  const regionName = location?.placeName ?? (region ? t.regions[region.id]?.label ?? region.label : null);
   const compass = t.readouts.compass;
   const variableName = t.variables[variable]?.name ?? metadata?.name ?? variable;
   const scaleCopy = t.scales[variable];
@@ -80,6 +82,7 @@ export function DetectiveCard({ open, location, variable, year, provenance = nul
     // Without the backend series, do not fabricate a regional one: only the received annual value.
     return trend.data?.series ?? (observation && !wholeRegion ? [{ year, value: getObservationValue(observation) }] : []);
   }, [analysable, wholeRegion, observation, year, loading, trend.data]);
+  const outlook = useMemo(() => (trend.data ? trendOutlook(trend.data.series, trend.data.sensSlope) : null), [trend.data]);
   const seriesYears = trend.data?.series.length
     ? `${trend.data.series[0].year}—${trend.data.series[trend.data.series.length - 1].year}` : String(year);
 
@@ -144,7 +147,11 @@ export function DetectiveCard({ open, location, variable, year, provenance = nul
       {loading ? <p className="inspection-chart__empty">{t.inspection.queryingSelectedYear}</p> :
         <TimeSeriesChart data={seriesData} unit={scaleCopy.unit}
           selectedYear={year} onYearSelect={onYearChange}
-          senSlope={!analysable || !trend.data ? undefined : trend.data.sensSlope} />}
+          senSlope={!analysable || !trend.data ? undefined : trend.data.sensSlope}
+          projection={analysable ? outlook?.path : undefined} />}
+      {!loading && analysable && trend.data && outlook && (
+        <TrendProjection projection={outlook.listed} unit={scaleCopy.unit} significant={trend.data.isSignificant} />
+      )}
 
       <DetectiveExportActions
         seriesData={seriesData}

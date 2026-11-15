@@ -157,6 +157,7 @@ export const scienceEn: ScienceTranslations = {
     sahara: { label: 'Sahara', description: 'The largest hot desert on Earth' },
     greenland: { label: 'Greenland', description: 'Largest ice reservoir in the Northern Hemisphere' },
     southasia: { label: 'South Asia', description: 'One of the world’s most populated agricultural regions' },
+    neiva: { label: 'Neiva, Huila', description: 'City on the upper Magdalena, Colombia · where this project was built' },
     custom: { label: 'Pick on the globe', description: 'Click any point on the globe to select it' },
   },
   periods: {
