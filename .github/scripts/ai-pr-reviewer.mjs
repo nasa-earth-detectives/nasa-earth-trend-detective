@@ -4,7 +4,7 @@
  * Compatible con Node 18+ (fetch nativo, ESM). Cero dependencias externas pesadas.
  */
 
-import { execSync } from 'node:child_process';
+import { execFileSync } from 'node:child_process';
 import { auditCodeStatic, buildReviewerSystemPrompt } from './pr-audit-rules.mjs';
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY || '';
@@ -13,13 +13,14 @@ const PR_NUMBER = process.env.PR_NUMBER || '';
 const REPO = process.env.REPO || '';
 const BASE_REF = process.env.BASE_REF || 'development';
 const IS_DRY_RUN = process.argv.includes('--dry-run');
+const COMMENT_MARKER = '<!-- nasa-pr-reviewer -->';
 
 function getGitDiff(baseBranch) {
   try {
-    return execSync(`git diff origin/${baseBranch}...HEAD`, { encoding: 'utf-8', maxBuffer: 10 * 1024 * 1024 });
+    return execFileSync('git', ['diff', `origin/${baseBranch}...HEAD`], { encoding: 'utf-8', maxBuffer: 10 * 1024 * 1024 });
   } catch {
     try {
-      return execSync('git diff HEAD~1', { encoding: 'utf-8', maxBuffer: 10 * 1024 * 1024 });
+      return execFileSync('git', ['diff', 'HEAD~1'], { encoding: 'utf-8', maxBuffer: 10 * 1024 * 1024 });
     } catch {
       return '';
     }
@@ -28,7 +29,7 @@ function getGitDiff(baseBranch) {
 
 function getChangedFiles(baseBranch) {
   try {
-    const output = execSync(`git diff --name-only origin/${baseBranch}...HEAD`, { encoding: 'utf-8' });
+    const output = execFileSync('git', ['diff', '--name-only', `origin/${baseBranch}...HEAD`], { encoding: 'utf-8' });
     return output.split('\n').map(s => s.trim()).filter(Boolean);
   } catch {
     return [];
@@ -87,25 +88,46 @@ function generateStaticReport(changedFiles, issues) {
   return md;
 }
 
-async function postCommentToPr(commentBody) {
+async function upsertCommentToPr(commentBody) {
   if (!GITHUB_TOKEN || !REPO || !PR_NUMBER) {
     console.log('ℹ️ Omitiendo publicación en GitHub (Faltan variables GITHUB_TOKEN, REPO o PR_NUMBER).');
     return;
   }
 
-  const url = `https://api.github.com/repos/${REPO}/issues/${PR_NUMBER}/comments`;
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${GITHUB_TOKEN}`,
-      Accept: 'application/vnd.github+json',
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({ body: commentBody })
+  const headers = {
+    Authorization: `Bearer ${GITHUB_TOKEN}`,
+    Accept: 'application/vnd.github+json',
+    'Content-Type': 'application/json'
+  };
+
+  let existingId = null;
+  try {
+    const listUrl = `https://api.github.com/repos/${REPO}/issues/${PR_NUMBER}/comments?per_page=100`;
+    const listRes = await fetch(listUrl, { headers });
+    if (listRes.ok) {
+      const comments = await listRes.json();
+      const match = comments.find(
+        c => typeof c.body === 'string' && (c.body.includes(COMMENT_MARKER) || c.body.startsWith('## 🤖 NASA PR Reviewer'))
+      );
+      if (match) existingId = match.id;
+    }
+  } catch {
+    // Si falla la consulta, se crea un comentario nuevo.
+  }
+
+  const targetUrl = existingId
+    ? `https://api.github.com/repos/${REPO}/issues/comments/${existingId}`
+    : `https://api.github.com/repos/${REPO}/issues/${PR_NUMBER}/comments`;
+  const method = existingId ? 'PATCH' : 'POST';
+
+  const res = await fetch(targetUrl, {
+    method,
+    headers,
+    body: JSON.stringify({ body: `${COMMENT_MARKER}\n${commentBody}` })
   });
 
   if (res.ok) {
-    console.log(`✅ Comentario publicado con éxito en el PR #${PR_NUMBER}`);
+    console.log(`✅ Comentario ${existingId ? 'actualizado' : 'publicado'} con éxito en el PR #${PR_NUMBER}`);
   } else {
     console.error(`❌ Error al publicar comentario en PR:`, await res.text());
   }
@@ -119,7 +141,7 @@ async function main() {
   const staticIssues = [];
   for (const file of files) {
     try {
-      const content = execSync(`git show HEAD:${file}`, { encoding: 'utf-8' });
+      const content = execFileSync('git', ['show', `HEAD:${file}`], { encoding: 'utf-8' });
       staticIssues.push(...auditCodeStatic(file, content));
     } catch {
       // Archivo eliminado o inaccesible
@@ -148,7 +170,7 @@ async function main() {
   }
 
   if (!IS_DRY_RUN && GITHUB_TOKEN && PR_NUMBER) {
-    await postCommentToPr(finalReport);
+    await upsertCommentToPr(finalReport);
   }
 }
 
