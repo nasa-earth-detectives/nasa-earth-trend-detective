@@ -27,6 +27,6 @@ public class TrendResultDto
     public PrewhitenedTrendVerdict Prewhitened { get; set; } = PrewhitenedTrendVerdict.Inconclusive;
     public IReadOnlyList<AnnualObservation>? Observations { get; set; }
 
-    /// <summary>"observed" (DuckDB) or "synthetic" (demonstration series: the variable has no loaded dataset).</summary>
-    public string Source { get; set; } = DatasetStatusDto.Synthetic;
+    /// <summary>"observed" (DuckDB) or "unavailable" (no loaded dataset: the series comes back empty).</summary>
+    public string Source { get; set; } = DatasetStatusDto.Unavailable;
 }

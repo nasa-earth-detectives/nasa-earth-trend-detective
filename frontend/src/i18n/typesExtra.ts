@@ -27,7 +27,9 @@ export interface ReadoutAndWizardTranslations {
     baselineFallback: string;
     methodHeat: string;
     methodHex: string;
-    simulatedFooter: string;
+    dataConnecting: string;
+    dataLoading: string;
+    dataFailed: string;
     apiFallbackFooter: string;
     officialSource: string;
     interimSource: string;
@@ -48,7 +50,6 @@ export interface ReadoutAndWizardTranslations {
     preparingLayer: string;
     layerUnavailable: string;
     noCellsPeriod: string;
-    sampleCells: string;
     analysisCells: string;
     rateOfChange: string;
     decrease: string;
@@ -90,8 +91,7 @@ export interface ReadoutAndWizardTranslations {
     variableGroupAria: string;
     realNasaData: string;
     checkingData: string;
-    demoOnlyGroup: string;
-    demoTag: string;
+    notLoadedGroup: string;
     noDataTag: string;
     unitLabel: string;
     guidingQuestion: string;
@@ -122,12 +122,10 @@ export interface ReadoutAndWizardTranslations {
     referenceProduct: string;
     queryingObservations: string;
     noNearbySample: string;
-    simulatedSeries: string;
     observedSeries: string;
     availableObservation: string;
     queryingSelectedYear: string;
     noSamplesWithinRadius: string;
-    syntheticFooter: string;
     noSampleForLocation: string;
     gistempScaleNote: string;
     mannKendallLabel: string;

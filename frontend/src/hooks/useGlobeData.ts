@@ -13,7 +13,7 @@ const EMPTY_OBSERVATIONS: ClimateObservation[] = [];
 export function useGlobeData(filter: TrendFilterParams) {
   const key = `${filter.variable}:${filter.endYear}`;
   const [state, setState] = useState<ObservationState>({ key, data: EMPTY_OBSERVATIONS, loading: true, error: null,
-    source: 'demo', provenance: null });
+    source: 'api', provenance: null });
 
   useEffect(() => {
     const controller = new AbortController();

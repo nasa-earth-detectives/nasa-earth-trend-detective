@@ -1,0 +1,8 @@
+# Render builds with ./backend as context from a clean checkout; this keeps a local build equally small
+# (compiled output and the development database add up to more than 1 GB) and makes sure the image
+# never picks up a database from a developer machine: the one it ships is built in the seed stage.
+**/bin/
+**/obj/
+**/TestResults/
+**/*.duckdb
+**/*.duckdb.*

@@ -1,7 +1,6 @@
 import type { ClimateObservation, ClimateVariable } from '../types/climate.types';
 import type { DatasetProvenance, DataSource } from '../types/dataset.types';
-import { createDemoObservations } from './demo/observationDemoData';
-import { readDataSourceMode, resolveVariableSource } from './datasetCatalog';
+import { resolveVariableSource } from './datasetCatalog';
 import { trendService } from './trendService';
 
 export type ObservationSource = DataSource;
@@ -91,18 +90,11 @@ export async function getObservationDataset(variable: ClimateVariable, year: num
   if (!Object.hasOwn(API_VARIABLE_IDS, variable) || !Number.isInteger(year) || year < 1 || year > 9999) {
     throw new Error('Observation variable or year is invalid.');
   }
-  const mode = readDataSourceMode(import.meta.env.VITE_OBSERVATION_DATA_SOURCE, 'VITE_OBSERVATION_DATA_SOURCE');
-  const resolved = await withAbort(resolveVariableSource(mode, variable), signal);
-  const demo = async (): Promise<ObservationDataset> => ({ observations: await withAbort(
-    Promise.resolve().then(() => createDemoObservations(variable, year)), signal), source: 'demo', provenance: null });
-  if (resolved.source === 'demo') return demo();
-  try {
+  // Waits for the API to have this variable (cold start, datasets still loading). No simulated fallback:
+  // if the request fails, the error reaches the readout and nothing is drawn in its place.
+  // The request only goes out once the API has the dataset: asking earlier would return an empty year.
+  return withAbort(resolveVariableSource(variable, signal), signal).then(async ({ provenance }) => {
     const payload: unknown = await trendService.getObservations(variable, year, signal);
-    return { observations: adaptApiObservations(payload, variable, year), source: 'api', provenance: resolved.provenance };
-  } catch (error) {
-    // In auto mode, a temporary API outage falls back to demo, labeled as such; in api mode the error is thrown.
-    if (mode !== 'auto' || (error instanceof DOMException && error.name === 'AbortError')) throw error;
-    console.warn(`Observations for ${variable} ${year} not available from API; falling back to demo.`, error);
-    return demo();
-  }
+    return { observations: adaptApiObservations(payload, variable, year), source: 'api' as const, provenance };
+  });
 }

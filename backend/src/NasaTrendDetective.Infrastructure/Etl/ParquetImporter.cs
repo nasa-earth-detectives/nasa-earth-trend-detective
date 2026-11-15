@@ -33,6 +33,16 @@ public sealed class ParquetImporter : IParquetImporter
         var glob = ResolveGlob(string.IsNullOrWhiteSpace(sourceGlob) ? _options.SourceGlob : sourceGlob);
         var result = await _repository.ExecuteParquetIngestAsync(glob, cancellationToken).ConfigureAwait(false);
 
+        // The annual rows are derived from the facts: whatever adds facts rebuilds them, or grids would
+        // be computed from the previous state of the variable.
+        var variables = await _repository.QueryAsync(
+                DatasetSeedSql.DistinctVariables(glob), record => record.GetInt32(0), null, cancellationToken)
+            .ConfigureAwait(false);
+        foreach (var variable in variables)
+        {
+            await AnnualCellTable.RefreshAsync(_repository, variable, cancellationToken).ConfigureAwait(false);
+        }
+
         _logger.LogInformation(
             "Parquet import '{Glob}': {Files} file(s), {SourceRows} rows read, {Imported} new facts.",
             result.SourceGlob,

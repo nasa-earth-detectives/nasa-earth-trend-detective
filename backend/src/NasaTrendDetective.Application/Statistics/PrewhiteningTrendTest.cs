@@ -19,6 +19,9 @@ namespace NasaTrendDetective.Application.Statistics;
 /// lowered false positives to 3-9%, but on real 21-to-26-year series the iteration hit the r1 cap
 /// and erased clear signals (northern India groundwater depletion in GRACE jumped from p = 7e-8 to
 /// p = 0.89).
+///
+/// The loop works on plain arrays with reused buffers and takes each median with quickselect: the
+/// first version (LINQ plus a full sort per iteration) was 70 % of the trend-grid statistics.
 /// </summary>
 public static class PrewhiteningTrendTest
 {
@@ -42,43 +45,73 @@ public static class PrewhiteningTrendTest
         ArgumentNullException.ThrowIfNull(years);
 
         var count = values.Count;
-        // Only consecutive year pairs count. Across a gap (e.g., 2017-2018 between GRACE and GRACE-FO),
-        // the preceding point is not "last year" and there is no one-step carryover to subtract.
-        var pairs = Enumerable.Range(0, Math.Max(count - 1, 0)).Where(i => years[i + 1] - years[i] == 1).ToArray();
-        if (count != years.Count || count < MinYears || pairs.Length < MinConsecutivePairs)
+        if (count != years.Count || count < MinYears)
         {
             return PrewhitenedTrendVerdict.Inconclusive;
         }
 
-        var lag1 = Lag1(values, pairs, out var spread);
+        var series = values as double[] ?? [.. values];
+        var time = years as int[] ?? [.. years];
+
+        // Only consecutive year pairs count. Across a gap (e.g., 2017-2018 between GRACE and GRACE-FO),
+        // the preceding point is not "last year" and there is no one-step carryover to subtract.
+        var pairs = new int[count - 1];
+        var pairCount = 0;
+        for (var i = 0; i < count - 1; i++)
+        {
+            if (time[i + 1] - time[i] == 1)
+            {
+                pairs[pairCount++] = i;
+            }
+        }
+
+        if (pairCount < MinConsecutivePairs)
+        {
+            return PrewhitenedTrendVerdict.Inconclusive;
+        }
+
+        var lag1 = Lag1(series, pairs, pairCount, out var spread);
         if (lag1 < NegligibleAutocorrelation)
         {
-            return Verdict(values, lag1);
+            return Verdict(series, lag1);
         }
 
         lag1 = Math.Min(lag1, MaxAutocorrelation);
-        var times = pairs.Select(i => years[i + 1]).ToArray();
-        var whitened = Whiten(values, pairs, lag1);
-        var slope = MedianSlope(whitened, times);
+        var whitenedTimes = new int[pairCount];
+        for (var p = 0; p < pairCount; p++)
+        {
+            whitenedTimes[p] = time[pairs[p] + 1];
+        }
+
+        var whitened = new double[pairCount];
+        var detrended = new double[count];
+        var slopes = new double[pairCount * (pairCount - 1) / 2];
+
+        Whiten(series, pairs, pairCount, lag1, whitened);
+        var slope = OrderStatistics.MedianPairwiseSlope(whitened, whitenedTimes, pairCount, slopes);
 
         for (var iteration = 0; iteration < MaxIterations; iteration++)
         {
             // Estimate r1 on the DETRENDED series; otherwise the trend itself inflates it.
-            var detrended = values.Select((value, i) => value - slope * years[i]).ToArray();
-            var residual = Lag1(detrended, pairs, out var residualSpread);
+            for (var i = 0; i < count; i++)
+            {
+                detrended[i] = series[i] - slope * time[i];
+            }
+
+            var residual = Lag1(detrended, pairs, pairCount, out var residualSpread);
             if (residualSpread <= NoiseFloor * spread)
             {
-                return Verdict(values, 0.0); // exact line: after detrending, nothing remains to measure
+                return Verdict(series, 0.0); // exact line: after detrending, nothing remains to measure
             }
 
             var next = Math.Min(residual, MaxAutocorrelation);
             if (next < NegligibleAutocorrelation)
             {
-                return Verdict(values, next);
+                return Verdict(series, next);
             }
 
-            whitened = Whiten(values, pairs, next);
-            var nextSlope = MedianSlope(whitened, times);
+            Whiten(series, pairs, pairCount, next, whitened);
+            var nextSlope = OrderStatistics.MedianPairwiseSlope(whitened, whitenedTimes, pairCount, slopes);
             var converged = Math.Abs(next - lag1) <= Tolerance
                 && Math.Abs(nextSlope - slope) <= Tolerance * Math.Max(Math.Abs(slope), 1e-12);
             (lag1, slope) = (next, nextSlope);
@@ -91,10 +124,10 @@ public static class PrewhiteningTrendTest
         return Verdict(whitened, lag1);
     }
 
-    private static PrewhitenedTrendVerdict Verdict(IReadOnlyList<double> series, double lag1)
+    private static PrewhitenedTrendVerdict Verdict(double[] series, double lag1)
     {
         var mannKendall = MannKendallCalculator.Calculate(series);
-        return new PrewhitenedTrendVerdict(lag1, series.Count, mannKendall.ZScore, mannKendall.PValue,
+        return new PrewhitenedTrendVerdict(lag1, series.Length, mannKendall.ZScore, mannKendall.PValue,
             Math.Abs(mannKendall.ZScore) > MannKendallCalculator.ZCritical95);
     }
 
@@ -102,37 +135,43 @@ public static class PrewhiteningTrendTest
     /// One-step autocorrelation using the overall series mean. The (n - 1) / pairs factor equals 1
     /// when there are no gaps (standard estimator) and compensates for missing cross-products across gaps.
     /// </summary>
-    private static double Lag1(IReadOnlyList<double> series, int[] pairs, out double sumOfSquares)
+    private static double Lag1(double[] series, int[] pairs, int pairCount, out double sumOfSquares)
     {
-        var mean = series.Average();
-        sumOfSquares = series.Sum(value => (value - mean) * (value - mean));
+        var total = 0.0;
+        for (var i = 0; i < series.Length; i++)
+        {
+            total += series[i];
+        }
+
+        var mean = total / series.Length;
+        sumOfSquares = 0.0;
+        for (var i = 0; i < series.Length; i++)
+        {
+            sumOfSquares += (series[i] - mean) * (series[i] - mean);
+        }
+
         if (sumOfSquares <= 0.0)
         {
             return 0.0; // constant series: no persistence to measure
         }
 
-        var crossProducts = pairs.Sum(i => (series[i] - mean) * (series[i + 1] - mean));
-        return crossProducts / sumOfSquares * (series.Count - 1) / pairs.Length;
+        var crossProducts = 0.0;
+        for (var p = 0; p < pairCount; p++)
+        {
+            var i = pairs[p];
+            crossProducts += (series[i] - mean) * (series[i + 1] - mean);
+        }
+
+        return crossProducts / sumOfSquares * (series.Length - 1) / pairCount;
     }
 
     /// <summary>Dividing by (1 - r1) preserves the original slope; without it, prewhitening shrinks it.</summary>
-    private static double[] Whiten(IReadOnlyList<double> values, int[] pairs, double lag1) =>
-        pairs.Select(i => (values[i + 1] - lag1 * values[i]) / (1.0 - lag1)).ToArray();
-
-    /// <summary>Unrounded Sen's slope: the loop needs more than the 6 decimals exposed by the API.</summary>
-    private static double MedianSlope(double[] series, int[] times)
+    private static void Whiten(double[] series, int[] pairs, int pairCount, double lag1, double[] whitened)
     {
-        var slopes = new List<double>(series.Length * (series.Length - 1) / 2);
-        for (var k = 0; k < series.Length - 1; k++)
+        for (var p = 0; p < pairCount; p++)
         {
-            for (var j = k + 1; j < series.Length; j++)
-            {
-                slopes.Add((series[j] - series[k]) / (times[j] - times[k]));
-            }
+            var i = pairs[p];
+            whitened[p] = (series[i + 1] - lag1 * series[i]) / (1.0 - lag1);
         }
-
-        slopes.Sort();
-        var middle = slopes.Count / 2;
-        return slopes.Count % 2 == 1 ? slopes[middle] : (slopes[middle - 1] + slopes[middle]) / 2.0;
     }
 }

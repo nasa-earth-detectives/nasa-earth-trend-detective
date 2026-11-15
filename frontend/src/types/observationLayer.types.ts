@@ -1,7 +1,7 @@
 /** Alternative visual representations of the same annual observation dataset. */
 export type ObservationLayerMode = 'hex' | 'heat' | 'none';
 export type ObservationCoverage = 'land' | 'global';
-export type ObservationSource = 'demo' | 'api';
+export type ObservationSource = 'api';
 
 /**
  * Inquiry answered by the globe.

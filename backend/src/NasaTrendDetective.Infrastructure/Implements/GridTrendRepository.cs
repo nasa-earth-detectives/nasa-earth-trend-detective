@@ -7,12 +7,28 @@ using NasaTrendDetective.Infrastructure.Interfaces;
 namespace NasaTrendDetective.Infrastructure.Implements;
 
 /// <summary>
-/// Annual series for all cells of a variable in a single query: DuckDB aggregates months
-/// to years, and .NET groups rows already ordered by cell (single pass, without dictionaries).
+/// Annual series for all cells of a variable in a single query, read from fact_annual_cell (months
+/// already reduced to years when the dataset was loaded, see Etl/AnnualCellTable.cs). .NET groups the
+/// rows, which arrive ordered by cell, in a single pass without dictionaries.
+/// A variable with no annual rows (facts written without going through the importer) falls back to
+/// reducing its facts on the fly, as every request did before.
 /// </summary>
 public sealed class GridTrendRepository : IGridTrendRepository
 {
     private const string Sql = """
+        SELECT
+            CAST(latitude AS DOUBLE) AS lat,
+            CAST(longitude AS DOUBLE) AS lng,
+            CAST(year AS INTEGER) AS obs_year,
+            average_value AS avg_val,
+            average_anomaly AS avg_anom
+        FROM fact_annual_cell
+        WHERE variable_id = $varId AND year BETWEEN $startYear AND $endYear
+          AND month_count >= $minMonths
+        ORDER BY latitude, longitude, year
+        """;
+
+    private const string FromFactsSql = """
         SELECT
             CAST(latitude AS DOUBLE) AS lat,
             CAST(longitude AS DOUBLE) AS lng,
@@ -49,12 +65,21 @@ public sealed class GridTrendRepository : IGridTrendRepository
             ["minMonths"] = minMonthsPerYear
         };
 
+        var cells = await ReadAsync(Sql, parameters, cancellationToken).ConfigureAwait(false);
+        return cells.Count > 0
+            ? cells
+            : await ReadAsync(FromFactsSql, parameters, cancellationToken).ConfigureAwait(false);
+    }
+
+    private async Task<List<CellAnnualSeries>> ReadAsync(
+        string sql, Dictionary<string, object?> parameters, CancellationToken cancellationToken)
+    {
         var cells = new List<CellAnnualSeries>();
         List<AnnualObservation>? years = null;
         double currentLat = 0;
         double currentLng = 0;
 
-        await _repository.StreamQueryAsync(Sql, record =>
+        await _repository.StreamQueryAsync(sql, record =>
         {
             var latitude = record.GetDouble(0);
             var longitude = record.GetDouble(1);

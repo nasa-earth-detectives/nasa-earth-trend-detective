@@ -36,7 +36,7 @@ public sealed class DuckDbSchemaInitializerTests : IDisposable
             record => record.GetString(0));
 
         Assert.Equal(
-            ["dataset_provenance", "dim_location", "dim_time", "dim_variable", "fact_climate_observations"],
+            ["dataset_provenance", "dim_location", "dim_time", "dim_variable", "fact_annual_cell", "fact_climate_observations"],
             tables);
     }
 

@@ -71,6 +71,7 @@ Bienvenido a la bóveda central de documentación y diseño de ingeniería de nu
 - [[39-Formulas-y-Supuestos-para-QA-Fisico]]: para la revisión de física: fórmulas añadidas o cambiadas, cómo se comprobaron, autocorrelación lag-1 medida y puntos abiertos.
 - [[40-GRACE-OCO2-Reales-y-Correcciones-de-Significancia]]: GRACE y CO₂ con datos reales (9 de 9 variables), Mann-Kendall con preblanqueo iterativo elegido por simulación, control de falsos descubrimientos y efecto medido en cada mapa.
 - [[41-Registro-Jornada-2026-11-14-Bilingue-y-Promocion]]: bitácora del 14–15 nov 2026 (soporte bilingüe EN/ES `#79`, promoción `#80`, corrección OOM Render 512 MB `#82`–`#84`, ajuste UI responsivo `.workspace-left-rail` y sincronización GitHub Project `#1`).
+- [[42-Auditoria-Datos-Reales-APIs-y-Rendimiento]]: auditoría del 15 nov 2026 — inventario de APIs, eliminación de todo dato simulado (backend y frontend), rótulos corregidos, rendimiento medido antes y después (mapas de tendencias, memoria del servidor en 512 MB, modo ligero del globo para equipos sin tarjeta gráfica) y lista de lo que no se hizo.
 
 ---
 

@@ -1,14 +1,13 @@
 /**
  * "Variable" and "Location" steps of the briefing. They do not hold selection state: the wizard
- * decides and they render it. Laid out as row lists rather than equal cards so a variable with
- * real NASA data does not carry the same weight as a demonstration scenario.
+ * decides and they render it. Laid out as row lists rather than equal cards so a variable whose
+ * dataset is loaded does not carry the same weight as one the API cannot serve yet.
  */
 import { Crosshair } from 'lucide-react';
 import type { ClimateVariable, VariableMetadata } from '../../types/climate.types';
 import type { DatasetCatalog } from '../../types/dataset.types';
 import { CLIMATE_VARIABLES } from '../../config/climateLayers';
 import { WIZARD_REGIONS, type WizardRegion } from '../../config/wizardOptions';
-import { hasDemoScenario } from '../../services/demo/demoScenario';
 import { formatTemplate, useI18n } from '../../i18n';
 import { VARIABLE_ACCENT_STYLE, VARIABLE_ICONS } from './variableIcons';
 
@@ -16,13 +15,13 @@ import { VARIABLE_ACCENT_STYLE, VARIABLE_ICONS } from './variableIcons';
 function sourceTag(
   catalog: DatasetCatalog | null,
   variable: ClimateVariable,
-  demoTag: string,
   noDataTag: string,
 ): string {
   const provenance = catalog?.get(variable);
   if (provenance) return provenance.product.split('·')[0].trim();
-  if (!catalog) return '';
-  return hasDemoScenario(variable) ? demoTag : noDataTag;
+  // An empty catalog means the API has not answered yet: that is "checking", not "no data".
+  if (!catalog || catalog.size === 0) return '';
+  return noDataTag;
 }
 
 interface VariableRowProps {
@@ -68,7 +67,7 @@ export function VariableStep({ variable, catalog, onSelect }: VariableStepProps)
   const others = CLIMATE_VARIABLES.filter(meta => !catalog?.has(meta.id));
   const row = (meta: VariableMetadata, isReal: boolean) => (
     <VariableRow key={meta.id} meta={meta} selected={variable === meta.id} real={isReal}
-      tag={sourceTag(catalog, meta.id, t.wizard.demoTag, t.wizard.noDataTag)} onSelect={onSelect} />
+      tag={sourceTag(catalog, meta.id, t.wizard.noDataTag)} onSelect={onSelect} />
   );
   return (
     <div role="radiogroup" aria-label={t.wizard.variableGroupAria}>
@@ -79,9 +78,9 @@ export function VariableStep({ variable, catalog, onSelect }: VariableStepProps)
         </section>
       )}
       {others.length > 0 && (
-        <section className="briefing-group" data-quiet={catalog !== null}>
+        <section className="briefing-group" data-quiet={catalog !== null && catalog.size > 0}>
           <h2 className="briefing-group__title">
-            {!catalog ? t.wizard.checkingData : t.wizard.demoOnlyGroup}<span>{others.length}</span>
+            {!catalog || catalog.size === 0 ? t.wizard.checkingData : t.wizard.notLoadedGroup}<span>{others.length}</span>
           </h2>
           {others.map(meta => row(meta, false))}
         </section>
