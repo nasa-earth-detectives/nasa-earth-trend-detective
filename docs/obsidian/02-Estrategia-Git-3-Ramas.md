@@ -26,8 +26,7 @@ Para asegurar máxima estabilidad y rigor profesional en el repositorio, el proy
 
 ### 2. `qa` (Aseguramiento de Calidad y Staging)
 - Rama donde se validan las pruebas de integración, latencia de DuckDB (<50ms) y fluidez WebGL a 60 FPS.
-- **Sincronización Automática:** El workflow `.github/workflows/auto-sync-dev-to-qa.yml` detecta cada push/merge en `development`, crea/actualiza el PR de sincronización e integra los cambios automáticamente hacia `qa`.
-- El pipeline de [[06-Pipeline-CI-CD]] ejecuta el job `deploy-qa` automáticamente al recibir cambios.
+- **Promoción Controlada:** Tras integrar cambios en `development`, la promoción a `qa` se abre mediante Pull Request (`gh pr create --base qa --head development` o desde GitHub UI), validando allí el bundle, las pruebas `.NET 10` y el espejo automático hacia Vercel (`mirror-to-personal.yml`).
 - **En Vivo (Enlace Fijo Permanente):** [https://nasa-earth-trend-detective-qa.vercel.app/](https://nasa-earth-trend-detective-qa.vercel.app/)
   *(Nota: Este enlace NO cambia con ningún commit; es un dominio inmutable asignado a la rama `qa`).*
 

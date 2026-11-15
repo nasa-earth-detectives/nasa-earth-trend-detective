@@ -99,7 +99,7 @@ nasa-project/
 ├── docs/
 │   └── obsidian/                  # Bóveda de documentación técnica y científica
 ├── .github/
-│   └── workflows/ci-qa.yml        # Pipeline CI/CD automatizado hasta QA
+│   └── workflows/                 # CI path-aware, gobernanza PR y espejo a Vercel
 └── docker-compose.yml             # Orquestación multi-contenedor local
 ```
 

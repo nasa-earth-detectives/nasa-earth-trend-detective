@@ -1,6 +1,6 @@
 # 🩺 Auditoría de Código React con React Doctor (Oxlint)
 
-- **Workflow:** `.github/workflows/react-doctor.yml`
+- **Workflow:** `.github/workflows/ci.yml` (integrado en el job `frontend` cuando cambian `frontend/**`, `packages/shared/**` o `package*.json`)
 - **Acción Oficial:** `millionco/react-doctor@v2`
 - **Motor Subyacente:** Oxlint (Linter hiper-optimizado en Rust)
 - **Creador:** Million.js / Aiden Bai
@@ -34,14 +34,15 @@ React Doctor evalúa el código modificado y genera un puntaje de salud cuantita
 
 ## ⚙️ Integración Continua (GitHub Actions)
 
-El workflow se activa automáticamente en cada Pull Request que altere archivos dentro de `frontend/**`:
+La auditoría se ejecuta dentro de `.github/workflows/ci.yml` únicamente en Pull Requests con cambios en el frontend o paquetes compartidos (evitando clonar dos veces o correr sobre PRs exclusivos de backend o documentación):
 
 ```yaml
-name: React Doctor Code Review
-on:
-  pull_request:
-    branches: [development, qa, production]
-    paths: ['frontend/**', 'packages/**']
+- name: Run React Doctor (Oxlint Engine)
+  if: github.event_name == 'pull_request' && !github.event.pull_request.head.repo.fork
+  uses: millionco/react-doctor@v2
+  with:
+    diff: ${{ github.base_ref || 'development' }}
+    github-token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
 - **Diff Mode Inteligente (`diff: ${{ github.base_ref }}`):** Solo analiza las líneas añadidas o modificadas en el PR. No genera ruido sobre código preexistente no tocado.
