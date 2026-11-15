@@ -45,5 +45,13 @@ public class OpposingTrendsServiceTests
         Assert.Equal("rA", pair.IncreasingRegion.RegionId);
         Assert.Equal("rB", pair.DecreasingRegion.RegionId);
         Assert.True(pair.DivergenceIndex > 0);
+
+        // Invertir el orden de entrada: primero la región con pendiente negativa.
+        var reversedPair = _service.EvaluatePair(regB, regA, "Divergencia Térmica", "Notas científicas");
+        
+        // La asignación debe depender de las pendientes, no del orden de entrada.
+        Assert.Equal("rA", reversedPair.IncreasingRegion.RegionId);
+        Assert.Equal("rB", reversedPair.DecreasingRegion.RegionId);
+        Assert.Equal(pair.DivergenceIndex, reversedPair.DivergenceIndex); // Intercambiar las regiones no debe cambiar el índice de divergencia.
     }
 }
