@@ -53,7 +53,7 @@ Bienvenido a la bóveda central de documentación y diseño de ingeniería de nu
 - [[06-Pipeline-CI-CD]]: Automatización de compilación, linters y despliegue a QA, con freno de seguridad antes de producción.
 - [[14-Agente-Revisor-PR-GitHub-Actions]]: Agente automatizado con Google Gemini para auditoría continua de Pull Requests en GitHub Actions.
 - [[25-Gobernanza-y-Revision-con-GitHub-Copilot]]: Gobernanza, gestión y revisión de PRs con GitHub Copilot y estrategia anti-saturación de cuota mensual.
-- [[07-Estandares-Ingenieria]]: Directivas de Clean Architecture, clases <150 líneas, tipado estricto y seguridad contra bots.
+- [[07-Estandares-Ingenieria]]: Directivas de Clean Architecture, archivos <= 300 líneas, tipado estricto y seguridad contra bots.
 - [[10-Despliegue-Cloud-Vercel-Render]]: Arquitectura serverless en Vercel Edge y contenedor .NET 10 en Render Cloud.
 - [[11-Trazabilidad-ClickUp-Sprint-1]]: Trazabilidad en vivo de infraestructura [S1-T0] y Design System espacial [S1-T5].
 - [[15-Trazabilidad-ClickUp-Sprint-2]]: Trazabilidad de Sprint 2, panel de Inspector de Detective [S2-T5], Mann-Kendall y DuckDB.
@@ -64,12 +64,13 @@ Bienvenido a la bóveda central de documentación y diseño de ingeniería de nu
 - [[21-Release-v1.1.0-Produccion-NASA]]: Registro oficial del Release v1.1.0 a producción y enlaces en vivo.
 - [[26-Release-v1.2.0-Produccion-NASA]]: Registro oficial del Release v1.2.0 a producción (Motor Científico, 3D Satelital y Copilot).
 - [[34-Trazabilidad-ClickUp-Fisica-y-Dinamica-Climatica]]: Tareas especializadas y trazabilidad de ClickUp para la especialista en física y dinámica climática.
-- [[35-NASA-Space-Apps-Official-Submission-En]]: Dossier oficial de postulación en inglés (resumen, arquitectura, datasets NASA, declaración IA y estructura de presentación).
+- [[35-NASA-Space-Apps-Official-Submission-En]]: Dossier oficial de postulación en inglés y guía paso a paso para el formulario `DB-Runtime` (resumen, detalles, enlaces `NASA Data` / partners, declaración SI y 7 diapositivas).
 - [[36-Plan-Hackathon-Neiva-Nuevas-Fuentes-NASA-CSA]]: Plan operativo Hackathon Neiva (14–15 nov 2026), Google Doc maestro, delegación de ajustes en ClickUp y mapa de fuentes NASA/CSA/KNMI.
 - [[37-MERRA2-Datos-Reales-y-Casos-Opuestos]]: variables reales de MERRA-2 y GPM (NASA POWER), casos con tendencias opuestas medidas, estadística contrastada con SciPy y rediseño del asistente.
 - [[38-Como-Funciona-El-Detective-De-Tendencias]]: guía de punta a punta: qué hace, de dónde salen los datos, backend, frontend, cómo añadir una variable y dónde están los textos para traducir.
 - [[39-Formulas-y-Supuestos-para-QA-Fisico]]: para la revisión de física: fórmulas añadidas o cambiadas, cómo se comprobaron, autocorrelación lag-1 medida y puntos abiertos.
 - [[40-GRACE-OCO2-Reales-y-Correcciones-de-Significancia]]: GRACE y CO₂ con datos reales (9 de 9 variables), Mann-Kendall con preblanqueo iterativo elegido por simulación, control de falsos descubrimientos y efecto medido en cada mapa.
+- [[41-Registro-Jornada-2026-11-14-Bilingue-y-Promocion]]: bitácora del 14 nov 2026 (límite CI 300 líneas `#74`, QA `#76`, suite 2000–2025 `#77`, soporte bilingüe EN/ES y React Doctor 0 issues `#79`, PR `#80` a producción y diagnóstico `PERSONAL_REPO_SYNC_TOKEN`).
 
 ---
 
