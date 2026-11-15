@@ -29,6 +29,10 @@ export const MIN_MOTION_SCALE = 0.5;
 export const SCALE_STEP = 0.75;
 /** Camera changes below this angle (radians) per frame are under a fifth of a pixel: the tail of the controls' damping. */
 export const VISIBLE_ANGLE = 6e-4;
+/** A picture drawn in this time still feels fluid (22 a second): a scene at rest that manages it draws every frame. */
+export const AMBIENT_FREE_MS = 45;
+/** However slow the machine, a scene at rest shows what moves on it at least this often. */
+export const AMBIENT_MAX_INTERVAL_MS = 500;
 export const MAX_REFINED_RATIO = 3;
 /** The supersampled picture is a single frame, but its buffers still have to fit in a weak machine's memory. */
 export const MAX_REFINED_PIXELS = 9_000_000;
@@ -44,6 +48,8 @@ export interface FrameGovernorOptions {
   restSupersampling: number;
   /** Something keeps the scene moving on its own (auto-rotation). */
   isAnimating: () => boolean;
+  /** Something on screen moves with the clock (satellites, ripples, arcs, currents): a scene at rest keeps drawing it. */
+  keepsMoving: () => boolean;
   /** Called once, with the scene still, if it stays slow with nothing left to give up in this profile. */
   onTooSlow?: () => void;
   /** Frames per second measured while a managed scene moves. */
