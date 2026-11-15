@@ -1,6 +1,7 @@
 import { useState, type CSSProperties } from 'react';
 import type { TimeSeriesDataPoint } from '../../types/detective.types';
 import { intlLocale, useI18n } from '../../i18n';
+import { senIntercept, type ProjectedValue } from '../../utils/trendProjection';
 import '../../styles/inspection-chart.css';
 
 interface TimeSeriesChartProps {
@@ -11,6 +12,50 @@ interface TimeSeriesChartProps {
   accentColor?: string;
   /** Median Sen's slope (°C/year). If provided, the trend line is drawn. */
   senSlope?: number;
+  /** The trend carried forward, one entry per year from the last observed one: drawn dashed, inside its range. */
+  projection?: ProjectedValue[];
+}
+
+/** The slope, if a line can be drawn with it: a finite number and more than one year to cross. */
+const usableSlope = (slope: number | undefined, years: number): number | null =>
+  (slope !== undefined && Number.isFinite(slope) && years > 1 ? slope : null);
+
+/** The years of a projection from the last observed one on; none without a trend line to carry forward. */
+function yearsAhead(projection: ProjectedValue[] | undefined, lastYear: number, slope: number | null): ProjectedValue[] {
+  if (slope === null || !projection) return [];
+  const ahead = projection.filter(item => item.year >= lastYear);
+  return ahead.length > 1 ? ahead : [];
+}
+
+interface TrendOverlayProps {
+  observations: TimeSeriesDataPoint[];
+  slope: number;
+  ahead: ProjectedValue[];
+  x: (year: number) => number;
+  y: (value: number) => number;
+}
+
+/** Sen's line across the observed years and, with a projection, its range and the line carried forward. */
+function TrendOverlay({ observations, slope, ahead, x, y }: TrendOverlayProps) {
+  // Sen's line with its own intercept: the median of what is left of each value after removing the slope.
+  const intercept = senIntercept(observations, slope);
+  const at = (year: number) => y(intercept + slope * year);
+  const first = observations[0].year;
+  const last = observations[observations.length - 1].year;
+  const band = [...ahead.map(item => `${x(item.year)},${y(item.high)}`),
+    ...[...ahead].reverse().map(item => `${x(item.year)},${y(item.low)}`)].join(' ');
+  return (
+    <>
+      <line className="inspection-chart__trend" x1={x(first)} y1={at(first)} x2={x(last)} y2={at(last)} vectorEffect="non-scaling-stroke" />
+      {ahead.length > 0 && (
+        <>
+          <polygon className="inspection-chart__band" points={band} />
+          <line className="inspection-chart__projection" x1={x(last)} y1={at(last)}
+            x2={x(ahead[ahead.length - 1].year)} y2={at(ahead[ahead.length - 1].year)} vectorEffect="non-scaling-stroke" />
+        </>
+      )}
+    </>
+  );
 }
 
 /** Lightweight SVG series; the native control preserves keyboard, touch, and accessible readout. */
@@ -21,6 +66,7 @@ export function TimeSeriesChart({
   onYearSelect,
   accentColor = 'var(--active-accent)',
   senSlope,
+  projection,
 }: TimeSeriesChartProps) {
   const { locale, t } = useI18n();
   const localeTag = intlLocale(locale);
@@ -38,23 +84,19 @@ export function TimeSeriesChart({
   const minYear = observations[0].year;
   const maxYear = observations[observations.length - 1].year;
   const values = observations.map(point => point.value);
-  const minValue = Math.min(...values);
-  const maxValue = Math.max(...values);
-  const getX = (year: number) => plot.left + ((year - minYear) / (maxYear - minYear || 1)) * (plot.right - plot.left);
+  // With a projection the axis runs on to its last year, and the scale makes room for its range.
+  const slope = usableSlope(senSlope, observations.length);
+  const ahead = yearsAhead(projection, maxYear, slope);
+  const horizon = Math.max(maxYear, ...ahead.map(item => item.year));
+  const minValue = Math.min(...values, ...ahead.map(item => item.low));
+  const maxValue = Math.max(...values, ...ahead.map(item => item.high));
+  const yearSpan = horizon - minYear || 1;
+  const getX = (year: number) => plot.left + ((year - minYear) / yearSpan) * (plot.right - plot.left);
   const getY = (value: number) => maxValue === minValue
     ? (plot.top + plot.bottom) / 2
     : plot.bottom - ((value - minValue) / (maxValue - minValue)) * (plot.bottom - plot.top);
   const points = observations.map(point => `${getX(point.year)},${getY(point.value)}`).join(' ');
   const clampY = (value: number) => Math.min(plot.bottom, Math.max(plot.top, value));
-  // Sen's line is anchored at the series median to avoid fabricating an intercept.
-  const medianValue = [...values].sort((a, b) => a - b)[Math.floor(values.length / 2)];
-  const medianYear = observations[Math.floor(observations.length / 2)].year;
-  const trendLine = senSlope !== undefined && Number.isFinite(senSlope) && observations.length > 1
-    ? {
-      x1: getX(minYear), y1: clampY(getY(medianValue + senSlope * (minYear - medianYear))),
-      x2: getX(maxYear), y2: clampY(getY(medianValue + senSlope * (maxYear - medianYear))),
-    }
-    : null;
   const requestedYear = selectedYear ?? localYear ?? maxYear;
   const selectedIndex = observations.reduce((nearest, point, index) =>
     Math.abs(point.year - requestedYear) < Math.abs(observations[nearest].year - requestedYear) ? index : nearest, 0);
@@ -78,15 +120,16 @@ export function TimeSeriesChart({
             </g>
           ))}
           <polyline className="inspection-chart__line" points={points} vectorEffect="non-scaling-stroke" />
-          {trendLine && (
-            <line className="inspection-chart__trend" x1={trendLine.x1} y1={trendLine.y1}
-              x2={trendLine.x2} y2={trendLine.y2} vectorEffect="non-scaling-stroke" />
+          {slope !== null && (
+            <TrendOverlay observations={observations} slope={slope} ahead={ahead} x={getX} y={value => clampY(getY(value))} />
           )}
           <line className="inspection-chart__cursor" x1={getX(activePoint.year)} y1={plot.top} x2={getX(activePoint.year)} y2={plot.bottom + 5} />
           <circle className="inspection-chart__point" cx={getX(activePoint.year)} cy={getY(activePoint.value)} r="3.5" />
           {observations.map((point, index) => {
             const left = index === 0 ? plot.left : (getX(observations[index - 1].year) + getX(point.year)) / 2;
-            const right = index === observations.length - 1 ? plot.right : (getX(point.year) + getX(observations[index + 1].year)) / 2;
+            // The last observed year ends where the projection starts, not at the edge of the plot.
+            const right = index === observations.length - 1 ? Math.min(plot.right, 2 * getX(point.year) - left + 1)
+              : (getX(point.year) + getX(observations[index + 1].year)) / 2;
             return (
               <rect
                 key={point.year}
@@ -105,10 +148,13 @@ export function TimeSeriesChart({
             );
           })}
           <text className="inspection-chart__axis" x={plot.left} y="117" textAnchor="start">{minYear}</text>
-          {minYear !== maxYear && <text className="inspection-chart__axis" x={plot.right} y="117" textAnchor="end">{maxYear}</text>}
+          {minYear !== maxYear && <text className="inspection-chart__axis" x={getX(maxYear)} y="117" textAnchor="end">{maxYear}</text>}
+          {ahead.length > 0 && <text className="inspection-chart__axis inspection-chart__axis--ahead" x={plot.right} y="117" textAnchor="end">{horizon}</text>}
         </svg>
         <input
           className="inspection-chart__range"
+          // The slider only covers the observed years: with a projection they end before the right edge.
+          style={{ width: `${86.25 * (maxYear - minYear || 1) / yearSpan}%` }}
           type="range"
           min="0"
           max={Math.max(observations.length - 1, 1)}

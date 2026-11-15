@@ -1,5 +1,7 @@
 import { Compass, Search, Scale, BookOpen } from 'lucide-react';
 import { useI18n } from '../../i18n';
+import { PlaceSearch } from '../Places/PlaceSearch';
+import type { Place } from '../../services/placeSearch';
 
 interface MissionHeaderProps {
   edition?: string;
@@ -8,6 +10,8 @@ interface MissionHeaderProps {
   onOpenWizard?: () => void;
   onOpenMissions?: () => void;
   onOpenGlossary?: () => void;
+  /** A place was chosen in the search box. */
+  onPlaceSelect?: (place: Place) => void;
 }
 
 export function MissionHeader({
@@ -17,6 +21,7 @@ export function MissionHeader({
   onOpenWizard,
   onOpenMissions,
   onOpenGlossary,
+  onPlaceSelect,
 }: MissionHeaderProps) {
   const { locale, setLocale, t } = useI18n();
   const displayName = projectName ?? t.header.projectName;
@@ -109,6 +114,7 @@ export function MissionHeader({
           </button>
         </div>
       </nav>
+      {onPlaceSelect && <PlaceSearch onSelect={onPlaceSelect} />}
     </header>
   );
 }

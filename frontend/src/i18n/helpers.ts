@@ -115,7 +115,8 @@ export function getRegionalBiomeLocalized(lat: number, lng: number, locale: Loca
   const absLat = Math.abs(lat);
   if (absLat >= 66.5) return lat > 0 ? biomes.arctic : biomes.antarctic;
   if (absLat <= 23.5) {
-    if (lat >= -18 && lat <= 8 && lng >= -78 && lng <= -45) return biomes.amazon;
+    // The basin east of the Andes. A wider box called Neiva, Bogotá, Quito and Lima rainforest.
+    if (lat >= -15 && lat <= 4 && lng >= -74 && lng <= -48) return biomes.amazon;
     if (lat >= -10 && lat <= 8 && lng >= 10 && lng <= 32) return biomes.congo;
     if (lat >= 10 && lat <= 20 && lng >= -18 && lng <= 38) return biomes.sahel;
     if (lat >= -10 && lat <= 15 && lng >= 95 && lng <= 145) return biomes['indo-malay'];

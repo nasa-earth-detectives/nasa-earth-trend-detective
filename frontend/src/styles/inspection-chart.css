@@ -14,6 +14,10 @@
 .inspection-chart__point { fill: var(--chart-accent); stroke: var(--surface-deep-instrument); stroke-width: 1.5; }
 .inspection-chart__hit { fill: transparent; cursor: crosshair; }
 .inspection-chart__trend { stroke: var(--text-tertiary); stroke-width: 1; stroke-dasharray: 5 3; }
+/* The trend carried forward: dashed in the accent, inside the range a yearly value would fall in. */
+.inspection-chart__band { fill: var(--chart-accent); opacity: .14; }
+.inspection-chart__projection { stroke: var(--chart-accent); stroke-width: 1.5; stroke-dasharray: 3 3; }
+.inspection-chart__axis--ahead { fill: var(--chart-accent); }
 
 .inspection-chart__range {
   position: absolute;
