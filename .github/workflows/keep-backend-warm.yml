@@ -1,0 +1,35 @@
+name: Keep Render Backend Warm
+
+on:
+  schedule:
+    # Every 10 minutes on off-peak minutes to avoid GitHub Actions queue spikes
+    # and stay safely under Render's 15-minute idle spin-down threshold.
+    - cron: '4,14,24,34,44,54 * * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: keep-backend-warm
+  cancel-in-progress: true
+
+permissions: {}
+
+jobs:
+  wake-render-backend:
+    # Run only in the public org repository (unlimited free GitHub Actions minutes)
+    # so the private personal mirror never burns its 2,000 min/month free quota.
+    if: github.repository == 'nasa-earth-detectives/nasa-earth-trend-detective'
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Ping Render health endpoint
+        run: |
+          status=$(curl -sS -o /tmp/health.txt -w "%{http_code}" \
+            --retry 2 --retry-delay 5 --max-time 75 \
+            "https://nasa-trend-detective-api-72rq.onrender.com/health")
+          echo "HTTP status: $status"
+          cat /tmp/health.txt || true
+          echo ""
+          if [ "$status" != "200" ]; then
+            echo "Backend health check failed with status $status"
+            exit 1
+          fi
